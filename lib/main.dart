@@ -66,12 +66,18 @@ class _MyAppState extends State<MyApp> {
     return ResponsiveSizer(
       builder: (p0, p1, p2) {
         return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
           title: 'Budgets',
-          theme: ThemeData(
+            theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
             textTheme: GoogleFonts.nunitoSansTextTheme(),
-          ),
+            textSelectionTheme: const TextSelectionThemeData(
+              cursorColor: Colors.black,
+              selectionHandleColor: Color.fromARGB(255, 51, 51, 51),
+              selectionColor: Color(0xffDDFFBC),
+            ),
+            ),
           routerConfig: router,
         );
       },
