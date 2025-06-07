@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class Wrapper {
   // Calls the provided function inside a try-catch block

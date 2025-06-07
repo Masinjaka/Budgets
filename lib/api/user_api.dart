@@ -8,6 +8,9 @@ Future<UserModel> getUser() {
     final response = await supabase.from('user').select().single();
 
     debugPrint('User response: $response');
-    return UserModel.fromJson(response);
+
+    UserModel user = UserModel.fromJson(response);
+
+    return user;
   });
 }

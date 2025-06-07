@@ -1,1 +1,0 @@
-/home/masi/development/Budgets/build/app/intermediates/cxx/Debug/3r582l6s/obj/arm64-v8a
