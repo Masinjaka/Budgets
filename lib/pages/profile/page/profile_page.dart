@@ -25,7 +25,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Padding _buildSignoutButton() {
     return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.w),
+        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.w),
         child: CustomButton(
           text: 'Se déconnecter',
           onPressed: () async {
