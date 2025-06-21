@@ -1,5 +1,6 @@
 import 'package:budgets/pages/auth/pages/sign_up_page.dart';
 import 'package:budgets/pages/auth/pages/login_page.dart';
+import 'package:budgets/pages/expenses/page/add_expenses.dart';
 import 'package:budgets/pages/home/pages/home_page.dart';
 import 'package:budgets/pages/splash/page/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +58,10 @@ class _MyAppState extends State<MyApp> {
       GoRoute(
         path: '/home',
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: '/add-expense',
+        builder: (context, state) => const ExpenseCreationPage(),
       ),
     ],
   );
