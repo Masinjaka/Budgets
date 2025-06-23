@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 
 Future<List<Expense>> getExpenses() {
   return Wrapper.execute(() async {
-    final response = await supabase.from('expenses').select('''
+    try {
+      final response = await supabase.from('expenses').select('''
     title,
     description,
     amount,
@@ -14,12 +15,16 @@ Future<List<Expense>> getExpenses() {
     expense_categories (id, name )
   ''');
 
-    if (response.isEmpty) return [];
+      if (response.isEmpty) return [];
 
-    List<Expense> expense =
-        (response as List).map((item) => Expense.fromMap(item)).toList();
+      List<Expense> expense =
+          (response as List).map((item) => Expense.fromMap(item)).toList();
 
-    return expense;
+      return expense;
+    } catch (e, s) {
+      debugPrint('$e,$s');
+      rethrow;
+    }
   });
 }
 

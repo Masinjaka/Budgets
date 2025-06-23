@@ -38,7 +38,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
             children: [
               Expanded(
                 flex: 2,
-                child: _buildExpenseTotal(),
+                child: _buildExpenseTotal(asyncExpenses),
               ),
               SizedBox(height: 1.h),
               Flexible(
@@ -90,22 +90,30 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
     );
   }
 
-  SingleChildScrollView _buildExpenseList(List<Expense> expenses) {
+  _buildExpenseList(List<Expense> expenses) {
+    if (expenses.isEmpty) {
+      return const Center(
+        child: Text('Vous n\' avez pas encore de depense'),
+      );
+    }
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
-        children: expenses.map((e) => ExpenseTile(
-            designation: e.title??"Designation inconnue",
-            category: e.category?.name??"Categorie inconnue",
-            amount: e.amount?.toString() ?? "Montant inconnue",
-            date: e.date!,
-          ),).toList(),
-        
+        children: expenses
+            .map(
+              (e) => ExpenseTile(
+                designation: e.title ?? "Designation inconnue",
+                category: e.category?.name ?? "Categorie inconnue",
+                amount: e.amount?.toString() ?? "Montant inconnue",
+                date: e.date!,
+              ),
+            )
+            .toList(),
       ),
     );
   }
 
-  Container _buildExpenseTotal() {
+  Container _buildExpenseTotal(AsyncValue<List<Expense>> asyncExpenses) {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
@@ -127,13 +135,15 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              'Ar 100 000',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22.sp,
-              ),
-            ),
+            child: switch (asyncExpenses) {
+              AsyncData(:final value) => _buildTotal(value),
+              AsyncError(:final error) => Text('error: $error'),
+              _ => const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primary,
+                  ),
+                ),
+            },
           ),
           Align(
             alignment: Alignment.topRight,
@@ -150,6 +160,29 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Text _buildTotal(List<Expense> value) {
+
+    final now = DateTime.now();
+    final currentMonthExpenses = value.where((expense) =>
+      expense.date!.year == now.year && expense.date!.month == now.month);
+      
+    final totalAmount = currentMonthExpenses.fold<double>(
+      0, (sum, expense) => sum + (expense.amount ?? 0));
+
+    final formattedTotalAmount = totalAmount.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (match) => '${match[1]} ',
+    );
+
+    return Text(
+      'Ar $formattedTotalAmount',
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 22.sp,
       ),
     );
   }

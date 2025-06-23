@@ -20,16 +20,17 @@ class ExpenseModule {
     String? title,
     String? description,
     String? categoryName,
-    double? amount, {
+    String? amount, {
     required GlobalKey<FormState> formKey,
     required WidgetRef ref,
     required BuildContext context,
   }) async {
     if (formKey.currentState!.validate()) {
       try {
+        final amountDouble = double.parse(amount!);
         await ref
             .read(expensesProvider.notifier)
-            .addUserExpenses(title, description, categoryName, amount);
+            .addUserExpenses(title, description, categoryName, amountDouble);
 
         if(!context.mounted) return;
 

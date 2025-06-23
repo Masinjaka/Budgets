@@ -16,7 +16,7 @@ class ExpenseCreationPage extends ConsumerStatefulWidget {
 }
 
 class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
-  final GlobalKey<FormState> _key = GlobalKey();
+  final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isLoading = false;
   final ExpenseModule _module = ExpenseModule();
 
@@ -66,10 +66,10 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          child: Form(
-            key: _key,
-            child: Padding(
-              padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 5.h),
+          child: Padding(
+            padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 5.h),
+            child: Form(
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -78,6 +78,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                     hint: 'Bazary',
                     controller: _designationController,
                     keyboardType: TextInputType.text,
+                    validator: const <String, String>{"type": "required"},
                   ),
                   SizedBox(height: 1.5.h),
                   CustomTextField(
@@ -92,6 +93,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                     hint: '10000',
                     controller: _montantController,
                     keyboardType: TextInputType.number,
+                    validator: const <String, String>{"type": "required"},
                   ),
                   SizedBox(height: 1.5.h),
                   Text(
@@ -153,6 +155,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
     return SizedBox(
       width: double.infinity,
       child: ChipsInputAutocomplete(
+        createCharacter: ' ',
         controller: _categorieController,
         chipTheme: ChipThemeData(
           backgroundColor: const Color(0xff72DEF6),
@@ -179,10 +182,11 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
           vertical: 1.w,
         ),
         addChipOnSelection: true,
-        decorationTextField: const InputDecoration(
+        decorationTextField:  InputDecoration(
           border: InputBorder.none,
-          contentPadding: EdgeInsets.only(left: 8.0),
+          contentPadding: const EdgeInsets.only(left: 8.0),
           hintText: 'Tapez...',
+          constraints: BoxConstraints(maxWidth: 80.w),
         ),
       ),
     );
@@ -265,8 +269,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
               _designationController.text.trim(),
               _descriptionController.text.trim(),
               _categorieController.chips[0],
-              double.parse(_montantController.text.trim()),
-              formKey: _key,
+              _montantController.text.trim(),
+              formKey: _formKey,
               ref: ref,
               context: context,
             );
