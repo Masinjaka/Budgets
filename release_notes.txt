@@ -1,0 +1,11 @@
+This is a new automated build from the main branch.
+
+Changes in this version:
+
+New feature X was added.
+
+Fixed bug Y that caused crashes.
+
+Improved performance of the main screen.
+
+Enjoy testing!
