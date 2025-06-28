@@ -1,6 +1,7 @@
 import 'package:budgets/pages/auth/pages/sign_up_page.dart';
 import 'package:budgets/pages/auth/pages/login_page.dart';
 import 'package:budgets/pages/expenses/page/add_expenses.dart';
+import 'package:budgets/pages/expenses/page/filter_expenses.dart';
 import 'package:budgets/pages/home/pages/home_page.dart';
 import 'package:budgets/pages/splash/page/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -63,6 +64,10 @@ class _MyAppState extends State<MyApp> {
         path: '/add-expense',
         builder: (context, state) => const ExpenseCreationPage(),
       ),
+      GoRoute(
+        path: '/filter-expense',
+        builder: (context, state) => const ExpenseFilterPage(),
+      ),
     ],
   );
 
@@ -73,7 +78,7 @@ class _MyAppState extends State<MyApp> {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           title: 'Budgets',
-            theme: ThemeData(
+          theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
             textTheme: GoogleFonts.nunitoSansTextTheme(),
@@ -82,7 +87,48 @@ class _MyAppState extends State<MyApp> {
               selectionHandleColor: Color.fromARGB(255, 51, 51, 51),
               selectionColor: Color(0xffDDFFBC),
             ),
+            datePickerTheme: const DatePickerThemeData().copyWith(
+              weekdayStyle: GoogleFonts.nunito(
+                fontSize: 15.5.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              surfaceTintColor: Colors.white,
+              todayBackgroundColor:
+                  const WidgetStatePropertyAll(Colors.transparent),
+              todayForegroundColor: const WidgetStatePropertyAll(Colors.black),
+              todayBorder: const BorderSide(
+                color: Colors.black,
+                width: 2,
+              ),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.circular(2.w),
+              ),
+              headerHeadlineStyle: GoogleFonts.nunito(
+                fontSize: 20.sp,
+              ),
+              headerHelpStyle: GoogleFonts.nunito(
+                fontSize: 15.5.sp,
+              ),
+              dayStyle: GoogleFonts.nunito(
+                fontSize: 15.5.sp,
+              ),
+              cancelButtonStyle: ButtonStyle(
+                  textStyle: WidgetStatePropertyAll(
+                GoogleFonts.nunito(
+                  fontSize: 15.5.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              )),
+              confirmButtonStyle: ButtonStyle(
+                  textStyle: WidgetStatePropertyAll(
+                GoogleFonts.nunito(
+                  fontSize: 15.5.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              )),
             ),
+          ),
           routerConfig: router,
         );
       },

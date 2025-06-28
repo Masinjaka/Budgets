@@ -158,7 +158,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
         createCharacter: ' ',
         controller: _categorieController,
         chipTheme: ChipThemeData(
-          backgroundColor: const Color(0xff72DEF6),
+          backgroundColor: Colors.white,
           deleteIconColor: Colors.black,
           labelStyle: const TextStyle(
             color: Colors.black,

@@ -1,6 +1,7 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/expense_model.dart';
 import 'package:budgets/provider/expense_provider.dart';
+import 'package:budgets/provider/filter_provider.dart';
 import 'package:budgets/widgets/custom_app_bar.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_expense_card.dart';
@@ -18,9 +19,17 @@ class ExpensePage extends ConsumerStatefulWidget {
 }
 
 class _ExpensePageState extends ConsumerState<ExpensePage> {
+
+  List<String?> _selectedCategories = [];
+  DateTimeRange? dateRange;
+
   @override
   Widget build(BuildContext context) {
     final asyncExpenses = ref.watch(expensesProvider);
+
+    _selectedCategories = ref.watch(selectedCategoriesProvider);
+
+    dateRange = ref.watch(dateRangeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,9 +67,13 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
                         borderRadius: BorderRadius.circular(10.h),
                         border: Border.all(color: Colors.black),
                       ),
-                      child: const Icon(
-                        Icons.filter_alt_outlined,
-                        color: Colors.black,
+                      child: InkWell(
+                        onTap: () => context.push('/filter-expense'),
+                        splashColor: Colors.transparent,
+                        child: const Icon(
+                          Icons.filter_alt_outlined,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ],
@@ -96,6 +109,22 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
         child: Text('Vous n\' avez pas encore de depense'),
       );
     }
+
+    // Filter the list
+    if (_selectedCategories.isNotEmpty) {
+      expenses = expenses.where((expense) => _selectedCategories.contains(expense.category?.name)).toList();
+    }
+
+    if (dateRange != null) {
+      expenses = expenses.where((expense) {
+        final expenseDate = expense.date!;
+        return expenseDate.isAfter(dateRange!.start) && expenseDate.isBefore(dateRange!.end.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    // Sort the expense list
+    expenses.sort((a, b) => b.date!.compareTo(a.date!));
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
@@ -212,9 +241,8 @@ class Pills extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.1.h),
+      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.2.h),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 250, 200, 108),
         borderRadius: BorderRadius.circular(5.w),
         border: Border.all(color: Colors.black),
       ),
