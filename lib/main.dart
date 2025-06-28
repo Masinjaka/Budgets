@@ -12,6 +12,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/core/constants.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -19,6 +21,11 @@ Box<dynamic> get storageBox => Hive.box(LocalAppStorage.storageBox);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // initialize supabase
   await Supabase.initialize(
