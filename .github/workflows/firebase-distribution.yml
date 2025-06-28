@@ -68,4 +68,4 @@ jobs:
           # testers: "email1@example.com, email2@example.com"
           groups: "betas"
 
-          file: app/build/outputs/apk/release/app-release.apk
+          file: build/app/outputs/flutter-apk/app-release.apk
