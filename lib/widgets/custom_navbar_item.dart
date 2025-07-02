@@ -1,7 +1,10 @@
+import 'package:budgets/core/theme.dart';
+import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class CustomNavItem extends StatefulWidget {
+class CustomNavItem extends ConsumerStatefulWidget {
   const CustomNavItem({
     super.key,
     required this.icon,
@@ -14,12 +17,20 @@ class CustomNavItem extends StatefulWidget {
   final void Function()? onTap;
   final bool isActive;
   @override
-  State<CustomNavItem> createState() => _CustomNavItemState();
+  ConsumerState<CustomNavItem> createState() => _CustomNavItemState();
 }
 
-class _CustomNavItemState extends State<CustomNavItem> {
+class _CustomNavItemState extends ConsumerState<CustomNavItem> {
+
   @override
   Widget build(BuildContext context) {
+     final globalTheme = ref.watch(globalThemeProvider);
+
+    bool isDarkMode = globalTheme == Brightness.dark;
+
+    Color textColor = isDarkMode ? AppTheme.textDark: Colors.black;
+    Color backgroundColor = isDarkMode ? AppTheme.secondaryDark : AppTheme.primaryLight;
+
     return InkWell(
       onTap: widget.onTap,
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -31,10 +42,10 @@ class _CustomNavItemState extends State<CustomNavItem> {
             margin: EdgeInsets.only(bottom: 0.5.w),
             decoration: BoxDecoration(
               border: Border.all(
-                color: widget.isActive? Colors.black:Colors.transparent,
+                color: widget.isActive ? backgroundColor :Colors.transparent,
               ),
               borderRadius: BorderRadius.circular(20.w),
-              color: widget.isActive?const Color(0xffDDFFBC):Colors.transparent,
+              color: widget.isActive  ? backgroundColor: Colors.transparent,
             ),
             child: Icon(widget.icon),
           ),
@@ -42,7 +53,7 @@ class _CustomNavItemState extends State<CustomNavItem> {
             widget.title,
             style: TextStyle(
               fontSize: 14.sp,
-              color: Colors.black,
+              color: textColor,
               fontWeight: FontWeight.bold,
             ),
           ),

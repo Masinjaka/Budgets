@@ -1,5 +1,6 @@
 import 'package:budgets/pages/expenses/page/expense_page.dart';
 import 'package:budgets/pages/profile/page/profile_page.dart';
+import 'package:budgets/pages/stats/pages/stats_page.dart';
 import 'package:budgets/pages/subscription/page/subscription_page.dart';
 import 'package:budgets/widgets/custom_navbar_item.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final pages = const [
     ExpensePage(),
     SubscriptionsPage(),
+    StatsPage(),
     ProfilePage(),
   ];
 
@@ -47,10 +49,16 @@ class _HomePageState extends ConsumerState<HomePage> {
               isActive: currrentIndex==1,
             ),
             CustomNavItem(
-              icon: Icons.person,
-              title: 'Profil',
+              icon: Icons.query_stats,
+              title: 'Vue d\'ensemble',
               onTap: () => setState(() => currrentIndex = 2),
               isActive: currrentIndex==2,
+            ),
+            CustomNavItem(
+              icon: Icons.person,
+              title: 'Profil',
+              onTap: () => setState(() => currrentIndex = 3),
+              isActive: currrentIndex==3,
             ),
           ],
         ),

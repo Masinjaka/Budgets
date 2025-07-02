@@ -3,4 +3,5 @@ class LocalAppStorage {
 
   static const String refreshKey = 'refresh_token';
   static const String accessKey = 'access_token';
+  static const String globalTheme = 'global_theme';
 }

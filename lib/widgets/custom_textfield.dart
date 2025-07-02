@@ -1,7 +1,10 @@
+import 'package:budgets/core/theme.dart';
+import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class CustomTextField extends StatefulWidget {
+class CustomTextField extends ConsumerStatefulWidget {
   const CustomTextField({
     super.key,
     required this.title,
@@ -19,11 +22,12 @@ class CustomTextField extends StatefulWidget {
   final Map<String,String>? validator;
 
   @override
-  State<CustomTextField> createState() => _CustomTextFieldState();
+  ConsumerState<CustomTextField> createState() => _CustomTextFieldState();
 }
 
-class _CustomTextFieldState extends State<CustomTextField> {
+class _CustomTextFieldState extends ConsumerState<CustomTextField> {
   bool isObscure = true;
+  bool _isDarkMode = false;
 
   String? validateEmail(String? v) {
     if (v == null || v.isEmpty) {
@@ -91,6 +95,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     bool isPassord = widget.isPassword != null && widget.isPassword!;
 
+    final globalTheme = ref.watch(globalThemeProvider);
+
+    _isDarkMode = globalTheme == Brightness.dark;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,6 +114,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         SizedBox(
           height: 1.h,
         ),
+        
         TextFormField(
           obscureText: isObscure && isPassord,
           controller: widget.controller,
@@ -117,17 +126,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
               value,
             );
           },
+          cursorColor: _isDarkMode ? AppTheme.textDark: Colors.black,
           decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(2.w),
-              borderSide: const BorderSide(
-                color: Colors.black,
+            filled: _isDarkMode ? true:false,
+            fillColor: AppTheme.secondaryDark,
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: _isDarkMode ? Colors.transparent: Colors.black,
               ),
+              borderRadius: BorderRadius.circular(2.w),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(2.w),
-              borderSide: const BorderSide(
-                color: Colors.black, // Match blue stroke when focused
+              borderSide: BorderSide(
+                color: _isDarkMode ? Colors.transparent: Colors.black, // Match blue stroke when focused
                 width: 1.8,
               ),
             ),
@@ -157,7 +169,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       isObscure
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: Colors.black,
+                      color: _isDarkMode ? AppTheme.textDark: Colors.black,
                     ),
                   )
                 : null,

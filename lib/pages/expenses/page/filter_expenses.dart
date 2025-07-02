@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/category_model.dart';
 import 'package:budgets/pages/expenses/module/expense_module.dart';
+import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:budgets/provider/category_provider.dart';
 import 'package:budgets/provider/filter_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -23,6 +25,7 @@ class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
   bool _isLoading = false;
   final ExpenseModule _module = ExpenseModule();
   DateTime? _initialDateTime;
+  bool _isDarkMode = false;
 
   List<String> _selectedCategories = [];
   List<String> _finalCategories = [];
@@ -64,6 +67,9 @@ class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
   Widget build(BuildContext context) {
     final asyncCategories = ref.watch(categoriesProvider);
 
+    final globalTheme = ref.watch(globalThemeProvider);
+
+    _isDarkMode = globalTheme == Brightness.dark;
     return Scaffold(
       appBar: _buildAppBar(context),
       body: GestureDetector(
@@ -249,10 +255,16 @@ class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
       controller: controller,
       keyboardType: TextInputType.datetime,
       decoration: InputDecoration(
+        filled: _isDarkMode,
+        fillColor: AppTheme.secondaryDark,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(2.w),
-          borderSide: const BorderSide(
-            color: Colors.black,
+        ),
+        enabledBorder:  OutlineInputBorder(
+          borderRadius: BorderRadius.circular(2.w),
+          borderSide: BorderSide(
+            color: _isDarkMode? Colors.transparent: Colors.black, // Match blue stroke when focused
+            width: 1.8,
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -277,9 +289,9 @@ class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
           ),
         ),
         hintText: hint,
-        suffixIcon: const Icon(
+        suffixIcon: Icon(
           Icons.calendar_month_outlined,
-          color: Colors.black,
+          color: _isDarkMode? AppTheme.textDark: Colors.black,
         ),
       ),
     );
@@ -341,14 +353,15 @@ class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
               vertical: 2.w,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.black : Colors.transparent,
-              border: Border.all(color: Colors.black),
+              color: isSelected ? _isDarkMode ? AppTheme.textDark:
+              Colors.black : _isDarkMode ? AppTheme.secondaryDark: Colors.transparent,
+              border: Border.all(color: _isDarkMode ? Colors.transparent: Colors.black),
               borderRadius: BorderRadius.circular(5.w),
             ),
             child: Text(
               e.name ?? 'Inconnu',
               style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black,
+                  color: isSelected ? _isDarkMode ? Colors.black: Colors.white : _isDarkMode ? AppTheme.textDark: Colors.black,
                   fontSize: 15.sp),
             ),
           ),

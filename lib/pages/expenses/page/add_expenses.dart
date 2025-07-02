@@ -1,4 +1,6 @@
+import 'package:budgets/core/theme.dart';
 import 'package:budgets/pages/expenses/module/expense_module.dart';
+import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:chips_input_autocomplete/chips_input_autocomplete.dart';
@@ -18,6 +20,7 @@ class ExpenseCreationPage extends ConsumerStatefulWidget {
 class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isLoading = false;
+  bool _isDarkMode = false;
   final ExpenseModule _module = ExpenseModule();
 
   final TextEditingController _designationController = TextEditingController();
@@ -52,6 +55,9 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final globalTheme = ref.watch(globalThemeProvider);
+
+    _isDarkMode =  globalTheme == Brightness.dark;
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildForm(),
@@ -158,21 +164,22 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
         createCharacter: ' ',
         controller: _categorieController,
         chipTheme: ChipThemeData(
-          backgroundColor: Colors.white,
-          deleteIconColor: Colors.black,
-          labelStyle: const TextStyle(
-            color: Colors.black,
+          backgroundColor:_isDarkMode ? AppTheme.backgroundDark: Colors.white,
+          deleteIconColor:_isDarkMode ? AppTheme.textDark: Colors.black,
+          labelStyle: TextStyle(
+            color: _isDarkMode ? AppTheme.textDark: Colors.black,
             fontWeight: FontWeight.w500,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.h),
-            side: const BorderSide(
-              color: Colors.black,
+            side: BorderSide(
+              color:_isDarkMode ? Colors.transparent: Colors.black,
             ),
           ),
         ),
         widgetContainerDecoration: BoxDecoration(
-          border: Border.all(color: Colors.black54),
+          color: _isDarkMode ? AppTheme.secondaryDark:null,
+          border: Border.all(color: _isDarkMode ? Colors.transparent:Colors.black54),
           borderRadius: BorderRadius.circular(
             2.w,
           ),
@@ -183,6 +190,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
         ),
         addChipOnSelection: true,
         decorationTextField:  InputDecoration(
+          filled: _isDarkMode ? true:false,
+          fillColor: AppTheme.secondaryDark,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.only(left: 8.0),
           hintText: 'Tapez...',
@@ -202,7 +211,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
         padding: EdgeInsets.all(5.w),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(2.w),
-          border: Border.all(color: Colors.black),
+          border: Border.all(color: _isDarkMode ? AppTheme.textDark: Colors.black),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

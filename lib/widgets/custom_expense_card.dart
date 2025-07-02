@@ -1,4 +1,6 @@
+import 'package:budgets/core/theme.dart';
 import 'package:budgets/pages/expenses/page/expense_page.dart';
+import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -26,13 +28,19 @@ class ExpenseTile extends ConsumerStatefulWidget {
 class _ExpenseTileState extends ConsumerState<ExpenseTile> {
   @override
   Widget build(BuildContext context) {
+
+    final globalTheme = ref.watch(globalThemeProvider);
+
+    bool isDarkMode = globalTheme == Brightness.dark;
+
     return Padding(
           padding: EdgeInsets.only(bottom: 1.2.h),
           child: Container(
             padding: EdgeInsets.all(3.w),
             height: 9.h,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
+              color: isDarkMode ? AppTheme.secondaryDark: null,
+              border: Border.all(color: isDarkMode ? Colors.transparent: Colors.black),
               borderRadius: BorderRadius.circular(2.w),
             ),
             child: Row(

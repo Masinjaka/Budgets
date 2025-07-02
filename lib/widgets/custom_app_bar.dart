@@ -1,4 +1,5 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:budgets/provider/auth_provider.dart';
 import 'package:budgets/widgets/custom_skeleton.dart';
 import 'package:flutter/material.dart';
@@ -17,15 +18,19 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
   Widget build(BuildContext context) {
     final asyncUser = ref.watch(authProvider);
 
+    final globalTheme = ref.watch(globalThemeProvider);
+
+    bool isDarkMode = globalTheme == Brightness.dark;
+
     return ListTile(
       leading: Container(
         width: 4.5.h,
         height: 4.5.h,
         decoration: BoxDecoration(
-          color: AppTheme.primary,
+          color: AppTheme.primaryLight,
           borderRadius: BorderRadius.circular(5.h),
           border: Border.all(
-            color: Colors.black,
+            color: isDarkMode ? AppTheme.textDark: Colors.black,
           ),
         ),
       ),
@@ -46,11 +51,11 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
             padding: EdgeInsets.all(2.w),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.h),
-              border: Border.all(color: Colors.black),
+              border: Border.all(color: isDarkMode ? AppTheme.textDark: Colors.black),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notifications_active_outlined,
-              color: Colors.black,
+              color: isDarkMode ? AppTheme.textDark: Colors.black,
             ),
           ),
         ),
