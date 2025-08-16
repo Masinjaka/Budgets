@@ -69,14 +69,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     height: 10.h,
                   ),
                   CustomTextField(
-                    title: 'Email',
+                    title: Text(
+                      'Email',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'example@email.com',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(height: 1.5.h),
                   CustomTextField(
-                    title: 'Mot de passe',
+                    title: Text(
+                      'Mot de passe',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'votre mot de passe',
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,

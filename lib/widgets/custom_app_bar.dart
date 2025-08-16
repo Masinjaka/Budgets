@@ -27,7 +27,10 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
         width: 4.5.h,
         height: 4.5.h,
         decoration: BoxDecoration(
-          color: AppTheme.primaryLight,
+          image: const DecorationImage(
+            image: AssetImage('assets/profil.png'),
+            fit: BoxFit.cover,
+          ),
           borderRadius: BorderRadius.circular(5.h),
           border: Border.all(
             color: isDarkMode ? AppTheme.textDark: Colors.black,
@@ -50,12 +53,13 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           child: Container(
             padding: EdgeInsets.all(2.w),
             decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(10.h),
               border: Border.all(color: isDarkMode ? AppTheme.textDark: Colors.black),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.notifications_active_outlined,
-              color: isDarkMode ? AppTheme.textDark: Colors.black,
+              color: Colors.black,
             ),
           ),
         ),

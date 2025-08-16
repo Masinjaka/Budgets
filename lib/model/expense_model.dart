@@ -22,7 +22,7 @@ class Expense {
       title: map['title'] as String?,
       description: map['description'] as String?,
       amount: map['amount'] != null ? (map['amount'] as num).toDouble() : null, // Updated to handle double
-      date: map['date'] != null ? DateTime.parse(map['date'] as String) : null,
+      date: map['date'] != null ? DateTime.parse(map['date'] as String).toLocal() : null,
       invoiceFile: map['invoice_file'] as String?, // Updated to handle String
       category: map['expense_categories'] != null ? Category.fromMap(map['expense_categories'] as Map<String, dynamic>) : null,
     );

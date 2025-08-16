@@ -1,17 +1,27 @@
 import 'package:budgets/core/wrapper.dart';
 import 'package:budgets/main.dart';
-import 'package:budgets/model/category_model.dart' as model;
+import 'package:budgets/model/category_model.dart';
 
-Future<List<model.Category>> getCategories() {
+Future<List<Category>> getCategories() {
   return Wrapper.execute(() async {
-    final response = await supabase.from('expense_categories').select();
+    final response = await supabase.from('categories').select();
 
-    if(response.isEmpty) return [];
+    if (response.isEmpty) return [];
 
-    List<model.Category> categories = (response as List)
-        .map((item) => model.Category.fromMap(item))
-        .toList();
+    List<Category> categories =
+        (response as List).map((item) => Category.fromMap(item)).toList();
 
     return categories;
+  });
+}
+
+Future<String> addCategory(Category category) {
+  return Wrapper.execute(() async {
+    final response = await supabase.rpc('add_category', params: {
+      'category_name': category.name,
+      'category_emoji': category.emoji,
+      'category_color': category.color
+    });
+    return response as String;
   });
 }

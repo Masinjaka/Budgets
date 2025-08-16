@@ -80,7 +80,14 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomTextField(
-                    title: 'Designation',
+                    title: Text(
+                      'Category Name',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'Bazary',
                     controller: _designationController,
                     keyboardType: TextInputType.text,
@@ -88,14 +95,28 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                   ),
                   SizedBox(height: 1.5.h),
                   CustomTextField(
-                    title: 'Description',
+                    title: Text(
+                      'Description',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'Laoka atoandro sy hariva',
                     controller: _descriptionController,
                     keyboardType: TextInputType.text,
                   ),
                   SizedBox(height: 1.5.h),
                   CustomTextField(
-                    title: 'Montant',
+                    title: Text(
+                      'Montant',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: '10000',
                     controller: _montantController,
                     keyboardType: TextInputType.number,

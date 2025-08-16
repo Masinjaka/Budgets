@@ -7,7 +7,20 @@ part 'category_provider.g.dart';
 @riverpod
 class Categories extends _$Categories {
   @override
-  Future<List<Category>> build() async{
-    return await getCategories();
+  Future<List<Category>> build() {
+    return getCategories();
+  }
+
+  Future<String> addSomeCategory(Category category) async {
+    state = const AsyncValue.loading();
+    try {
+      final result = await addCategory(category);
+      final categories = await getCategories();
+      state = AsyncValue.data(categories);
+      return result;
+    } catch (e,s) {
+      state = AsyncValue.error(e,s);
+      rethrow;
+    }
   }
 }

@@ -6,11 +6,15 @@ class CustomButton extends StatefulWidget {
       {super.key,
       required this.text,
       this.width,
+      this.height,
+      this.backgroundColor,
       required this.onPressed,
       this.isLoading});
 
   final String text;
   final double? width;
+  final double? height;
+  final Color? backgroundColor;
   final void Function()? onPressed;
   final bool? isLoading;
 
@@ -23,12 +27,12 @@ class _CustomButtonState extends State<CustomButton> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.width ?? double.infinity,
-      height: 5.5.h,
+      height: widget.height ??  5.5.h,
       child: ElevatedButton(
         onPressed: widget.onPressed,
         style: ButtonStyle(
-          backgroundColor: const WidgetStatePropertyAll(
-            Color(0xffDDFFBC),
+          backgroundColor: WidgetStatePropertyAll(
+            widget.backgroundColor ?? const Color(0xffDDFFBC),
           ),
           elevation: const WidgetStatePropertyAll(0),
           side: const WidgetStatePropertyAll(

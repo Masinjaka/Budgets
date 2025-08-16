@@ -1,6 +1,7 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/pages/auth/pages/sign_up_page.dart';
 import 'package:budgets/pages/auth/pages/login_page.dart';
+import 'package:budgets/pages/categories/page/add_category_page.dart';
 import 'package:budgets/pages/expenses/page/add_expenses.dart';
 import 'package:budgets/pages/expenses/page/filter_expenses.dart';
 import 'package:budgets/pages/home/pages/home_page.dart';
@@ -76,6 +77,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       GoRoute(
         path: '/filter-expense',
         builder: (context, state) => const ExpenseFilterPage(),
+      ),
+      GoRoute(
+        path: '/add-category',
+        builder: (context, state) => const AddCategoryPage(),
       ),
     ],
   );
