@@ -16,7 +16,6 @@ class CategoryPage extends ConsumerStatefulWidget {
 }
 
 class _CategoryPageState extends ConsumerState<CategoryPage> {
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {

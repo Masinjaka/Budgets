@@ -15,12 +15,26 @@ Future<List<Category>> getCategories() {
   });
 }
 
+// Add category
 Future<String> addCategory(Category category) {
   return Wrapper.execute(() async {
     final response = await supabase.rpc('add_category', params: {
       'category_name': category.name,
       'category_emoji': category.emoji,
       'category_color': category.color
+    });
+    return response as String;
+  });
+}
+
+// Edit category
+Future<String> editCategory(Category category) {
+  return Wrapper.execute(() async {
+    final response = await supabase.rpc('edit_category', params: {
+      'category_id': category.id,
+      'new_name': category.name,
+      'new_emoji': category.emoji,
+      'new_color': category.color
     });
     return response as String;
   });

@@ -1,4 +1,5 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/model/category_model.dart';
 import 'package:budgets/pages/auth/pages/sign_up_page.dart';
 import 'package:budgets/pages/auth/pages/login_page.dart';
 import 'package:budgets/pages/categories/page/add_category_page.dart';
@@ -80,7 +81,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       ),
       GoRoute(
         path: '/add-category',
-        builder: (context, state) => const AddCategoryPage(),
+        builder: (context, state) => AddCategoryPage(
+          category: state.extra as Category?,
+        ),
       ),
     ],
   );

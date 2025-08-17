@@ -47,4 +47,40 @@ class CategoryModule {
       }
     }
   }
+
+  Future<void> editCategory(
+    WidgetRef ref, {
+    required String id,
+    required String name,
+    required String? emoji,
+    required String color,
+    required BuildContext context,
+    required GlobalKey<FormState> formKey,
+  }) async {
+    if (formKey.currentState!.validate()) {
+      if (emoji == null || emoji.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('L\'emoticon est requis')),
+        );
+        return;
+      }
+      try {
+        await ref.read(categoriesProvider.notifier).editSomeCategory(
+              Category(
+                id: id,
+                name: name,
+                emoji: emoji,
+                color: color,
+              ),
+            );
+
+        if (!context.mounted) return;
+        context.pop();
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('$e')));
+      }
+    }
+  }
 }

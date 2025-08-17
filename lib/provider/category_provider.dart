@@ -23,4 +23,17 @@ class Categories extends _$Categories {
       rethrow;
     }
   }
+  
+  Future<String> editSomeCategory(Category category) async {
+    // state = const AsyncValue.loading();
+    try {
+      final result = await editCategory(category);
+      final categories = await getCategories();
+      state = AsyncValue.data(categories);
+      return result;
+    } catch (e,s) {
+      state = AsyncValue.error(e,s);
+      rethrow;
+    }
+  }
 }

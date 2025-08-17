@@ -7,9 +7,11 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:budgets/model/category_model.dart' as cat;
 
 class AddCategoryPage extends ConsumerStatefulWidget {
-  const AddCategoryPage({super.key});
+  const AddCategoryPage({super.key, this.category});
+  final cat.Category? category;
 
   @override
   ConsumerState<AddCategoryPage> createState() => _AddCategoryPageState();
@@ -23,9 +25,12 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   final CategoryModule _categoryModule = CategoryModule();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _isEditing = false;
 
-  void _showEmojiPicker(BuildContext context) {
+  void _showEmojiPicker(BuildContext context) async {
     FocusScope.of(context).unfocus();
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -34,24 +39,116 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
       ),
       builder: (sheetCtx) => SafeArea(
         top: false,
-        child: SizedBox(
-          height: 50.h,
-          child: EmojiPicker(
-            onEmojiSelected: (category, emoji) async {
-              Navigator.pop(sheetCtx);
+        child: Container(
+          height: 55.h,
+          decoration: BoxDecoration(
+            color: AppTheme.backgroundDark,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(4.w)),
+            border: const Border(
+              top: BorderSide(color: AppTheme.borderColorDark),
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(4.w)),
+            child: EmojiPicker(
+              config: Config(
+                searchViewConfig: SearchViewConfig(
+                  backgroundColor: AppTheme.backgroundDark,
+                  buttonIconColor: Colors.white,
+                  hintText: 'Rechercher un emoji',
+                  hintTextStyle: TextStyle(
+                    fontSize: 15.sp,
+                    color: const Color.fromARGB(255, 126, 127, 129),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  inputTextStyle: TextStyle(
+                    fontSize: 15.sp,
+                    color: const Color.fromARGB(255, 126, 127, 129),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                categoryViewConfig: CategoryViewConfig(
+                  backgroundColor: AppTheme.secondaryDark,
+                  tabBarHeight: 7.h,
+                  iconColorSelected: Colors.white,
+                  backspaceColor: Colors.white,
+                  indicatorColor: Colors.white,
+                ),
+                emojiViewConfig: EmojiViewConfig(
+                  gridPadding: EdgeInsets.symmetric(horizontal: 2.w),
+                  buttonMode: ButtonMode.CUPERTINO,
+                  columns: 5,
+                  backgroundColor: AppTheme.backgroundDark,
+                  emojiSizeMax: 20.sp,
+                ),
+                bottomActionBarConfig: BottomActionBarConfig(
+                  customBottomActionBar: (config, state, showSearchView) {
+                    return Container(
+                      height: 5.h,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.secondaryDark,
+                        border: Border(
+                          top: BorderSide(color: AppTheme.borderColorDark),
+                        ),
+                      ),
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () => showSearchView(),
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () {},
+                                color: const Color.fromARGB(255, 126, 127, 129),
+                              ),
+                              Text(
+                                'Rechercher',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  color:
+                                      const Color.fromARGB(255, 126, 127, 129),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  buttonColor: AppTheme.borderColorDark,
+                  backgroundColor: AppTheme.backgroundDark,
+                  showBackspaceButton: false,
+                ),
+              ),
+              onEmojiSelected: (category, emoji) async {
+                Navigator.pop(sheetCtx);
 
-              await Future.delayed(const Duration(milliseconds: 100));
-              setState(() {
-                _selectedEmoji = emoji.emoji;
-                _emoticonController.text = _selectedEmoji == null
-                    ? 'Choisis un emoticon pour ta catégorie'
-                    : 'Choisir un autre emoticon';
-              });
-            },
+                await Future.delayed(const Duration(milliseconds: 100));
+                setState(() {
+                  _selectedEmoji = emoji.emoji;
+                  _emoticonController.text = _selectedEmoji == null
+                      ? 'Choisis un emoji pour ta catégorie'
+                      : 'Choisir un autre emoji';
+                });
+              },
+            ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.category != null) {
+      _isEditing = true;
+      _categoryNameController.text = widget.category!.name!;
+      _selectedEmoji = widget.category!.emoji!;
+      _selectedColor = Color(int.parse(widget.category!.color!, radix: 16));
+    }
   }
 
   @override
@@ -66,7 +163,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Créer une catégorie',
+          _isEditing ? 'Modifier la categorie' : 'Créer une catégorie',
           style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.transparent,
@@ -82,21 +179,35 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
               Expanded(
                 child: CustomButton(
                   backgroundColor: Colors.white,
-                  text: 'Ajouter la catégorie',
+                  text: _isEditing ? 'Modifier' : 'Ajouter',
                   onPressed: () {
                     setState(() => _isLoading = true);
-                    _categoryModule
-                        .addCategory(
-                          ref,
-                          name: _categoryNameController.text.trim(),
-                          emoji: _selectedEmoji,
-                          color: _selectedColor == null
-                              ? Colors.teal.value32bit.toRadixString(16)
-                              : _selectedColor!.value32bit.toRadixString(16),
-                          context: context,
-                          formKey: _formKey,
-                        )
-                        .whenComplete(() => setState(() => _isLoading = false));
+                    if (_isEditing) {
+                      _categoryModule.editCategory(
+                        ref,
+                        id: widget.category!.id!,
+                        name: _categoryNameController.text.trim(),
+                        emoji: _selectedEmoji,
+                        color: _selectedColor == null
+                            ? Colors.teal.value32bit.toRadixString(16)
+                            : _selectedColor!.value32bit.toRadixString(16),
+                        context: context,
+                        formKey: _formKey,
+                      ).whenComplete(() => setState(() => _isLoading = false));
+                    } else {
+                      _categoryModule
+                          .addCategory(
+                            ref,
+                            name: _categoryNameController.text.trim(),
+                            emoji: _selectedEmoji,
+                            color: _selectedColor == null
+                                ? Colors.teal.value32bit.toRadixString(16)
+                                : _selectedColor!.value32bit.toRadixString(16),
+                            context: context,
+                            formKey: _formKey,
+                          )
+                          .whenComplete(() => setState(() => _isLoading = false));
+                    }
                   },
                   isLoading: _isLoading,
                 ),
@@ -158,7 +269,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                   ),
                   SizedBox(height: 3.h),
                   Container(
-                    height: 15.h,
+                    height: 14.h,
                     decoration: BoxDecoration(
                       color: AppTheme.secondaryDark,
                       borderRadius: BorderRadius.circular(5.w),
@@ -184,7 +295,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                                       Icons.emoji_emotions,
                                     ),
                                     Text(
-                                      'Emoticon',
+                                      'Emoji',
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w900,
@@ -193,7 +304,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                                     ),
                                   ],
                                 ),
-                                hint: 'Choisis un emoticon pour ta catégorie',
+                                hint: 'Choisis un emoji pour ta catégorie',
                                 controller: _emoticonController,
                                 isReadOnly: true,
                                 onTap: () {
