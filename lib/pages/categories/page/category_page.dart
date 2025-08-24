@@ -84,54 +84,59 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
         mainAxisSpacing: 4.w,
         childAspectRatio: 2.0, // This makes the height half of the width
       ),
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-          // color: AppTheme.secondaryDark,
-          color: Color(int.parse(categories[index].color!, radix: 16)),
-          borderRadius: BorderRadius.circular(5.w),
-          border: Border.all(
-            color: AppTheme.borderColorDark,
+      itemBuilder: (context, index) => GestureDetector(
+        onTap: () {
+          context.push('/add-category', extra: categories[index]);
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            // color: AppTheme.secondaryDark,
+            color: Color(int.parse(categories[index].color!, radix: 16)),
+            borderRadius: BorderRadius.circular(5.w),
+            border: Border.all(
+              color: AppTheme.borderColorDark,
+            ),
           ),
-        ),
-        child: Wrap(
-          alignment: WrapAlignment.start,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          runAlignment: WrapAlignment.center,
-          spacing: 2.w,
-          children: [
-            SizedBox(width: 4.w),
-            Text(
-              '${categories[index].emoji}',
-              style: TextStyle(
-                fontSize: 20.sp,
-                shadows: [
-                  Shadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    offset: const Offset(1, 2),
-                    blurRadius: 4,
-                  ),
-                ],
+          child: Wrap(
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runAlignment: WrapAlignment.center,
+            spacing: 2.w,
+            children: [
+              SizedBox(width: 4.w),
+              Text(
+                '${categories[index].emoji}',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      offset: const Offset(1, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Text(
-              '${categories[index].name}',
-              style: TextStyle(
-                fontSize: 15.sp,
-                shadows: [
-                  Shadow(
-                    color: Colors.black.withValues(alpha: 0.12),
-                    offset: const Offset(1, 2),
-                    blurRadius: 3,
-                  ),
-                ],
+              Text(
+                '${categories[index].name}',
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      offset: const Offset(1, 2),
+                      blurRadius: 3,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      )
-          .animate(delay: (50 * index).ms)
-          .fade(duration: 200.ms)
-          .slideY(begin: 0.5, duration: 200.ms, curve: Curves.easeOut),
+            ],
+          ),
+        )
+            .animate(delay: (50 * index).ms)
+            .fade(duration: 200.ms)
+            .slideY(begin: 0.5, duration: 200.ms, curve: Curves.easeOut),
+      ),
     );
   }
 

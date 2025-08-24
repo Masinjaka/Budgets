@@ -39,3 +39,13 @@ Future<String> editCategory(Category category) {
     return response as String;
   });
 }
+
+// Delete category
+Future<String> deleteCategory(Category category) {
+  return Wrapper.execute(() async {
+    final response = await supabase.rpc('delete_category', params: {
+      'category_id': category.id,
+    });
+    return response as String;
+  });
+}

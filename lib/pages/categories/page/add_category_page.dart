@@ -26,6 +26,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _isEditing = false;
+  bool _isDeleting = false;
 
   void _showEmojiPicker(BuildContext context) async {
     FocusScope.of(context).unfocus();
@@ -183,17 +184,20 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                   onPressed: () {
                     setState(() => _isLoading = true);
                     if (_isEditing) {
-                      _categoryModule.editCategory(
-                        ref,
-                        id: widget.category!.id!,
-                        name: _categoryNameController.text.trim(),
-                        emoji: _selectedEmoji,
-                        color: _selectedColor == null
-                            ? Colors.teal.value32bit.toRadixString(16)
-                            : _selectedColor!.value32bit.toRadixString(16),
-                        context: context,
-                        formKey: _formKey,
-                      ).whenComplete(() => setState(() => _isLoading = false));
+                      _categoryModule
+                          .editCategory(
+                            ref,
+                            id: widget.category!.id!,
+                            name: _categoryNameController.text.trim(),
+                            emoji: _selectedEmoji,
+                            color: _selectedColor == null
+                                ? Colors.teal.value32bit.toRadixString(16)
+                                : _selectedColor!.value32bit.toRadixString(16),
+                            context: context,
+                            formKey: _formKey,
+                          )
+                          .whenComplete(
+                              () => setState(() => _isLoading = false));
                     } else {
                       _categoryModule
                           .addCategory(
@@ -206,7 +210,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                             context: context,
                             formKey: _formKey,
                           )
-                          .whenComplete(() => setState(() => _isLoading = false));
+                          .whenComplete(
+                              () => setState(() => _isLoading = false));
                     }
                   },
                   isLoading: _isLoading,
@@ -319,13 +324,21 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               onTap: () {
                                 _showEmojiPicker(context);
                               },
-                              child: Container(
-                                color: _selectedColor ?? Colors.teal,
-                                child: Center(
-                                  child: Text(
-                                    _selectedEmoji ?? '',
-                                    style: TextStyle(
-                                      fontSize: 26.sp,
+                              child: Padding(
+                                padding: EdgeInsets.all(4.w),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: _selectedColor ?? Colors.teal,
+                                      border: Border.all(
+                                        color: AppTheme.borderColorDark,
+                                      ),
+                                      shape: BoxShape.circle),
+                                  child: Center(
+                                    child: Text(
+                                      _selectedEmoji ?? '',
+                                      style: TextStyle(
+                                        fontSize: 22.sp,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -420,7 +433,62 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 3.h),
+                  if (widget.category != null)
+                    GestureDetector(
+                      onTap: () async {
+                        setState(() => _isDeleting = true);
+                        // Handle delete category
+                        await _categoryModule.deleteCategory(
+                          ref,
+                          widget.category!,
+                          context,
+                        );
+                        setState(() => _isDeleting = false);
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(2.h),
+                        decoration: BoxDecoration(
+                          color: AppTheme.secondaryDark,
+                          borderRadius: BorderRadius.circular(5.w),
+                          border: Border.all(
+                            color: AppTheme.borderColorDark,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 2.w,
+                              children: [
+                                const Icon(
+                                  Icons.delete_forever_outlined,
+                                ),
+                                Text(
+                                  'Supprimer la catégorie',
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (_isDeleting)
+                              SizedBox(
+                                width: 5.w,
+                                height: 5.w,
+                                child: const CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  SizedBox(height: 3.h),
                 ],
               ),
             ),
