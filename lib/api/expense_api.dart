@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:budgets/core/wrapper.dart';
 import 'package:budgets/main.dart';
 import 'package:budgets/model/expense_model.dart';
@@ -30,19 +32,23 @@ Future<List<Expense>> getExpenses() {
 
 // Add expenses
 Future<void> addExpense(
-    String? title, String? description, String? categoryName, double? amount) {
+    String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts) {
   return Wrapper.execute(
     () async {
       final response = await supabase.rpc(
-        'insert_expense',
+        'add_expenses',
         params: {
-          'title': title,
+          'amount': amount,
           'description': description,
           'category_name': categoryName,
-          'amount': amount,
+          'subcategories_amount': subcategoryAmounts,
         },
       );
 
+      if(response['success'] == false) {
+        throw Exception(response['error_message'] ?? 'Failed to add expense');
+      }
+  
       debugPrint("Expense created: $response");
     },
   );
