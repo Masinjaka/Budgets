@@ -11,9 +11,9 @@ class Expenses extends _$Expenses {
     return await getExpenses();
   }
 
-  Future<void> addUserExpenses(String? title,String? description, String? categoryName,double? amount) async{
+  Future<void> addUserExpenses(String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts) async{
     try {
-      await addExpense(title, description, categoryName, amount);
+      await addExpense(amount, description, categoryName, subcategoryAmounts);
 
       ref.invalidateSelf();
     } catch (e) {

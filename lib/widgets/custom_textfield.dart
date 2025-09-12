@@ -13,13 +13,19 @@ class CustomTextField extends ConsumerStatefulWidget {
     this.isPassword,
     this.keyboardType,
     this.validator,
+    this.suffixIcon,
+    this.isReadOnly,
+    this.onTap,
   });
-  final String title;
+  final Widget title;
   final String? hint;
   final TextEditingController controller;
   final bool? isPassword;
   final TextInputType? keyboardType;
   final Map<String,String>? validator;
+  final Widget? suffixIcon;
+  final bool? isReadOnly;
+  final void Function()? onTap;
 
   @override
   ConsumerState<CustomTextField> createState() => _CustomTextFieldState();
@@ -27,7 +33,6 @@ class CustomTextField extends ConsumerStatefulWidget {
 
 class _CustomTextFieldState extends ConsumerState<CustomTextField> {
   bool isObscure = true;
-  bool _isDarkMode = false;
 
   String? validateEmail(String? v) {
     if (v == null || v.isEmpty) {
@@ -95,27 +100,17 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
   Widget build(BuildContext context) {
     bool isPassord = widget.isPassword != null && widget.isPassword!;
 
-    final globalTheme = ref.watch(globalThemeProvider);
-
-    _isDarkMode = globalTheme == Brightness.dark;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.title,
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 15.5.sp,
-          ),
-        ),
+        widget.title,        
         SizedBox(
           height: 1.h,
         ),
         
         TextFormField(
+          readOnly: widget.isReadOnly ?? false,
           obscureText: isObscure && isPassord,
           controller: widget.controller,
           keyboardType: widget.keyboardType ?? TextInputType.text,
@@ -126,34 +121,34 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
               value,
             );
           },
-          cursorColor: _isDarkMode ? AppTheme.textDark: Colors.black,
+          cursorColor: AppTheme.textDark,
           decoration: InputDecoration(
-            filled: _isDarkMode ? true:false,
+            filled: true,
             fillColor: AppTheme.secondaryDark,
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: _isDarkMode ? Colors.transparent: Colors.black,
+              borderSide: const BorderSide(
+                color: AppTheme.borderColorDark,
               ),
               borderRadius: BorderRadius.circular(2.w),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(2.w),
-              borderSide: BorderSide(
-                color: _isDarkMode ? Colors.transparent: Colors.black, // Match blue stroke when focused
+              borderSide: const BorderSide(
+                color: Colors.transparent, // Match blue stroke when focused
                 width: 1.8,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(2.w),
               borderSide: const BorderSide(
-                color: Color.fromARGB(255, 252, 154, 147),
+                color: Colors.transparent,
                 width: 1.8,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(2.w),
               borderSide: const BorderSide(
-                color: Colors.black,
+                color: Colors.transparent,
                 width: 1.8,
               ),
             ),
@@ -169,11 +164,12 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
                       isObscure
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: _isDarkMode ? AppTheme.textDark: Colors.black,
+                      color: AppTheme.textDark,
                     ),
                   )
-                : null,
+                : widget.suffixIcon,
           ),
+          onTap: widget.onTap ,
         ),
       ],
     );

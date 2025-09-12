@@ -15,15 +15,14 @@ class SignUpPage extends ConsumerStatefulWidget {
 }
 
 class _SignUpPageState extends ConsumerState<SignUpPage> {
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmpasswordController = TextEditingController();
+  final TextEditingController _confirmpasswordController =
+      TextEditingController();
   final AuthModule authModule = AuthModule();
   bool _isLoading = false;
-
 
   @override
   void dispose() {
@@ -70,21 +69,42 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     height: 10.h,
                   ),
                   CustomTextField(
-                    title: "Nom d'utilisateur",
+                    title: Text(
+                      "Nom d'utilisateur",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'username',
                     controller: _usernameController,
                     keyboardType: TextInputType.text,
                   ),
                   SizedBox(height: 1.5.h),
                   CustomTextField(
-                    title: 'Email',
+                    title: Text(
+                      'Email',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'example@email.com',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(height: 1.5.h),
                   CustomTextField(
-                    title: 'Mot de passe',
+                    title: Text(
+                      'Mot de passe',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'votre mot de passe',
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
@@ -93,7 +113,14 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   ),
                   SizedBox(height: 1.5.h),
                   CustomTextField(
-                    title: 'Confirmer le mot de passe',
+                    title: Text(
+                      'Confirmer le mot de passe',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'votre mot de passe',
                     controller: _confirmpasswordController,
                     keyboardType: TextInputType.visiblePassword,
@@ -124,7 +151,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             ),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                if(!mounted) return;
+                if (!mounted) return;
 
                 context.go('/login');
               },

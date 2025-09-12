@@ -11,7 +11,7 @@ class CustomSkeleton extends StatelessWidget {
       height: 1.5.w,
       width: 1.w,
       decoration: const BoxDecoration(
-        color: AppTheme.primaryLight,
+        color: Colors.grey,
       ),
     );
   }

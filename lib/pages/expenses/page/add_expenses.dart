@@ -1,9 +1,12 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/pages/expenses/module/expense_module.dart';
-import 'package:budgets/provider/app_theme_provider.dart';
+import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
-import 'package:chips_input_autocomplete/chips_input_autocomplete.dart';
+import 'package:budgets/widgets/custom_dropdown.dart';
+import 'package:budgets/widgets/custom_subcategory_dropdown.dart';
+import 'package:budgets/model/category_model.dart';
+import 'package:budgets/model/subcategories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,14 +23,18 @@ class ExpenseCreationPage extends ConsumerStatefulWidget {
 class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isLoading = false;
-  bool _isDarkMode = false;
   final ExpenseModule _module = ExpenseModule();
 
   final TextEditingController _designationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _montantController = TextEditingController();
-  final ChipsAutocompleteController _categorieController =
-      ChipsAutocompleteController();
+
+  List<Category> _categories = [];
+  Category? _selectedCategory;
+  List<Subcategory> _subcategories = [];
+  bool _isMultipleAmounts = false;
+  List<Map<String, dynamic>> _subcategoryAmounts = [];
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   @override
   void initState() {
@@ -36,11 +43,10 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
         final categories = await _module.fetchCategories(ref);
-        List<String> options = categories
-            .map((category) => category.name ?? 'A_category_with_no_name')
-            .toList();
-        _categorieController.options = options;
-        debugPrint("CATEGORIES: ${categories.length}, ${options[0]}");
+        setState(() {
+          _categories = categories;
+        });
+        debugPrint("CATEGORIES: ${categories.length}");
       },
     );
   }
@@ -50,14 +56,19 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
     _designationController.dispose();
     _descriptionController.dispose();
     _montantController.dispose();
+
+    // Dispose subcategory controllers
+    for (var item in _subcategoryAmounts) {
+      item['subcategoryController']?.dispose();
+      item['amountController']?.dispose();
+    }
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final globalTheme = ref.watch(globalThemeProvider);
-
-    _isDarkMode =  globalTheme == Brightness.dark;
+    // Always use dark mode
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildForm(),
@@ -73,81 +84,161 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 5.h),
+            padding: EdgeInsets.only(left: 2.w, right: 2.w, top: 5.h),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomTextField(
-                    title: 'Designation',
-                    hint: 'Bazary',
-                    controller: _designationController,
-                    keyboardType: TextInputType.text,
+                  CustomDropdown(
+                    title: Text(
+                      'Catégorie',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
+                    hint: 'Choisissez une catégorie',
+                    items: _categories,
+                    selectedValue: _selectedCategory,
+                    onChanged: (Category? category) async {
+                      setState(() {
+                        _selectedCategory = category;
+                        _subcategories = []; // Clear subcategories when category changes
+                      });
+                      
+                      // Fetch subcategories when a category is selected using the module method
+                      if (category != null && category.id != null) {
+                        try {
+                          final subcategories = await _module.fetchSubcategories(ref, category.id!);
+                          setState(() {
+                            _subcategories = subcategories;
+                          });
+                          debugPrint("SUBCATEGORIES: ${subcategories.length}");
+                        } catch (e) {
+                          debugPrint("Error fetching subcategories: $e");
+                          setState(() {
+                            _subcategories = []; // Set empty list on error
+                          });
+                        }
+                      }
+                    },
                     validator: const <String, String>{"type": "required"},
+                    showEmojis: true,
                   ),
-                  SizedBox(height: 1.5.h),
+                  SizedBox(height: 3.h),
                   CustomTextField(
-                    title: 'Description',
+                    title: Text(
+                      'Description',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
                     hint: 'Laoka atoandro sy hariva',
                     controller: _descriptionController,
                     keyboardType: TextInputType.text,
                   ),
-                  SizedBox(height: 1.5.h),
-                  CustomTextField(
-                    title: 'Montant',
-                    hint: '10000',
-                    controller: _montantController,
-                    keyboardType: TextInputType.number,
-                    validator: const <String, String>{"type": "required"},
-                  ),
-                  SizedBox(height: 1.5.h),
-                  Text(
-                    'Catégorie',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 15.5.sp,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 1.h,
-                  ),
-                  _buildCategoryField(),
-                  SizedBox(height: 1.5.h),
-                  Text(
-                    'Facture (facultative)',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 15.5.sp,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildFacultativeOption(
-                        title: 'Prendre une photo',
-                        iconData: Icons.camera_alt_outlined,
-                        onTap: null,
+                  SizedBox(height: 5.h),
+
+                  // Switch for multiple amounts
+                  Container(
+                    padding: EdgeInsets.all(4.w),
+                    decoration: BoxDecoration(
+                      color: AppTheme.secondaryDark,
+                      borderRadius: BorderRadius.circular(2.w),
+                      border: Border.all(
+                        color: AppTheme.borderColorDark,
+                        width: 1.0,
                       ),
-                      Text(
-                        'ou',
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Mode de saisie',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14.sp,
+                                  color: AppTheme.textDark,
+                                ),
+                              ),
+                              SizedBox(height: 0.5.h),
+                              Text(
+                                _isMultipleAmounts
+                                    ? 'Montants multiples par sous-catégories'
+                                    : 'Montant général pour la catégorie',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: AppTheme.textDark.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 3.w),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color:AppTheme.borderColorDark,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Switch(
+                            value: _isMultipleAmounts,
+                            onChanged: (value) {
+                              setState(() {
+                                _isMultipleAmounts = value;
+                                if (!value) {
+                                  // Clear all items with animation
+                                  _module.clearAllSubcategoryAmounts(
+                                    subcategoryAmounts: _subcategoryAmounts,
+                                    listKey: _listKey,
+                                    buildRemovedItem: _buildRemovedSubcategoryItem,
+                                    onStateChanged: () => setState(() {}),
+                                  );
+                                }
+                              });
+                            },
+                            activeColor: Colors.white,
+                            activeTrackColor: AppTheme.textDark,
+                            inactiveThumbColor:AppTheme.secondaryDark,
+                            inactiveTrackColor: AppTheme.borderColorDark,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+
+                  // Conditional content based on switch
+                  if (!_isMultipleAmounts)
+                    CustomTextField(
+                      title: Text(
+                        'Montant',
+                        textAlign: TextAlign.left,
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 15.5.sp,
                         ),
                       ),
-                      _buildFacultativeOption(
-                        title: 'Scanner une facture',
-                        iconData: Icons.document_scanner_outlined,
-                        onTap: null,
-                      ),
-                    ],
-                  ),
+                      hint: '10000',
+                      controller: _montantController,
+                      keyboardType: TextInputType.number,
+                      validator: const <String, String>{"type": "required"},
+                    )
+                  else
+                    _buildMultipleAmountsSection(),
+
+                  SizedBox(height: 1.5.h),
                 ],
               ),
             ),
@@ -157,76 +248,82 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
     );
   }
 
-  SizedBox _buildCategoryField() {
-    return SizedBox(
-      width: double.infinity,
-      child: ChipsInputAutocomplete(
-        createCharacter: ' ',
-        controller: _categorieController,
-        chipTheme: ChipThemeData(
-          backgroundColor:_isDarkMode ? AppTheme.backgroundDark: Colors.white,
-          deleteIconColor:_isDarkMode ? AppTheme.textDark: Colors.black,
-          labelStyle: TextStyle(
-            color: _isDarkMode ? AppTheme.textDark: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.h),
-            side: BorderSide(
-              color:_isDarkMode ? Colors.transparent: Colors.black,
-            ),
+  Widget _buildMultipleAmountsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Montants par sous-catégories',
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 15.5.sp,
           ),
         ),
-        widgetContainerDecoration: BoxDecoration(
-          color: _isDarkMode ? AppTheme.secondaryDark:null,
-          border: Border.all(color: _isDarkMode ? Colors.transparent:Colors.black54),
-          borderRadius: BorderRadius.circular(
-            2.w,
-          ),
-        ),
-        paddingInsideWidgetContainer: EdgeInsets.symmetric(
-          horizontal: 2.w,
-          vertical: 1.w,
-        ),
-        addChipOnSelection: true,
-        decorationTextField:  InputDecoration(
-          filled: _isDarkMode ? true:false,
-          fillColor: AppTheme.secondaryDark,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.only(left: 8.0),
-          hintText: 'Tapez...',
-          constraints: BoxConstraints(maxWidth: 80.w),
-        ),
-      ),
-    );
-  }
+        SizedBox(height: 1.5.h),
 
-  _buildFacultativeOption(
-      {required String title,
-      required IconData iconData,
-      required void Function()? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(5.w),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(2.w),
-          border: Border.all(color: _isDarkMode ? AppTheme.textDark: Colors.black),
+        // List of subcategory amounts
+        AnimatedList(
+          key: _listKey,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          initialItemCount: 0, // Start with 0 to ensure all items animate
+          itemBuilder: (context, index, animation) {
+            if (index >= _subcategoryAmounts.length) {
+              return const SizedBox.shrink();
+            }
+
+            return _buildAnimatedSubcategoryItem(
+              _subcategoryAmounts[index],
+              index,
+              animation,
+            );
+          },
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              iconData,
-              size: 23.sp,
+
+        // Add button with dashed border effect
+        GestureDetector(
+          onTap: () => _module.addSubcategoryAmount(
+            subcategoryAmounts: _subcategoryAmounts,
+            listKey: _listKey,
+            onStateChanged: () => setState(() {}),
+          ),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 1.5.w),
+            child: CustomPaint(
+              painter: DashedBorderPainter(
+                color: (AppTheme.textDark)
+                    .withValues(alpha: 0.3),
+                strokeWidth: 1.0,
+                borderRadius: 2.w,
+              ),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add,
+                      color: AppTheme.textDark,
+                      size: 16.sp,
+                    ),
+                    SizedBox(width: 2.w),
+                    Text(
+                      'Ajouter une sous-catégorie',
+                      style: TextStyle(
+                        color: AppTheme.textDark,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(
-              height: 1.5.h,
-            ),
-            Text(title),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -235,50 +332,99 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       automaticallyImplyLeading: false,
-      title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4.w),
-        child: Text(
-          'Ajouter un achat',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 19.5.sp,
-          ),
+      title: Text(
+        'Nouvel dépense',
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 18.sp,
         ),
       ),
       actions: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: IconButton(
-              onPressed: () => context.pop(),
-              icon: Icon(
-                Icons.close,
-                size: 21.sp,
-              )),
-        ),
+        IconButton(
+            onPressed: () => context.pop(),
+            icon: Icon(
+              Icons.close,
+              size: 21.sp,
+            )),
       ],
     );
   }
 
   Padding _buildAddButton() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 5.w),
+      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 5.w),
       child: CustomButton(
         text: 'Confirmer',
+        backgroundColor: AppTheme.primaryGreen,
         onPressed: () async {
           setState(() => _isLoading = true);
 
-          if (_categorieController.chips.isEmpty) {
+          if (!_formKey.currentState!.validate()) {
+            setState(() => _isLoading = false);
+            return;
+          }
+
+          if (_selectedCategory == null) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Tu dois choisir une categorie'),
+                content: Text('Tu dois choisir une catégorie'),
               ),
             );
-          } else {
+            setState(() => _isLoading = false);
+            return;
+          }
+
+          // Handle different submission modes
+          if (_isMultipleAmounts) {
+            // Validate subcategory amounts
+            if (!_module.validateSubcategoryAmounts(_subcategoryAmounts)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Veuillez remplir toutes les sous-catégories et montants'),
+                ),
+              );
+              setState(() => _isLoading = false);
+              return;
+            }
+
+            // Build subcategory amounts map
+            final subcategoryMap = _module.buildSubcategoryAmountsMap(_subcategoryAmounts);
+            final totalAmount = _module.calculateTotalAmount(_subcategoryAmounts);
+
+            debugPrint("🗺️ FINAL SUBCATEGORY MAP: $subcategoryMap");
+            debugPrint("💰 TOTAL AMOUNT: $totalAmount");
+
+            debugPrint("Calling Supabase RPC with:");
+            debugPrint("Total Amount: $totalAmount");
+            debugPrint("Description: ${_descriptionController.text.trim()}");
+            debugPrint("Category: ${_selectedCategory!.name ?? ''}");
+            debugPrint("Subcategory Map: $subcategoryMap");
+
             await _module.addExpense(
-              _designationController.text.trim(),
-              _descriptionController.text.trim(),
-              _categorieController.chips[0],
-              _montantController.text.trim(),
+              amount: totalAmount.toString(),
+              description: _descriptionController.text.trim(),
+              categoryName: _selectedCategory!.name ?? '',
+              subcategoryAmounts: subcategoryMap, // Empty map for single amount mode
+              formKey: _formKey,
+              ref: ref,
+              context: context,
+            );
+
+            // For now, show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Dépense avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+          } else {
+            // Single amount mode - use existing logic
+            await _module.addExpense(
+              amount: _montantController.text.trim(),
+              description: _descriptionController.text.trim(),
+              categoryName: _selectedCategory!.name ?? '',
+              subcategoryAmounts: null, // Empty map for single amount mode
               formKey: _formKey,
               ref: ref,
               context: context,
@@ -291,4 +437,225 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
       ),
     );
   }
+
+  Widget _buildAnimatedSubcategoryItem(
+    Map<String, dynamic> item,
+    int index,
+    Animation<double> animation,
+  ) {
+    return SlideTransition(
+      position: animation.drive(
+        Tween<Offset>(
+          begin: const Offset(0, -1), // Drop from top
+          end: Offset.zero,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
+      ),
+      child: FadeTransition(
+        opacity: animation,
+        child: Container(
+          margin: EdgeInsets.only(bottom: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
+          decoration: BoxDecoration(
+            color: AppTheme.secondaryDark.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(2.w),
+            border: Border.all(
+              color: AppTheme.borderColorDark,
+              width: 1.0,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: _buildSubcategoryField(item),
+              ),
+              Container(
+                height: 4.h,
+                width: 1,
+                color:
+                    (AppTheme.borderColorDark)
+                        .withValues(alpha: 0.5),
+                margin: EdgeInsets.symmetric(horizontal: 2.w),
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: item['amountController'] as TextEditingController?,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final subcategoryName = item['subcategoryName'] as String?;
+                    debugPrint("💰 AMOUNT CHANGED:");
+                    debugPrint("  - Subcategory: ${subcategoryName ?? 'Not selected'}");
+                    debugPrint("  - Amount: $value");
+                    debugPrint("  - Item index: ${_subcategoryAmounts.indexOf(item)}");
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Montant',
+                    isDense: true,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+                  ),
+                  style: TextStyle(
+                    color: AppTheme.textDark,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ),
+              SizedBox(width: 2.w),
+              GestureDetector(
+                onTap: () => _module.removeSubcategoryAmount(
+                  index: index,
+                  subcategoryAmounts: _subcategoryAmounts,
+                  listKey: _listKey,
+                  buildRemovedItem: _buildRemovedSubcategoryItem,
+                  onStateChanged: () => setState(() {}),
+                ),
+                child: Container(
+                  padding: EdgeInsets.all(2.w),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(1.w),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.3),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.remove,
+                    color: Colors.red,
+                    size: 16.sp,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRemovedSubcategoryItem(
+    Map<String, dynamic> item,
+    Animation<double> animation,
+  ) {
+    return SizeTransition(
+      sizeFactor: animation.drive(
+        Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+      ),
+      child: ScaleTransition(
+        scale: animation.drive(
+          Tween<double>(
+            begin: 0.0, // Start scaled down
+            end: 1.0, // End at full size
+          ).chain(CurveTween(curve: Curves.easeOut)),
+        ),
+        child: FadeTransition(
+          opacity: animation,
+          child: Container(
+            margin: EdgeInsets.only(bottom: 2.h),
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
+            decoration: BoxDecoration(
+              color: AppTheme.secondaryDark.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(2.w),
+              border: Border.all(
+                color:
+                    AppTheme.borderColorDark,
+                width: 1.0,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: CustomSubcategoryDropdown(
+                    title: const SizedBox.shrink(),
+                    hint: 'Tapez ou sélectionnez une sous-catégorie',
+                    items: _subcategories,
+                    selectedValue: item['subcategory'] as Subcategory?,
+                    onChanged: null, // Disabled for removed items
+                    enabled: false,
+                  ),
+                ),
+                Container(
+                  height: 4.h,
+                  width: 1,
+                  color: AppTheme.borderColorDark.withValues(alpha: 0.5),
+                  margin: EdgeInsets.symmetric(horizontal: 2.w),
+                ),
+                Expanded(
+                  child: TextFormField(
+                    controller: item['amountController'] as TextEditingController?,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Montant',
+                      isDense: true,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+                    ),
+                    style: TextStyle(
+                      color: AppTheme.textDark,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Container(
+                  padding: EdgeInsets.all(2.w),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(1.w),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.3),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.remove,
+                    color: Colors.red,
+                    size: 16.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubcategoryField(Map<String, dynamic> item) {
+    return CustomSubcategoryDropdown(
+      title: const SizedBox.shrink(),
+      hint: 'Tapez ou sélectionnez une sous-catégorie',
+      items: _subcategories,
+      selectedValue: null, // We'll handle selection differently
+      onChanged: (Subcategory? subcategory) {
+        if (subcategory != null) {
+          (item['subcategoryController'] as TextEditingController).text = subcategory.name ?? '';
+          item['subcategoryName'] = subcategory.name ?? '';
+          debugPrint("🔥 SUBCATEGORY SELECTED:");
+          debugPrint("  - ID: ${subcategory.id}");
+          debugPrint("  - Name: ${subcategory.name}");
+          debugPrint("  - Category ID: ${subcategory.categoryId}");
+          debugPrint("  - Stored in item['subcategoryName']: ${item['subcategoryName']}");
+          setState(() {});
+        }
+      },
+      enabled: true,
+    );
+  }
 }
+
+
