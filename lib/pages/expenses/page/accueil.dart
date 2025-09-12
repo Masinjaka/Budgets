@@ -1,13 +1,15 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/expense_model.dart';
-import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:budgets/provider/expense_provider.dart';
 import 'package:budgets/provider/filter_provider.dart';
 import 'package:budgets/utils/chart_data.dart';
 import 'package:budgets/widgets/charts/bar_chart.dart';
 import 'package:budgets/widgets/charts/line_chart.dart';
-import 'package:budgets/widgets/custom_app_bar.dart';
 import 'package:budgets/widgets/custom_expense_card.dart';
+import 'package:budgets/widgets/expense_widgets/custom_greeting_app_bar.dart';
+import 'package:budgets/widgets/expense_widgets/jumbotron.dart';
+import 'package:budgets/widgets/expense_widgets/section_title.dart';
+import 'package:budgets/widgets/expense_widgets/stats_home_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,46 +36,47 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
 
     dateRange = ref.watch(dateRangeProvider);
 
-    final globalTheme = ref.watch(globalThemeProvider);
-
-    bool isDarkMode = globalTheme == Brightness.dark;
-
     return Scaffold(
-      appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.transparent,
-        toolbarHeight: 8.h,
-        elevation: 0,
-        title: const CustomAppBar(),
+      appBar: const CustomGreetingAppBar(
+        greeting: 'Bonjour Masinjaka!',
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.w),
+        padding: EdgeInsets.symmetric(horizontal: 2.w),
         child: SizedBox(
           height: double.infinity,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                _buildCurrentBudget(asyncExpenses),
                 SizedBox(height: 2.h),
-                _buildStats(isDarkMode, asyncExpenses),
+                const Jumbotron(),
+                SizedBox(height: 3.h),
+                SectionTitle(
+                  title: 'VUE D\'ENSEMBLE',
+                  onTap: () {},
+                ),
+                SizedBox(height: 3.h),
+                StatsHomeWidget(asyncExpenses: asyncExpenses),
+                SizedBox(height: 3.h),
+                SectionTitle(
+                  title: 'ACTIVITÉS RÉCENTES',
+                  onTap: () {
+                    context.push('/expense-list');
+                  },
+                ),
                 SizedBox(height: 2.h),
-                _buildRecentExpense(isDarkMode, asyncExpenses),
+                switch (asyncExpenses) {
+                  AsyncData(:final value) => _buildExpenseList(value),
+                  AsyncError(:final error) => Text('error: $error'),
+                  _ => const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primaryGreen,
+                      ),
+                    ),
+                },
               ],
             ),
           ),
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(right: 1.w),
-        child: FloatingActionButton(
-          shape: const CircleBorder(),
-          backgroundColor: Colors.white,
-          onPressed: () async {
-            if (!mounted) return;
-            context.push('/add-expense');
-          },
-          child: const Icon(Icons.add, color: Colors.black),
         ),
       ),
     );
@@ -111,15 +114,16 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
   }
 
   // Builds the recent expenses section with a list of expense tiles.
-  Container _buildRecentExpense(
-      bool isDarkMode, AsyncValue<List<Expense>> asyncExpenses) {
+  Container _buildRecentExpense(AsyncValue<List<Expense>> asyncExpenses) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.w),
       height: 40.h,
       decoration: BoxDecoration(
-        color: isDarkMode ? AppTheme.secondaryDark : AppTheme.secondaryLight,
+        color: AppTheme.secondaryDark,
         borderRadius: BorderRadius.circular(5.w),
-        border: Border.all(color: AppTheme.borderColorDark,),
+        border: Border.all(
+          color: AppTheme.borderColorDark,
+        ),
       ),
       child: Column(
         children: [
@@ -137,7 +141,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
                   'Voir plus',
                   style: TextStyle(
                     fontSize: 15.sp,
-                    color: AppTheme.primaryLight,
+                    color: AppTheme.primaryGreen,
                   ),
                 ),
               ),
@@ -154,7 +158,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
             AsyncError(:final error) => Text('error: $error'),
             _ => const Center(
                 child: CircularProgressIndicator(
-                  color: AppTheme.primaryLight,
+                  color: AppTheme.primaryGreen,
                 ),
               ),
           },
@@ -165,16 +169,17 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
 
   // Builds the statistics section with a toggle for daily, weekly, and monthly views.
   Container _buildStats(
-    bool isDarkMode,
     AsyncValue<List<Expense>> asyncExpenses,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.w),
       height: 40.h,
       decoration: BoxDecoration(
-        color: isDarkMode ? AppTheme.secondaryDark : AppTheme.secondaryLight,
+        color: AppTheme.secondaryDark,
         borderRadius: BorderRadius.circular(5.w),
-        border: Border.all(color: AppTheme.borderColorDark,),
+        border: Border.all(
+          color: AppTheme.borderColorDark,
+        ),
       ),
       child: Column(
         children: [
@@ -192,7 +197,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
                   'Voir plus',
                   style: TextStyle(
                     fontSize: 15.sp,
-                    color: AppTheme.primaryLight,
+                    color: AppTheme.primaryGreen,
                   ),
                 ),
               ),
@@ -265,7 +270,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
             AsyncError(:final error) => Text('error: $error'),
             _ => const Center(
                 child: CircularProgressIndicator(
-                  color: AppTheme.primaryLight,
+                  color: AppTheme.primaryGreen,
                 ),
               ),
           },
@@ -281,12 +286,11 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.w),
       height: 15.h,
       decoration: BoxDecoration(
-        color: AppTheme.secondaryDark,
-        borderRadius: BorderRadius.circular(5.w),
-        border: Border.all(
-          color: AppTheme.borderColorDark,
-        )
-      ),
+          color: AppTheme.secondaryDark,
+          borderRadius: BorderRadius.circular(5.w),
+          border: Border.all(
+            color: AppTheme.borderColorDark,
+          )),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,6 +372,10 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
               category: e.category?.name ?? "Categorie inconnue",
               amount: e.amount?.toString() ?? "Montant inconnue",
               date: e.date!,
+              categoryColor: Color(int.parse(e.category!.color!, radix: 16)),
+              categoryEmoji: e.category?.emoji ?? '❓',
+              description: e.description ?? "Aucune description",
+              categoryId: e.category?.id ?? "",
             ),
           )
           .toList(),

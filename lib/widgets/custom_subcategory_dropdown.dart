@@ -1,6 +1,5 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/subcategories.dart';
-import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -192,8 +191,6 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
     final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
     final Size size = renderBox.size;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
-    
-    final isDarkMode = ref.watch(globalThemeProvider) == Brightness.dark;
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
@@ -215,10 +212,10 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                       maxHeight: 40.h,
                     ),
                     decoration: BoxDecoration(
-                      color: isDarkMode ? AppTheme.secondaryDark : Colors.white,
+                      color: AppTheme.secondaryDark,
                       borderRadius: BorderRadius.circular(2.w),
                       border: Border.all(
-                        color: isDarkMode ? AppTheme.borderColorDark : Colors.grey[300]!,
+                        color: AppTheme.borderColorDark,
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -230,7 +227,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(2.w),
-                      child: _buildDropdownContent(isDarkMode),
+                      child: _buildDropdownContent(),
                     ),
                   ),
                 ),
@@ -248,7 +245,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
     _animationController.forward();
   }
 
-  Widget _buildDropdownContent(bool isDarkMode) {
+  Widget _buildDropdownContent() {
     final searchText = _searchController.text.trim();
     final hasFilteredItems = _filteredItems.isNotEmpty;
     final showCustomOption = searchText.isNotEmpty && 
@@ -262,7 +259,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
               ? 'Aucune sous-catégorie disponible'
               : 'Aucune sous-catégorie trouvée',
           style: TextStyle(
-            color: isDarkMode ? AppTheme.textDark.withOpacity(0.6) : Colors.black54,
+            color: AppTheme.textDark.withOpacity(0.6),
             fontSize: 14.sp,
           ),
         ),
@@ -291,7 +288,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                 padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? (isDarkMode ? AppTheme.textDark.withOpacity(0.1) : Colors.grey[100])
+                      ? AppTheme.textDark.withOpacity(0.1)
                       : Colors.transparent,
                 ),
                 child: Row(
@@ -299,7 +296,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                     Icon(
                       Icons.category_outlined,
                       size: 16.sp,
-                      color: isDarkMode ? AppTheme.textDark.withOpacity(0.7) : Colors.black54,
+                      color: AppTheme.textDark.withOpacity(0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
@@ -307,8 +304,8 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                         item.name ?? '',
                         style: TextStyle(
                           color: isSelected
-                              ? (isDarkMode ? AppTheme.textDark : Colors.black)
-                              : (isDarkMode ? AppTheme.textDark.withOpacity(0.8) : Colors.black87),
+                              ? AppTheme.textDark
+                              : AppTheme.textDark.withOpacity(0.8),
                           fontSize: 14.sp,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
@@ -326,7 +323,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
               Container(
                 height: 1,
                 margin: EdgeInsets.symmetric(horizontal: 4.w),
-                color: isDarkMode ? AppTheme.borderColorDark : Colors.grey[300],
+                color: AppTheme.borderColorDark,
               ),
             GestureDetector(
               onTap: () {
@@ -346,14 +343,14 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                     Icon(
                       Icons.add_circle_outline,
                       size: 16.sp,
-                      color: isDarkMode ? AppTheme.textDark.withOpacity(0.7) : Colors.black54,
+                      color: AppTheme.textDark.withOpacity(0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
                       child: Text(
                         'Créer "$searchText"',
                         style: TextStyle(
-                          color: isDarkMode ? AppTheme.textDark.withOpacity(0.8) : Colors.black87,
+                          color: AppTheme.textDark.withOpacity(0.8),
                           fontSize: 14.sp,
                           fontStyle: FontStyle.italic,
                         ),
@@ -387,7 +384,6 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = ref.watch(globalThemeProvider) == Brightness.dark;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,12 +407,12 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                 Container(
                   key: _dropdownKey,
                   decoration: BoxDecoration(
-                    color: isDarkMode ? AppTheme.secondaryDark : Colors.white,
+                    color: AppTheme.secondaryDark,
                     borderRadius: BorderRadius.circular(2.w),
                     border: Border.all(
                       color: state.hasError 
                           ? Colors.red 
-                          : (isDarkMode ? AppTheme.borderColorDark : Colors.grey[300]!),
+                          : AppTheme.borderColorDark,
                     ),
                   ),
                   child: Row(
@@ -429,9 +425,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                           decoration: InputDecoration(
                             hintText: widget.hint ?? 'Sélectionnez ou tapez une sous-catégorie',
                             hintStyle: TextStyle(
-                              color: isDarkMode 
-                                  ? AppTheme.textDark.withOpacity(0.6) 
-                                  : Colors.black54,
+                              color: AppTheme.textDark.withOpacity(0.6),
                               fontSize: 15.sp,
                             ),
                             border: InputBorder.none,
@@ -443,7 +437,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                             ),
                           ),
                           style: TextStyle(
-                            color: isDarkMode ? AppTheme.textDark : Colors.black,
+                            color: AppTheme.textDark,
                             fontSize: 15.sp,
                           ),
                           onTap: () {
@@ -459,7 +453,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                           padding: EdgeInsets.only(right: 4.w),
                           child: Icon(
                             _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                            color: isDarkMode ? AppTheme.textDark : Colors.black54,
+                            color: AppTheme.textDark,
                           ),
                         ),
                       ),

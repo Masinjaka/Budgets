@@ -1,6 +1,5 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/category_model.dart';
-import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -136,8 +135,6 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
   }
 
   OverlayEntry _createOverlayEntry(Offset offset, Size size) {
-    final globalTheme = ref.watch(globalThemeProvider);
-    final isDarkMode = globalTheme == Brightness.dark;
     
     return OverlayEntry(
       builder: (context) => Stack(
@@ -177,22 +174,22 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             maxHeight: 40.h, // Limit height to 40% of screen
                           ),
                           decoration: BoxDecoration(
-                            color: isDarkMode ? AppTheme.secondaryDark : Colors.white,
+                            color: AppTheme.secondaryDark,
                             borderRadius: BorderRadius.only(
                               bottomLeft: Radius.circular(2.w),
                               bottomRight: Radius.circular(2.w),
                             ),
                             border: Border(
                               left: BorderSide(
-                                color: isDarkMode ? AppTheme.borderColorDark : Colors.black54,
+                                color: AppTheme.borderColorDark,
                                 width: 1.0,
                               ),
                               right: BorderSide(
-                                color: isDarkMode ? AppTheme.borderColorDark : Colors.black54,
+                                color: AppTheme.borderColorDark,
                                 width: 1.0,
                               ),
                               bottom: BorderSide(
-                                color: isDarkMode ? AppTheme.borderColorDark : Colors.black54,
+                                color: AppTheme.borderColorDark,
                                 width: 1.0,
                               ),
                               // No top border to seamlessly connect with text field
@@ -211,8 +208,8 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                               bottomRight: Radius.circular(2.w),
                             ),
                             child: widget.items.isEmpty
-                                ? _buildEmptyState(isDarkMode)
-                                : _buildDropdownItems(isDarkMode),
+                                ? _buildEmptyState()
+                                : _buildDropdownItems(),
                           ),
                         ),
                       ),
@@ -227,13 +224,13 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
     );
   }
 
-  Widget _buildEmptyState(bool isDarkMode) {
+  Widget _buildEmptyState() {
     return Container(
       padding: EdgeInsets.all(3.w),
       child: Text(
         'Aucune catégorie disponible',
         style: TextStyle(
-          color: (isDarkMode ? AppTheme.textDark : Colors.black).withOpacity(0.5),
+          color: AppTheme.textDark.withOpacity(0.5),
           fontSize: 15.sp,
           fontStyle: FontStyle.italic,
         ),
@@ -241,7 +238,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
     );
   }
 
-  Widget _buildDropdownItems(bool isDarkMode) {
+  Widget _buildDropdownItems() {
     return ListView.builder(
       shrinkWrap: true,
       padding: EdgeInsets.zero,
@@ -276,7 +273,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                   child: Text(
                     category.name ?? 'Catégorie sans nom',
                     style: TextStyle(
-                      color: isDarkMode ? AppTheme.textDark : Colors.black,
+                      color: AppTheme.textDark,
                       fontSize: 15.sp,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
@@ -299,8 +296,6 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
 
   @override
   Widget build(BuildContext context) {
-    final globalTheme = ref.watch(globalThemeProvider);
-    final isDarkMode = globalTheme == Brightness.dark;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -329,7 +324,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                       vertical: 1.5.h,
                     ),
                     decoration: BoxDecoration(
-                      color: isDarkMode ? AppTheme.secondaryDark : Colors.white,
+                      color: AppTheme.secondaryDark,
                       borderRadius: _isDropdownOpen 
                           ? BorderRadius.only(
                               topLeft: Radius.circular(2.w),
@@ -339,7 +334,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                       border: Border.all(
                         color: state.hasError 
                             ? Colors.red 
-                            : (isDarkMode ? AppTheme.borderColorDark : Colors.black54),
+                            : AppTheme.borderColorDark,
                         width: 1.0,
                       ),
                     ),
@@ -357,8 +352,8 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             _selectedItem?.name ?? widget.hint ?? 'Sélectionnez une option',
                             style: TextStyle(
                               color: _selectedItem != null 
-                                  ? (isDarkMode ? AppTheme.textDark : Colors.black)
-                                  : (isDarkMode ? AppTheme.textDark.withOpacity(0.6) : Colors.black54),
+                                  ? AppTheme.textDark
+                                  : AppTheme.textDark.withOpacity(0.6),
                               fontSize: 15.sp,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -366,7 +361,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                         ),
                         Icon(
                           _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                          color: isDarkMode ? AppTheme.textDark : Colors.black54,
+                          color: AppTheme.textDark,
                         ),
                       ],
                     ),

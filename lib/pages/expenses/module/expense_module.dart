@@ -5,7 +5,6 @@ import 'package:budgets/provider/category_provider.dart';
 import 'package:budgets/provider/expense_provider.dart';
 import 'package:budgets/provider/filter_provider.dart';
 import 'package:budgets/provider/subcategories_provider.dart';
-import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

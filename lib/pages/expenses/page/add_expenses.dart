@@ -1,6 +1,5 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/pages/expenses/module/expense_module.dart';
-import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -24,7 +23,6 @@ class ExpenseCreationPage extends ConsumerStatefulWidget {
 class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isLoading = false;
-  bool _isDarkMode = false;
   final ExpenseModule _module = ExpenseModule();
 
   final TextEditingController _designationController = TextEditingController();
@@ -70,9 +68,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final globalTheme = ref.watch(globalThemeProvider);
-
-    _isDarkMode = globalTheme == Brightness.dark;
+    // Always use dark mode
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildForm(),
@@ -88,7 +84,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 5.h),
+            padding: EdgeInsets.only(left: 2.w, right: 2.w, top: 5.h),
             child: Form(
               key: _formKey,
               child: Column(
@@ -151,14 +147,10 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                   Container(
                     padding: EdgeInsets.all(4.w),
                     decoration: BoxDecoration(
-                      color: _isDarkMode
-                          ? AppTheme.secondaryDark
-                          : Colors.grey[50],
+                      color: AppTheme.secondaryDark,
                       borderRadius: BorderRadius.circular(2.w),
                       border: Border.all(
-                        color: _isDarkMode
-                            ? AppTheme.borderColorDark
-                            : Colors.grey[300]!,
+                        color: AppTheme.borderColorDark,
                         width: 1.0,
                       ),
                     ),
@@ -173,9 +165,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
-                                  color: _isDarkMode
-                                      ? AppTheme.textDark
-                                      : Colors.black87,
+                                  color: AppTheme.textDark,
                                 ),
                               ),
                               SizedBox(height: 0.5.h),
@@ -185,10 +175,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                                     : 'Montant général pour la catégorie',
                                 style: TextStyle(
                                   fontSize: 12.sp,
-                                  color: (_isDarkMode
-                                          ? AppTheme.textDark
-                                          : Colors.black87)
-                                      .withValues(alpha: 0.7),
+                                  color: AppTheme.textDark.withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -199,9 +186,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: _isDarkMode
-                                  ? AppTheme.borderColorDark
-                                  : Colors.grey[400]!,
+                              color:AppTheme.borderColorDark,
                               width: 1.5,
                             ),
                           ),
@@ -222,15 +207,9 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                               });
                             },
                             activeColor: Colors.white,
-                            activeTrackColor: _isDarkMode
-                                ? AppTheme.textDark
-                                : Colors.black87,
-                            inactiveThumbColor: _isDarkMode
-                                ? AppTheme.secondaryDark
-                                : Colors.white,
-                            inactiveTrackColor: _isDarkMode
-                                ? AppTheme.borderColorDark
-                                : Colors.grey[300],
+                            activeTrackColor: AppTheme.textDark,
+                            inactiveThumbColor:AppTheme.secondaryDark,
+                            inactiveTrackColor: AppTheme.borderColorDark,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
                           ),
@@ -314,7 +293,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             padding: EdgeInsets.symmetric(vertical: 1.5.w),
             child: CustomPaint(
               painter: DashedBorderPainter(
-                color: (_isDarkMode ? AppTheme.textDark : Colors.black87)
+                color: (AppTheme.textDark)
                     .withValues(alpha: 0.3),
                 strokeWidth: 1.0,
                 borderRadius: 2.w,
@@ -326,14 +305,14 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                   children: [
                     Icon(
                       Icons.add,
-                      color: _isDarkMode ? AppTheme.textDark : Colors.black87,
+                      color: AppTheme.textDark,
                       size: 16.sp,
                     ),
                     SizedBox(width: 2.w),
                     Text(
                       'Ajouter une sous-catégorie',
                       style: TextStyle(
-                        color: _isDarkMode ? AppTheme.textDark : Colors.black87,
+                        color: AppTheme.textDark,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -353,36 +332,30 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       automaticallyImplyLeading: false,
-      title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4.w),
-        child: Text(
-          'Nouvel dépense',
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 18.sp,
-          ),
+      title: Text(
+        'Nouvel dépense',
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 18.sp,
         ),
       ),
       actions: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: IconButton(
-              onPressed: () => context.pop(),
-              icon: Icon(
-                Icons.close,
-                size: 21.sp,
-              )),
-        ),
+        IconButton(
+            onPressed: () => context.pop(),
+            icon: Icon(
+              Icons.close,
+              size: 21.sp,
+            )),
       ],
     );
   }
 
   Padding _buildAddButton() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 5.w),
+      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 5.w),
       child: CustomButton(
         text: 'Confirmer',
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.primaryGreen,
         onPressed: () async {
           setState(() => _isLoading = true);
 
@@ -483,12 +456,10 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
           margin: EdgeInsets.only(bottom: 2.h),
           padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
           decoration: BoxDecoration(
-            color: _isDarkMode
-                ? AppTheme.secondaryDark.withValues(alpha: 0.5)
-                : Colors.grey[50],
+            color: AppTheme.secondaryDark.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(2.w),
             border: Border.all(
-              color: _isDarkMode ? AppTheme.borderColorDark : Colors.grey[300]!,
+              color: AppTheme.borderColorDark,
               width: 1.0,
             ),
           ),
@@ -502,7 +473,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                 height: 4.h,
                 width: 1,
                 color:
-                    (_isDarkMode ? AppTheme.borderColorDark : Colors.grey[400]!)
+                    (AppTheme.borderColorDark)
                         .withValues(alpha: 0.5),
                 margin: EdgeInsets.symmetric(horizontal: 2.w),
               ),
@@ -529,7 +500,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                         EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                   ),
                   style: TextStyle(
-                    color: _isDarkMode ? AppTheme.textDark : Colors.black,
+                    color: AppTheme.textDark,
                     fontSize: 14.sp,
                   ),
                 ),
@@ -591,13 +562,11 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             margin: EdgeInsets.only(bottom: 2.h),
             padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
             decoration: BoxDecoration(
-              color: _isDarkMode
-                  ? AppTheme.secondaryDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
+              color: AppTheme.secondaryDark.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2.w),
               border: Border.all(
                 color:
-                    _isDarkMode ? AppTheme.borderColorDark : Colors.grey[300]!,
+                    AppTheme.borderColorDark,
                 width: 1.0,
               ),
             ),
@@ -617,10 +586,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                 Container(
                   height: 4.h,
                   width: 1,
-                  color: (_isDarkMode
-                          ? AppTheme.borderColorDark
-                          : Colors.grey[400]!)
-                      .withValues(alpha: 0.5),
+                  color: AppTheme.borderColorDark.withValues(alpha: 0.5),
                   margin: EdgeInsets.symmetric(horizontal: 2.w),
                 ),
                 Expanded(
@@ -639,7 +605,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                           EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                     ),
                     style: TextStyle(
-                      color: _isDarkMode ? AppTheme.textDark : Colors.black,
+                      color: AppTheme.textDark,
                       fontSize: 14.sp,
                     ),
                   ),

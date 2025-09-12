@@ -1,4 +1,4 @@
-import 'package:budgets/pages/expenses/page/expense_page.dart';
+import 'package:budgets/pages/expenses/page/accueil.dart';
 import 'package:budgets/pages/home/pages/modules/modules.dart';
 import 'package:budgets/pages/profile/page/profile_page.dart';
 import 'package:budgets/pages/categories/page/category_page.dart';

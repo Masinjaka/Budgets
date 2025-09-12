@@ -14,7 +14,7 @@ Future<List<Expense>> getExpenses() {
     amount,
     date,
     invoice_file,
-    expense_categories (id, name )
+    categories (id, name, emoji, color)
   ''');
 
       if (response.isEmpty) return [];

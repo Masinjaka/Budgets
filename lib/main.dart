@@ -4,10 +4,10 @@ import 'package:budgets/pages/auth/pages/sign_up_page.dart';
 import 'package:budgets/pages/auth/pages/login_page.dart';
 import 'package:budgets/pages/categories/page/add_category_page.dart';
 import 'package:budgets/pages/expenses/page/add_expenses.dart';
+import 'package:budgets/pages/expenses/page/view_expense_list.dart';
 import 'package:budgets/pages/expenses/page/filter_expenses.dart';
 import 'package:budgets/pages/home/pages/home_page.dart';
 import 'package:budgets/pages/splash/page/splash_page.dart';
-import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -85,6 +85,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           category: state.extra as Category?,
         ),
       ),
+      GoRoute(
+        path: '/expense-list',
+        builder: (context, state) => const ExpenseList(),
+      ),
     ],
   );
 
@@ -104,33 +108,25 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangePlatformBrightness() {
-    // This method is called when the platform brightness changes.
-    if (mounted) {
-      debugPrint("The BRIGHTNESS CHANGED");
-
-      ref.read(appThemeProvider.notifier).state = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark ? ThemeMode.dark:ThemeMode.light;
-      ref.read(globalThemeProvider.notifier).state =  WidgetsBinding.instance.platformDispatcher.platformBrightness;
-      storageBox.put(LocalAppStorage.globalTheme, WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark  ? 'dark':'light');
-    }
+    // Platform brightness changes are ignored - we always use dark mode
     super.didChangePlatformBrightness();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    final themeMode = ref.watch(appThemeProvider);
     return ResponsiveSizer(
       builder: (p0, p1, p2) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           title: 'Budgets',
-          themeMode: themeMode,
+          themeMode: ThemeMode.dark,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
             textTheme: GoogleFonts.nunitoSansTextTheme(),
             textSelectionTheme: const TextSelectionThemeData(
-              cursorColor: Colors.black,
+              cursorColor: Colors.white,
               selectionHandleColor: Color.fromARGB(255, 51, 51, 51),
               selectionColor: Color(0xffDDFFBC),
             ),
@@ -179,6 +175,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             scaffoldBackgroundColor: AppTheme.backgroundDark,
+            textSelectionTheme: const TextSelectionThemeData(
+              cursorColor: Colors.white,
+              selectionHandleColor: Color.fromARGB(255, 183, 183, 183),
+              selectionColor: Color.fromARGB(255, 79, 104, 56),
+            ),
           ),
           routerConfig: router,
         );
