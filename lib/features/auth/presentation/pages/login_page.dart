@@ -1,4 +1,5 @@
-import 'package:budgets/pages/auth/module/auth_module.dart';
+import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/gestures.dart';
@@ -7,41 +8,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class SignUpPage extends ConsumerStatefulWidget {
-  const SignUpPage({super.key});
+class LoginPage extends ConsumerStatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _SignUpPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignUpPageState extends ConsumerState<SignUpPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmpasswordController =
-      TextEditingController();
-  final AuthModule authModule = AuthModule();
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmpasswordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authControllerProvider, (prev, next) {
+      next.whenOrNull(
+        error: (e, st) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('$e')));
+        },
+      );
+    });
+
     return Scaffold(
-      body: _buildForm(),
+      body: _buildForm(context),
       bottomNavigationBar: _buildBottomPart(context),
     );
   }
 
-  _buildForm() {
+  Widget _buildForm(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: SizedBox(
@@ -55,33 +60,15 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Column(
                 children: [
-                  SizedBox(
-                    height: 20.h,
-                  ),
+                  SizedBox(height: 20.h),
                   Text(
-                    'Creer un compte',
+                    'Connexion',
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 23.sp,
                     ),
                   ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  CustomTextField(
-                    title: Text(
-                      "Nom d'utilisateur",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
-                      ),
-                    ),
-                    hint: 'username',
-                    controller: _usernameController,
-                    keyboardType: TextInputType.text,
-                  ),
-                  SizedBox(height: 1.5.h),
+                  SizedBox(height: 10.h),
                   CustomTextField(
                     title: Text(
                       'Email',
@@ -109,25 +96,26 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
                     isPassword: true,
-                    validator: const <String, String>{"type": "password"},
-                  ),
-                  SizedBox(height: 1.5.h),
-                  CustomTextField(
-                    title: Text(
-                      'Confirmer le mot de passe',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
-                      ),
-                    ),
-                    hint: 'votre mot de passe',
-                    controller: _confirmpasswordController,
-                    keyboardType: TextInputType.visiblePassword,
-                    isPassword: true,
-                    validator: const <String, String>{"type": "password"},
                   ),
                   SizedBox(height: 2.h),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text.rich(
+                      TextSpan(
+                        text: 'Mot de passe oublié?',
+                        style: TextStyle(
+                          fontSize: 15.5.sp,
+                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            if (!mounted) return;
+                            context.push('/reset-password');
+                          },
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -137,13 +125,13 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     );
   }
 
-  _buildBottomPart(BuildContext context) {
+  Widget _buildBottomPart(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text.rich(
           TextSpan(
-            text: 'Se connecter',
+            text: 'Créer un compte',
             style: TextStyle(
               fontSize: 15.5.sp,
               decoration: TextDecoration.underline,
@@ -152,31 +140,29 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             recognizer: TapGestureRecognizer()
               ..onTap = () {
                 if (!mounted) return;
-
-                context.go('/login');
+                context.go('/signup');
               },
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.w),
           child: CustomButton(
-            text: 'Creer un compte',
-            isLoading: _isLoading,
+            text: 'Se connecter',
             onPressed: () async {
-              // start authenticating
+              if (!_formKey.currentState!.validate()) return;
+
               setState(() => _isLoading = true);
-              await authModule.signUp(
-                context: context,
-                ref: ref,
-                email: _emailController.text.trim(),
-                password: _passwordController.text,
-                username: _usernameController.text.trim(),
-                confirmedPassword: _confirmpasswordController.text,
-                formKey: _formKey,
-              );
+              try {
+                await ref.read(authControllerProvider.notifier).signIn(
+                      email: _emailController.text.trim(),
+                      password: _passwordController.text,
+                    );
+                if (!mounted) return;
+                context.go('/home');
+              } catch (_) {}
               setState(() => _isLoading = false);
-              // end authenticating
             },
+            isLoading: _isLoading,
           ),
         ),
       ],
