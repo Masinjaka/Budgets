@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+import 'package:budgets/core/utils/response_parser.dart';
 import 'package:budgets/core/wrapper.dart';
 import 'package:budgets/main.dart';
 import 'package:budgets/model/expense_model.dart';
@@ -45,11 +44,13 @@ Future<void> addExpense(
         },
       );
 
-      if(response['success'] == false) {
-        throw Exception(response['error_message'] ?? 'Failed to add expense');
+      final result = parseRpcAddExpenseResponse(response);
+
+      if (!result.success) {
+        throw Exception(result.errorMessage ?? 'Failed to add expense');
       }
   
-      debugPrint("Expense created: $response");
+      debugPrint("Expense created: ${response.runtimeType} -> $response");
     },
   );
 }

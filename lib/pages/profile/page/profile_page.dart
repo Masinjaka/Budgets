@@ -1,4 +1,4 @@
-import 'package:budgets/provider/auth_provider.dart';
+import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,13 +59,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: CustomButton(
         text: 'Se déconnecter',
         onPressed: () async {
-          // start authenticating
           setState(() => _isLoading = true);
-          await ref.read(authProvider.notifier).signOut();
+          await ref.read(authControllerProvider.notifier).signOut();
           if (!mounted) return;
           context.go('/login');
           setState(() => _isLoading = false);
-          // end authenticating
         },
         isLoading: _isLoading,
       ),

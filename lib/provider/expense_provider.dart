@@ -1,5 +1,6 @@
 import 'package:budgets/api/expense_api.dart';
 import 'package:budgets/model/expense_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expense_provider.g.dart';
@@ -16,7 +17,8 @@ class Expenses extends _$Expenses {
       await addExpense(amount, description, categoryName, subcategoryAmounts);
 
       ref.invalidateSelf();
-    } catch (e) {
+    } catch (e,s) {
+      debugPrint('Error in addUserExpenses: $e, StackTrace: $s');
       rethrow;
     }
   }

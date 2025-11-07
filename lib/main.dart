@@ -1,7 +1,8 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/category_model.dart';
-import 'package:budgets/pages/auth/pages/sign_up_page.dart';
-import 'package:budgets/pages/auth/pages/login_page.dart';
+import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:budgets/features/auth/presentation/pages/login_page.dart';
+import 'package:budgets/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:budgets/pages/categories/page/add_category_page.dart';
 import 'package:budgets/pages/expenses/page/add_expenses.dart';
 import 'package:budgets/pages/expenses/page/view_expense_list.dart';
@@ -53,68 +54,23 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
-  final router = GoRouter(
+  // Create router once to prevent resets on rebuilds (e.g., keyboard focus changes)
+  late final GoRouter _router = GoRouter(
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const SplashPage(),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginPage(),
-      ),
-      GoRoute(
-        path: '/signup',
-        builder: (context, state) => const SignUpPage(),
-      ),
-      GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
-        path: '/add-expense',
-        builder: (context, state) => const ExpenseCreationPage(),
-      ),
-      GoRoute(
-        path: '/filter-expense',
-        builder: (context, state) => const ExpenseFilterPage(),
-      ),
-      GoRoute(
-        path: '/add-category',
-        builder: (context, state) => AddCategoryPage(
-          category: state.extra as Category?,
-        ),
-      ),
-      GoRoute(
-        path: '/expense-list',
-        builder: (context, state) => const ExpenseList(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const SplashPage()),
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
+      GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
+      GoRoute(path: '/home', builder: (context, state) => const HomePage()),
+      GoRoute(path: '/add-expense', builder: (context, state) => const ExpenseCreationPage()),
+      GoRoute(path: '/filter-expense', builder: (context, state) => const ExpenseFilterPage()),
+      GoRoute(path: '/add-category', builder: (context, state) => AddCategoryPage(category: state.extra as Category?)),
+      GoRoute(path: '/expense-list', builder: (context, state) => const ExpenseList()),
     ],
   );
 
   @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    // Remove the observer.
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    // Platform brightness changes are ignored - we always use dark mode
-    super.didChangePlatformBrightness();
-  }
-
-  @override
   Widget build(BuildContext context) {
-
     return ResponsiveSizer(
       builder: (p0, p1, p2) {
         return MaterialApp.router(
@@ -130,47 +86,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
               selectionHandleColor: Color.fromARGB(255, 51, 51, 51),
               selectionColor: Color(0xffDDFFBC),
             ),
-            datePickerTheme: const DatePickerThemeData().copyWith(
-              weekdayStyle: GoogleFonts.nunito(
-                fontSize: 15.5.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              surfaceTintColor: Colors.white,
-              todayBackgroundColor:
-                  const WidgetStatePropertyAll(Colors.transparent),
-              todayForegroundColor: const WidgetStatePropertyAll(Colors.black),
-              todayBorder: const BorderSide(
-                color: Colors.black,
-                width: 2,
-              ),
-              shape: RoundedRectangleBorder(
-                side: const BorderSide(color: Colors.black),
-                borderRadius: BorderRadius.circular(2.w),
-              ),
-              headerHeadlineStyle: GoogleFonts.nunito(
-                fontSize: 20.sp,
-              ),
-              headerHelpStyle: GoogleFonts.nunito(
-                fontSize: 15.5.sp,
-              ),
-              dayStyle: GoogleFonts.nunito(
-                fontSize: 15.5.sp,
-              ),
-              cancelButtonStyle: ButtonStyle(
-                  textStyle: WidgetStatePropertyAll(
-                GoogleFonts.nunito(
-                  fontSize: 15.5.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
-              confirmButtonStyle: ButtonStyle(
-                  textStyle: WidgetStatePropertyAll(
-                GoogleFonts.nunito(
-                  fontSize: 15.5.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
-            ),
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
@@ -181,7 +96,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
               selectionColor: Color.fromARGB(255, 79, 104, 56),
             ),
           ),
-          routerConfig: router,
+          routerConfig: _router,
         );
       },
     );

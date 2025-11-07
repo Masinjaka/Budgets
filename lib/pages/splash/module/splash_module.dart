@@ -1,45 +1,42 @@
+import 'dart:async';
 import 'package:budgets/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashModule {
-
   SplashModule();
 
-  /// function to listen for auth session
-  /// this will navigate to screens depending on either the user is logged in or not
-  void listeToSession(WidgetRef ref, BuildContext context) async {
+  StreamSubscription<AuthState>? _sub;
 
-    await Future.delayed(const Duration(seconds: 2));
+  /// Listen for auth session and navigate accordingly
+  void listeToSession(BuildContext context) async {
+    await Future.delayed(const Duration(seconds: 1));
 
-    supabase.auth.onAuthStateChange.listen(
-      (data) {
-        
-        if(!context.mounted) return;
-        
-        final AuthChangeEvent event = data.event;
-        final Session? session = data.session;
+    // 1) One-shot check
+    final hasSession = supabase.auth.currentSession != null;
+    if (!context.mounted) return;
+    context.go(hasSession ? '/home' : '/login');
 
-        switch (event) {
-          case AuthChangeEvent.signedIn:
-            // Navigate to home screen
-            context.go('/home');
-            break;
-          case AuthChangeEvent.signedOut:
-            // Navigate to login screen
-            context.go('/login');
-            break;
-          case AuthChangeEvent.initialSession:
-            String pagePath = session!=null ? '/home' : '/login';
+    // 2) Subscribe for subsequent auth changes (once)
+    _sub ??= supabase.auth.onAuthStateChange.listen((data) {
+      if (!context.mounted) return;
+      switch (data.event) {
+        case AuthChangeEvent.signedIn:
+          context.go('/home');
+          break;
+        case AuthChangeEvent.signedOut:
+          context.go('/login');
+          break;
+        default:
+          // ignore other events, including initialSession (already handled)
+          break;
+      }
+    });
+  }
 
-            context.go(pagePath);
-            break;
-          default:
-        }
-
-      },
-    );
+  void dispose() {
+    _sub?.cancel();
+    _sub = null;
   }
 }
