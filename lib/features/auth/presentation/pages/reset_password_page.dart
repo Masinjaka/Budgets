@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';

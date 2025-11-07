@@ -52,6 +52,7 @@ dependencies:
   emoji_picker_flutter: ^4.3.0
   flutter_colorpicker: ^1.1.0
   flex_color_picker: ^3.7.1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +83,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/profil.png
+    - assets/icon/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -108,3 +110,12 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/full.png"
+  adaptive_icon_background: "assets/icon/background.png"
+  adaptive_icon_foreground: "assets/icon/foreground.png"
+  adaptive_icon_foreground_inset: 16
+  remove_alpha_ios: true
+  min_sdk_android: 21 # android min sdk min:16, default 21
