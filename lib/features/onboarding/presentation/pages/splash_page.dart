@@ -1,4 +1,4 @@
-import 'package:budgets/pages/splash/module/splash_module.dart';
+import 'package:budgets/features/onboarding/presentation/module/splash_module.dart';
 import 'package:flutter/material.dart';
 
 class SplashPage extends StatefulWidget {
