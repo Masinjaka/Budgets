@@ -1,4 +1,6 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/features/auth/presentation/pages/upload_profile_photo_page.dart';
+import 'package:budgets/features/onboarding/presentation/pages/getting_started_page.dart';
 import 'package:budgets/model/category_model.dart';
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:budgets/features/auth/presentation/pages/login_page.dart';
@@ -58,8 +60,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   late final GoRouter _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
+      GoRoute(path: '/getting-started', builder: (context, state) => const GettingStartedPage()),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
+      GoRoute(path: '/upload-profile-photo', builder: (context, state) => const UploadProfilePhotoPage()),
       GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
       GoRoute(path: '/home', builder: (context, state) => const HomePage()),
       GoRoute(path: '/add-expense', builder: (context, state) => const ExpenseCreationPage()),
@@ -80,7 +84,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
-            textTheme: GoogleFonts.nunitoSansTextTheme(),
+            textTheme: GoogleFonts.alexandriaTextTheme(),
             textSelectionTheme: const TextSelectionThemeData(
               cursorColor: Colors.white,
               selectionHandleColor: Color.fromARGB(255, 51, 51, 51),

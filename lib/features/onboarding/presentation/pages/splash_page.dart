@@ -1,5 +1,8 @@
+import 'package:budgets/core/paths.dart';
+import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/onboarding/presentation/module/splash_module.dart';
 import 'package:flutter/material.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -27,11 +30,20 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: AppTheme.primaryGreen,
       body: Center(
-        child: Text(
-          'Budget app',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        child: Container(
+          padding: EdgeInsets.all(1.w),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.black, width: 2)
+          ),
+          child: Image.asset(
+            AppPaths.logo,
+            width: 15.h,
+            height: 15.h,
+          ),
         ),
       ),
     );

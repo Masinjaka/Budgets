@@ -303,7 +303,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
             ),
             child: Text(
               title,
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.alexandria(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -322,7 +322,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
           Flexible(
               child: Text(
             'MGA',
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.alexandria(
               fontSize: 15.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white70,

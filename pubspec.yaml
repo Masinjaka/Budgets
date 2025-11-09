@@ -53,6 +53,10 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   flex_color_picker: ^3.7.1
   flutter_launcher_icons: ^0.14.4
+  smooth_page_indicator: ^1.1.0
+  dotted_border: ^2.0.0
+  image_picker: ^1.1.2
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
@@ -84,6 +88,7 @@ flutter:
   assets:
     - assets/profil.png
     - assets/icon/
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

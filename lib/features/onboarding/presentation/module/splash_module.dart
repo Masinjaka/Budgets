@@ -16,7 +16,7 @@ class SplashModule {
     // 1) One-shot check
     final hasSession = supabase.auth.currentSession != null;
     if (!context.mounted) return;
-    context.go(hasSession ? '/home' : '/login');
+    context.go(hasSession ? '/home' : '/getting-started');
 
     // 2) Subscribe for subsequent auth changes (once)
     _sub ??= supabase.auth.onAuthStateChange.listen((data) {

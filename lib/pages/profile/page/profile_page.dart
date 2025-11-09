@@ -62,7 +62,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           setState(() => _isLoading = true);
           await ref.read(authControllerProvider.notifier).signOut();
           if (!mounted) return;
-          context.go('/login');
+          context.go('/getting-started');
           setState(() => _isLoading = false);
         },
         isLoading: _isLoading,
