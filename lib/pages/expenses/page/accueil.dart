@@ -41,7 +41,7 @@ class _ExpensePageState extends ConsumerState<ExpensePage> {
         greeting: 'Bonjour Masinjaka!',
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 2.w),
+        padding: EdgeInsets.symmetric(horizontal: 6.w),
         child: SizedBox(
           height: double.infinity,
           child: SingleChildScrollView(

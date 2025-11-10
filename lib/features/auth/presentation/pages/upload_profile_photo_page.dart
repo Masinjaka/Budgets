@@ -11,6 +11,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
+import 'package:go_router/go_router.dart';
+import '../../../profile/presentation/controllers/profile_photo_controller.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UploadProfilePhotoPage extends ConsumerStatefulWidget {
   const UploadProfilePhotoPage({super.key});
@@ -24,6 +27,7 @@ class _UploadProfilePhotoPageState
     extends ConsumerState<UploadProfilePhotoPage> {
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,7 @@ class _UploadProfilePhotoPageState
             ),
             SizedBox(height: 2.h),
             Text(
-              'Pour que vos partenaire de budget puisse vous reconnaitre. ',
+              'Pour que vos partenaires de budget puissent vous reconnaitre.',
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 15.5.sp,
@@ -111,7 +115,62 @@ class _UploadProfilePhotoPageState
         children: [
           CustomButton(
             text: 'Suivant',
-            onPressed: () async {},
+            isLoading: _isLoading,
+            onPressed: () async {
+              if (_isLoading) return;
+              setState(() {
+                _isLoading = true;
+              });
+              if (_selectedImage == null) {
+                final proceed = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => PermissionRequestDialog(
+                    title: 'Continuer sans avatar ?',
+                    message: 'Vous n\'avez pas sélectionné d\'image. Continuer sans avatar ?',
+                    allowText: 'Oui',
+                    denyText: 'Non',
+                    onAllow: () => Navigator.of(context).pop(true),
+                    onDeny: () => Navigator.of(context).pop(false),
+                  ),
+                );
+                if (proceed == true) {
+                  if (mounted) context.go('/home');
+                }
+                setState(() {
+                  _isLoading = false;
+                });
+                return;
+              }
+              // Get current user id from Supabase auth
+              final userId = Supabase.instance.client.auth.currentUser?.id;
+              if (userId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Utilisateur non authentifié')),);
+                return;
+              }
+              // Trigger upload via controller
+              final controller = ref.read(profilePhotoControllerProvider.notifier);
+              await controller.upload(file: _selectedImage!, userId: userId);
+              final result = ref.read(profilePhotoControllerProvider);
+              result.when(
+                data: (url) {
+                  if (url != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Avatar enregistré')),);
+                  }
+                  if (mounted) context.go('/home');
+                },
+                error: (e, _) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erreur: $e')),
+                  );
+                },
+                loading: () {},
+              );
+              setState(() {
+                _isLoading = false;
+              });
+            },
           ),
           SizedBox(height: 2.h),
           CustomButton(
@@ -119,7 +178,9 @@ class _UploadProfilePhotoPageState
             foregroundColor: Colors.white,
             borderColor: Colors.transparent,
             backgroundColor: AppTheme.secondaryDark,
-            onPressed: () async {},
+            onPressed: () async {
+              if (mounted) context.go('/home');
+            },
           ),
         ],
       ),
