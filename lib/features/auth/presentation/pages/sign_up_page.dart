@@ -1,7 +1,6 @@
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -44,7 +43,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     });
 
     return Scaffold(
-      body: _buildForm(context),
+      body: SafeArea(child: _buildForm(context)),
       bottomNavigationBar: _buildBottomPart(context),
     );
   }
@@ -60,18 +59,33 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
           child: Form(
             key: _formKey,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              padding: EdgeInsets.symmetric(horizontal: 6.w),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 5.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Créer un compte',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20.5.sp,
+                        ),
+                      ),
+                      IconButton(onPressed: () => context.pop(), icon: Icon(Icons.close,size: 20.sp,),),
+                    ],
+                  ),
+                  SizedBox(height: 2.h),
                   Text(
-                    'Créer un compte',
+                    'Commençons d’abord par vous créer un compte',
                     style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 23.sp,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15.5.sp,
                     ),
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 8.h),
                   CustomTextField(
                     title: Text(
                       "Nom d'utilisateur",
@@ -85,7 +99,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     controller: _usernameController,
                     keyboardType: TextInputType.text,
                   ),
-                  SizedBox(height: 1.5.h),
+                  SizedBox(height: 2.h),
                   CustomTextField(
                     title: Text(
                       'Email',
@@ -99,7 +113,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
-                  SizedBox(height: 1.5.h),
+                  SizedBox(height: 2.h),
                   CustomTextField(
                     title: Text(
                       'Mot de passe',
@@ -115,7 +129,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     isPassword: true,
                     validator: const <String, String>{"type": "password"},
                   ),
-                  SizedBox(height: 1.5.h),
+                  SizedBox(height: 2.h),
                   CustomTextField(
                     title: Text(
                       'Confirmer le mot de passe',
@@ -142,28 +156,13 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   }
 
   Widget _buildBottomPart(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text.rich(
-          TextSpan(
-            text: 'Se connecter',
-            style: TextStyle(
-              fontSize: 15.5.sp,
-              decoration: TextDecoration.underline,
-              fontWeight: FontWeight.bold,
-            ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                if (!mounted) return;
-                context.go('/login');
-              },
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.w),
-          child: CustomButton(
-            text: 'Créer un compte',
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomButton(
+            text: 'Suivant',
             isLoading: _isLoading,
             onPressed: () async {
               if (!_formKey.currentState!.validate()) return;
@@ -173,7 +172,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     const SnackBar(content: Text('Vérifier le mot de passe')));
                 return;
               }
-
+                
               setState(() => _isLoading = true);
               try {
                 await ref.read(authControllerProvider.notifier).signUp(
@@ -182,13 +181,14 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                       username: _usernameController.text.trim(),
                     );
                 if (!mounted) return;
-                context.go('/home');
+                // ignore: use_build_context_synchronously
+                context.push('/upload-profile-photo');
               } catch (_) {}
               setState(() => _isLoading = false);
             },
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

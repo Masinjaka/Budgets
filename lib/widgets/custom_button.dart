@@ -1,3 +1,4 @@
+import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -9,12 +10,16 @@ class CustomButton extends StatefulWidget {
       this.height,
       this.backgroundColor,
       required this.onPressed,
+      this.foregroundColor,
+      this.borderColor,
       this.isLoading});
 
   final String text;
   final double? width;
   final double? height;
   final Color? backgroundColor;
+  final Color? foregroundColor;
+  final Color? borderColor;
   final void Function()? onPressed;
   final bool? isLoading;
 
@@ -32,17 +37,17 @@ class _CustomButtonState extends State<CustomButton> {
         onPressed: widget.onPressed,
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(
-            widget.backgroundColor ?? const Color(0xffDDFFBC),
+            widget.backgroundColor ??  AppTheme.primaryGreen,
           ),
           elevation: const WidgetStatePropertyAll(0),
-          side: const WidgetStatePropertyAll(
+          side:  WidgetStatePropertyAll(
             BorderSide(
-              color: Colors.black,
+              color: widget.borderColor ??Colors.black,
             ),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(2.w),
+              borderRadius: BorderRadius.circular(50.w),
             ),
           ),
         ),
@@ -59,7 +64,7 @@ class _CustomButtonState extends State<CustomButton> {
                 style: TextStyle(
                   fontSize: 15.5.sp,
                   fontWeight: FontWeight.w900,
-                  color: Colors.black,
+                  color: widget.foregroundColor ?? Colors.black,
                 ),
               ),
       ),

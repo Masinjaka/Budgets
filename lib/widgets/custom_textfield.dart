@@ -1,5 +1,4 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/provider/app_theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -125,28 +124,29 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
           decoration: InputDecoration(
             filled: true,
             fillColor: AppTheme.secondaryDark,
+            contentPadding: EdgeInsets.symmetric(vertical: 1.7.h, horizontal: 5.w),
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(
-                color: AppTheme.borderColorDark,
+                color: Colors.transparent,
               ),
-              borderRadius: BorderRadius.circular(2.w),
+              borderRadius: BorderRadius.circular(50.w),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(2.w),
+              borderRadius: BorderRadius.circular(50.w),
               borderSide: const BorderSide(
                 color: Colors.transparent, // Match blue stroke when focused
                 width: 1.8,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(2.w),
+              borderRadius: BorderRadius.circular(50.w),
               borderSide: const BorderSide(
                 color: Colors.transparent,
                 width: 1.8,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(2.w),
+              borderRadius: BorderRadius.circular(50.w),
               borderSide: const BorderSide(
                 color: Colors.transparent,
                 width: 1.8,
@@ -171,6 +171,7 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
           ),
           onTap: widget.onTap ,
         ),
+
       ],
     );
   }

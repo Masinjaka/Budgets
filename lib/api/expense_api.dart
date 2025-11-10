@@ -32,25 +32,23 @@ Future<List<Expense>> getExpenses() {
 // Add expenses
 Future<void> addExpense(
     String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts) {
-  return Wrapper.execute(
-    () async {
-      final response = await supabase.rpc(
-        'add_expenses',
-        params: {
-          'amount': amount,
-          'description': description,
-          'category_name': categoryName,
-          'subcategories_amount': subcategoryAmounts,
-        },
-      );
+  return Wrapper.execute(() async {
+    final response = await supabase.rpc(
+      'add_expenses',
+      params: {
+        'amount': amount,
+        'description': description,
+        'category_name': categoryName,
+        'subcategories_amount': subcategoryAmounts,
+      },
+    );
 
-      final result = parseRpcAddExpenseResponse(response);
+    final result = parseRpcAddExpenseResponse(response);
 
-      if (!result.success) {
-        throw Exception(result.errorMessage ?? 'Failed to add expense');
-      }
-  
-      debugPrint("Expense created: ${response.runtimeType} -> $response");
-    },
-  );
+    if (!result.success) {
+      throw Exception(result.errorMessage ?? 'Failed to add expense');
+    }
+
+    debugPrint("Expense created: ${response.runtimeType} -> $response");
+  });
 }

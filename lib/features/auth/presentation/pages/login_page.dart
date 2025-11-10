@@ -40,7 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     return Scaffold(
-      body: _buildForm(context),
+      body: SafeArea(child: _buildForm(context)),
       bottomNavigationBar: _buildBottomPart(context),
     );
   }
@@ -56,18 +56,33 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Form(
             key: _formKey,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              padding: EdgeInsets.symmetric(horizontal: 6.w),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 5.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Se connecter',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20.5.sp,
+                        ),
+                      ),
+                      IconButton(onPressed: () => context.pop(), icon: Icon(Icons.close,size: 20.sp,),),
+                    ],
+                  ),
+                  SizedBox(height: 2.h),
                   Text(
-                    'Connexion',
+                    'Connectez-vous et gérez votre drala comme un pro',
                     style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 23.sp,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15.5.sp,
                     ),
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 8.h),
                   CustomTextField(
                     title: Text(
                       'Email',
@@ -81,7 +96,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
-                  SizedBox(height: 1.5.h),
+                  SizedBox(height: 2.h),
                   CustomTextField(
                     title: Text(
                       'Mot de passe',
@@ -96,7 +111,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     keyboardType: TextInputType.visiblePassword,
                     isPassword: true,
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 2.5.h),
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text.rich(
@@ -104,7 +119,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         text: 'Mot de passe oublié?',
                         style: TextStyle(
                           fontSize: 15.5.sp,
-                          decoration: TextDecoration.underline,
                           fontWeight: FontWeight.bold,
                         ),
                         recognizer: TapGestureRecognizer()
@@ -128,23 +142,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text.rich(
-          TextSpan(
-            text: 'Créer un compte',
-            style: TextStyle(
-              fontSize: 15.5.sp,
-              decoration: TextDecoration.underline,
-              fontWeight: FontWeight.bold,
-            ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                if (!mounted) return;
-                context.go('/signup');
-              },
-          ),
-        ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.w),
+          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
           child: CustomButton(
             text: 'Se connecter',
             onPressed: () async {
