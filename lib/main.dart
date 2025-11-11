@@ -65,7 +65,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
       GoRoute(path: '/upload-profile-photo', builder: (context, state) => const UploadProfilePhotoPage()),
       GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
-      GoRoute(path: '/home', builder: (context, state) => const HomePage()),
+      GoRoute(path: '/home', builder: (context, state) => const NavigatorPage()),
       GoRoute(path: '/add-expense', builder: (context, state) => const ExpenseCreationPage()),
       GoRoute(path: '/filter-expense', builder: (context, state) => const ExpenseFilterPage()),
       GoRoute(path: '/add-category', builder: (context, state) => AddCategoryPage(category: state.extra as Category?)),

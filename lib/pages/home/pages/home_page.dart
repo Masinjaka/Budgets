@@ -1,4 +1,4 @@
-import 'package:budgets/pages/expenses/page/accueil.dart';
+import 'package:budgets/features/home/presentation/pages/accueil_page.dart';
 import 'package:budgets/pages/home/pages/modules/modules.dart';
 import 'package:budgets/pages/profile/page/profile_page.dart';
 import 'package:budgets/pages/categories/page/category_page.dart';
@@ -7,20 +7,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class HomePage extends ConsumerStatefulWidget {
-  const HomePage({super.key});
+class NavigatorPage extends ConsumerStatefulWidget {
+  const NavigatorPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _NavigatorPageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
+class _NavigatorPageState extends ConsumerState<NavigatorPage> {
   final HomePageModule _module = HomePageModule();
 
   final PageController _controller = PageController();
 
   final pages = const [
-    ExpensePage(),
+    // ExpensePage(),
+    // Updated import path in router separately
+    // Placeholder, will be replaced by new HomePage
+    HomePage(),
     CategoryPage(),
     // StatsPage(),
     ProfilePage(),
