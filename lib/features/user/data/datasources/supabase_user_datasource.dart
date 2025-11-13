@@ -18,5 +18,12 @@ class SupabaseUserDataSource {
     return UserModel.fromJson(data);
   }
 
-  
+  Future<void> updateUsername(String username) async {
+    final uid = _client.auth.currentUser?.id;
+    if (uid == null) throw StateError('No authenticated user');
+    await _client
+        .from('user')
+        .update({'username': username})
+        .eq('user_id', uid);
+  }
 }

@@ -11,4 +11,9 @@ class UserRepositoryImpl implements UserRepository {
   Future<UserModel?> getUserModel() {
     return dataSource.getCurrentUserRow();
   }
+
+  @override
+  Future<void> updateUsername(String username) {
+    return dataSource.updateUsername(username);
+  }
 }

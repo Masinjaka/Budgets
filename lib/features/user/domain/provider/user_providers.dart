@@ -2,10 +2,10 @@ import 'package:budgets/features/user/domain/models/user_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../data/datasources/supabase_user_datasource.dart';
 import '../../data/repositories/user_repository_impl.dart';
+import '../usecases/update_username.dart';
 
 part 'user_providers.g.dart';
 
@@ -27,3 +27,9 @@ Future<UserModel?> userModel(Ref ref) async {
   final user = await repo.getUserModel();
   return user;
 }
+
+// Expose UpdateUsername use case
+final updateUsernameProvider = Provider<UpdateUsername>((ref) {
+  final repo = ref.watch(userRepositoryProvider);
+  return UpdateUsername(repo);
+});

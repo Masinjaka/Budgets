@@ -35,6 +35,7 @@ class UserCard extends ConsumerWidget {
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               userAsync.when(
                 data: (user) => Text(
