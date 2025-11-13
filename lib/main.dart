@@ -1,6 +1,7 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/auth/presentation/pages/upload_profile_photo_page.dart';
 import 'package:budgets/features/onboarding/presentation/pages/getting_started_page.dart';
+import 'package:budgets/features/settings/presentation/pages/edit_profile_page.dart';
 import 'package:budgets/model/category_model.dart';
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:budgets/features/auth/presentation/pages/login_page.dart';
@@ -11,6 +12,9 @@ import 'package:budgets/pages/expenses/page/add_expenses.dart';
 import 'package:budgets/pages/expenses/page/view_expense_list.dart';
 import 'package:budgets/pages/expenses/page/filter_expenses.dart';
 import 'package:budgets/pages/home/pages/home_page.dart';
+import 'package:budgets/features/home/presentation/pages/accueil_page.dart';
+import 'package:budgets/features/settings/presentation/pages/setting_page.dart';
+import 'package:budgets/pages/categories/page/category_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -65,11 +69,41 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
       GoRoute(path: '/upload-profile-photo', builder: (context, state) => const UploadProfilePhotoPage()),
       GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
-      GoRoute(path: '/home', builder: (context, state) => const NavigatorPage()),
+      // Shell with IndexedStack to preserve state across tabs
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => NavigatorPage(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/categories',
+                builder: (context, state) => const CategoryPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/settings',
+                builder: (context, state) => const SettingPage(),
+              ),
+            ],
+          ),
+        ],
+      ),
       GoRoute(path: '/add-expense', builder: (context, state) => const ExpenseCreationPage()),
       GoRoute(path: '/filter-expense', builder: (context, state) => const ExpenseFilterPage()),
       GoRoute(path: '/add-category', builder: (context, state) => AddCategoryPage(category: state.extra as Category?)),
       GoRoute(path: '/expense-list', builder: (context, state) => const ExpenseList()),
+      GoRoute(path: '/edit-profile', builder: (context, state) => const EditProfilePage()),
     ],
   );
 

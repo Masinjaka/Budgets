@@ -42,15 +42,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 2.h),
                   const Jumbotron(),
-                  SizedBox(height: 3.h),
-                  SectionTitle(
-                    title: 'Vue d\'ensemble',
-                    onTap: () {},
-                  ),
-                  SizedBox(height: 3.h),
-                  StatsHomeWidget(asyncExpenses: asyncExpenses),
                   SizedBox(height: 3.h),
                   SectionTitle(
                     title: 'Activités récentes',
@@ -58,6 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       context.push('/expense-list');
                     },
                   ),
+                  
                   SizedBox(height: 2.h),
                   switch (asyncExpenses) {
                     AsyncData(:final value) => _buildExpenseList(value),
@@ -68,6 +62,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ),
                       ),
                   },
+                  SizedBox(height: 3.h),
+                  SectionTitle(
+                    title: 'Vue d\'ensemble',
+                    onTap: () {},
+                  ),
+                  SizedBox(height: 3.h),
+                  StatsHomeWidget(asyncExpenses: asyncExpenses),
+                  
                 ],
               ),
             ),

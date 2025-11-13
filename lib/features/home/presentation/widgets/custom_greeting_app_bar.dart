@@ -1,10 +1,8 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:shimmer/shimmer.dart';
 
 class CustomGreetingAppBar extends ConsumerWidget
     implements PreferredSizeWidget {
@@ -15,63 +13,7 @@ class CustomGreetingAppBar extends ConsumerWidget
     this.onNotificationPressed,
   });
 
-  Widget _avatarSkeleton(double size) {
-    return Shimmer.fromColors(
-      baseColor: AppTheme.secondaryDark,
-      highlightColor: AppTheme.borderColorDark,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppTheme.borderColorDark,
-        ),
-      ),
-    );
-  }
-  Widget _textSkeleton(double width, double height) {
-    return Shimmer.fromColors(
-      baseColor: AppTheme.secondaryDark,
-      highlightColor: AppTheme.borderColorDark,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(6),
-        ),
-      ),
-    );
-  }
-
-  Widget _avatar(String? url, double size) {
-    if (url == null || url.isEmpty) {
-      return ClipOval(
-        child: Image.asset(
-          'assets/profil.png',
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-
-    return ClipOval(
-      child: CachedNetworkImage(
-        imageUrl: url,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        placeholder: (context, _) => _avatarSkeleton(size),
-        errorWidget: (context, _, __) => Image.asset(
-          'assets/profil.png',
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,7 +24,7 @@ class CustomGreetingAppBar extends ConsumerWidget
     return PreferredSize(
       preferredSize: preferredSize,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 2.h),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -91,10 +33,10 @@ class CustomGreetingAppBar extends ConsumerWidget
               children: [
                 userAsync.when(
                   data: (user) {
-                    return _avatar(user?.profilePhoto, avatarSize);
+                    return avatar(user?.profilePhoto, avatarSize);
                   },
-                  loading: () => _avatarSkeleton(avatarSize),
-                  error: (_, __) => _avatarSkeleton(avatarSize),
+                  loading: () => avatarSkeleton(avatarSize),
+                  error: (_, __) => avatarSkeleton(avatarSize),
                 ),
                 userAsync.when(
                   data: (user) {
@@ -113,11 +55,11 @@ class CustomGreetingAppBar extends ConsumerWidget
                   },
                   loading: () => Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: _textSkeleton(40.w, 2.4.h),
+                    child: textSkeleton(40.w, 2.4.h),
                   ),
                   error: (_, __) => Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: _textSkeleton(40.w, 2.4.h),
+                    child: textSkeleton(40.w, 2.4.h),
                   ),
                 ),
               ],
