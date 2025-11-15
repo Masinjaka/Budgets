@@ -1,4 +1,4 @@
-import 'package:budgets/core/transaction_type.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 
 class Category {
   final String? id;

@@ -1,6 +1,6 @@
 import 'package:budgets/core/utils/response_parser.dart';
-import 'package:budgets/core/wrapper.dart';
-import 'package:budgets/core/transaction_type.dart';
+import 'package:budgets/core/utils/wrapper.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/main.dart';
 import 'package:budgets/model/expense_model.dart';
 import 'package:flutter/foundation.dart';

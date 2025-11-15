@@ -1,7 +1,7 @@
 import 'package:budgets/main.dart';
 import 'package:budgets/model/category_model.dart';
 import 'package:budgets/model/subcategories.dart';
-import 'package:budgets/core/transaction_type.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/provider/category_provider.dart';
 import 'package:budgets/provider/expense_provider.dart';
 import 'package:budgets/provider/filter_provider.dart';

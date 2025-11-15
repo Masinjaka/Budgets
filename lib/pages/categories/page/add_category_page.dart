@@ -1,5 +1,5 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/core/transaction_type.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/pages/categories/module/categori_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';

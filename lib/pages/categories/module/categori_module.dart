@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/core/transaction_type.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

@@ -21,9 +21,6 @@ class TransactionListItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.secondaryDark,
         borderRadius: BorderRadius.circular(5.w),
-        border: Border.all(
-          color: AppTheme.borderColorDark.withAlpha(130),
-        ),
       ),
       child: Row(
         children: [
@@ -31,9 +28,9 @@ class TransactionListItem extends StatelessWidget {
           Container(
             width: 5.h,
             height: 5.h,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFB3A3),
-              shape: BoxShape.circle,
+            decoration: BoxDecoration(
+              color: Color(int.parse(transaction.category!.color!, radix: 16)),
+              borderRadius: BorderRadius.circular(2.w),
             ),
             child: Center(
               child: Text(

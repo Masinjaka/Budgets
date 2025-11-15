@@ -1,6 +1,6 @@
 import 'package:budgets/api/expense_api.dart';
 import 'package:budgets/model/expense_model.dart';
-import 'package:budgets/core/transaction_type.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

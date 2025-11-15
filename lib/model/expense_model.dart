@@ -1,5 +1,5 @@
 import 'package:budgets/model/category_model.dart';// Update with the actual path to your Category class
-import 'package:budgets/core/transaction_type.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 
 class Expense {
   final String? title;
