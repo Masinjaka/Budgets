@@ -1,6 +1,7 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/auth/presentation/pages/upload_profile_photo_page.dart';
 import 'package:budgets/features/onboarding/presentation/pages/getting_started_page.dart';
+import 'package:budgets/features/settings/presentation/pages/edit_password_page.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_profile_page.dart';
 import 'package:budgets/model/category_model.dart';
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
@@ -104,6 +105,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       GoRoute(path: '/add-category', builder: (context, state) => AddCategoryPage(category: state.extra as Category?)),
       GoRoute(path: '/expense-list', builder: (context, state) => const ExpenseList()),
       GoRoute(path: '/edit-profile', builder: (context, state) => const EditProfilePage()),
+      GoRoute(path: '/edit-password', builder: (context, state) => const EditPasswordPage()),
     ],
   );
 

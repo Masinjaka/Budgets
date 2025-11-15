@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, use_build_context_synchronously
 
 import 'dart:io';
 
@@ -173,6 +173,9 @@ class _State extends ConsumerState<EditProfilePage> {
                       text: 'Supprimer mon compte',
                       onPressed: () async {
                         setState(() => _isLoading = true);
+
+                        await editProfileModule.deleteCurrentUserAccount(context, ref);
+
                         setState(() => _isLoading = false);
                       },
                       isLoading: _isLoading,

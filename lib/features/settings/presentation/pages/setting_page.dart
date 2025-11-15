@@ -79,7 +79,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           title: 'Changer le mot de passe',
                           iconData: Icons.lock_outline,
                           onTap: () {
-                            context.push('/change-password');
+                            context.push('/edit-password');
                           },
                         ),
                       ],

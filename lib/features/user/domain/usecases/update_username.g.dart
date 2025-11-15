@@ -6,7 +6,7 @@ part of 'update_username.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$updateUsernameHash() => r'fe5766c7609ea686302b9758dcef8ae77865337b';
+String _$updateUsernameHash() => r'1888dc60d70a5b627068a2a0689aec0c85b5a6f6';
 
 /// See also [updateUsername].
 @ProviderFor(updateUsername)
