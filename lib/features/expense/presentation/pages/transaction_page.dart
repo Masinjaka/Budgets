@@ -192,24 +192,30 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
               labelStyle: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelStyle: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w500,
               ),
               tabs: [
                 Tab(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: const Text('Dépenses'),
+                  child: Text(
+                    'Dépenses',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 Tab(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: const Text('Revenus'),
+                  child: Text(
+                    'Revenus',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

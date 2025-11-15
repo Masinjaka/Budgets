@@ -311,24 +311,30 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
               labelStyle: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelStyle: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w500,
               ),
               tabs: [
                 Tab(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: const Text('Dépenses'),
+                  child: Text(
+                    'Dépenses',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 Tab(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: const Text('Revenus'),
+                  child: Text(
+                    'Revenus',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -340,10 +346,10 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 80.0; // Fixed height in pixels
+  double get maxExtent => 5.h + 4.h; // Tab height + padding
 
   @override
-  double get minExtent => 80.0; // Same as maxExtent for fixed height
+  double get minExtent => 5.h + 4.h; // Same as maxExtent for fixed height
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
