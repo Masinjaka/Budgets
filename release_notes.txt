@@ -2,10 +2,10 @@ This is a new automated build from the main branch.
 
 Changes in this version:
 
-New feature X was added.
+New feature:
 
-Fixed bug Y that caused crashes.
-
-Improved performance of the main screen.
+    - Add setting pages
+    - Delete user feature added
+    - Change password feature added
 
 Enjoy testing!
