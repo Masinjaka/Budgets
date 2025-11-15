@@ -10,10 +10,10 @@ import 'package:budgets/features/auth/presentation/pages/reset_password_page.dar
 import 'package:budgets/features/onboarding/presentation/pages/splash_page.dart';
 import 'package:budgets/pages/categories/page/add_category_page.dart';
 import 'package:budgets/pages/expenses/page/add_expenses.dart';
-import 'package:budgets/pages/expenses/page/view_expense_list.dart';
+import 'package:budgets/features/expense/presentation/pages/transaction_page.dart';
 import 'package:budgets/pages/expenses/page/filter_expenses.dart';
-import 'package:budgets/pages/home/pages/home_page.dart';
-import 'package:budgets/features/home/presentation/pages/accueil_page.dart';
+import 'package:budgets/pages/navigation/pages/navigation_page.dart';
+import 'package:budgets/features/home/presentation/pages/accueil_page.dart' as accueil;
 import 'package:budgets/features/settings/presentation/pages/setting_page.dart';
 import 'package:budgets/pages/categories/page/category_page.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +78,15 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
             routes: [
               GoRoute(
                 path: '/home',
-                builder: (context, state) => const HomePage(),
+                builder: (context, state) => const accueil.HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/expense-list',
+                builder: (context, state) => const TransactionPage(),
               ),
             ],
           ),
@@ -100,10 +108,24 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           ),
         ],
       ),
-      GoRoute(path: '/add-expense', builder: (context, state) => const ExpenseCreationPage()),
+      GoRoute(
+        path: '/add-expense',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'] ?? 'expense';
+          return ExpenseCreationPage(transactionType: type);
+        },
+      ),
       GoRoute(path: '/filter-expense', builder: (context, state) => const ExpenseFilterPage()),
-      GoRoute(path: '/add-category', builder: (context, state) => AddCategoryPage(category: state.extra as Category?)),
-      GoRoute(path: '/expense-list', builder: (context, state) => const ExpenseList()),
+      GoRoute(
+        path: '/add-category',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'] ?? 'expense';
+          return AddCategoryPage(
+            category: state.extra as Category?,
+            transactionType: type,
+          );
+        },
+      ),
       GoRoute(path: '/edit-profile', builder: (context, state) => const EditProfilePage()),
       GoRoute(path: '/edit-password', builder: (context, state) => const EditPasswordPage()),
     ],

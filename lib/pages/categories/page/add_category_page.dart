@@ -1,4 +1,5 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/transaction_type.dart';
 import 'package:budgets/pages/categories/module/categori_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -10,8 +11,14 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/model/category_model.dart' as cat;
 
 class AddCategoryPage extends ConsumerStatefulWidget {
-  const AddCategoryPage({super.key, this.category});
   final cat.Category? category;
+  final String transactionType;
+  
+  const AddCategoryPage({
+    super.key, 
+    this.category,
+    this.transactionType = 'expense',
+  });
 
   @override
   ConsumerState<AddCategoryPage> createState() => _AddCategoryPageState();
@@ -27,6 +34,9 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   bool _isLoading = false;
   bool _isEditing = false;
   bool _isDeleting = false;
+
+  // Get transaction type from widget
+  TransactionType get transactionType => TransactionType.fromValue(widget.transactionType) ?? TransactionType.expense;
 
   void _showEmojiPicker(BuildContext context) async {
     FocusScope.of(context).unfocus();
@@ -164,7 +174,9 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _isEditing ? 'Modifier la categorie' : 'Créer une catégorie',
+          _isEditing 
+            ? 'Modifier la catégorie' 
+            : 'Créer une catégorie ${transactionType == TransactionType.income ? 'de revenu' : 'de dépense'}',
           style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.transparent,
@@ -193,6 +205,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                             color: _selectedColor == null
                                 ? Colors.teal.value32bit.toRadixString(16)
                                 : _selectedColor!.value32bit.toRadixString(16),
+                            // transactionType: widget.category?.transactionType ?? transactionType,
                             context: context,
                             formKey: _formKey,
                           )
@@ -207,6 +220,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                             color: _selectedColor == null
                                 ? Colors.teal.value32bit.toRadixString(16)
                                 : _selectedColor!.value32bit.toRadixString(16),
+                            transactionType: transactionType,
                             context: context,
                             formKey: _formKey,
                           )

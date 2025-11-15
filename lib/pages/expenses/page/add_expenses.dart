@@ -1,4 +1,5 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/transaction_type.dart';
 import 'package:budgets/pages/expenses/module/expense_module.dart';
 import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -13,7 +14,12 @@ import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class ExpenseCreationPage extends ConsumerStatefulWidget {
-  const ExpenseCreationPage({super.key});
+  final String transactionType;
+  
+  const ExpenseCreationPage({
+    super.key, 
+    this.transactionType = 'expense',
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -24,6 +30,9 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isLoading = false;
   final ExpenseModule _module = ExpenseModule();
+  
+  // Get transaction type from widget
+  TransactionType get transactionType => TransactionType.fromValue(widget.transactionType) ?? TransactionType.expense;
 
   final TextEditingController _designationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -42,11 +51,16 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
-        final categories = await _module.fetchCategories(ref);
+        final allCategories = await _module.fetchCategories(ref);
+        // Filter categories by transaction type
+        final filteredCategories = allCategories.where((category) => 
+          category.transactionType == transactionType
+        ).toList();
+        
         setState(() {
-          _categories = categories;
+          _categories = filteredCategories;
         });
-        debugPrint("CATEGORIES: ${categories.length}");
+        debugPrint("CATEGORIES FOR ${transactionType.value}: ${filteredCategories.length}");
       },
     );
   }
@@ -333,7 +347,9 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
       surfaceTintColor: Colors.transparent,
       automaticallyImplyLeading: false,
       title: Text(
-        'Nouvel dépense',
+        transactionType == TransactionType.income 
+          ? 'Nouveau revenu' 
+          : 'Nouvelle dépense',
         style: TextStyle(
           fontWeight: FontWeight.w500,
           fontSize: 18.sp,
@@ -404,7 +420,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
               amount: totalAmount.toString(),
               description: _descriptionController.text.trim(),
               categoryName: _selectedCategory!.name ?? '',
-              subcategoryAmounts: subcategoryMap, // Empty map for single amount mode
+              subcategoryAmounts: subcategoryMap,
+              transactionType: transactionType,
               formKey: _formKey,
               ref: ref,
               context: context,
@@ -413,7 +430,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             // For now, show success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Dépense avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
+                content: Text('${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
                 backgroundColor: Colors.green,
               ),
             );
@@ -424,7 +441,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
               amount: _montantController.text.trim(),
               description: _descriptionController.text.trim(),
               categoryName: _selectedCategory!.name ?? '',
-              subcategoryAmounts: null, // Empty map for single amount mode
+              subcategoryAmounts: null,
+              transactionType: transactionType,
               formKey: _formKey,
               ref: ref,
               context: context,

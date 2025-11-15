@@ -1,5 +1,6 @@
 import 'package:budgets/api/expense_api.dart';
 import 'package:budgets/model/expense_model.dart';
+import 'package:budgets/core/transaction_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,9 +13,9 @@ class Expenses extends _$Expenses {
     return await getExpenses();
   }
 
-  Future<void> addUserExpenses(String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts) async{
+  Future<void> addUserExpenses(String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts, TransactionType? transactionType) async{
     try {
-      await addExpense(amount, description, categoryName, subcategoryAmounts);
+      await addExpense(amount, description, categoryName, subcategoryAmounts, transactionType);
 
       ref.invalidateSelf();
     } catch (e,s) {

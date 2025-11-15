@@ -4,7 +4,7 @@ import 'package:budgets/model/category_model.dart';
 
 Future<List<Category>> getCategories() {
   return Wrapper.execute(() async {
-    final response = await supabase.from('categories').select();
+    final response = await supabase.from('categories').select('id, name, emoji, color, transaction_type');
 
     if (response.isEmpty) return [];
 
@@ -21,7 +21,8 @@ Future<String> addCategory(Category category) {
     final response = await supabase.rpc('add_category', params: {
       'category_name': category.name,
       'category_emoji': category.emoji,
-      'category_color': category.color
+      'category_color': category.color,
+      'tr_type': category.transactionType?.value ?? 'expense',
     });
     return response as String;
   });
@@ -34,7 +35,8 @@ Future<String> editCategory(Category category) {
       'category_id': category.id,
       'new_name': category.name,
       'new_emoji': category.emoji,
-      'new_color': category.color
+      'new_color': category.color,
+      // 'new_transaction_type': category.transactionType?.value ?? 'expense',
     });
     return response as String;
   });

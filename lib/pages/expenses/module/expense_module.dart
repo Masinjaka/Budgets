@@ -1,6 +1,7 @@
 import 'package:budgets/main.dart';
 import 'package:budgets/model/category_model.dart';
 import 'package:budgets/model/subcategories.dart';
+import 'package:budgets/core/transaction_type.dart';
 import 'package:budgets/provider/category_provider.dart';
 import 'package:budgets/provider/expense_provider.dart';
 import 'package:budgets/provider/filter_provider.dart';
@@ -70,6 +71,7 @@ class ExpenseModule {
   // Add expense
   Future<void> addExpense(
     {String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts, 
+    TransactionType? transactionType,
     required GlobalKey<FormState> formKey,
     required WidgetRef ref,
     required BuildContext context,
@@ -78,7 +80,7 @@ class ExpenseModule {
       try {
         await ref
             .read(expensesProvider.notifier)
-            .addUserExpenses(amount, description, categoryName, subcategoryAmounts);
+            .addUserExpenses(amount, description, categoryName, subcategoryAmounts, transactionType);
 
         if (!context.mounted) return;
 

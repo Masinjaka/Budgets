@@ -66,7 +66,7 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
       height: 5.h,
       decoration: BoxDecoration(
         color: AppTheme.secondaryDark,
-        borderRadius: BorderRadius.circular(14.0),
+        borderRadius: BorderRadius.circular(50.w),
         border: Border.all(color: AppTheme.borderColorDark),
       ),
       child: TextField(
