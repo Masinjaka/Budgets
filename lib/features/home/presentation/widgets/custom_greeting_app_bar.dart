@@ -1,0 +1,82 @@
+import 'package:budgets/features/user/domain/provider/user_providers.dart';
+import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
+
+class CustomGreetingAppBar extends ConsumerWidget
+    implements PreferredSizeWidget {
+  final VoidCallback? onNotificationPressed;
+
+  const CustomGreetingAppBar({
+    super.key,
+    this.onNotificationPressed,
+  });
+
+  
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final double avatarSize = 24.sp;
+
+    final userAsync = ref.watch(userModelProvider);
+
+    return PreferredSize(
+      preferredSize: preferredSize,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 2.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                userAsync.when(
+                  data: (user) {
+                    return avatar(user?.profilePhoto, avatarSize);
+                  },
+                  loading: () => avatarSkeleton(avatarSize),
+                  error: (_, __) => avatarSkeleton(avatarSize),
+                ),
+                userAsync.when(
+                  data: (user) {
+                    final username = user?.name ?? 'Utilisateur';
+                    return Padding(
+                      padding: EdgeInsets.only(left: 4.w),
+                      child: Text(
+                        'Salut, $username',
+                        style: TextStyle(
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => Padding(
+                    padding: EdgeInsets.only(left: 4.w),
+                    child: textSkeleton(40.w, 2.4.h),
+                  ),
+                  error: (_, __) => Padding(
+                    padding: EdgeInsets.only(left: 4.w),
+                    child: textSkeleton(40.w, 2.4.h),
+                  ),
+                ),
+              ],
+            ),
+            IconButton(
+                icon: Icon(
+                  Icons.notifications,
+                  size: 21.sp,
+                  color: Colors.white,
+                ),
+                onPressed: onNotificationPressed),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(10.h);
+}

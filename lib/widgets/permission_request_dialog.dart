@@ -10,6 +10,7 @@ class PermissionRequestDialog extends StatelessWidget {
   final String denyText;
   final VoidCallback onAllow;
   final VoidCallback onDeny;
+  final Color backgroundColor;
 
   const PermissionRequestDialog({
     super.key,
@@ -19,6 +20,7 @@ class PermissionRequestDialog extends StatelessWidget {
     this.denyText = 'Refuser',
     required this.onAllow,
     required this.onDeny,
+    this.backgroundColor = AppTheme.primaryGreen,
   });
 
   @override
@@ -55,6 +57,7 @@ class PermissionRequestDialog extends StatelessWidget {
                 ),
                 SizedBox(width: 2.w),
                 CustomButton(
+                  backgroundColor: backgroundColor,
                   text: allowText,
                   onPressed: onAllow,
                   width: 15.h,

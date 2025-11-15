@@ -9,7 +9,7 @@ class SupabaseProfileDataSource {
   /// Uploads file to 'profile' bucket at path 'avatars/<userId>/<timestamp>.jpg'
   /// Returns the public URL path (not full HTTP URL).
   Future<String> uploadToStorage({required File file, required String userId}) async {
-    final path = '$userId/avatars/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final path = 'avatars/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
     await client.storage.from('profile').upload(path, file);
     // Get a public URL (assumes bucket or file is publicly readable)
     final publicUrl = client.storage.from('profile').getPublicUrl(path);

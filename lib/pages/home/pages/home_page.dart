@@ -1,47 +1,24 @@
-import 'package:budgets/pages/expenses/page/accueil.dart';
-import 'package:budgets/pages/home/pages/modules/modules.dart';
-import 'package:budgets/pages/profile/page/profile_page.dart';
-import 'package:budgets/pages/categories/page/category_page.dart';
 import 'package:budgets/widgets/custom_navbar_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:go_router/go_router.dart';
 
-class HomePage extends ConsumerStatefulWidget {
-  const HomePage({super.key});
+class NavigatorPage extends ConsumerStatefulWidget {
+  const NavigatorPage({super.key, required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _NavigatorPageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
-  final HomePageModule _module = HomePageModule();
-
-  final PageController _controller = PageController();
-
-  final pages = const [
-    ExpensePage(),
-    CategoryPage(),
-    // StatsPage(),
-    ProfilePage(),
-  ];
-
-  int currrentIndex = 0;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class _NavigatorPageState extends ConsumerState<NavigatorPage> {
   @override
   Widget build(BuildContext buildContext) {
     return Scaffold(
-      body: PageView.builder(
-        controller: _controller,
-        itemCount: pages.length,
-        itemBuilder: (context, index) => pages[index],
-      ),
+      // Use GoRouter's StatefulNavigationShell as the body to preserve state across tabs
+      body: widget.navigationShell,
       bottomNavigationBar: Container(
         height: 10.h,
         decoration: const BoxDecoration(
@@ -58,34 +35,31 @@ class _HomePageState extends ConsumerState<HomePage> {
               icon: Icons.wallet,
               title: 'Accueil',
               onTap: () {
-                _module.movePageTo(_controller, 0);
-                setState(() => currrentIndex = 0);
+                widget.navigationShell.goBranch(0);
               },
-              isActive: currrentIndex == 0,
+              isActive: widget.navigationShell.currentIndex == 0,
             ),
             CustomNavItem(
               icon: Icons.category,
               title: 'Categories',
               onTap: () {
-                _module.movePageTo(_controller, 1);
-                setState(() => currrentIndex = 1);
+                widget.navigationShell.goBranch(1);
               },
-              isActive: currrentIndex == 1,
+              isActive: widget.navigationShell.currentIndex == 1,
             ),
             // CustomNavItem(
             //   icon: Icons.query_stats,
             //   title: 'Vue d\'ensemble',
-            //   onTap: () => setState(() => currrentIndex = 2),
-            //   isActive: currrentIndex==2,
+            //   onTap: () => widget.navigationShell.goBranch(2),
+            //   isActive: widget.navigationShell.currentIndex == 2,
             // ),
             CustomNavItem(
               icon: Icons.person,
               title: 'Profil',
               onTap: () {
-                _module.movePageTo(_controller, 2);
-                setState(() => currrentIndex = 2);
+                widget.navigationShell.goBranch(2);
               },
-              isActive: currrentIndex == 2,
+              isActive: widget.navigationShell.currentIndex == 2,
             ),
           ],
         ),

@@ -20,7 +20,7 @@ class SectionTitle extends StatelessWidget {
         Text(title,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 15.sp,
+              fontSize: 16.sp,
             )),
         GestureDetector(
           onTap: onTap,

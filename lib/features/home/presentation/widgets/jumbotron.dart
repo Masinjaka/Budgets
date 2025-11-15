@@ -12,7 +12,7 @@ class Jumbotron extends StatelessWidget {
     return Container(
       height: 16.h,
       decoration: BoxDecoration(
-        color: AppTheme.primaryGreen,
+        color: AppTheme.secondaryDark,
         borderRadius: BorderRadius.circular(5.w),
       ),
       child: Stack(
@@ -24,11 +24,10 @@ class Jumbotron extends StatelessWidget {
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
-                'SOLDE',
+                'Solde actuel',
                 style: TextStyle(
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.backgroundDark,
+                  fontSize: 15.5.sp,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -45,7 +44,7 @@ class Jumbotron extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5.w),
-                  color: AppTheme.secondaryGreen.withAlpha(180),
+                  color: AppTheme.borderColorDark,
                 ),
                 child: Text(
                   'MGA',
@@ -67,8 +66,7 @@ class Jumbotron extends StatelessWidget {
                 '20,000',
                 style: TextStyle(
                   fontSize: 25.sp,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.backgroundDark,
+                  color: Colors.white,
                 ),
               ),
             ),
