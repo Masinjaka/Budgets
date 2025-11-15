@@ -39,6 +39,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> changePassword({required String currentPassword, required String newPassword}) async {
+    
     // First, verify the current password by trying to sign in
     final currentUser = _client.auth.currentUser;
     if (currentUser == null || currentUser.email == null) {
@@ -46,12 +47,6 @@ class SupabaseAuthRepository implements AuthRepository {
     }
 
     try {
-      // Verify current password by signing in
-      await _client.auth.signInWithPassword(
-        email: currentUser.email!,
-        password: currentPassword,
-      );
-      
       // If verification successful, update password
       await _client.auth.updateUser(UserAttributes(password: newPassword));
     } catch (e) {

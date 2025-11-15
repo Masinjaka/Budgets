@@ -48,7 +48,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   SectionTitle(
                     title: 'Activités récentes',
                     onTap: () {
-                      context.push('/expense-list');
+                      context.go('/expense-list');
                     },
                   ),
                   
@@ -118,6 +118,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               categoryEmoji: e.category?.emoji ?? '❓',
               description: e.description ?? "Aucune description",
               categoryId: e.category?.id ?? "",
+              transactionType: e.transactionType?.value ?? "expense",
             ),
           )
           .toList(),

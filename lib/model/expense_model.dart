@@ -1,4 +1,5 @@
 import 'package:budgets/model/category_model.dart';// Update with the actual path to your Category class
+import 'package:budgets/core/enums/transaction_type.dart';
 
 class Expense {
   final String? title;
@@ -7,6 +8,7 @@ class Expense {
   final DateTime? date;
   final String? invoiceFile; // Changed from File? to String?
   final Category? category;
+  final TransactionType? transactionType;
 
   Expense({
     this.title,
@@ -15,6 +17,7 @@ class Expense {
     this.date,
     this.invoiceFile,
     this.category,
+    this.transactionType,
   });
 
   factory Expense.fromMap(Map<String, dynamic> map) {
@@ -24,6 +27,7 @@ class Expense {
       amount: map['amount'] != null ? (map['amount'] as num).toDouble() : null, // Updated to handle double
       date: map['date'] != null ? DateTime.parse(map['date'] as String).toLocal() : null,
       invoiceFile: map['invoice_file'] as String?, // Updated to handle String
+      transactionType: TransactionType.fromValue(map['transaction_type'] as String?), // Updated to handle TransactionType
       category: map['categories'] != null ? Category.fromMap(map['categories'] as Map<String, dynamic>) : null,
     );
   }
@@ -35,6 +39,7 @@ class Expense {
     DateTime? date,
     String? invoiceFile, // Updated to String
     Category? category,
+    TransactionType? transactionType,
   }) {
     return Expense(
       title: title ?? this.title,
@@ -43,6 +48,7 @@ class Expense {
       date: date ?? this.date,
       invoiceFile: invoiceFile ?? this.invoiceFile, // Updated to String
       category: category ?? this.category,
+      transactionType: transactionType ?? this.transactionType,
     );
   }
 
@@ -54,6 +60,7 @@ class Expense {
       'date': date?.toIso8601String(),
       'invoice_file': invoiceFile, // Updated to String
       'categories': category?.toMap(),
+      'transaction_type': transactionType?.value, // Updated to use enum value
     };
   }
 }

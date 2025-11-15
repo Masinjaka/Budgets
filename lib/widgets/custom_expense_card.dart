@@ -15,6 +15,7 @@ class ExpenseTile extends ConsumerStatefulWidget {
     required this.categoryEmoji,
     required this.description,
     required this.categoryId,
+    required this.transactionType,
   });
 
   final String designation;
@@ -25,6 +26,7 @@ class ExpenseTile extends ConsumerStatefulWidget {
   final String categoryEmoji;
   final String description;
   final String categoryId;
+  final String transactionType;
 
   @override
   ConsumerState<ExpenseTile> createState() => _ExpenseTileState();
@@ -113,11 +115,10 @@ class _ExpenseTileState extends ConsumerState<ExpenseTile> {
                   ),
                   SizedBox(height: 1.h),
                   Text(
-                    "- ${formatAmount(widget.amount)}",
+                    "${widget.transactionType == 'expense' ? '-' : '+'} ${formatAmount(widget.amount)}",
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.5.sp,
-                      color: AppTheme.textDark,
+                      fontSize: 14.sp,
+                      color: widget.transactionType == 'expense' ? const Color.fromARGB(255, 181, 76, 69) : const Color.fromARGB(255, 64, 139, 67),
                     ),
                   ),
                 ],

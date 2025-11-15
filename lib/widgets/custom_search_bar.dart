@@ -63,17 +63,17 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 5.h,
       decoration: BoxDecoration(
         color: AppTheme.secondaryDark,
-        borderRadius: BorderRadius.circular(14.0),
-        border: Border.all(color: AppTheme.borderColorDark),
+        borderRadius: BorderRadius.circular(50.w),
       ),
-      child: TextField(
+      child: TextFormField(
         controller: widget.controller,
         cursorColor: Colors.white,
         style: const TextStyle(color: Colors.white),
         onTap: widget.onSearchFocused,
+        textAlign: TextAlign.start,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: const TextStyle(color: Color(0xFF8E8E93)),
@@ -83,15 +83,25 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
                   onPressed: widget.onSearchUnfocused,
                 )
               : const Icon(Icons.search, color: Color(0xFF8E8E93)),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 48,
+            minHeight: 48,
+          ),
           suffixIcon: widget.isSearchFocused && _hasText
               ? IconButton(
                   icon: const Icon(Icons.close, color: Color(0xFF8E8E93)),
                   onPressed: widget.onClearSearch,
                 )
               : null,
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 48,
+            minHeight: 48,
+          ),
           border: InputBorder.none,
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: 2.h, vertical: 1.5.h),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 2.h, 
+            vertical: 1.6.h,
+          ),
         ),
       ),
     );

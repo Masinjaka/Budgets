@@ -1,26 +1,25 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/model/category_model.dart';
-import 'package:budgets/provider/category_provider.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
+import 'package:budgets/features/expense/presentation/pages/expense_tab_content.dart';
+import 'package:budgets/features/expense/presentation/pages/income_tab_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class CategoryPage extends ConsumerStatefulWidget {
-  const CategoryPage({super.key});
+class TransactionPage extends ConsumerStatefulWidget {
+  const TransactionPage({super.key});
 
   @override
-  ConsumerState<CategoryPage> createState() => _CategoryPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _TransactionPageState();
 }
 
-class _CategoryPageState extends ConsumerState<CategoryPage>
+class _TransactionPageState extends ConsumerState<TransactionPage>
     with TickerProviderStateMixin {
   // Tab controller
   late TabController _tabController;
-  
+
   // Animation controller for SliverAppBar
   late AnimationController _appBarAnimationController;
   late Animation<double> _appBarAnimation;
@@ -29,7 +28,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
+
     _appBarAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -60,7 +59,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
           floatHeaderSlivers: true,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
-              // SliverAppBar for categories page
+              // Moved SliverAppBar from expense list page
               AnimatedBuilder(
                 animation: _appBarAnimation,
                 builder: (context, child) {
@@ -80,7 +79,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                               offset:
                                   Offset(0, (1 - _appBarAnimation.value) * -20),
                               child: Text(
-                                'Catégories',
+                                'Transactions',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18.sp,
@@ -100,16 +99,31 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                 offset: Offset(
                                     0, (1 - _appBarAnimation.value) * -20),
                                 child: ActionButton(
-                                  icon: Icons.add,
-                                  iconColor: AppTheme.secondaryDark,
-                                  backgroundColor: AppTheme.primaryGreen,
-                                  onPressed: () {
-                                    // Get the current active tab to determine transaction type
-                                    final isExpenseTab = _tabController.index == 0;
-                                    final transactionType = isExpenseTab ? 'expense' : 'income';
-                                    context.push("/add-category?type=$transactionType");
-                                  },
-                                ),
+                                    icon: Icons.fullscreen,
+                                    iconColor: AppTheme.secondaryDark,
+                                    backgroundColor: AppTheme.primaryGreen,
+                                    onPressed: () {}),
+                              ),
+                            ),
+                            SizedBox(width: 2.w),
+                            Opacity(
+                              opacity: _appBarAnimation.value,
+                              child: Transform.translate(
+                                offset: Offset(
+                                    0, (1 - _appBarAnimation.value) * -20),
+                                child: ActionButton(
+                                    icon: Icons.add,
+                                    iconColor: AppTheme.secondaryDark,
+                                    backgroundColor: AppTheme.primaryGreen,
+                                    onPressed: () {
+                                      // Get the current active tab to determine transaction type
+                                      final isExpenseTab =
+                                          _tabController.index == 0;
+                                      final transactionType =
+                                          isExpenseTab ? 'expense' : 'income';
+                                      context.push(
+                                          "/add-expense?type=$transactionType");
+                                    }),
                               ),
                             ),
                             SizedBox(width: 6.w),
@@ -121,7 +135,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
               // Tab view positioned at top left - pinned to not scroll with content
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _CategoryTabBarDelegate(
+                delegate: _TabBarDelegate(
                   tabController: _tabController,
                 ),
               ),
@@ -129,158 +143,25 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
           },
           body: TabBarView(
             controller: _tabController,
-            children: const [
-              // Expense categories tab
-              _CategoryTabContent(
-                transactionType: TransactionType.expense,
-              ),
-              // Income categories tab
-              _CategoryTabContent(
-                transactionType: TransactionType.income,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Separate widget for category tab content
-class _CategoryTabContent extends ConsumerWidget {
-  final TransactionType transactionType;
-  
-  const _CategoryTabContent({required this.transactionType});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final categoriesAsyncValue = ref.watch(categoriesProvider);
-    
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: switch (categoriesAsyncValue) {
-              AsyncData(:final value) => _categoryGrid(_filterCategories(value)),
-              AsyncError(:final error) => Text('error: $error'),
-              _ => _skeleton(),
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Filter categories by transaction type
-  List<Category> _filterCategories(List<Category> categories) {
-    return categories.where((category) => 
-      category.transactionType == transactionType
-    ).toList();
-  }
-
-  GridView _skeleton() {
-    return GridView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: 5,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 4.w,
-        mainAxisSpacing: 4.w,
-        childAspectRatio: 2.0, // This makes the height half of the width
-      ),
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 119, 119, 119),
-          borderRadius: BorderRadius.circular(5.w),
-        ),
-      ),
-    );
-  }
-
-  _categoryGrid(List<Category> categories) {
-    if (categories.isEmpty) {
-      return Center(
-        child: Text(
-          'Aucune catégorie trouvée.',
-          style: TextStyle(
-        color: AppTheme.borderColorDark,
-        fontSize: 16.sp,
-          ),
-        ),
-      );
-    }
-    return GridView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: categories.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 4.w,
-        mainAxisSpacing: 4.w,
-        childAspectRatio: 2.0, // This makes the height half of the width
-      ),
-      itemBuilder: (context, index) => GestureDetector(
-        onTap: () {
-          context.push('/add-category', extra: categories[index]);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            // color: AppTheme.secondaryDark,
-            color: Color(int.parse(categories[index].color!, radix: 16)),
-            borderRadius: BorderRadius.circular(5.w),
-            border: Border.all(
-              color: AppTheme.borderColorDark,
-            ),
-          ),
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runAlignment: WrapAlignment.center,
-            spacing: 2.w,
             children: [
-              SizedBox(width: 4.w),
-              Text(
-                '${categories[index].emoji}',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      offset: const Offset(1, 2),
-                      blurRadius: 4,
-                    ),
-                  ],
-                ),
+              // Expenses tab - contains the expense list content
+              ExpenseTabContent(
+                appBarAnimationController: _appBarAnimationController,
               ),
-              Text(
-                '${categories[index].name}',
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withValues(alpha: 0.12),
-                      offset: const Offset(1, 2),
-                      blurRadius: 3,
-                    ),
-                  ],
-                ),
-              ),
+              // Income tab - contains the income content
+              const IncomeTabContent(),
             ],
           ),
-        )
-            .animate(delay: (50 * index).ms)
-            .fade(duration: 200.ms)
-            .slideY(begin: 0.5, duration: 200.ms, curve: Curves.easeOut),
+        ),
       ),
     );
   }
 }
 
-class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
+class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabController tabController;
   
-  _CategoryTabBarDelegate({required this.tabController});
+  _TabBarDelegate({required this.tabController});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -302,7 +183,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white70,
               indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppTheme.primaryGreen,
                   width: 3.0,
                 ),

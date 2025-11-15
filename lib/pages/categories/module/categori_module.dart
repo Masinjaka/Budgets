@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +24,7 @@ class CategoryModule {
     required String name,
     required String? emoji,
     required String color,
+    TransactionType? transactionType,
     required BuildContext context,
     required GlobalKey<FormState> formKey,
   }) async {
@@ -39,6 +41,7 @@ class CategoryModule {
                 name: name,
                 emoji: emoji,
                 color: color,
+                transactionType: transactionType,
               ),
             );
 
@@ -58,6 +61,7 @@ class CategoryModule {
     required String name,
     required String? emoji,
     required String color,
+    TransactionType? transactionType,
     required BuildContext context,
     required GlobalKey<FormState> formKey,
   }) async {
@@ -75,6 +79,7 @@ class CategoryModule {
                 name: name,
                 emoji: emoji,
                 color: color,
+                // transactionType: transactionType,
               ),
             );
 

@@ -25,6 +25,16 @@ class StatsHomeWidget extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 4.h),
+          // Legend for the chart
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('Dépenses', Colors.redAccent),
+              SizedBox(width: 4.w),
+              _buildLegendItem('Revenus', Colors.greenAccent),
+            ],
+          ),
+          SizedBox(height: 2.h),
           switch (asyncExpenses) {
             AsyncData(:final value) => dailyBarChart(value),
             AsyncError(:final error) => Text('error: $error'),
@@ -36,6 +46,31 @@ class StatsHomeWidget extends StatelessWidget {
           },
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 3.w,
+          height: 3.w,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(1.w),
+          ),
+        ),
+        SizedBox(width: 2.w),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -39,13 +39,21 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
               },
               isActive: widget.navigationShell.currentIndex == 0,
             ),
-            CustomNavItem(
-              icon: Icons.category,
-              title: 'Categories',
+             CustomNavItem(
+              icon: Icons.list_outlined,
+              title: 'Transactions',
               onTap: () {
                 widget.navigationShell.goBranch(1);
               },
               isActive: widget.navigationShell.currentIndex == 1,
+            ),
+            CustomNavItem(
+              icon: Icons.category,
+              title: 'Categories',
+              onTap: () {
+                widget.navigationShell.goBranch(2);
+              },
+              isActive: widget.navigationShell.currentIndex == 2,
             ),
             // CustomNavItem(
             //   icon: Icons.query_stats,
@@ -57,9 +65,9 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
               icon: Icons.person,
               title: 'Profil',
               onTap: () {
-                widget.navigationShell.goBranch(2);
+                widget.navigationShell.goBranch(3);
               },
-              isActive: widget.navigationShell.currentIndex == 2,
+              isActive: widget.navigationShell.currentIndex == 3,
             ),
           ],
         ),

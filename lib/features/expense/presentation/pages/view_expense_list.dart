@@ -218,7 +218,7 @@ class _ExplenseListState extends ConsumerState<ExpenseList>
             final filteredExpenses = _filterExpenses(expenses);
             final groupedTransactions = _groupExpensesByDate(filteredExpenses);
             final availableCategories = _extractCategoriesFromExpenses(expenses);
-
+        
             return NestedScrollView(
               floatHeaderSlivers: true,
               headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -235,21 +235,13 @@ class _ExplenseListState extends ConsumerState<ExpenseList>
                         expandedHeight: _appBarAnimation.value * kToolbarHeight,
                         toolbarHeight: _appBarAnimation.value * kToolbarHeight,
                         elevation: _appBarAnimation.value * 4,
-                        leading: _appBarAnimation.value > 0.1 ? IconButton(
-                          icon: Icon(
-                            Icons.arrow_back, 
-                            color: Colors.white.withOpacity(_appBarAnimation.value),
-                          ),
-                          onPressed: () {
-                            context.pop();
-                          },
-                        ) : null,
+                        titleSpacing: 6.w,
                         title: _appBarAnimation.value > 0.1 ? Opacity(
                           opacity: _appBarAnimation.value,
                           child: Transform.translate(
                             offset: Offset(0, (1 - _appBarAnimation.value) * -20),
                             child: Text(
-                              'Dépenses',
+                              'Transactions',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold, 
                                 fontSize: 18.sp,
@@ -285,7 +277,7 @@ class _ExplenseListState extends ConsumerState<ExpenseList>
                                   }),
                             ),
                           ),
-                          SizedBox(width: 2.w),
+                          SizedBox(width: 6.w),
                         ] : [],
                       );
                     },
@@ -295,9 +287,9 @@ class _ExplenseListState extends ConsumerState<ExpenseList>
                       duration: const Duration(milliseconds: 350),
                       curve: Curves.easeInOut,
                       padding: EdgeInsets.fromLTRB(
-                        2.w, 
+                        6.w, 
                         isSearchFocused ? 2.h : 2.h, // Same padding whether focused or not
-                        2.w, 
+                        6.w, 
                         1.h
                       ),
                       child: Row(
@@ -338,7 +330,7 @@ class _ExplenseListState extends ConsumerState<ExpenseList>
                   if (isSearchFocused)
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(2.w, 1.h, 2.w, 1.h),
+                        padding: EdgeInsets.fromLTRB(6.w, 1.h, 6.w, 1.h),
                         child: CategoryFilterWidget(
                           categories: availableCategories,
                           selectedCategories: selectedCategories,
@@ -358,44 +350,47 @@ class _ExplenseListState extends ConsumerState<ExpenseList>
                     ),
                 ];
               },
-              body: groupedTransactions.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: groupedTransactions.length,
-                      itemBuilder: (context, index) {
-                        final date = groupedTransactions.keys.elementAt(index);
-                        final transactions = groupedTransactions[date]!;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(2.w, 2.w, 2.w, 2.w),
-                              child: Text(
-                                date,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14.5.sp,
+              body: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6.w),
+                child: groupedTransactions.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: groupedTransactions.length,
+                        itemBuilder: (context, index) {
+                          final date = groupedTransactions.keys.elementAt(index);
+                          final transactions = groupedTransactions[date]!;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 2.w, 0, 2.w),
+                                child: Text(
+                                  date,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.5.sp,
+                                  ),
                                 ),
                               ),
-                            ),
-                            // ListView for transactions under a specific date
-                            ListView.separated(
-                              padding: EdgeInsets.symmetric(horizontal: 2.w),
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: transactions.length,
-                              itemBuilder: (context, i) {
-                                return TransactionListItem(transaction: transactions[i]);
-                              },
-                              separatorBuilder: (context, i) => SizedBox(height: 1.h),
-                            ),
-                            SizedBox(height: 2.h),
-                          ],
-                        );
-                      },
-                    ),
+                              // ListView for transactions under a specific date
+                              ListView.separated(
+                                padding: EdgeInsets.zero,
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: transactions.length,
+                                itemBuilder: (context, i) {
+                                  return TransactionListItem(transaction: transactions[i]);
+                                },
+                                separatorBuilder: (context, i) => SizedBox(height: 1.h),
+                              ),
+                              SizedBox(height: 2.h),
+                            ],
+                          );
+                        },
+                      ),
+              ),
             );
           },
           loading: () => _buildLoadingState(),
