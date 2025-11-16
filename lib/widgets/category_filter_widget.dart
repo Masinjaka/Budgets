@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/model/category_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 
 class CategoryFilterWidget extends StatefulWidget {
   final List<Category> categories;

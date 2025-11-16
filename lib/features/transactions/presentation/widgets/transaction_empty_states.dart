@@ -66,7 +66,7 @@ class IncomeEmptyState extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Icon with animation
-                Icon(
+                const Icon(
                   Icons.trending_up,
                   size: 80,
                   color: AppTheme.primaryGreen,

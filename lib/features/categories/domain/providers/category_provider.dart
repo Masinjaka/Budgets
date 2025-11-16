@@ -1,5 +1,5 @@
 import 'package:budgets/api/category_api.dart';
-import 'package:budgets/model/category_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'category_provider.g.dart';

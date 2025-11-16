@@ -1,5 +1,5 @@
 import 'package:budgets/core/functions/transaction_utils.dart';
-import 'package:budgets/model/category_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:flutter/material.dart';
 
 /// Mixin to handle common search and filter functionality for transaction tabs

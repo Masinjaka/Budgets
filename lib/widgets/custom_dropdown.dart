@@ -1,5 +1,5 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/model/category_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -179,7 +179,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                               bottomLeft: Radius.circular(2.w),
                               bottomRight: Radius.circular(2.w),
                             ),
-                            border: Border(
+                            border:const Border(
                               left: BorderSide(
                                 color: AppTheme.borderColorDark,
                                 width: 1.0,
@@ -196,7 +196,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1 * _dropdownAnimation.value),
+                                color: Colors.black.withAlpha((0.1 * _dropdownAnimation.value * 255).toInt()),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -230,7 +230,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
       child: Text(
         'Aucune catégorie disponible',
         style: TextStyle(
-          color: AppTheme.textDark.withOpacity(0.5),
+          color: AppTheme.textDark.withAlpha((0.5 * 255).toInt()),
           fontSize: 15.sp,
           fontStyle: FontStyle.italic,
         ),
@@ -353,7 +353,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             style: TextStyle(
                               color: _selectedItem != null 
                                   ? AppTheme.textDark
-                                  : AppTheme.textDark.withOpacity(0.6),
+                                  : AppTheme.textDark.withAlpha((0.6 * 255).toInt()),
                               fontSize: 15.sp,
                             ),
                             overflow: TextOverflow.ellipsis,

@@ -1,4 +1,4 @@
-import 'package:budgets/model/category_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/widgets/custom_search_bar.dart';
 import 'package:budgets/widgets/category_filter_widget.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:budgets/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/expense_model.dart';
 
 /// State class for paginated transactions
 class PaginatedTransactionsState {

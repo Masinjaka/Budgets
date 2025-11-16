@@ -1,6 +1,6 @@
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/model/category_model.dart';
-import 'package:budgets/model/expense_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
+import 'package:budgets/features/transactions/domain/model/expense_model.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
