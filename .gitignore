@@ -43,5 +43,9 @@ app.*.map.json
 /android/app/release
 /android/app/.cxx/
 
+# Riverpod code generation
+*.g.dart
+*.freezed.dart
+
 # FVM Version Cache
 .fvm/
