@@ -22,11 +22,13 @@ class TransactionLoadingState extends StatelessWidget {
 class TransactionErrorState extends ConsumerWidget {
   final Object error;
   final String errorMessage;
+  final VoidCallback? onRetry;
 
   const TransactionErrorState({
     super.key,
     required this.error,
     required this.errorMessage,
+    this.onRetry,
   });
 
   @override
@@ -61,7 +63,12 @@ class TransactionErrorState extends ConsumerWidget {
           SizedBox(height: 2.h),
           ElevatedButton(
             onPressed: () {
-              ref.invalidate(expensesProvider);
+              if (onRetry != null) {
+                onRetry!();
+              } else {
+                // Fallback for legacy consumers
+                ref.invalidate(expensesProvider);
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryGreen,

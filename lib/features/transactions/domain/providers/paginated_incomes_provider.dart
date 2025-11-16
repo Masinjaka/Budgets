@@ -1,45 +1,33 @@
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/data/datasource/expense_api.dart';
 import 'package:budgets/features/transactions/domain/model/paginated_transaction_state.dart';
 import 'package:flutter/foundation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-part 'paginated_expenses_provider.g.dart';
-
-
-@riverpod
-class PaginatedExpenses extends _$PaginatedExpenses {
-  static const int pageSize = 10;
-
-  // Ensures we don't schedule the initial load multiple times
-  bool _initialLoadScheduled = false;
-
-  @override
-  PaginatedTransactionsState build() {
-    // Set the initial state synchronously
-    final initialState = const PaginatedTransactionsState(
-      transactions: [],
-      hasMore: true,
-      isLoading: true,
-      isLoadingMore: false,
-      currentPage: 0,
-    );
-
-    // Schedule the first page load after the initial state is set
-    if (!_initialLoadScheduled) {
-      _initialLoadScheduled = true;
-      Future.microtask(_loadFirstPage);
-    }
-
-    return initialState;
+class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
+  PaginatedIncomes()
+      : super(const PaginatedTransactionsState(
+          transactions: [],
+          hasMore: true,
+          isLoading: true,
+          isLoadingMore: false,
+          currentPage: 0,
+        )) {
+    // Defer first load so provider is fully mounted
+    Future.microtask(_loadFirstPage);
   }
 
-  /// Load the first page of transactions
+  static const int pageSize = 10;
+  bool _loadingNext = false;
+
   Future<void> _loadFirstPage() async {
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
-      
-      final result = await getTransactionsPaginated(page: 0, limit: pageSize);
-      
+      final result = await getTransactionsPaginated(
+        page: 0,
+        limit: pageSize,
+        type: TransactionType.income,
+      );
       state = PaginatedTransactionsState(
         transactions: result.transactions,
         hasMore: result.hasMore,
@@ -48,7 +36,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
         currentPage: 0,
       );
     } catch (e, s) {
-      debugPrint('Error loading first page: $e, $s');
+      debugPrint('Error loading first income page: $e, $s');
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.toString(),
@@ -56,18 +44,17 @@ class PaginatedExpenses extends _$PaginatedExpenses {
     }
   }
 
-  /// Load the next page of transactions
   Future<void> loadNextPage() async {
-    if (state.isLoadingMore || !state.hasMore || state.isLoading) {
-      return;
-    }
-
+    if (_loadingNext || state.isLoadingMore || !state.hasMore || state.isLoading) return;
+    _loadingNext = true;
     try {
       state = state.copyWith(isLoadingMore: true, errorMessage: null);
-      
       final nextPage = state.currentPage + 1;
-      final result = await getTransactionsPaginated(page: nextPage, limit: pageSize);
-      
+      final result = await getTransactionsPaginated(
+        page: nextPage,
+        limit: pageSize,
+        type: TransactionType.income,
+      );
       state = state.copyWith(
         transactions: [...state.transactions, ...result.transactions],
         hasMore: result.hasMore,
@@ -75,37 +62,36 @@ class PaginatedExpenses extends _$PaginatedExpenses {
         currentPage: nextPage,
       );
     } catch (e, s) {
-      debugPrint('Error loading next page: $e, $s');
+      debugPrint('Error loading next income page: $e, $s');
       state = state.copyWith(
         isLoadingMore: false,
         errorMessage: e.toString(),
       );
+    } finally {
+      _loadingNext = false;
     }
   }
 
-  /// Refresh all transactions (reload from beginning)
   Future<void> refresh() async {
     try {
-      // Keep existing items to avoid showing empty state during refresh
+      // Keep current list to avoid flicker
       state = state.copyWith(
         isLoading: true,
         isLoadingMore: false,
         currentPage: 0,
         errorMessage: null,
       );
-      
       await _loadFirstPage();
     } catch (e, s) {
-      debugPrint('Error refreshing transactions: $e, $s');
+      debugPrint('Error refreshing incomes: $e, $s');
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.toString(),
       );
     }
   }
-
-  /// Add a new transaction and refresh the list
-  Future<void> addTransactionAndRefresh() async {
-    await refresh();
-  }
 }
+
+final paginatedIncomesProvider = StateNotifierProvider.autoDispose<PaginatedIncomes, PaginatedTransactionsState>((ref) {
+  return PaginatedIncomes();
+});

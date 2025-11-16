@@ -68,6 +68,7 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
     // Handle initial loading state
     if (paginatedState.isLoading && paginatedState.transactions.isEmpty) {
       return CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           // Search bar section (disabled during loading)
           SliverToBoxAdapter(
@@ -94,6 +95,7 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
       return TransactionErrorState(
         error: paginatedState.errorMessage!,
         errorMessage: 'Erreur lors du chargement des dépenses',
+        onRetry: () => ref.read(paginatedExpensesProvider.notifier).refresh(),
       );
     }
 
@@ -122,6 +124,7 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
       },
       child: CustomScrollView(
         controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           // Search bar section
           SliverToBoxAdapter(
@@ -141,7 +144,10 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 6.w),
             sliver: groupedTransactions.isEmpty
-                ? SliverToBoxAdapter(child: ExpenseEmptyState(hasFilters: hasFilters))
+                ? SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: ExpenseEmptyState(hasFilters: hasFilters),
+                  )
                 : PaginatedTransactionDateGroup(
                     groupedTransactions: groupedTransactions,
                     isLoadingMore: paginatedState.isLoadingMore,

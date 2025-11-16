@@ -5,7 +5,7 @@ import 'package:budgets/features/transactions/presentation/widgets/transaction_s
 import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_states.dart';
-import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -56,18 +56,19 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
     if (maxScrollExtent > 0 && 
         currentPixels >= maxScrollExtent - 200) {
       // Load more when near bottom
-      ref.read(paginatedExpensesProvider.notifier).loadNextPage();
+      ref.read(paginatedIncomesProvider.notifier).loadNextPage();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch paginated expense data from provider
-    final paginatedState = ref.watch(paginatedExpensesProvider);
+    // Watch paginated income data from provider
+    final paginatedState = ref.watch(paginatedIncomesProvider);
     
     // Handle initial loading state
     if (paginatedState.isLoading && paginatedState.transactions.isEmpty) {
       return CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           // Search bar section (disabled during loading)
           SliverToBoxAdapter(
@@ -94,15 +95,12 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
       return TransactionErrorState(
         error: paginatedState.errorMessage!,
         errorMessage: 'Erreur lors du chargement des revenus',
+        onRetry: () => ref.read(paginatedIncomesProvider.notifier).refresh(),
       );
     }
 
-    // Filter to only show incomes (transaction_type = 'income')
-    final allTransactions = paginatedState.transactions;
-    final incomes = TransactionUtils.filterByTransactionType(
-      allTransactions, 
-      TransactionType.income,
-    );
+    // All transactions are already incomes in this provider
+    final incomes = paginatedState.transactions;
     
     // Filter and group incomes based on search/filters
     final filteredIncomes = TransactionUtils.filterTransactions(
@@ -118,10 +116,11 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
 
     return RefreshIndicator(
       onRefresh: () async {
-        await ref.read(paginatedExpensesProvider.notifier).refresh();
+        await ref.read(paginatedIncomesProvider.notifier).refresh();
       },
       child: CustomScrollView(
         controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           // Search bar section
           SliverToBoxAdapter(
@@ -141,7 +140,10 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 6.w),
             sliver: groupedIncomes.isEmpty
-                ? const SliverToBoxAdapter(child: IncomeEmptyState())
+                ? const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: IncomeEmptyState(),
+                  )
                 : PaginatedTransactionDateGroup(
                     groupedTransactions: groupedIncomes,
                     isLoadingMore: paginatedState.isLoadingMore,

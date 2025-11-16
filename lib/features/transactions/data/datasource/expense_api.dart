@@ -48,13 +48,13 @@ Future<List<Expense>> getExpenses() {
 Future<PaginatedTransactions> getTransactionsPaginated({
   int page = 0,
   int limit = 10,
+  TransactionType? type,
 }) {
   return Wrapper.execute(() async {
     try {
       final offset = page * limit;
       
-      // Get transactions with one extra to check if there are more
-      final response = await supabase
+      var query = supabase
           .from('transaction')
           .select('''
             title,
@@ -64,9 +64,16 @@ Future<PaginatedTransactions> getTransactionsPaginated({
             invoice_file,
             transaction_type,
             categories (id, name, emoji, color)
-          ''')
+          ''');
+      
+      if (type != null) {
+        query = query.eq('transaction_type', type.value);
+      }
+
+      // Get transactions with one extra to check if there are more
+      final response = await query
           .order('date', ascending: false)
-          .range(offset, offset + limit); // This gets limit+1 items
+          .range(offset, offset + limit); // fetches limit+1 items
 
       if (response.isEmpty) {
         return const PaginatedTransactions(

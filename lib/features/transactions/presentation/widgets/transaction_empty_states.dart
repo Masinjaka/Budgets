@@ -57,73 +57,70 @@ class IncomeEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverFillRemaining(
-          child: Padding(
-            padding: EdgeInsets.all(6.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Icon with animation
-                const Icon(
-                  Icons.trending_up,
-                  size: 80,
-                  color: AppTheme.primaryGreen,
-                ).animate().scale(
-                  duration: 600.ms,
-                  curve: Curves.easeOutBack,
-                ).fadeIn(
-                  duration: 400.ms,
-                ),
-                
-                SizedBox(height: 3.h),
-                
-                // Title
-                Text(
-                  'Aucun revenu',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ).animate().slideY(
-                  begin: 0.3,
-                  end: 0,
-                  duration: 500.ms,
-                  delay: 200.ms,
-                  curve: Curves.easeOutCubic,
-                ).fadeIn(
-                  duration: 400.ms,
-                  delay: 200.ms,
-                ),
-                
-                SizedBox(height: 2.h),
-                
-                // Description
-                Text(
-                  'Vous n\'avez encore enregistré aucun revenu.\nCommencez par ajouter vos premiers revenus.',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16.sp,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                ).animate().slideY(
-                  begin: 0.3,
-                  end: 0,
-                  duration: 500.ms,
-                  delay: 400.ms,
-                  curve: Curves.easeOutCubic,
-                ).fadeIn(
-                  duration: 400.ms,
-                  delay: 400.ms,
-                ),
-              ],
+    // Non-scrollable content to be placed inside SliverToBoxAdapter
+    return Padding(
+      padding: EdgeInsets.all(6.w),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon with animation
+            const Icon(
+              Icons.trending_up,
+              size: 80,
+              color: AppTheme.primaryGreen,
+            ).animate().scale(
+              duration: 600.ms,
+              curve: Curves.easeOutBack,
+            ).fadeIn(
+              duration: 400.ms,
             ),
-          ),
+            
+            SizedBox(height: 3.h),
+            
+            // Title
+            Text(
+              'Aucun revenu',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ).animate().slideY(
+              begin: 0.3,
+              end: 0,
+              duration: 500.ms,
+              delay: 200.ms,
+              curve: Curves.easeOutCubic,
+            ).fadeIn(
+              duration: 400.ms,
+              delay: 200.ms,
+            ),
+            
+            SizedBox(height: 2.h),
+            
+            // Description
+            Text(
+              'Vous n\'avez encore enregistré aucun revenu.\nCommencez par ajouter vos premiers revenus.',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16.sp,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ).animate().slideY(
+              begin: 0.3,
+              end: 0,
+              duration: 500.ms,
+              delay: 400.ms,
+              curve: Curves.easeOutCubic,
+            ).fadeIn(
+              duration: 400.ms,
+              delay: 400.ms,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
