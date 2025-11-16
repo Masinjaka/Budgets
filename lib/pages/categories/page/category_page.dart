@@ -1,7 +1,7 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/model/category_model.dart';
-import 'package:budgets/provider/category_provider.dart';
+import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

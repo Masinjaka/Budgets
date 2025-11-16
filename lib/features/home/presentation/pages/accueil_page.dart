@@ -1,7 +1,7 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/expense_model.dart';
-import 'package:budgets/provider/expense_provider.dart';
-import 'package:budgets/provider/filter_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/expense_provider.dart';
+import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
 import 'package:budgets/widgets/custom_expense_card.dart';
 import 'package:budgets/features/home/presentation/widgets/custom_greeting_app_bar.dart';
 import 'package:budgets/features/home/presentation/widgets/jumbotron.dart';

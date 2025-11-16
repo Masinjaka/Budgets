@@ -2,7 +2,7 @@ import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/model/expense_model.dart';
-import 'package:budgets/provider/expense_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/expense_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';

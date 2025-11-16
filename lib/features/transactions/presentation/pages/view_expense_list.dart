@@ -1,7 +1,7 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/model/category_model.dart';
 import 'package:budgets/model/expense_model.dart';
-import 'package:budgets/provider/expense_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/expense_provider.dart';
 import 'package:budgets/widgets/expense_widgets/transaction_widget.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:budgets/widgets/custom_search_bar.dart';

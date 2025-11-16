@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../model/category_model.dart';
-import '../../../provider/category_provider.dart';
+import '../../../features/categories/domain/providers/category_provider.dart';
 
 class CategoryModule {
   // Add properties and methods as needed
