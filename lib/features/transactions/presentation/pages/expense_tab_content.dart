@@ -1,11 +1,11 @@
 import 'package:budgets/core/functions/transaction_utils.dart';
 import 'package:budgets/core/functions/transaction_search_mixin.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/features/expense/presentation/widgets/transaction_state_widgets.dart';
-import 'package:budgets/features/expense/presentation/widgets/transaction_search_section.dart';
-import 'package:budgets/features/expense/presentation/widgets/paginated_transaction_date_group.dart';
-import 'package:budgets/features/expense/presentation/widgets/transaction_empty_states.dart';
-import 'package:budgets/provider/paginated_expenses_provider.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_state_widgets.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
+import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_states.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';

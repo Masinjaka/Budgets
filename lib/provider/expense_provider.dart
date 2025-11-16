@@ -1,7 +1,7 @@
 import 'package:budgets/api/expense_api.dart';
 import 'package:budgets/model/expense_model.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/provider/paginated_expenses_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

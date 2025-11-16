@@ -10,7 +10,7 @@ import 'package:budgets/features/auth/presentation/pages/reset_password_page.dar
 import 'package:budgets/features/onboarding/presentation/pages/splash_page.dart';
 import 'package:budgets/pages/categories/page/add_category_page.dart';
 import 'package:budgets/pages/expenses/page/add_expenses.dart';
-import 'package:budgets/features/expense/presentation/pages/transaction_page.dart';
+import 'package:budgets/features/transactions/presentation/pages/transaction_page.dart';
 import 'package:budgets/pages/expenses/page/filter_expenses.dart';
 import 'package:budgets/pages/navigation/pages/navigation_page.dart';
 import 'package:budgets/features/home/presentation/pages/accueil_page.dart' as accueil;

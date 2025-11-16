@@ -140,12 +140,12 @@ class TransactionListShimmer extends StatelessWidget {
                   if (index == 0 || index % 3 == 0) ...[
                     // Date header shimmer
                     Container(
-                      width: 40.w,
+                      width: double.infinity,
                       height: 2.h,
                       margin: EdgeInsets.fromLTRB(0, 2.w, 0, 2.w),
                       decoration: BoxDecoration(
                         color: AppTheme.secondaryDark,
-                        borderRadius: BorderRadius.circular(1.w),
+                        borderRadius: BorderRadius.circular(2.w),
                       ),
                     ),
                   ],
