@@ -1,4 +1,4 @@
-import 'package:budgets/api/subcategories_api.dart';
+import 'package:budgets/features/categories/data/datasource/subcategories_api.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

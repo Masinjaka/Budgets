@@ -3,7 +3,7 @@ import 'package:budgets/features/transactions/domain/model/paginated_transaction
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'paginated_expenses_provider.g.dart';
+part '../../../../provider/paginated_expenses_provider.g.dart';
 
 
 @riverpod

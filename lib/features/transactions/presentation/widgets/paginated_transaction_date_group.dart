@@ -1,6 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/expense_model.dart';
-import 'package:budgets/widgets/expense_widgets/transaction_widget.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';

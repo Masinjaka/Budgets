@@ -1,4 +1,4 @@
-import 'package:budgets/api/category_api.dart';
+import 'package:budgets/features/categories/data/datasource/category_api.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
