@@ -23,8 +23,8 @@ class Transactions extends _$Transactions {
     try {
       await addTransaction(amount, description, categoryName,
           subcategoryAmounts, transactionType);
-      // ignore: unused_local_variable
-      final paginated = ref.refresh(paginatedTransactionsProvider);
+      // ignore: unused_result
+      ref.refresh(paginatedTransactionsProvider);
       ref.invalidateSelf();
     } catch (e, s) {
       debugPrint('Error in addUserTransaction: $e, StackTrace: $s');
