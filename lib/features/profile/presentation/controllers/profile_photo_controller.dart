@@ -33,8 +33,8 @@ class ProfilePhotoController extends StateNotifier<AsyncValue<String?>> {
   }
 }
 
-final profilePhotoControllerProvider = StateNotifierProvider<
-    ProfilePhotoController, AsyncValue<String?>>((ref) {
+final profilePhotoControllerProvider =
+    StateNotifierProvider<ProfilePhotoController, AsyncValue<String?>>((ref) {
   final usecase = ref.read(uploadAndSaveProfilePhotoProvider);
   return ProfilePhotoController(usecase);
 });

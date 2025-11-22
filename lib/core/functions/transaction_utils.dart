@@ -1,23 +1,22 @@
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/model/category_model.dart';
-import 'package:budgets/model/expense_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 /// Utility class for transaction-related operations
 class TransactionUtils {
-  
   /// Initialize French locale for date formatting
   static Future<void> initializeFrenchLocale() async {
     await initializeDateFormatting('fr', null);
   }
 
   /// Groups transactions by date and formats the date strings
-  static Map<String, List<Expense>> groupTransactionsByDate(
-    List<Expense> transactions,
+  static Map<String, List<TransactionModel>> groupTransactionsByDate(
+    List<TransactionModel> transactions,
     bool localeInitialized,
   ) {
-    final Map<String, List<Expense>> grouped = {};
+    final Map<String, List<TransactionModel>> grouped = {};
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -51,19 +50,20 @@ class TransactionUtils {
 
     // Sort each group by time (most recent first)
     grouped.forEach((key, value) {
-      value.sort((a, b) => (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
+      value.sort((a, b) =>
+          (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
     });
 
     return grouped;
   }
 
   /// Filters transactions based on search text and selected categories
-  static List<Expense> filterTransactions(
-    List<Expense> transactions,
+  static List<TransactionModel> filterTransactions(
+    List<TransactionModel> transactions,
     String searchText,
     List<Category> selectedCategories,
   ) {
-    List<Expense> filteredTransactions = transactions;
+    List<TransactionModel> filteredTransactions = transactions;
 
     // Filter by search text
     final normalizedSearchText = searchText.toLowerCase().trim();
@@ -72,10 +72,10 @@ class TransactionUtils {
         final description = transaction.description?.toLowerCase() ?? '';
         final title = transaction.title?.toLowerCase() ?? '';
         final categoryName = transaction.category?.name?.toLowerCase() ?? '';
-        
+
         return description.contains(normalizedSearchText) ||
-               title.contains(normalizedSearchText) ||
-               categoryName.contains(normalizedSearchText);
+            title.contains(normalizedSearchText) ||
+            categoryName.contains(normalizedSearchText);
       }).toList();
     }
 
@@ -85,10 +85,10 @@ class TransactionUtils {
           .map((cat) => cat.id)
           .where((id) => id != null)
           .toSet();
-      
+
       filteredTransactions = filteredTransactions.where((transaction) {
         return transaction.category?.id != null &&
-               selectedCategoryIds.contains(transaction.category!.id);
+            selectedCategoryIds.contains(transaction.category!.id);
       }).toList();
     }
 
@@ -96,14 +96,15 @@ class TransactionUtils {
   }
 
   /// Extracts unique categories from transactions
-  static List<Category> extractCategoriesFromTransactions(List<Expense> transactions) {
+  static List<Category> extractCategoriesFromTransactions(
+      List<TransactionModel> transactions) {
     final Set<String> seenCategoryIds = {};
     final List<Category> categories = [];
 
     for (final transaction in transactions) {
       final category = transaction.category;
-      if (category != null && 
-          category.id != null && 
+      if (category != null &&
+          category.id != null &&
           !seenCategoryIds.contains(category.id)) {
         seenCategoryIds.add(category.id!);
         categories.add(category);
@@ -116,12 +117,12 @@ class TransactionUtils {
   }
 
   /// Filters transactions by transaction type
-  static List<Expense> filterByTransactionType(
-    List<Expense> transactions,
+  static List<TransactionModel> filterByTransactionType(
+    List<TransactionModel> transactions,
     TransactionType type,
   ) {
-    return transactions.where((transaction) => 
-      transaction.transactionType == type
-    ).toList();
+    return transactions
+        .where((transaction) => transaction.transactionType == type)
+        .toList();
   }
 }

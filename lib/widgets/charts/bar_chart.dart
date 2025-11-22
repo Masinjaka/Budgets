@@ -1,15 +1,15 @@
-import 'package:budgets/model/expense_model.dart';
-import 'package:budgets/utils/chart_data.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/core/functions/chart_data.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [BarChart] widget for daily expenses and income.
-Widget dailyBarChart(List<Expense> transactions) {
+Widget dailyBarChart(List<TransactionModel> transactions) {
   final dailyData = AppChartData.getWeeklyExpenseIncomeData(transactions);
   double maxAmount = 0;
-  
+
   // Determine the maximum Y-axis value from both expenses and income
   if (dailyData.isNotEmpty) {
     maxAmount = dailyData
@@ -71,8 +71,10 @@ Widget dailyBarChart(List<Expense> transactions) {
               reservedSize: 4.h,
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         barTouchData: BarTouchData(
           enabled: true,
@@ -99,7 +101,7 @@ Widget dailyBarChart(List<Expense> transactions) {
 }
 
 /// Builds and returns a [BarChart] widget for daily expenses only - legacy function.
-Widget dailyExpensesBarChart(List<Expense> expenses) {
+Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
   final dailyData = AppChartData.getWeeklyData(expenses);
   double maxDailyAmount = 0;
   // Determine the maximum Y-axis value for proper scaling.
@@ -136,7 +138,7 @@ Widget dailyExpensesBarChart(List<Expense> expenses) {
           show: false,
           border: Border.all(color: const Color(0xff37434d), width: 1),
         ),
-        barGroups: dailyData,// No border around the chart.
+        barGroups: dailyData, // No border around the chart.
         titlesData: FlTitlesData(
           show: true,
           bottomTitles: AxisTitles(
@@ -172,7 +174,7 @@ Widget dailyExpensesBarChart(List<Expense> expenses) {
               sideTitles: SideTitles(showTitles: false)), // Hide top titles.
           rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false)), // Hide right titles.
-        ),// Hide grid lines.
+        ), // Hide grid lines.
         barTouchData: const BarTouchData(
             enabled: true), // Enable touch interactions for bars.
         maxY: maxDailyAmount * 1.2, // Set max Y-axis with a 20% buffer.

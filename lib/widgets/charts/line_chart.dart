@@ -1,11 +1,11 @@
-import 'package:budgets/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 Widget buildLineChart(
-    List<FlSpot> spots, String periodType, List<Expense> expenses) {
+    List<FlSpot> spots, String periodType, List<TransactionModel> expenses) {
   final NumberFormat formatter = NumberFormat.compact();
   return Expanded(
     child: LineChart(

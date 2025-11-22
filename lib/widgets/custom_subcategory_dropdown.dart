@@ -1,5 +1,5 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/model/subcategories.dart';
+import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -25,10 +25,12 @@ class CustomSubcategoryDropdown extends ConsumerStatefulWidget {
   final bool enabled;
 
   @override
-  ConsumerState<CustomSubcategoryDropdown> createState() => _CustomSubcategoryDropdownState();
+  ConsumerState<CustomSubcategoryDropdown> createState() =>
+      _CustomSubcategoryDropdownState();
 }
 
-class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDropdown>
+class _CustomSubcategoryDropdownState
+    extends ConsumerState<CustomSubcategoryDropdown>
     with SingleTickerProviderStateMixin {
   Subcategory? _selectedItem;
   bool _isDropdownOpen = false;
@@ -47,17 +49,17 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
     _searchController = TextEditingController();
     _focusNode = FocusNode();
     _filteredItems = widget.items;
-    
+
     // Set initial text if there's a selected value
     if (_selectedItem != null) {
       _searchController.text = _selectedItem!.name ?? '';
     }
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    
+
     _dropdownAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCirc,
@@ -79,13 +81,13 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
         _searchController.clear();
       }
     }
-    
+
     // Update filtered items when widget items change
     if (widget.items != oldWidget.items) {
       _filteredItems = widget.items;
       _filterItems(_searchController.text);
     }
-    
+
     if ((!widget.enabled || widget.items.isEmpty) && _isDropdownOpen) {
       _removeOverlay();
     }
@@ -108,7 +110,9 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
 
   void _onSearchChanged() {
     _filterItems(_searchController.text);
-    if (!_isDropdownOpen && _focusNode.hasFocus && _searchController.text.isNotEmpty) {
+    if (!_isDropdownOpen &&
+        _focusNode.hasFocus &&
+        _searchController.text.isNotEmpty) {
       _showOverlay();
     } else if (_isDropdownOpen) {
       // Rebuild overlay with filtered items
@@ -141,7 +145,8 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
         _filteredItems = widget.items;
       } else {
         _filteredItems = widget.items.where((item) {
-          return item.name?.toLowerCase().contains(query.toLowerCase()) ?? false;
+          return item.name?.toLowerCase().contains(query.toLowerCase()) ??
+              false;
         }).toList();
       }
     });
@@ -155,7 +160,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
         (item) => item.name?.toLowerCase() == text.toLowerCase(),
         orElse: () => Subcategory(name: text), // Create a custom subcategory
       );
-      
+
       if (_selectedItem?.name != text) {
         setState(() {
           _selectedItem = existingSubcategory;
@@ -176,7 +181,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
 
   void _toggleDropdown() {
     if (!widget.enabled) return;
-    
+
     if (_isDropdownOpen) {
       _removeOverlay();
     } else {
@@ -188,7 +193,8 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
   void _showOverlay() {
     if (_overlayEntry != null) return;
 
-    final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox =
+        _dropdownKey.currentContext!.findRenderObject() as RenderBox;
     final Size size = renderBox.size;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
@@ -248,14 +254,15 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
   Widget _buildDropdownContent() {
     final searchText = _searchController.text.trim();
     final hasFilteredItems = _filteredItems.isNotEmpty;
-    final showCustomOption = searchText.isNotEmpty && 
-        !_filteredItems.any((item) => item.name?.toLowerCase() == searchText.toLowerCase());
+    final showCustomOption = searchText.isNotEmpty &&
+        !_filteredItems.any(
+            (item) => item.name?.toLowerCase() == searchText.toLowerCase());
 
     if (!hasFilteredItems && !showCustomOption) {
       return Container(
         padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
         child: Text(
-          searchText.isEmpty 
+          searchText.isEmpty
               ? 'Aucune sous-catégorie disponible'
               : 'Aucune sous-catégorie trouvée',
           style: TextStyle(
@@ -307,7 +314,8 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                               ? AppTheme.textDark
                               : AppTheme.textDark.withOpacity(0.8),
                           fontSize: 14.sp,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -316,7 +324,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
               ),
             );
           }).toList()),
-          
+
           // Show custom option if search text doesn't match any existing item
           if (showCustomOption) ...[
             if (hasFilteredItems)
@@ -384,7 +392,6 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
 
   @override
   Widget build(BuildContext context) {
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -394,7 +401,8 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
           validator: (value) {
             if (widget.validator != null) {
               for (String type in widget.validator!.keys) {
-                final error = validate(type, widget.validator![type], _selectedItem);
+                final error =
+                    validate(type, widget.validator![type], _selectedItem);
                 if (error != null) return error;
               }
             }
@@ -410,8 +418,8 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                     color: AppTheme.secondaryDark,
                     borderRadius: BorderRadius.circular(2.w),
                     border: Border.all(
-                      color: state.hasError 
-                          ? Colors.red 
+                      color: state.hasError
+                          ? Colors.red
                           : AppTheme.borderColorDark,
                     ),
                   ),
@@ -423,7 +431,8 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                           focusNode: _focusNode,
                           enabled: widget.enabled,
                           decoration: InputDecoration(
-                            hintText: widget.hint ?? 'Sélectionnez ou tapez une sous-catégorie',
+                            hintText: widget.hint ??
+                                'Sélectionnez ou tapez une sous-catégorie',
                             hintStyle: TextStyle(
                               color: AppTheme.textDark.withOpacity(0.6),
                               fontSize: 15.sp,
@@ -432,7 +441,7 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
-                              horizontal: 4.w, 
+                              horizontal: 4.w,
                               vertical: 1.5.h,
                             ),
                           ),
@@ -452,7 +461,9 @@ class _CustomSubcategoryDropdownState extends ConsumerState<CustomSubcategoryDro
                         child: Padding(
                           padding: EdgeInsets.only(right: 4.w),
                           child: Icon(
-                            _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                            _isDropdownOpen
+                                ? Icons.arrow_drop_up
+                                : Icons.arrow_drop_down,
                             color: AppTheme.textDark,
                           ),
                         ),

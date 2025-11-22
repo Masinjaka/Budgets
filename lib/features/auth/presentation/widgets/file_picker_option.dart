@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class FileOption extends StatefulWidget {
-  const FileOption({super.key,this.title = 'Titre', this.icon = Icons.file_upload, this.onTap});
+  const FileOption(
+      {super.key,
+      this.title = 'Titre',
+      this.icon = Icons.file_upload,
+      this.onTap});
 
   final String title;
   final IconData icon;

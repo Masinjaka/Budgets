@@ -3,19 +3,20 @@ import 'package:budgets/features/auth/presentation/pages/upload_profile_photo_pa
 import 'package:budgets/features/onboarding/presentation/pages/getting_started_page.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_password_page.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_profile_page.dart';
-import 'package:budgets/model/category_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:budgets/features/auth/presentation/pages/login_page.dart';
 import 'package:budgets/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:budgets/features/onboarding/presentation/pages/splash_page.dart';
-import 'package:budgets/pages/categories/page/add_category_page.dart';
-import 'package:budgets/pages/expenses/page/add_expenses.dart';
-import 'package:budgets/features/expense/presentation/pages/transaction_page.dart';
-import 'package:budgets/pages/expenses/page/filter_expenses.dart';
-import 'package:budgets/pages/navigation/pages/navigation_page.dart';
-import 'package:budgets/features/home/presentation/pages/accueil_page.dart' as accueil;
+import 'package:budgets/features/categories/presentation/pages/add_category_page.dart';
+import 'package:budgets/features/transactions/presentation/pages/add_transaction.dart';
+import 'package:budgets/features/transactions/presentation/pages/transaction_page.dart';
+import 'package:budgets/features/transactions/presentation/pages/filter_transactions_page.dart';
+import 'package:budgets/features/navigation/presentation/pages/navigation_page.dart';
+import 'package:budgets/features/home/presentation/pages/accueil_page.dart'
+    as accueil;
 import 'package:budgets/features/settings/presentation/pages/setting_page.dart';
-import 'package:budgets/pages/categories/page/category_page.dart';
+import 'package:budgets/features/categories/presentation/pages/category_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -65,14 +66,21 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   late final GoRouter _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
-      GoRoute(path: '/getting-started', builder: (context, state) => const GettingStartedPage()),
+      GoRoute(
+          path: '/getting-started',
+          builder: (context, state) => const GettingStartedPage()),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
-      GoRoute(path: '/upload-profile-photo', builder: (context, state) => const UploadProfilePhotoPage()),
-      GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
+      GoRoute(
+          path: '/upload-profile-photo',
+          builder: (context, state) => const UploadProfilePhotoPage()),
+      GoRoute(
+          path: '/reset-password',
+          builder: (context, state) => const ResetPasswordPage()),
       // Shell with IndexedStack to preserve state across tabs
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => NavigatorPage(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) =>
+            NavigatorPage(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -85,7 +93,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/expense-list',
+                path: '/transaction-list',
                 builder: (context, state) => const TransactionPage(),
               ),
             ],
@@ -109,13 +117,15 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         ],
       ),
       GoRoute(
-        path: '/add-expense',
+        path: '/add-transaction',
         builder: (context, state) {
           final type = state.uri.queryParameters['type'] ?? 'expense';
-          return ExpenseCreationPage(transactionType: type);
+          return TransactionCreationPage(transactionType: type);
         },
       ),
-      GoRoute(path: '/filter-expense', builder: (context, state) => const ExpenseFilterPage()),
+      GoRoute(
+          path: '/filter-transaction',
+          builder: (context, state) => const TransactionFilterPage()),
       GoRoute(
         path: '/add-category',
         builder: (context, state) {
@@ -126,8 +136,12 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           );
         },
       ),
-      GoRoute(path: '/edit-profile', builder: (context, state) => const EditProfilePage()),
-      GoRoute(path: '/edit-password', builder: (context, state) => const EditPasswordPage()),
+      GoRoute(
+          path: '/edit-profile',
+          builder: (context, state) => const EditProfilePage()),
+      GoRoute(
+          path: '/edit-password',
+          builder: (context, state) => const EditPasswordPage()),
     ],
   );
 

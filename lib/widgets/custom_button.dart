@@ -32,17 +32,17 @@ class _CustomButtonState extends State<CustomButton> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.width ?? double.infinity,
-      height: widget.height ??  5.5.h,
+      height: widget.height ?? 5.5.h,
       child: ElevatedButton(
         onPressed: widget.onPressed,
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(
-            widget.backgroundColor ??  AppTheme.primaryGreen,
+            widget.backgroundColor ?? AppTheme.primaryGreen,
           ),
           elevation: const WidgetStatePropertyAll(0),
-          side:  WidgetStatePropertyAll(
+          side: WidgetStatePropertyAll(
             BorderSide(
-              color: widget.borderColor ??Colors.black,
+              color: widget.borderColor ?? Colors.black,
             ),
           ),
           shape: WidgetStatePropertyAll(
@@ -53,12 +53,12 @@ class _CustomButtonState extends State<CustomButton> {
         ),
         child: widget.isLoading != null && widget.isLoading!
             ? SizedBox(
-              height: 6.w,
-              width: 6.w,
-              child: const CircularProgressIndicator(
+                height: 6.w,
+                width: 6.w,
+                child: const CircularProgressIndicator(
                   color: Colors.black,
                 ),
-            )
+              )
             : Text(
                 widget.text,
                 style: TextStyle(

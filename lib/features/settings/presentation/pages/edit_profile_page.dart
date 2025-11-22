@@ -174,7 +174,8 @@ class _State extends ConsumerState<EditProfilePage> {
                       onPressed: () async {
                         setState(() => _isLoading = true);
 
-                        await editProfileModule.deleteCurrentUserAccount(context, ref);
+                        await editProfileModule.deleteCurrentUserAccount(
+                            context, ref);
 
                         setState(() => _isLoading = false);
                       },

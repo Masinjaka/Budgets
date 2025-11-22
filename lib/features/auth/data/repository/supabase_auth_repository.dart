@@ -38,8 +38,8 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> changePassword({required String currentPassword, required String newPassword}) async {
-    
+  Future<void> changePassword(
+      {required String currentPassword, required String newPassword}) async {
     // First, verify the current password by trying to sign in
     final currentUser = _client.auth.currentUser;
     if (currentUser == null || currentUser.email == null) {
@@ -80,11 +80,9 @@ class SupabaseAuthRepository implements AuthRepository {
       // Sign out locally after successful deletion
       await _client.auth.signOut();
     } catch (e) {
-      
       debugPrint('Error deleting account: $e');
-      
+
       rethrow;
-      
     }
   }
 }
