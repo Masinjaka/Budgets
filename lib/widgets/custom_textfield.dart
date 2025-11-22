@@ -21,7 +21,7 @@ class CustomTextField extends ConsumerStatefulWidget {
   final TextEditingController controller;
   final bool? isPassword;
   final TextInputType? keyboardType;
-  final Map<String,String>? validator;
+  final Map<String, String>? validator;
   final Widget? suffixIcon;
   final bool? isReadOnly;
   final void Function()? onTap;
@@ -103,11 +103,10 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        widget.title,        
+        widget.title,
         SizedBox(
           height: 1.h,
         ),
-        
         TextFormField(
           readOnly: widget.isReadOnly ?? false,
           obscureText: isObscure && isPassord,
@@ -124,7 +123,8 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
           decoration: InputDecoration(
             filled: true,
             fillColor: AppTheme.secondaryDark,
-            contentPadding: EdgeInsets.symmetric(vertical: 1.7.h, horizontal: 5.w),
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 1.7.h, horizontal: 5.w),
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(
                 color: Colors.transparent,
@@ -169,9 +169,8 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
                   )
                 : widget.suffixIcon,
           ),
-          onTap: widget.onTap ,
+          onTap: widget.onTap,
         ),
-
       ],
     );
   }

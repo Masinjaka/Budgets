@@ -18,8 +18,8 @@ class Categories extends _$Categories {
       final categories = await getCategories();
       state = AsyncValue.data(categories);
       return result;
-    } catch (e,s) {
-      state = AsyncValue.error(e,s);
+    } catch (e, s) {
+      state = AsyncValue.error(e, s);
       rethrow;
     }
   }
@@ -31,8 +31,8 @@ class Categories extends _$Categories {
       final categories = await getCategories();
       state = AsyncValue.data(categories);
       return result;
-    } catch (e,s) {
-      state = AsyncValue.error(e,s);
+    } catch (e, s) {
+      state = AsyncValue.error(e, s);
       rethrow;
     }
   }
@@ -44,8 +44,8 @@ class Categories extends _$Categories {
       final categories = await getCategories();
       state = AsyncValue.data(categories);
       return result;
-    } catch (e,s) {
-      state = AsyncValue.error(e,s);
+    } catch (e, s) {
+      state = AsyncValue.error(e, s);
       rethrow;
     }
   }

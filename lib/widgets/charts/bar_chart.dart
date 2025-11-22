@@ -9,7 +9,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 Widget dailyBarChart(List<Expense> transactions) {
   final dailyData = AppChartData.getWeeklyExpenseIncomeData(transactions);
   double maxAmount = 0;
-  
+
   // Determine the maximum Y-axis value from both expenses and income
   if (dailyData.isNotEmpty) {
     maxAmount = dailyData
@@ -71,8 +71,10 @@ Widget dailyBarChart(List<Expense> transactions) {
               reservedSize: 4.h,
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         barTouchData: BarTouchData(
           enabled: true,
@@ -136,7 +138,7 @@ Widget dailyExpensesBarChart(List<Expense> expenses) {
           show: false,
           border: Border.all(color: const Color(0xff37434d), width: 1),
         ),
-        barGroups: dailyData,// No border around the chart.
+        barGroups: dailyData, // No border around the chart.
         titlesData: FlTitlesData(
           show: true,
           bottomTitles: AxisTitles(
@@ -172,7 +174,7 @@ Widget dailyExpensesBarChart(List<Expense> expenses) {
               sideTitles: SideTitles(showTitles: false)), // Hide top titles.
           rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false)), // Hide right titles.
-        ),// Hide grid lines.
+        ), // Hide grid lines.
         barTouchData: const BarTouchData(
             enabled: true), // Enable touch interactions for bars.
         maxY: maxDailyAmount * 1.2, // Set max Y-axis with a 20% buffer.

@@ -6,7 +6,6 @@ import 'package:intl/date_symbol_data_local.dart';
 
 /// Utility class for transaction-related operations
 class TransactionUtils {
-  
   /// Initialize French locale for date formatting
   static Future<void> initializeFrenchLocale() async {
     await initializeDateFormatting('fr', null);
@@ -51,7 +50,8 @@ class TransactionUtils {
 
     // Sort each group by time (most recent first)
     grouped.forEach((key, value) {
-      value.sort((a, b) => (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
+      value.sort((a, b) =>
+          (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now()));
     });
 
     return grouped;
@@ -72,10 +72,10 @@ class TransactionUtils {
         final description = transaction.description?.toLowerCase() ?? '';
         final title = transaction.title?.toLowerCase() ?? '';
         final categoryName = transaction.category?.name?.toLowerCase() ?? '';
-        
+
         return description.contains(normalizedSearchText) ||
-               title.contains(normalizedSearchText) ||
-               categoryName.contains(normalizedSearchText);
+            title.contains(normalizedSearchText) ||
+            categoryName.contains(normalizedSearchText);
       }).toList();
     }
 
@@ -85,10 +85,10 @@ class TransactionUtils {
           .map((cat) => cat.id)
           .where((id) => id != null)
           .toSet();
-      
+
       filteredTransactions = filteredTransactions.where((transaction) {
         return transaction.category?.id != null &&
-               selectedCategoryIds.contains(transaction.category!.id);
+            selectedCategoryIds.contains(transaction.category!.id);
       }).toList();
     }
 
@@ -96,14 +96,15 @@ class TransactionUtils {
   }
 
   /// Extracts unique categories from transactions
-  static List<Category> extractCategoriesFromTransactions(List<Expense> transactions) {
+  static List<Category> extractCategoriesFromTransactions(
+      List<Expense> transactions) {
     final Set<String> seenCategoryIds = {};
     final List<Category> categories = [];
 
     for (final transaction in transactions) {
       final category = transaction.category;
-      if (category != null && 
-          category.id != null && 
+      if (category != null &&
+          category.id != null &&
           !seenCategoryIds.contains(category.id)) {
         seenCategoryIds.add(category.id!);
         categories.add(category);
@@ -120,8 +121,8 @@ class TransactionUtils {
     List<Expense> transactions,
     TransactionType type,
   ) {
-    return transactions.where((transaction) => 
-      transaction.transactionType == type
-    ).toList();
+    return transactions
+        .where((transaction) => transaction.transactionType == type)
+        .toList();
   }
 }

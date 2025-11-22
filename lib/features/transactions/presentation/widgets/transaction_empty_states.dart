@@ -69,15 +69,18 @@ class IncomeEmptyState extends StatelessWidget {
               Icons.trending_up,
               size: 80,
               color: AppTheme.primaryGreen,
-            ).animate().scale(
-              duration: 600.ms,
-              curve: Curves.easeOutBack,
-            ).fadeIn(
-              duration: 400.ms,
-            ),
-            
+            )
+                .animate()
+                .scale(
+                  duration: 600.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                ),
+
             SizedBox(height: 3.h),
-            
+
             // Title
             Text(
               'Aucun revenu',
@@ -86,19 +89,22 @@ class IncomeEmptyState extends StatelessWidget {
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
               ),
-            ).animate().slideY(
-              begin: 0.3,
-              end: 0,
-              duration: 500.ms,
-              delay: 200.ms,
-              curve: Curves.easeOutCubic,
-            ).fadeIn(
-              duration: 400.ms,
-              delay: 200.ms,
-            ),
-            
+            )
+                .animate()
+                .slideY(
+                  begin: 0.3,
+                  end: 0,
+                  duration: 500.ms,
+                  delay: 200.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                  delay: 200.ms,
+                ),
+
             SizedBox(height: 2.h),
-            
+
             // Description
             Text(
               'Vous n\'avez encore enregistré aucun revenu.\nCommencez par ajouter vos premiers revenus.',
@@ -108,16 +114,19 @@ class IncomeEmptyState extends StatelessWidget {
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
-            ).animate().slideY(
-              begin: 0.3,
-              end: 0,
-              duration: 500.ms,
-              delay: 400.ms,
-              curve: Curves.easeOutCubic,
-            ).fadeIn(
-              duration: 400.ms,
-              delay: 400.ms,
-            ),
+            )
+                .animate()
+                .slideY(
+                  begin: 0.3,
+                  end: 0,
+                  duration: 500.ms,
+                  delay: 400.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                  delay: 400.ms,
+                ),
           ],
         ),
       ),

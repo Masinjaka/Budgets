@@ -53,10 +53,8 @@ Future<PaginatedTransactions> getTransactionsPaginated({
   return Wrapper.execute(() async {
     try {
       final offset = page * limit;
-      
-      var query = supabase
-          .from('transaction')
-          .select('''
+
+      var query = supabase.from('transaction').select('''
             title,
             description,
             amount,
@@ -65,7 +63,7 @@ Future<PaginatedTransactions> getTransactionsPaginated({
             transaction_type,
             categories (id, name, emoji, color)
           ''');
-      
+
       if (type != null) {
         query = query.eq('transaction_type', type.value);
       }
@@ -83,13 +81,12 @@ Future<PaginatedTransactions> getTransactionsPaginated({
         );
       }
 
-      final List<Expense> transactions = (response as List)
-          .map((item) => Expense.fromMap(item))
-          .toList();
+      final List<Expense> transactions =
+          (response as List).map((item) => Expense.fromMap(item)).toList();
 
       // Check if there are more items by seeing if we got more than limit
       final hasMore = transactions.length > limit;
-      
+
       // If we have more than limit, remove the extra item
       if (hasMore) {
         transactions.removeLast();
@@ -109,7 +106,11 @@ Future<PaginatedTransactions> getTransactionsPaginated({
 
 // Add expenses
 Future<void> addExpense(
-    String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts, TransactionType? transactionType) {
+    String? amount,
+    String? description,
+    String? categoryName,
+    Map<String, String>? subcategoryAmounts,
+    TransactionType? transactionType) {
   return Wrapper.execute(() async {
     final response = await supabase.rpc(
       'add_expenses',
@@ -118,7 +119,7 @@ Future<void> addExpense(
         'description': description,
         'category_name': categoryName,
         'tr_type': transactionType?.value ?? TransactionType.expense.value,
-        'subcategories_amount': subcategoryAmounts,    
+        'subcategories_amount': subcategoryAmounts,
       },
     );
 

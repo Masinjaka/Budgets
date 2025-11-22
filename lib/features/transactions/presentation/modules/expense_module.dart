@@ -62,15 +62,18 @@ class ExpenseModule {
   // Fetch subcategories for a specific category
   Future<List<Subcategory>> fetchSubcategories(
       WidgetRef ref, String categoryId) async {
-    final subcategories = await ref
-        .read(subcategoriesProvider(categoryId).future);
+    final subcategories =
+        await ref.read(subcategoriesProvider(categoryId).future);
 
     return subcategories;
   }
 
   // Add expense
-  Future<void> addExpense(
-    {String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts, 
+  Future<void> addExpense({
+    String? amount,
+    String? description,
+    String? categoryName,
+    Map<String, String>? subcategoryAmounts,
     TransactionType? transactionType,
     required GlobalKey<FormState> formKey,
     required WidgetRef ref,
@@ -78,9 +81,8 @@ class ExpenseModule {
   }) async {
     if (formKey.currentState!.validate()) {
       try {
-        await ref
-            .read(expensesProvider.notifier)
-            .addUserExpenses(amount, description, categoryName, subcategoryAmounts, transactionType);
+        await ref.read(expensesProvider.notifier).addUserExpenses(amount,
+            description, categoryName, subcategoryAmounts, transactionType);
 
         if (!context.mounted) return;
 
@@ -94,31 +96,34 @@ class ExpenseModule {
   }
 
   // Method to build subcategory amounts map for Supabase RPC
-  Map<String, String> buildSubcategoryAmountsMap(List<Map<String, dynamic>> subcategoryAmounts) {
+  Map<String, String> buildSubcategoryAmountsMap(
+      List<Map<String, dynamic>> subcategoryAmounts) {
     final Map<String, String> subcategoryMap = {};
-    
+
     for (int i = 0; i < subcategoryAmounts.length; i++) {
       var item = subcategoryAmounts[i];
       final subcategoryName = item['subcategoryName'] as String?;
-      final amountController = item['amountController'] as TextEditingController?;
-      
-      if (subcategoryName != null && 
+      final amountController =
+          item['amountController'] as TextEditingController?;
+
+      if (subcategoryName != null &&
           subcategoryName.isNotEmpty &&
-          amountController != null && 
+          amountController != null &&
           amountController.text.trim().isNotEmpty) {
         subcategoryMap[subcategoryName] = amountController.text.trim();
       }
     }
-    
+
     return subcategoryMap;
   }
 
   // Method to calculate total amount from subcategories
   double calculateTotalAmount(List<Map<String, dynamic>> subcategoryAmounts) {
     double total = 0.0;
-    
+
     for (var item in subcategoryAmounts) {
-      final amountController = item['amountController'] as TextEditingController?;
+      final amountController =
+          item['amountController'] as TextEditingController?;
       if (amountController != null && amountController.text.trim().isNotEmpty) {
         try {
           total += double.parse(amountController.text.trim());
@@ -127,27 +132,29 @@ class ExpenseModule {
         }
       }
     }
-    
+
     return total;
   }
 
   // Method to validate subcategory amounts
-  bool validateSubcategoryAmounts(List<Map<String, dynamic>> subcategoryAmounts) {
+  bool validateSubcategoryAmounts(
+      List<Map<String, dynamic>> subcategoryAmounts) {
     if (subcategoryAmounts.isEmpty) {
       return false;
     }
-    
+
     for (var item in subcategoryAmounts) {
       final subcategoryName = item['subcategoryName'] as String?;
-      final amountController = item['amountController'] as TextEditingController?;
-      
-      if (subcategoryName == null || 
+      final amountController =
+          item['amountController'] as TextEditingController?;
+
+      if (subcategoryName == null ||
           subcategoryName.isEmpty ||
-          amountController == null || 
+          amountController == null ||
           amountController.text.trim().isEmpty) {
         return false;
       }
-      
+
       // Validate amount is a valid number
       try {
         double.parse(amountController.text.trim());
@@ -155,7 +162,7 @@ class ExpenseModule {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -163,7 +170,8 @@ class ExpenseModule {
   Map<String, dynamic> createSubcategoryAmountItem() {
     return {
       'subcategoryName': '', // Store the subcategory name as string
-      'subcategoryController': TextEditingController(), // Controller for the text field
+      'subcategoryController':
+          TextEditingController(), // Controller for the text field
       'amountController': TextEditingController(),
     };
   }
@@ -194,7 +202,8 @@ class ExpenseModule {
     required int index,
     required List<Map<String, dynamic>> subcategoryAmounts,
     required GlobalKey<AnimatedListState> listKey,
-    required Widget Function(Map<String, dynamic>, Animation<double>) buildRemovedItem,
+    required Widget Function(Map<String, dynamic>, Animation<double>)
+        buildRemovedItem,
     required VoidCallback onStateChanged,
   }) {
     if (index >= subcategoryAmounts.length) return;
@@ -221,7 +230,8 @@ class ExpenseModule {
   void clearAllSubcategoryAmounts({
     required List<Map<String, dynamic>> subcategoryAmounts,
     required GlobalKey<AnimatedListState> listKey,
-    required Widget Function(Map<String, dynamic>, Animation<double>) buildRemovedItem,
+    required Widget Function(Map<String, dynamic>, Animation<double>)
+        buildRemovedItem,
     required VoidCallback onStateChanged,
   }) {
     if (subcategoryAmounts.isEmpty) return;

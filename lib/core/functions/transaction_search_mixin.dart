@@ -68,6 +68,6 @@ mixin TransactionSearchMixin<T extends StatefulWidget> on State<T> {
     // The listener will automatically trigger setState() when text changes
   }
 
-  bool get hasFilters => 
+  bool get hasFilters =>
       selectedCategories.isNotEmpty || searchController.text.isNotEmpty;
 }

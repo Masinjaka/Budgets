@@ -7,21 +7,26 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'expense_provider.g.dart';
 
-
 @riverpod
 class Expenses extends _$Expenses {
   @override
-  Future<List<Expense>> build() async{
+  Future<List<Expense>> build() async {
     return await getExpenses();
   }
 
-  Future<void> addUserExpenses(String? amount, String? description, String? categoryName, Map<String, String>? subcategoryAmounts, TransactionType? transactionType) async{
+  Future<void> addUserExpenses(
+      String? amount,
+      String? description,
+      String? categoryName,
+      Map<String, String>? subcategoryAmounts,
+      TransactionType? transactionType) async {
     try {
-      await addExpense(amount, description, categoryName, subcategoryAmounts, transactionType);
+      await addExpense(amount, description, categoryName, subcategoryAmounts,
+          transactionType);
       // ignore: unused_local_variable
       final paginated = ref.refresh(paginatedExpensesProvider);
       ref.invalidateSelf();
-    } catch (e,s) {
+    } catch (e, s) {
       debugPrint('Error in addUserExpenses: $e, StackTrace: $s');
       rethrow;
     }

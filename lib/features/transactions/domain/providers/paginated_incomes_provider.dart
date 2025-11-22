@@ -45,7 +45,10 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
   }
 
   Future<void> loadNextPage() async {
-    if (_loadingNext || state.isLoadingMore || !state.hasMore || state.isLoading) return;
+    if (_loadingNext ||
+        state.isLoadingMore ||
+        !state.hasMore ||
+        state.isLoading) return;
     _loadingNext = true;
     try {
       state = state.copyWith(isLoadingMore: true, errorMessage: null);
@@ -92,6 +95,7 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
   }
 }
 
-final paginatedIncomesProvider = StateNotifierProvider.autoDispose<PaginatedIncomes, PaginatedTransactionsState>((ref) {
+final paginatedIncomesProvider = StateNotifierProvider.autoDispose<
+    PaginatedIncomes, PaginatedTransactionsState>((ref) {
   return PaginatedIncomes();
 });

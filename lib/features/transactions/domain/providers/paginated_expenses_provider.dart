@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'paginated_expenses_provider.g.dart';
 
-
 @riverpod
 class PaginatedExpenses extends _$PaginatedExpenses {
   static const int pageSize = 10;
@@ -16,7 +15,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
   @override
   PaginatedTransactionsState build() {
     // Set the initial state synchronously
-    final initialState = const PaginatedTransactionsState(
+    const initialState = PaginatedTransactionsState(
       transactions: [],
       hasMore: true,
       isLoading: true,
@@ -37,9 +36,9 @@ class PaginatedExpenses extends _$PaginatedExpenses {
   Future<void> _loadFirstPage() async {
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
-      
+
       final result = await getTransactionsPaginated(page: 0, limit: pageSize);
-      
+
       state = PaginatedTransactionsState(
         transactions: result.transactions,
         hasMore: result.hasMore,
@@ -64,10 +63,11 @@ class PaginatedExpenses extends _$PaginatedExpenses {
 
     try {
       state = state.copyWith(isLoadingMore: true, errorMessage: null);
-      
+
       final nextPage = state.currentPage + 1;
-      final result = await getTransactionsPaginated(page: nextPage, limit: pageSize);
-      
+      final result =
+          await getTransactionsPaginated(page: nextPage, limit: pageSize);
+
       state = state.copyWith(
         transactions: [...state.transactions, ...result.transactions],
         hasMore: result.hasMore,
@@ -93,7 +93,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
         currentPage: 0,
         errorMessage: null,
       );
-      
+
       await _loadFirstPage();
     } catch (e, s) {
       debugPrint('Error refreshing transactions: $e, $s');

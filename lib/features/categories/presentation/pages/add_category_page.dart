@@ -8,14 +8,15 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:budgets/features/categories/domain/models/category_model.dart' as cat;
+import 'package:budgets/features/categories/domain/models/category_model.dart'
+    as cat;
 
 class AddCategoryPage extends ConsumerStatefulWidget {
   final cat.Category? category;
   final String transactionType;
-  
+
   const AddCategoryPage({
-    super.key, 
+    super.key,
     this.category,
     this.transactionType = 'expense',
   });
@@ -36,7 +37,9 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   bool _isDeleting = false;
 
   // Get transaction type from widget
-  TransactionType get transactionType => TransactionType.fromValue(widget.transactionType) ?? TransactionType.expense;
+  TransactionType get transactionType =>
+      TransactionType.fromValue(widget.transactionType) ??
+      TransactionType.expense;
 
   void _showEmojiPicker(BuildContext context) async {
     FocusScope.of(context).unfocus();
@@ -174,9 +177,9 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _isEditing 
-            ? 'Modifier la catégorie' 
-            : 'Créer une catégorie ${transactionType == TransactionType.income ? 'de revenu' : 'de dépense'}',
+          _isEditing
+              ? 'Modifier la catégorie'
+              : 'Créer une catégorie ${transactionType == TransactionType.income ? 'de revenu' : 'de dépense'}',
           style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.transparent,

@@ -14,8 +14,8 @@ class Subcategory {
   factory Subcategory.fromMap(Map<String, dynamic> map) {
     return Subcategory(
       id: map['id'] as String?,
-      createdAt: map['created_at'] != null 
-          ? DateTime.parse(map['created_at'] as String) 
+      createdAt: map['created_at'] != null
+          ? DateTime.parse(map['created_at'] as String)
           : null,
       name: map['name'] as String?,
       categoryId: map['category_id'] as String?,

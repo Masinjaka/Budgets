@@ -23,7 +23,6 @@ class SupabaseUserDataSource {
     if (uid == null) throw StateError('No authenticated user');
     await _client
         .from('user')
-        .update({'username': username})
-        .eq('user_id', uid);
+        .update({'username': username}).eq('user_id', uid);
   }
 }

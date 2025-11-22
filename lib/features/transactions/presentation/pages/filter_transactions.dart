@@ -254,7 +254,7 @@ class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(2.w),
         ),
-        enabledBorder:  OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(2.w),
           borderSide: const BorderSide(
             color: Colors.transparent,

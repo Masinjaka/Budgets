@@ -47,9 +47,10 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
     _selectedItem = widget.selectedValue;
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200), // Slightly longer for better curve effect
+      duration: const Duration(
+          milliseconds: 200), // Slightly longer for better curve effect
     );
-    
+
     // Create curved animation with fast-out-slow-in
     _dropdownAnimation = CurvedAnimation(
       parent: _animationController,
@@ -63,7 +64,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
     if (widget.selectedValue != oldWidget.selectedValue) {
       _selectedItem = widget.selectedValue;
     }
-    
+
     // Close dropdown if the widget becomes disabled or items change
     if ((!widget.enabled || widget.items.isEmpty) && _isDropdownOpen) {
       _removeOverlay();
@@ -93,7 +94,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
 
   void _toggleDropdown() {
     if (!widget.enabled || widget.items.isEmpty) return;
-    
+
     if (_isDropdownOpen) {
       _removeOverlay();
     } else {
@@ -102,17 +103,18 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
   }
 
   void _createOverlay() {
-    final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox =
+        _dropdownKey.currentContext!.findRenderObject() as RenderBox;
     final Size size = renderBox.size;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
-    
+
     _overlayEntry = _createOverlayEntry(offset, size);
     Overlay.of(context).insert(_overlayEntry!);
-    
+
     setState(() {
       _isDropdownOpen = true;
     });
-    
+
     _animationController.forward();
   }
 
@@ -125,7 +127,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
       _overlayEntry?.remove();
       _overlayEntry = null;
     }
-    
+
     // Double check mounted state after async operation
     if (mounted) {
       setState(() {
@@ -135,7 +137,6 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
   }
 
   OverlayEntry _createOverlayEntry(Offset offset, Size size) {
-    
     return OverlayEntry(
       builder: (context) => Stack(
         children: [
@@ -158,8 +159,9 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
               builder: (context, child) {
                 // Create a "drop down" effect by scaling from top and sliding down
                 final scaleY = _dropdownAnimation.value;
-                final slideOffset = (1 - _dropdownAnimation.value) * -20; // Slide down from above
-                
+                final slideOffset = (1 - _dropdownAnimation.value) *
+                    -20; // Slide down from above
+
                 return Transform.translate(
                   offset: Offset(0, slideOffset),
                   child: Transform.scale(
@@ -179,7 +181,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                               bottomLeft: Radius.circular(2.w),
                               bottomRight: Radius.circular(2.w),
                             ),
-                            border:const Border(
+                            border: const Border(
                               left: BorderSide(
                                 color: AppTheme.borderColorDark,
                                 width: 1.0,
@@ -196,7 +198,9 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withAlpha((0.1 * _dropdownAnimation.value * 255).toInt()),
+                                color: Colors.black.withAlpha(
+                                    (0.1 * _dropdownAnimation.value * 255)
+                                        .toInt()),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -246,7 +250,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
       itemBuilder: (context, index) {
         final category = widget.items[index];
         final isSelected = _selectedItem == category;
-        
+
         return InkWell(
           onTap: () {
             setState(() {
@@ -275,7 +279,8 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                     style: TextStyle(
                       color: AppTheme.textDark,
                       fontSize: 15.sp,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -296,7 +301,6 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,42 +329,51 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                     ),
                     decoration: BoxDecoration(
                       color: AppTheme.secondaryDark,
-                      borderRadius: _isDropdownOpen 
+                      borderRadius: _isDropdownOpen
                           ? BorderRadius.only(
                               topLeft: Radius.circular(2.w),
                               topRight: Radius.circular(2.w),
                             )
                           : BorderRadius.circular(2.w),
                       border: Border.all(
-                        color: state.hasError 
-                            ? Colors.red 
+                        color: state.hasError
+                            ? Colors.red
                             : AppTheme.borderColorDark,
                         width: 1.0,
                       ),
                     ),
                     child: Row(
                       children: [
-                        if (_selectedItem != null && widget.showEmojis && _selectedItem!.emoji != null)
+                        if (_selectedItem != null &&
+                            widget.showEmojis &&
+                            _selectedItem!.emoji != null)
                           Text(
                             _selectedItem!.emoji!,
                             style: TextStyle(fontSize: 16.sp),
                           ),
-                        if (_selectedItem != null && widget.showEmojis && _selectedItem!.emoji != null)
+                        if (_selectedItem != null &&
+                            widget.showEmojis &&
+                            _selectedItem!.emoji != null)
                           SizedBox(width: 2.w),
                         Expanded(
                           child: Text(
-                            _selectedItem?.name ?? widget.hint ?? 'Sélectionnez une option',
+                            _selectedItem?.name ??
+                                widget.hint ??
+                                'Sélectionnez une option',
                             style: TextStyle(
-                              color: _selectedItem != null 
+                              color: _selectedItem != null
                                   ? AppTheme.textDark
-                                  : AppTheme.textDark.withAlpha((0.6 * 255).toInt()),
+                                  : AppTheme.textDark
+                                      .withAlpha((0.6 * 255).toInt()),
                               fontSize: 15.sp,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Icon(
-                          _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                          _isDropdownOpen
+                              ? Icons.arrow_drop_up
+                              : Icons.arrow_drop_down,
                           color: AppTheme.textDark,
                         ),
                       ],

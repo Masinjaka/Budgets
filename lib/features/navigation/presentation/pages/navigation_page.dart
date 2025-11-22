@@ -22,12 +22,8 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
       bottomNavigationBar: Container(
         height: 10.h,
         decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Color.fromARGB(54, 48, 50, 55)
-            )
-          )
-        ),
+            border:
+                Border(top: BorderSide(color: Color.fromARGB(54, 48, 50, 55)))),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -39,7 +35,7 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
               },
               isActive: widget.navigationShell.currentIndex == 0,
             ),
-             CustomNavItem(
+            CustomNavItem(
               icon: Icons.list_outlined,
               title: 'Transactions',
               onTap: () {

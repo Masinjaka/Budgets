@@ -99,7 +99,7 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(
-            horizontal: 2.h, 
+            horizontal: 2.h,
             vertical: 1.6.h,
           ),
         ),

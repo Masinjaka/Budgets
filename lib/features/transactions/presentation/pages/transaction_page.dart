@@ -143,7 +143,8 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
           },
           body: TabBarView(
             controller: _tabController,
-            physics: const NeverScrollableScrollPhysics(), // disable horizontal swipe
+            physics:
+                const NeverScrollableScrollPhysics(), // disable horizontal swipe
             children: [
               // Expenses tab - contains the expense list content
               ExpenseTabContent(
@@ -163,11 +164,12 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
 
 class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabController tabController;
-  
+
   _TabBarDelegate({required this.tabController});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: AppTheme.backgroundDark,
       child: Padding(

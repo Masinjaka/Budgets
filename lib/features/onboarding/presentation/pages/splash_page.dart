@@ -36,9 +36,8 @@ class _SplashPageState extends State<SplashPage> {
         child: Container(
           padding: EdgeInsets.all(1.w),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.black, width: 2)
-          ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.black, width: 2)),
           child: Image.asset(
             AppPaths.logo,
             width: 15.h,

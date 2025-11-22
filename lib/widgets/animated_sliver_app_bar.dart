@@ -41,17 +41,19 @@ class AnimatedSliverAppBar extends StatelessWidget {
               child: title,
             ),
           ),
-          actions: actions?.map((action) => AnimatedOpacity(
-            opacity: isVisible ? 1.0 : 0.0,
-            duration: duration,
-            curve: curve,
-            child: AnimatedSlide(
-              offset: isVisible ? Offset.zero : const Offset(0, -0.5),
-              duration: duration,
-              curve: curve,
-              child: action,
-            ),
-          )).toList(),
+          actions: actions
+              ?.map((action) => AnimatedOpacity(
+                    opacity: isVisible ? 1.0 : 0.0,
+                    duration: duration,
+                    curve: curve,
+                    child: AnimatedSlide(
+                      offset: isVisible ? Offset.zero : const Offset(0, -0.5),
+                      duration: duration,
+                      curve: curve,
+                      child: action,
+                    ),
+                  ))
+              .toList(),
           expandedHeight: isVisible ? kToolbarHeight : 0,
           toolbarHeight: isVisible ? kToolbarHeight : 0,
         );

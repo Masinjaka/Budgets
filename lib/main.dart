@@ -13,7 +13,8 @@ import 'package:budgets/features/transactions/presentation/pages/add_transaction
 import 'package:budgets/features/transactions/presentation/pages/transaction_page.dart';
 import 'package:budgets/features/transactions/presentation/pages/filter_transactions.dart';
 import 'package:budgets/features/navigation/presentation/pages/navigation_page.dart';
-import 'package:budgets/features/home/presentation/pages/accueil_page.dart' as accueil;
+import 'package:budgets/features/home/presentation/pages/accueil_page.dart'
+    as accueil;
 import 'package:budgets/features/settings/presentation/pages/setting_page.dart';
 import 'package:budgets/features/categories/presentation/pages/category_page.dart';
 import 'package:flutter/material.dart';
@@ -65,14 +66,21 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   late final GoRouter _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
-      GoRoute(path: '/getting-started', builder: (context, state) => const GettingStartedPage()),
+      GoRoute(
+          path: '/getting-started',
+          builder: (context, state) => const GettingStartedPage()),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(path: '/signup', builder: (context, state) => const SignUpPage()),
-      GoRoute(path: '/upload-profile-photo', builder: (context, state) => const UploadProfilePhotoPage()),
-      GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
+      GoRoute(
+          path: '/upload-profile-photo',
+          builder: (context, state) => const UploadProfilePhotoPage()),
+      GoRoute(
+          path: '/reset-password',
+          builder: (context, state) => const ResetPasswordPage()),
       // Shell with IndexedStack to preserve state across tabs
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => NavigatorPage(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) =>
+            NavigatorPage(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -115,7 +123,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           return ExpenseCreationPage(transactionType: type);
         },
       ),
-      GoRoute(path: '/filter-expense', builder: (context, state) => const ExpenseFilterPage()),
+      GoRoute(
+          path: '/filter-expense',
+          builder: (context, state) => const ExpenseFilterPage()),
       GoRoute(
         path: '/add-category',
         builder: (context, state) {
@@ -126,8 +136,12 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           );
         },
       ),
-      GoRoute(path: '/edit-profile', builder: (context, state) => const EditProfilePage()),
-      GoRoute(path: '/edit-password', builder: (context, state) => const EditPasswordPage()),
+      GoRoute(
+          path: '/edit-profile',
+          builder: (context, state) => const EditProfilePage()),
+      GoRoute(
+          path: '/edit-password',
+          builder: (context, state) => const EditPasswordPage()),
     ],
   );
 

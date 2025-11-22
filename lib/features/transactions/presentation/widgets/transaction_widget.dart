@@ -14,8 +14,7 @@ class TransactionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Formatting the number to include commas for thousands
-    final NumberFormat currencyFormatter =
-        NumberFormat.decimalPattern('en_US');
+    final NumberFormat currencyFormatter = NumberFormat.decimalPattern('en_US');
 
     return InkWell(
       borderRadius: BorderRadius.circular(5.w),
@@ -24,7 +23,8 @@ class TransactionListItem extends StatelessWidget {
           context: context,
           backgroundColor: Colors.transparent,
           isScrollControlled: true,
-          builder: (context) => TransactionDetailBottomSheet(transaction: transaction),
+          builder: (context) =>
+              TransactionDetailBottomSheet(transaction: transaction),
         );
       },
       child: Container(
@@ -40,7 +40,8 @@ class TransactionListItem extends StatelessWidget {
               width: 5.h,
               height: 5.h,
               decoration: BoxDecoration(
-                color: Color(int.parse(transaction.category!.color!, radix: 16)),
+                color:
+                    Color(int.parse(transaction.category!.color!, radix: 16)),
                 borderRadius: BorderRadius.circular(2.w),
               ),
               child: Center(

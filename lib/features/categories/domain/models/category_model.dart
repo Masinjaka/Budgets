@@ -21,7 +21,8 @@ class Category {
       name: map['name'] as String?,
       emoji: map['emoji'] as String?,
       color: map['color'] as String?, // Added color mapping
-      transactionType: TransactionType.fromValue(map['transaction_type'] as String?),
+      transactionType:
+          TransactionType.fromValue(map['transaction_type'] as String?),
     );
   }
 

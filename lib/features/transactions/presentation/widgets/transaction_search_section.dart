@@ -39,11 +39,12 @@ class TransactionSearchSection extends StatelessWidget {
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
           padding: EdgeInsets.fromLTRB(
-            6.w, 
-            isSearchFocused ? 2.h : 2.h, // Same padding whether focused or not
-            6.w, 
-            1.h
-          ),
+              6.w,
+              isSearchFocused
+                  ? 2.h
+                  : 2.h, // Same padding whether focused or not
+              6.w,
+              1.h),
           child: Row(
             children: [
               Expanded(
@@ -67,17 +68,20 @@ class TransactionSearchSection extends StatelessWidget {
               categories: availableCategories,
               selectedCategories: selectedCategories,
               onSelectionChanged: onCategorySelectionChanged,
-            ).animate().slideY(
-              begin: -0.3,
-              end: 0,
-              duration: 400.ms,
-              delay: 150.ms,
-              curve: Curves.easeOutCubic,
-            ).fadeIn(
-              duration: 350.ms,
-              delay: 100.ms,
-              curve: Curves.easeInOut,
-            ),
+            )
+                .animate()
+                .slideY(
+                  begin: -0.3,
+                  end: 0,
+                  duration: 400.ms,
+                  delay: 150.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .fadeIn(
+                  duration: 350.ms,
+                  delay: 100.ms,
+                  curve: Curves.easeInOut,
+                ),
           ),
       ],
     );

@@ -6,7 +6,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 class AppChartData {
   /// Returns a list of [BarChartGroupData] suitable for [BarChart] with separate bars for expenses and income.
-  static List<BarChartGroupData> getWeeklyExpenseIncomeData(List<Expense> transactions) {
+  static List<BarChartGroupData> getWeeklyExpenseIncomeData(
+      List<Expense> transactions) {
     final now = DateTime.now();
     // Create a list of the last 7 days, normalized to the start of each day.
     List<DateTime> last7Days = List.generate(7, (index) {
@@ -20,20 +21,17 @@ class AppChartData {
 
     // Aggregate transactions by type
     for (var transaction in transactions) {
-      final transactionDay = DateTime(
-        transaction.date!.year, 
-        transaction.date!.month, 
-        transaction.date!.day
-      );
+      final transactionDay = DateTime(transaction.date!.year,
+          transaction.date!.month, transaction.date!.day);
 
       final dayIndex = last7Days.indexOf(transactionDay);
 
       if (dayIndex != -1) {
         if (transaction.transactionType == TransactionType.expense) {
-          dailyExpenses[dayIndex] = 
+          dailyExpenses[dayIndex] =
               (dailyExpenses[dayIndex] ?? 0.0) + (transaction.amount ?? 0.0);
         } else if (transaction.transactionType == TransactionType.income) {
-          dailyIncome[dayIndex] = 
+          dailyIncome[dayIndex] =
               (dailyIncome[dayIndex] ?? 0.0) + (transaction.amount ?? 0.0);
         }
       }
@@ -51,7 +49,7 @@ class AppChartData {
             width: 4.5.w,
             borderRadius: BorderRadius.circular(3.w),
           ),
-          // Green bar for income  
+          // Green bar for income
           BarChartRodData(
             toY: dailyIncome[index] ?? 0.0,
             color: Colors.greenAccent,

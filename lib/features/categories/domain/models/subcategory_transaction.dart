@@ -1,4 +1,3 @@
-
 class SubcategoryTransaction {
   final String id;
   final DateTime createdAt;
@@ -18,7 +17,9 @@ class SubcategoryTransaction {
     return SubcategoryTransaction(
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
-      amount: json['amount'] != null ? double.tryParse(json['amount'].toString()) : null,
+      amount: json['amount'] != null
+          ? double.tryParse(json['amount'].toString())
+          : null,
       subId: json['sub_id'] as String?,
       transactionId: json['transaction_id'] as String?,
     );
@@ -33,5 +34,4 @@ class SubcategoryTransaction {
       'transaction_id': transactionId,
     };
   }
-
 }

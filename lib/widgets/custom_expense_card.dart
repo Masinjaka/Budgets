@@ -37,7 +37,6 @@ class _ExpenseTileState extends ConsumerState<ExpenseTile> {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       margin: EdgeInsets.symmetric(vertical: 0.5.h),
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
@@ -118,7 +117,9 @@ class _ExpenseTileState extends ConsumerState<ExpenseTile> {
                     "${widget.transactionType == 'expense' ? '-' : '+'} ${formatAmount(widget.amount)}",
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: widget.transactionType == 'expense' ? const Color.fromARGB(255, 181, 76, 69) : const Color.fromARGB(255, 64, 139, 67),
+                      color: widget.transactionType == 'expense'
+                          ? const Color.fromARGB(255, 181, 76, 69)
+                          : const Color.fromARGB(255, 64, 139, 67),
                     ),
                   ),
                 ],

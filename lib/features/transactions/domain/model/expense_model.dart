@@ -1,4 +1,4 @@
-import 'package:budgets/features/categories/domain/models/category_model.dart';// Update with the actual path to your Category class
+import 'package:budgets/features/categories/domain/models/category_model.dart'; // Update with the actual path to your Category class
 import 'package:budgets/core/enums/transaction_type.dart';
 
 class Expense {
@@ -24,11 +24,18 @@ class Expense {
     return Expense(
       title: map['title'] as String?,
       description: map['description'] as String?,
-      amount: map['amount'] != null ? (map['amount'] as num).toDouble() : null, // Updated to handle double
-      date: map['date'] != null ? DateTime.parse(map['date'] as String).toLocal() : null,
+      amount: map['amount'] != null
+          ? (map['amount'] as num).toDouble()
+          : null, // Updated to handle double
+      date: map['date'] != null
+          ? DateTime.parse(map['date'] as String).toLocal()
+          : null,
       invoiceFile: map['invoice_file'] as String?, // Updated to handle String
-      transactionType: TransactionType.fromValue(map['transaction_type'] as String?), // Updated to handle TransactionType
-      category: map['categories'] != null ? Category.fromMap(map['categories'] as Map<String, dynamic>) : null,
+      transactionType: TransactionType.fromValue(map['transaction_type']
+          as String?), // Updated to handle TransactionType
+      category: map['categories'] != null
+          ? Category.fromMap(map['categories'] as Map<String, dynamic>)
+          : null,
     );
   }
 

@@ -15,9 +15,9 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 class ExpenseCreationPage extends ConsumerStatefulWidget {
   final String transactionType;
-  
+
   const ExpenseCreationPage({
-    super.key, 
+    super.key,
     this.transactionType = 'expense',
   });
 
@@ -30,9 +30,11 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isLoading = false;
   final ExpenseModule _module = ExpenseModule();
-  
+
   // Get transaction type from widget
-  TransactionType get transactionType => TransactionType.fromValue(widget.transactionType) ?? TransactionType.expense;
+  TransactionType get transactionType =>
+      TransactionType.fromValue(widget.transactionType) ??
+      TransactionType.expense;
 
   final TextEditingController _designationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -42,7 +44,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
   Category? _selectedCategory;
   List<Subcategory> _subcategories = [];
   bool _isMultipleAmounts = false;
-  List<Map<String, dynamic>> _subcategoryAmounts = [];
+  final List<Map<String, dynamic>> _subcategoryAmounts = [];
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   @override
@@ -53,14 +55,15 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
       (timeStamp) async {
         final allCategories = await _module.fetchCategories(ref);
         // Filter categories by transaction type
-        final filteredCategories = allCategories.where((category) => 
-          category.transactionType == transactionType
-        ).toList();
-        
+        final filteredCategories = allCategories
+            .where((category) => category.transactionType == transactionType)
+            .toList();
+
         setState(() {
           _categories = filteredCategories;
         });
-        debugPrint("CATEGORIES FOR ${transactionType.value}: ${filteredCategories.length}");
+        debugPrint(
+            "CATEGORIES FOR ${transactionType.value}: ${filteredCategories.length}");
       },
     );
   }
@@ -119,13 +122,15 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                     onChanged: (Category? category) async {
                       setState(() {
                         _selectedCategory = category;
-                        _subcategories = []; // Clear subcategories when category changes
+                        _subcategories =
+                            []; // Clear subcategories when category changes
                       });
-                      
+
                       // Fetch subcategories when a category is selected using the module method
                       if (category != null && category.id != null) {
                         try {
-                          final subcategories = await _module.fetchSubcategories(ref, category.id!);
+                          final subcategories = await _module
+                              .fetchSubcategories(ref, category.id!);
                           setState(() {
                             _subcategories = subcategories;
                           });
@@ -189,7 +194,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                                     : 'Montant général pour la catégorie',
                                 style: TextStyle(
                                   fontSize: 12.sp,
-                                  color: AppTheme.textDark.withValues(alpha: 0.7),
+                                  color:
+                                      AppTheme.textDark.withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -200,7 +206,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color:AppTheme.borderColorDark,
+                              color: AppTheme.borderColorDark,
                               width: 1.5,
                             ),
                           ),
@@ -214,7 +220,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                                   _module.clearAllSubcategoryAmounts(
                                     subcategoryAmounts: _subcategoryAmounts,
                                     listKey: _listKey,
-                                    buildRemovedItem: _buildRemovedSubcategoryItem,
+                                    buildRemovedItem:
+                                        _buildRemovedSubcategoryItem,
                                     onStateChanged: () => setState(() {}),
                                   );
                                 }
@@ -222,7 +229,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                             },
                             activeColor: Colors.white,
                             activeTrackColor: AppTheme.textDark,
-                            inactiveThumbColor:AppTheme.secondaryDark,
+                            inactiveThumbColor: AppTheme.secondaryDark,
                             inactiveTrackColor: AppTheme.borderColorDark,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
@@ -307,8 +314,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             padding: EdgeInsets.symmetric(vertical: 1.5.w),
             child: CustomPaint(
               painter: DashedBorderPainter(
-                color: (AppTheme.textDark)
-                    .withValues(alpha: 0.3),
+                color: (AppTheme.textDark).withValues(alpha: 0.3),
                 strokeWidth: 1.0,
                 borderRadius: 2.w,
               ),
@@ -347,9 +353,9 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
       surfaceTintColor: Colors.transparent,
       automaticallyImplyLeading: false,
       title: Text(
-        transactionType == TransactionType.income 
-          ? 'Nouveau revenu' 
-          : 'Nouvelle dépense',
+        transactionType == TransactionType.income
+            ? 'Nouveau revenu'
+            : 'Nouvelle dépense',
         style: TextStyle(
           fontWeight: FontWeight.w500,
           fontSize: 18.sp,
@@ -396,7 +402,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             if (!_module.validateSubcategoryAmounts(_subcategoryAmounts)) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Veuillez remplir toutes les sous-catégories et montants'),
+                  content: Text(
+                      'Veuillez remplir toutes les sous-catégories et montants'),
                 ),
               );
               setState(() => _isLoading = false);
@@ -404,8 +411,10 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             }
 
             // Build subcategory amounts map
-            final subcategoryMap = _module.buildSubcategoryAmountsMap(_subcategoryAmounts);
-            final totalAmount = _module.calculateTotalAmount(_subcategoryAmounts);
+            final subcategoryMap =
+                _module.buildSubcategoryAmountsMap(_subcategoryAmounts);
+            final totalAmount =
+                _module.calculateTotalAmount(_subcategoryAmounts);
 
             debugPrint("🗺️ FINAL SUBCATEGORY MAP: $subcategoryMap");
             debugPrint("💰 TOTAL AMOUNT: $totalAmount");
@@ -430,11 +439,11 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             // For now, show success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
+                content: Text(
+                    '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
                 backgroundColor: Colors.green,
               ),
             );
-
           } else {
             // Single amount mode - use existing logic
             await _module.addExpense(
@@ -490,21 +499,22 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
               Container(
                 height: 4.h,
                 width: 1,
-                color:
-                    (AppTheme.borderColorDark)
-                        .withValues(alpha: 0.5),
+                color: (AppTheme.borderColorDark).withValues(alpha: 0.5),
                 margin: EdgeInsets.symmetric(horizontal: 2.w),
               ),
               Expanded(
                 child: TextFormField(
-                  controller: item['amountController'] as TextEditingController?,
+                  controller:
+                      item['amountController'] as TextEditingController?,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final subcategoryName = item['subcategoryName'] as String?;
                     debugPrint("💰 AMOUNT CHANGED:");
-                    debugPrint("  - Subcategory: ${subcategoryName ?? 'Not selected'}");
+                    debugPrint(
+                        "  - Subcategory: ${subcategoryName ?? 'Not selected'}");
                     debugPrint("  - Amount: $value");
-                    debugPrint("  - Item index: ${_subcategoryAmounts.indexOf(item)}");
+                    debugPrint(
+                        "  - Item index: ${_subcategoryAmounts.indexOf(item)}");
                   },
                   decoration: InputDecoration(
                     hintText: 'Montant',
@@ -583,8 +593,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
               color: AppTheme.secondaryDark.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2.w),
               border: Border.all(
-                color:
-                    AppTheme.borderColorDark,
+                color: AppTheme.borderColorDark,
                 width: 1.0,
               ),
             ),
@@ -609,7 +618,8 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
                 ),
                 Expanded(
                   child: TextFormField(
-                    controller: item['amountController'] as TextEditingController?,
+                    controller:
+                        item['amountController'] as TextEditingController?,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       hintText: 'Montant',
@@ -661,13 +671,15 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
       selectedValue: null, // We'll handle selection differently
       onChanged: (Subcategory? subcategory) {
         if (subcategory != null) {
-          (item['subcategoryController'] as TextEditingController).text = subcategory.name ?? '';
+          (item['subcategoryController'] as TextEditingController).text =
+              subcategory.name ?? '';
           item['subcategoryName'] = subcategory.name ?? '';
           debugPrint("🔥 SUBCATEGORY SELECTED:");
           debugPrint("  - ID: ${subcategory.id}");
           debugPrint("  - Name: ${subcategory.name}");
           debugPrint("  - Category ID: ${subcategory.categoryId}");
-          debugPrint("  - Stored in item['subcategoryName']: ${item['subcategoryName']}");
+          debugPrint(
+              "  - Stored in item['subcategoryName']: ${item['subcategoryName']}");
           setState(() {});
         }
       },
@@ -675,5 +687,3 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
     );
   }
 }
-
-

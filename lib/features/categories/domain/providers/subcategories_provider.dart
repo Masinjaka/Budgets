@@ -6,6 +6,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'subcategories_provider.g.dart';
 
 @riverpod
-Future<List<Subcategory>> subcategories(Ref ref,String categoryId) async {
+Future<List<Subcategory>> subcategories(Ref ref, String categoryId) async {
   return await getSubcategories(categoryId);
 }

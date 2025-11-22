@@ -17,17 +17,16 @@ class Jumbotron extends ConsumerWidget {
     final now = DateTime.now();
     final currentYear = now.year;
     final currentMonth = now.month;
-    
+
     double totalIncome = 0.0;
     double totalExpenses = 0.0;
-    
+
     for (final transaction in transactions) {
       if (transaction.date != null &&
           transaction.date!.year == currentYear &&
           transaction.date!.month == currentMonth) {
-        
         final amount = transaction.amount ?? 0.0;
-        
+
         if (transaction.transactionType == TransactionType.income) {
           totalIncome += amount;
         } else if (transaction.transactionType == TransactionType.expense) {
@@ -35,14 +34,14 @@ class Jumbotron extends ConsumerWidget {
         }
       }
     }
-    
+
     return totalIncome - totalExpenses;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncTransactions = ref.watch(expensesProvider);
-    
+
     return Container(
       height: 16.h,
       decoration: BoxDecoration(
@@ -101,7 +100,7 @@ class Jumbotron extends ConsumerWidget {
                 data: (transactions) {
                   final balance = _calculateCurrentMonthBalance(transactions);
                   final isNegative = balance < 0;
-                  
+
                   return Text(
                     '${isNegative ? '-' : ''}${formatAmount(balance.abs().toString())}',
                     style: TextStyle(

@@ -4,7 +4,9 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 
 Future<List<Category>> getCategories() {
   return Wrapper.execute(() async {
-    final response = await supabase.from('categories').select('id, name, emoji, color, transaction_type');
+    final response = await supabase
+        .from('categories')
+        .select('id, name, emoji, color, transaction_type');
 
     if (response.isEmpty) return [];
 

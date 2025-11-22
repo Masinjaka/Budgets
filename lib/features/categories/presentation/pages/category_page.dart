@@ -20,7 +20,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
     with TickerProviderStateMixin {
   // Tab controller
   late TabController _tabController;
-  
+
   // Animation controller for SliverAppBar
   late AnimationController _appBarAnimationController;
   late Animation<double> _appBarAnimation;
@@ -29,7 +29,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
+
     _appBarAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -105,9 +105,12 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                   backgroundColor: AppTheme.primaryGreen,
                                   onPressed: () {
                                     // Get the current active tab to determine transaction type
-                                    final isExpenseTab = _tabController.index == 0;
-                                    final transactionType = isExpenseTab ? 'expense' : 'income';
-                                    context.push("/add-category?type=$transactionType");
+                                    final isExpenseTab =
+                                        _tabController.index == 0;
+                                    final transactionType =
+                                        isExpenseTab ? 'expense' : 'income';
+                                    context.push(
+                                        "/add-category?type=$transactionType");
                                   },
                                 ),
                               ),
@@ -149,13 +152,13 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
 // Separate widget for category tab content
 class _CategoryTabContent extends ConsumerWidget {
   final TransactionType transactionType;
-  
+
   const _CategoryTabContent({required this.transactionType});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesAsyncValue = ref.watch(categoriesProvider);
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w),
       child: Column(
@@ -163,7 +166,8 @@ class _CategoryTabContent extends ConsumerWidget {
         children: [
           Expanded(
             child: switch (categoriesAsyncValue) {
-              AsyncData(:final value) => _categoryGrid(_filterCategories(value)),
+              AsyncData(:final value) =>
+                _categoryGrid(_filterCategories(value)),
               AsyncError(:final error) => Text('error: $error'),
               _ => _skeleton(),
             },
@@ -175,9 +179,9 @@ class _CategoryTabContent extends ConsumerWidget {
 
   /// Filter categories by transaction type
   List<Category> _filterCategories(List<Category> categories) {
-    return categories.where((category) => 
-      category.transactionType == transactionType
-    ).toList();
+    return categories
+        .where((category) => category.transactionType == transactionType)
+        .toList();
   }
 
   GridView _skeleton() {
@@ -205,8 +209,8 @@ class _CategoryTabContent extends ConsumerWidget {
         child: Text(
           'Aucune catégorie trouvée.',
           style: TextStyle(
-        color: AppTheme.borderColorDark,
-        fontSize: 16.sp,
+            color: AppTheme.borderColorDark,
+            fontSize: 16.sp,
           ),
         ),
       );
@@ -279,11 +283,12 @@ class _CategoryTabContent extends ConsumerWidget {
 
 class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabController tabController;
-  
+
   _CategoryTabBarDelegate({required this.tabController});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: AppTheme.backgroundDark,
       child: Padding(
@@ -302,7 +307,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white70,
               indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppTheme.primaryGreen,
                   width: 3.0,
                 ),

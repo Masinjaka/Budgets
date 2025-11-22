@@ -43,7 +43,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    
+
     _dropdownAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCirc,
@@ -78,17 +78,18 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
   }
 
   void _createOverlay() {
-    final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox =
+        _dropdownKey.currentContext!.findRenderObject() as RenderBox;
     final Size size = renderBox.size;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
-    
+
     _overlayEntry = _createOverlayEntry(offset, size);
     Overlay.of(context).insert(_overlayEntry!);
-    
+
     setState(() {
       _isDropdownOpen = true;
     });
-    
+
     _animationController.forward();
   }
 
@@ -100,7 +101,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
       _overlayEntry?.remove();
       _overlayEntry = null;
     }
-    
+
     if (mounted) {
       setState(() {
         _isDropdownOpen = false;
@@ -109,7 +110,6 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
   }
 
   OverlayEntry _createOverlayEntry(Offset offset, Size size) {
-    
     return OverlayEntry(
       builder: (context) => Stack(
         children: [
@@ -132,7 +132,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
               builder: (context, child) {
                 final scaleY = _dropdownAnimation.value;
                 final slideOffset = (1 - _dropdownAnimation.value) * -20;
-                
+
                 return Transform.translate(
                   offset: Offset(0, slideOffset),
                   child: Transform.scale(
@@ -148,7 +148,8 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
                             maxHeight: 40.h, // Limit height to 40% of screen
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.secondaryDark, // Always use dark color
+                            color:
+                                AppTheme.secondaryDark, // Always use dark color
                             borderRadius: BorderRadius.circular(2.w),
                             border: Border.all(
                               color: AppTheme.borderColorDark,
@@ -156,7 +157,8 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1 * _dropdownAnimation.value),
+                                color: Colors.black.withOpacity(
+                                    0.1 * _dropdownAnimation.value),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -187,7 +189,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
       itemBuilder: (context, index) {
         final period = _timePeriods[index];
         final isSelected = _selectedItem == period;
-        
+
         return InkWell(
           onTap: () {
             setState(() {
@@ -209,7 +211,8 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
                     style: TextStyle(
                       color: Colors.white, // Always white text
                       fontSize: 15.sp,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -233,7 +236,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
     return GestureDetector(
       key: _dropdownKey,
       onTap: _toggleDropdown,
-      child: Container(
+      child: SizedBox(
         width: 32.w, // Fixed width to match "Hébdomadaire" text
         child: Row(
           mainAxisSize: MainAxisSize.min,

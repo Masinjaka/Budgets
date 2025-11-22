@@ -27,7 +27,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
       categoryColor = Color(int.parse(rawColor, radix: 16));
     }
     final categoryId = transaction.category?.id;
-    final subcategoriesAsync = categoryId != null ? ref.watch(subcategoriesProvider(categoryId)) : null;
+    final subcategoriesAsync = categoryId != null
+        ? ref.watch(subcategoriesProvider(categoryId))
+        : null;
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.backgroundDark,
@@ -120,7 +122,10 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                 Icon(Icons.calendar_today, color: Colors.white54, size: 15.sp),
                 SizedBox(width: 2.w),
                 Text(
-                  transaction.date != null ? DateFormat.yMMMMd('fr_FR').format(transaction.date!.toLocal()) : '',
+                  transaction.date != null
+                      ? DateFormat.yMMMMd('fr_FR')
+                          .format(transaction.date!.toLocal())
+                      : '',
                   style: TextStyle(color: Colors.white70, fontSize: 15.sp),
                 ),
                 if (transaction.date != null) ...[
@@ -138,7 +143,10 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
               SizedBox(height: 2.h),
               Text(
                 'Description',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15.sp),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15.sp),
               ),
               SizedBox(height: 0.5.h),
               Text(
@@ -150,7 +158,10 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
               SizedBox(height: 2.h),
               Text(
                 'Facture',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15.sp),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15.sp),
               ),
               SizedBox(height: 0.5.h),
               GestureDetector(
@@ -159,7 +170,10 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                 },
                 child: Text(
                   transaction.invoiceFile!,
-                  style: TextStyle(color: AppTheme.primaryGreen, fontSize: 15.sp, decoration: TextDecoration.underline),
+                  style: TextStyle(
+                      color: AppTheme.primaryGreen,
+                      fontSize: 15.sp,
+                      decoration: TextDecoration.underline),
                 ),
               ),
             ],
@@ -173,16 +187,20 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                       SizedBox(height: 2.h),
                       Text(
                         'Sous-catégories',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15.sp),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.sp),
                       ),
                       SizedBox(height: 0.5.h),
                       ...subcategories.map((sub) => Padding(
-                        padding: EdgeInsets.only(bottom: 0.5.h),
-                        child: Text(
-                          sub.name ?? '',
-                          style: TextStyle(color: Colors.white70, fontSize: 15.sp),
-                        ),
-                      )),
+                            padding: EdgeInsets.only(bottom: 0.5.h),
+                            child: Text(
+                              sub.name ?? '',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 15.sp),
+                            ),
+                          )),
                     ],
                   );
                 },
@@ -190,7 +208,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                   padding: EdgeInsets.symmetric(vertical: 1.h),
                   child: const CircularProgressIndicator(strokeWidth: 2),
                 ),
-                error: (e, st) => SizedBox.shrink(),
+                error: (e, st) => const SizedBox.shrink(),
               ),
             ],
           ],

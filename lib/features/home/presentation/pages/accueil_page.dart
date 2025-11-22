@@ -51,7 +51,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       context.go('/expense-list');
                     },
                   ),
-                  
                   SizedBox(height: 2.h),
                   switch (asyncExpenses) {
                     AsyncData(:final value) => _buildExpenseList(value),
@@ -69,7 +68,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                   SizedBox(height: 3.h),
                   StatsHomeWidget(asyncExpenses: asyncExpenses),
-                  
                 ],
               ),
             ),

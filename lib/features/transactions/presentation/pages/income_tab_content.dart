@@ -12,7 +12,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 /// Income tab content with all income-related features
 class IncomeTabContent extends ConsumerStatefulWidget {
   final AnimationController appBarAnimationController; // made non-null
-  
+
   const IncomeTabContent({
     super.key,
     required this.appBarAnimationController,
@@ -22,9 +22,8 @@ class IncomeTabContent extends ConsumerStatefulWidget {
   ConsumerState<IncomeTabContent> createState() => _IncomeTabContentState();
 }
 
-class _IncomeTabContentState extends ConsumerState<IncomeTabContent> 
+class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
     with TransactionSearchMixin {
-
   late ScrollController _scrollController;
 
   @override
@@ -46,14 +45,13 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
     if (!_scrollController.hasClients) return;
     if (!_scrollController.position.hasContentDimensions) return;
     if (!_scrollController.position.hasPixels) return;
-    
+
     final position = _scrollController.position;
     final maxScrollExtent = position.maxScrollExtent;
     final currentPixels = position.pixels;
-    
+
     // Only trigger load more if there's actual scrollable content
-    if (maxScrollExtent > 0 && 
-        currentPixels >= maxScrollExtent - 200) {
+    if (maxScrollExtent > 0 && currentPixels >= maxScrollExtent - 200) {
       // Load more when near bottom
       ref.read(paginatedIncomesProvider.notifier).loadNextPage();
     }
@@ -63,7 +61,7 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
   Widget build(BuildContext context) {
     // Watch paginated income data from provider
     final paginatedState = ref.watch(paginatedIncomesProvider);
-    
+
     // Handle initial loading state
     if (paginatedState.isLoading && paginatedState.transactions.isEmpty) {
       return CustomScrollView(
@@ -90,7 +88,8 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
     }
 
     // Handle error state
-    if (paginatedState.errorMessage != null && paginatedState.transactions.isEmpty) {
+    if (paginatedState.errorMessage != null &&
+        paginatedState.transactions.isEmpty) {
       return TransactionErrorState(
         error: paginatedState.errorMessage!,
         errorMessage: 'Erreur lors du chargement des revenus',
@@ -100,7 +99,7 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
 
     // All transactions are already incomes in this provider
     final incomes = paginatedState.transactions;
-    
+
     // Filter and group incomes based on search/filters
     final filteredIncomes = TransactionUtils.filterTransactions(
       incomes,
@@ -111,7 +110,8 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
       filteredIncomes,
       localeInitialized,
     );
-    final availableCategories = TransactionUtils.extractCategoriesFromTransactions(incomes);
+    final availableCategories =
+        TransactionUtils.extractCategoriesFromTransactions(incomes);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -125,8 +125,10 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
           SliverToBoxAdapter(
             child: TransactionSearchSection(
               isSearchFocused: isSearchFocused,
-              onSearchFocused: () => onSearchFocused(widget.appBarAnimationController),
-              onSearchUnfocused: () => onSearchUnfocused(widget.appBarAnimationController),
+              onSearchFocused: () =>
+                  onSearchFocused(widget.appBarAnimationController),
+              onSearchUnfocused: () =>
+                  onSearchUnfocused(widget.appBarAnimationController),
               onClearSearch: onClearSearch,
               searchController: searchController,
               hintText: 'Rechercher...',
@@ -153,5 +155,4 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
       ),
     );
   }
-
 }

@@ -1,6 +1,7 @@
 abstract class AuthRepository {
   // Email/password sign in
-  Future<void> signInWithPassword({required String email, required String password});
+  Future<void> signInWithPassword(
+      {required String email, required String password});
 
   // Email/password sign up with optional profile data
   Future<void> signUpWithPassword({
@@ -13,10 +14,12 @@ abstract class AuthRepository {
   Future<void> signOut();
 
   // Send password reset email
-  Future<void> sendPasswordResetEmail({required String email, String? redirectTo});
+  Future<void> sendPasswordResetEmail(
+      {required String email, String? redirectTo});
 
   // Change password for authenticated user
-  Future<void> changePassword({required String currentPassword, required String newPassword});
+  Future<void> changePassword(
+      {required String currentPassword, required String newPassword});
 
   // Auth state changes
   Stream<dynamic> authStateChanges();

@@ -34,7 +34,7 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
 
           final date = groupedTransactions.keys.elementAt(index);
           final transactions = groupedTransactions[date]!;
-          
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -64,7 +64,8 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
             ],
           );
         },
-        childCount: groupedTransactions.length + (hasMore || isLoadingMore ? 1 : 0),
+        childCount:
+            groupedTransactions.length + (hasMore || isLoadingMore ? 1 : 0),
       ),
     );
   }
@@ -97,8 +98,9 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
       baseColor: AppTheme.secondaryDark,
       highlightColor: AppTheme.borderColorDark,
       child: Column(
-        children: List.generate(3, (index) => 
-          Container(
+        children: List.generate(
+          3,
+          (index) => Container(
             margin: EdgeInsets.only(bottom: 1.h),
             height: 8.h,
             decoration: BoxDecoration(

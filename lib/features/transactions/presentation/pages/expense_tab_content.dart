@@ -13,7 +13,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 /// Expense tab content that contains the search bar and expense list
 class ExpenseTabContent extends ConsumerStatefulWidget {
   final AnimationController appBarAnimationController;
-  
+
   const ExpenseTabContent({
     super.key,
     required this.appBarAnimationController,
@@ -23,9 +23,8 @@ class ExpenseTabContent extends ConsumerStatefulWidget {
   ConsumerState<ExpenseTabContent> createState() => _ExpenseTabContentState();
 }
 
-class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent> 
+class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
     with TransactionSearchMixin {
-
   late ScrollController _scrollController;
 
   @override
@@ -47,14 +46,13 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
     if (!_scrollController.hasClients) return;
     if (!_scrollController.position.hasContentDimensions) return;
     if (!_scrollController.position.hasPixels) return;
-    
+
     final position = _scrollController.position;
     final maxScrollExtent = position.maxScrollExtent;
     final currentPixels = position.pixels;
-    
+
     // Only trigger load more if there's actual scrollable content
-    if (maxScrollExtent > 0 && 
-        currentPixels >= maxScrollExtent - 200) {
+    if (maxScrollExtent > 0 && currentPixels >= maxScrollExtent - 200) {
       // Load more when near bottom
       ref.read(paginatedExpensesProvider.notifier).loadNextPage();
     }
@@ -64,7 +62,7 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
   Widget build(BuildContext context) {
     // Watch paginated expense data from provider
     final paginatedState = ref.watch(paginatedExpensesProvider);
-    
+
     // Handle initial loading state
     if (paginatedState.isLoading && paginatedState.transactions.isEmpty) {
       return CustomScrollView(
@@ -91,7 +89,8 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
     }
 
     // Handle error state
-    if (paginatedState.errorMessage != null && paginatedState.transactions.isEmpty) {
+    if (paginatedState.errorMessage != null &&
+        paginatedState.transactions.isEmpty) {
       return TransactionErrorState(
         error: paginatedState.errorMessage!,
         errorMessage: 'Erreur lors du chargement des dépenses',
@@ -102,10 +101,10 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
     // Filter to only show expenses (transaction_type = 'expense')
     final allExpenses = paginatedState.transactions;
     final expenses = TransactionUtils.filterByTransactionType(
-      allExpenses, 
+      allExpenses,
       TransactionType.expense,
     );
-    
+
     // Filter and group expenses based on search/filters
     final filteredExpenses = TransactionUtils.filterTransactions(
       expenses,
@@ -116,7 +115,8 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
       filteredExpenses,
       localeInitialized,
     );
-    final availableCategories = TransactionUtils.extractCategoriesFromTransactions(expenses);
+    final availableCategories =
+        TransactionUtils.extractCategoriesFromTransactions(expenses);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -130,8 +130,10 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
           SliverToBoxAdapter(
             child: TransactionSearchSection(
               isSearchFocused: isSearchFocused,
-              onSearchFocused: () => onSearchFocused(widget.appBarAnimationController),
-              onSearchUnfocused: () => onSearchUnfocused(widget.appBarAnimationController),
+              onSearchFocused: () =>
+                  onSearchFocused(widget.appBarAnimationController),
+              onSearchUnfocused: () =>
+                  onSearchUnfocused(widget.appBarAnimationController),
               onClearSearch: onClearSearch,
               searchController: searchController,
               hintText: 'Rechercher...',
