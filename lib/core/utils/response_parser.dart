@@ -16,8 +16,9 @@ RpcParseResult parseRpcAddExpenseResponse(dynamic response) {
     String? err;
     if (map.containsKey('success')) ok = map['success'] == true;
     if (map.containsKey('ok')) ok = ok ?? (map['ok'] == true);
-    if (map.containsKey('error_message'))
+    if (map.containsKey('error_message')) {
       err = (map['error_message'])?.toString();
+    }
     if (map.containsKey('error')) err = err ?? (map['error'])?.toString();
     ok = ok ??
         map.values.cast<dynamic>().firstWhere(

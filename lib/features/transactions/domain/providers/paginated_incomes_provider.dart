@@ -48,7 +48,9 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
     if (_loadingNext ||
         state.isLoadingMore ||
         !state.hasMore ||
-        state.isLoading) return;
+        state.isLoading) {
+      return;
+    }
     _loadingNext = true;
     try {
       state = state.copyWith(isLoadingMore: true, errorMessage: null);
