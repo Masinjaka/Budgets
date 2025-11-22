@@ -143,13 +143,16 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
           },
           body: TabBarView(
             controller: _tabController,
+            physics: const NeverScrollableScrollPhysics(), // disable horizontal swipe
             children: [
               // Expenses tab - contains the expense list content
               ExpenseTabContent(
                 appBarAnimationController: _appBarAnimationController,
               ),
               // Income tab - contains the income content
-              const IncomeTabContent(),
+              IncomeTabContent(
+                appBarAnimationController: _appBarAnimationController,
+              ),
             ],
           ),
         ),

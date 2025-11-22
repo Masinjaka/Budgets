@@ -71,10 +71,7 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
 
   Widget _buildLoadMoreIndicator() {
     if (isLoadingMore) {
-      return Padding(
-        padding: EdgeInsets.all(2.h),
-        child: _buildShimmerLoading(),
-      );
+      return _buildShimmerLoading();
     }
 
     if (!hasMore) {
@@ -106,7 +103,8 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
             height: 8.h,
             decoration: BoxDecoration(
               color: AppTheme.secondaryDark,
-              borderRadius: BorderRadius.circular(2.w),
+              // Increased border radius for bottom lazy-loading skeletons
+              borderRadius: BorderRadius.circular(6.w),
             ),
           ),
         ),
@@ -138,14 +136,14 @@ class TransactionListShimmer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (index == 0 || index % 3 == 0) ...[
-                    // Date header shimmer
+                    // Date header shimmer (reduced width to approximate actual date text length)
                     Container(
-                      width: double.infinity,
+                      width: 30.w, // previously double.infinity
                       height: 2.h,
                       margin: EdgeInsets.fromLTRB(0, 2.w, 0, 2.w),
                       decoration: BoxDecoration(
                         color: AppTheme.secondaryDark,
-                        borderRadius: BorderRadius.circular(2.w),
+                        borderRadius: BorderRadius.circular(6.w),
                       ),
                     ),
                   ],
@@ -155,7 +153,7 @@ class TransactionListShimmer extends StatelessWidget {
                     margin: EdgeInsets.only(bottom: 1.h),
                     decoration: BoxDecoration(
                       color: AppTheme.secondaryDark,
-                      borderRadius: BorderRadius.circular(2.w),
+                      borderRadius: BorderRadius.circular(6.w),
                     ),
                   ),
                 ],

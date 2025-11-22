@@ -1,6 +1,5 @@
 import 'package:budgets/core/functions/transaction_utils.dart';
 import 'package:budgets/core/functions/transaction_search_mixin.dart';
-import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_state_widgets.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
@@ -12,11 +11,11 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Income tab content with all income-related features
 class IncomeTabContent extends ConsumerStatefulWidget {
-  final AnimationController? appBarAnimationController;
+  final AnimationController appBarAnimationController; // made non-null
   
   const IncomeTabContent({
     super.key,
-    this.appBarAnimationController,
+    required this.appBarAnimationController,
   });
 
   @override
