@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:budgets/features/categories/domain/providers/subcategories_provider.dart';
+import 'package:budgets/features/categories/domain/providers/subcategory_expenses_providers.dart';
 
 /// Bottom sheet to display details of an expense or income
 class TransactionDetailBottomSheet extends ConsumerWidget {
@@ -26,9 +26,8 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
     } else {
       categoryColor = Color(int.parse(rawColor, radix: 16));
     }
-    final categoryId = transaction.category?.id;
-    final subcategoriesAsync = categoryId != null
-        ? ref.watch(subcategoriesProvider(categoryId))
+    final subcategoryExpensesAsync = transaction.id != null
+        ? ref.watch(subcategoryExpensesProvider(transaction.id!))
         : null;
     return Container(
       decoration: BoxDecoration(
@@ -177,28 +176,39 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                 ),
               ),
             ],
-            if (subcategoriesAsync != null) ...[
-              subcategoriesAsync.when(
-                data: (subcategories) {
-                  if (subcategories.isEmpty) return const SizedBox.shrink();
+            if (subcategoryExpensesAsync != null) ...[
+              subcategoryExpensesAsync.when(
+                data: (subcategoryExpenses) {
+                  if (subcategoryExpenses.isEmpty)
+                    return const SizedBox.shrink();
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 2.h),
                       Text(
-                        'Sous-catégories',
+                        'Détails des sous-catégories',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 15.sp),
                       ),
                       SizedBox(height: 0.5.h),
-                      ...subcategories.map((sub) => Padding(
+                      ...subcategoryExpenses.map((sub) => Padding(
                             padding: EdgeInsets.only(bottom: 0.5.h),
-                            child: Text(
-                              sub.name ?? '',
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 15.sp),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  sub.subId ?? 'Unknown',
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 15.sp),
+                                ),
+                                Text(
+                                  currencyFormatter.format(sub.amount),
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 15.sp),
+                                ),
+                              ],
                             ),
                           )),
                     ],
