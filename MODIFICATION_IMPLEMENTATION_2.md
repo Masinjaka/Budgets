@@ -6,6 +6,7 @@ This document outlines the phased implementation plan for the "Display Subcatego
 
 *   **Phase 1:** Renamed `Expense` model to `TransactionModel`, added the `id` field, and updated all files that use the old model. Ran `build_runner`, `dart fix`, `dart analyze`, and `dart format`.
 *   **Phase 2:** Updated `transaction_detail_bottom_sheet.dart` to display subcategory transactions.
+*   **Phase 3:** Finalization.
 
 ## Phase 1: Rename Expense Model and Add ID Field
 
@@ -32,9 +33,9 @@ In this phase, we will modify the `transaction_detail_bottom_sheet.dart` to disp
 - [x] Run `fvm dart fix --apply`.
 - [x] Run `fvm dart analyze` and fix any issues.
 - [x] Run `fvm dart format .`.
-- [ ] Update the `MODIFICATION_IMPLEMENTATION_2.md` file with the current state.
-- [ ] Use `git diff` to verify the changes and propose a commit message to the user.
-- [ ] Wait for approval before committing.
+- [x] Update the `MODIFICATION_IMPLEMENTATION_2.md` file with the current state.
+- [x] Use `git diff` to verify the changes and propose a commit message to the user.
+- [x] Wait for approval before committing.
 
 ## Phase 3: Finalization
 

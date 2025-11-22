@@ -26,6 +26,13 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
     } else {
       categoryColor = Color(int.parse(rawColor, radix: 16));
     }
+
+    if(transaction.id != null) {
+      debugPrint('Transaction ID: ${transaction.id}');
+    }
+
+
+
     final subcategoryExpensesAsync = transaction.id != null
         ? ref.watch(subcategoryExpensesProvider(transaction.id!))
         : null;
