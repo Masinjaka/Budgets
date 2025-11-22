@@ -27,11 +27,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
       categoryColor = Color(int.parse(rawColor, radix: 16));
     }
 
-    if(transaction.id != null) {
+    if (transaction.id != null) {
       debugPrint('Transaction ID: ${transaction.id}');
     }
-
-
 
     final subcategoryExpensesAsync = transaction.id != null
         ? ref.watch(subcategoryExpensesProvider(transaction.id!))
@@ -186,8 +184,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
             if (subcategoryExpensesAsync != null) ...[
               subcategoryExpensesAsync.when(
                 data: (subcategoryExpenses) {
-                  if (subcategoryExpenses.isEmpty)
+                  if (subcategoryExpenses.isEmpty) {
                     return const SizedBox.shrink();
+                  }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -206,7 +205,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  sub.subId ?? 'Unknown',
+                                  sub.subcategory?.name ?? 'Unknown',
                                   style: TextStyle(
                                       color: Colors.white70, fontSize: 15.sp),
                                 ),

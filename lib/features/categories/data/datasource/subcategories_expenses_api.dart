@@ -13,11 +13,12 @@ class SubcategoriesExpensesApi {
     return Wrapper.execute(() async {
       final response = await _client
           .from('subcategory_expenses')
-          .select()
+          .select('*, subcategories(*)')
           .eq('transaction_id', transactionId);
 
       if (response.isEmpty) {
-        debugPrint("No subcategory expenses found for transaction ID: $transactionId");
+        debugPrint(
+            "No subcategory expenses found for transaction ID: $transactionId");
         return [];
       }
 

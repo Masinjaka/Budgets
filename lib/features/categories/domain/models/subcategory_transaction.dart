@@ -1,15 +1,17 @@
+import 'package:budgets/features/categories/domain/models/subcategories.dart';
+
 class SubcategoryTransaction {
   final String id;
   final DateTime createdAt;
   final double? amount;
-  final String? subId;
+  final Subcategory? subcategory;
   final String? transactionId;
 
   const SubcategoryTransaction({
     required this.id,
     required this.createdAt,
     this.amount,
-    this.subId,
+    this.subcategory,
     this.transactionId,
   });
 
@@ -20,7 +22,9 @@ class SubcategoryTransaction {
       amount: json['amount'] != null
           ? double.tryParse(json['amount'].toString())
           : null,
-      subId: json['sub_id'] as String?,
+      subcategory: json['subcategories'] != null
+          ? Subcategory.fromMap(json['subcategories'] as Map<String, dynamic>)
+          : null,
       transactionId: json['transaction_id'] as String?,
     );
   }
@@ -30,7 +34,7 @@ class SubcategoryTransaction {
       'id': id,
       'created_at': createdAt.toIso8601String(),
       'amount': amount,
-      'sub_id': subId,
+      'sub_id': subcategory?.id,
       'transaction_id': transactionId,
     };
   }
