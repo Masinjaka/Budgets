@@ -23,5 +23,5 @@ In this phase, we will update the `SubcategoryTransaction` model, the data sourc
 
 ## Phase 2: Finalization
 
-- [ ] Ask the user to inspect the package and say if they are satisfied with the changes.
-- [ ] Commit the final changes to the implementation plan.
+- [x] Ask the user to inspect the package and say if they are satisfied with the changes.
+- [x] Commit the final changes to the implementation plan.
