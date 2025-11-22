@@ -1,13 +1,12 @@
-import 'package:equatable/equatable.dart';
 
-class SubcategoryExpense extends Equatable {
+class SubcategoryTransaction {
   final String id;
   final DateTime createdAt;
   final double? amount;
   final String? subId;
   final String? transactionId;
 
-  const SubcategoryExpense({
+  const SubcategoryTransaction({
     required this.id,
     required this.createdAt,
     this.amount,
@@ -15,8 +14,8 @@ class SubcategoryExpense extends Equatable {
     this.transactionId,
   });
 
-  factory SubcategoryExpense.fromJson(Map<String, dynamic> json) {
-    return SubcategoryExpense(
+  factory SubcategoryTransaction.fromJson(Map<String, dynamic> json) {
+    return SubcategoryTransaction(
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       amount: json['amount'] != null ? double.tryParse(json['amount'].toString()) : null,
@@ -35,6 +34,4 @@ class SubcategoryExpense extends Equatable {
     };
   }
 
-  @override
-  List<Object?> get props => [id, createdAt, amount, subId, transactionId];
 }
