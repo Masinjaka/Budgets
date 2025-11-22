@@ -6,6 +6,7 @@ This document outlines the phased implementation plan for the "Fetch Subcategory
 
 *   **Phase 1:** Initial setup. Created the data source and repository for fetching subcategory expenses. Ran `dart fix`, `dart analyze`, and `dart format`.
 *   **Phase 2:** Created the Riverpod providers and the controller. Ran code generation, `dart fix`, `dart analyze`, and `dart format`.
+*   **Phase 3:** Finalization.
 
 ## Phase 1: Create Data Source and Repository
 
@@ -37,16 +38,16 @@ In this phase, we will create the Riverpod providers and the controller for the 
 - [x] Run the `analyze_files` tool one more time and fix any issues.
 - [x] Run any tests to make sure they all pass. (Skipped as per user request)
 - [x] Run `dart_format` to make sure that the formatting is correct.
-- [ ] Re-read the `MODIFICATION_IMPLEMENTATION.md` file to see what, if anything, has changed in the implementation plan, and if it has changed, take care of anything the changes imply.
-- [ ] Update the `MODIFICATION_IMPLEMENTATION.md` file with the current state, including any learnings, surprises, or deviations in the Journal section. Check off any checkboxes of items that have been completed.
-- [ ] Use `git diff` to verify the changes that have been made, and create a suitable commit message for any changes, following any guidelines you have about commit messages. Be sure to properly escape dollar signs and backticks, and present the change message to the user for approval.
-- [ ] Wait for approval. Don't commit the changes or move on to the next phase of implementation until the user approves the commit.
-- [ ] After committing the change, if an app is running, use the `hot_reload` tool to reload it.
+- [x] Re-read the `MODIFICATION_IMPLEMENTATION.md` file to see what, if anything, has changed in the implementation plan, and if it has changed, take care of anything the changes imply.
+- [x] Update the `MODIFICATION_IMPLEMENTATION.md` file with the current state, including any learnings, surprises, or deviations in the Journal section. Check off any checkboxes of items that have been completed.
+- [x] Use `git diff` to verify the changes that have been made, and create a suitable commit message for any changes, following any guidelines you have about commit messages. Be sure to properly escape dollar signs and backticks, and present the change message to the user for approval.
+- [x] Wait for approval. Don't commit the changes or move on to the next phase of implementation until the user approves the commit.
+- [x] After committing the change, if an app is running, use the `hot_reload` tool to reload it.
 
 ## Phase 3: Finalization
 
 In this phase, we will finalize the feature and clean up.
 
-- [ ] Update any `README.md` file for the package with relevant information from the modification (if any).
-- [ ] Update any `GEMINI.md` file in the project directory so that it still correctly describes the app, its purpose, and implementation details and the layout of the files.
+- [x] Update any `README.md` file for the package with relevant information from the modification (if any).
+- [x] Update any `GEMINI.md` file in the project directory so that it still correctly describes the app, its purpose, and implementation details and the layout of the files.
 - [ ] Ask the user to inspect the package (and running app, if any) and say if they are satisfied with it, or if any modifications are needed.
