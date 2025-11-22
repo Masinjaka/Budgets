@@ -1,5 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_detail_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -16,79 +17,90 @@ class TransactionListItem extends StatelessWidget {
     final NumberFormat currencyFormatter =
         NumberFormat.decimalPattern('en_US');
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.8.h),
-      decoration: BoxDecoration(
-        color: AppTheme.secondaryDark,
-        borderRadius: BorderRadius.circular(5.w),
-      ),
-      child: Row(
-        children: [
-          // Icon for the transaction category
-          Container(
-            width: 5.h,
-            height: 5.h,
-            decoration: BoxDecoration(
-              color: Color(int.parse(transaction.category!.color!, radix: 16)),
-              borderRadius: BorderRadius.circular(2.w),
-            ),
-            child: Center(
-              child: Text(
-                transaction.category!.emoji!,
-                style: TextStyle(fontSize: 18.sp),
+    return InkWell(
+      borderRadius: BorderRadius.circular(5.w),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          builder: (context) => TransactionDetailBottomSheet(transaction: transaction),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.8.h),
+        decoration: BoxDecoration(
+          color: AppTheme.secondaryDark,
+          borderRadius: BorderRadius.circular(5.w),
+        ),
+        child: Row(
+          children: [
+            // Icon for the transaction category
+            Container(
+              width: 5.h,
+              height: 5.h,
+              decoration: BoxDecoration(
+                color: Color(int.parse(transaction.category!.color!, radix: 16)),
+                borderRadius: BorderRadius.circular(2.w),
+              ),
+              child: Center(
+                child: Text(
+                  transaction.category!.emoji!,
+                  style: TextStyle(fontSize: 18.sp),
+                ),
               ),
             ),
-          ),
-          SizedBox(width: 1.6.h),
-          // Transaction details (category and description)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            SizedBox(width: 1.6.h),
+            // Transaction details (category and description)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    transaction.category!.name!,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  SizedBox(height: 0.5.h),
+                  Text(
+                    transaction.description!,
+                    style: TextStyle(
+                      color: const Color(0xFF8E8E93),
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 1.6.h),
+            // Transaction amount
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  transaction.category!.name!,
+                  "MGA",
                   style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.sp,
+                    color: const Color(0xff303237),
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 SizedBox(height: 0.5.h),
                 Text(
-                  transaction.description!,
+                  currencyFormatter.format(transaction.amount),
                   style: TextStyle(
-                    color: const Color(0xFF8E8E93),
-                    fontSize: 14.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15.sp,
                   ),
                 ),
               ],
-            ),
-          ),
-          SizedBox(width: 1.6.h),
-          // Transaction amount
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "MGA",
-                style: TextStyle(
-                  color: const Color(0xff303237),
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 0.5.h),
-              Text(
-                currencyFormatter.format(transaction.amount),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15.sp,
-                ),
-              ),
-            ],
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
