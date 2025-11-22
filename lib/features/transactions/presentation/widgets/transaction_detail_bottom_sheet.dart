@@ -1,6 +1,6 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +9,7 @@ import 'package:budgets/features/categories/domain/providers/subcategories_provi
 
 /// Bottom sheet to display details of an expense or income
 class TransactionDetailBottomSheet extends ConsumerWidget {
-  final Expense transaction;
+  final TransactionModel transaction;
 
   const TransactionDetailBottomSheet({super.key, required this.transaction});
 

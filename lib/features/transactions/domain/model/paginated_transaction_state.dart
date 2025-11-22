@@ -1,8 +1,8 @@
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 
 /// State class for paginated transactions
 class PaginatedTransactionsState {
-  final List<Expense> transactions;
+  final List<TransactionModel> transactions;
   final bool hasMore;
   final bool isLoading;
   final bool isLoadingMore;
@@ -19,7 +19,7 @@ class PaginatedTransactionsState {
   });
 
   PaginatedTransactionsState copyWith({
-    List<Expense>? transactions,
+    List<TransactionModel>? transactions,
     bool? hasMore,
     bool? isLoading,
     bool? isLoadingMore,

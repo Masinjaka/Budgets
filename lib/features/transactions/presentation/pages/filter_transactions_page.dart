@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
-import 'package:budgets/features/transactions/presentation/modules/expense_module.dart';
+import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -12,17 +12,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class ExpenseFilterPage extends ConsumerStatefulWidget {
-  const ExpenseFilterPage({super.key});
+class TransactionFilterPage extends ConsumerStatefulWidget {
+  const TransactionFilterPage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ExpenseFilterPageState();
+      _TransactionFilterPageState();
 }
 
-class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
+class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
   bool _isLoading = false;
-  final ExpenseModule _module = ExpenseModule();
+  final TransactionModule _module = TransactionModule();
   DateTime? _initialDateTime;
 
   List<String> _selectedCategories = [];
@@ -225,7 +225,7 @@ class _ExpenseFilterPageState extends ConsumerState<ExpenseFilterPage> {
         onPressed: () async {
           setState(() => _isLoading = true);
 
-          final hasSucceeded = _module.filterExpense(
+          final hasSucceeded = _module.filterTransaction(
             ref,
             _finalCategories,
             _fromDate.text.trim(),

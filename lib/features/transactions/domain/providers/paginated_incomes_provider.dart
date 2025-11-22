@@ -1,5 +1,5 @@
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/features/transactions/data/datasource/expense_api.dart';
+import 'package:budgets/features/transactions/data/datasource/transaction_api.dart';
 import 'package:budgets/features/transactions/domain/model/paginated_transaction_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

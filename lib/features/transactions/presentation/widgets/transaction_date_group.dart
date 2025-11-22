@@ -1,11 +1,11 @@
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Reusable widget for displaying grouped transactions by date
 class TransactionDateGroup extends StatelessWidget {
-  final Map<String, List<Expense>> groupedTransactions;
+  final Map<String, List<TransactionModel>> groupedTransactions;
 
   const TransactionDateGroup({
     super.key,

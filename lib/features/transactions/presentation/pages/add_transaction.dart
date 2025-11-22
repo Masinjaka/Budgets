@@ -1,6 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/features/transactions/presentation/modules/expense_module.dart';
+import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -13,23 +13,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class ExpenseCreationPage extends ConsumerStatefulWidget {
+class TransactionCreationPage extends ConsumerStatefulWidget {
   final String transactionType;
 
-  const ExpenseCreationPage({
+  const TransactionCreationPage({
     super.key,
     this.transactionType = 'expense',
   });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ExpenseCreationPageState();
+      _TransactionCreationPageState();
 }
 
-class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
+class _TransactionCreationPageState
+    extends ConsumerState<TransactionCreationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isLoading = false;
-  final ExpenseModule _module = ExpenseModule();
+  final TransactionModule _module = TransactionModule();
 
   // Get transaction type from widget
   TransactionType get transactionType =>
@@ -425,7 +426,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             debugPrint("Category: ${_selectedCategory!.name ?? ''}");
             debugPrint("Subcategory Map: $subcategoryMap");
 
-            await _module.addExpense(
+            await _module.addTransaction(
               amount: totalAmount.toString(),
               description: _descriptionController.text.trim(),
               categoryName: _selectedCategory!.name ?? '',
@@ -446,7 +447,7 @@ class _ExpenseCreationPageState extends ConsumerState<ExpenseCreationPage> {
             );
           } else {
             // Single amount mode - use existing logic
-            await _module.addExpense(
+            await _module.addTransaction(
               amount: _montantController.text.trim(),
               description: _descriptionController.text.trim(),
               categoryName: _selectedCategory!.name ?? '',

@@ -3,7 +3,7 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
-import 'package:budgets/features/transactions/domain/providers/expense_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
 import 'package:budgets/features/categories/domain/providers/subcategories_provider.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ExpenseModule {
-  ExpenseModule();
+class TransactionModule {
+  TransactionModule();
 
   // Get the date where the current user signed up
   DateTime? getUserCreationDate() {
@@ -26,8 +26,8 @@ class ExpenseModule {
     }
   }
 
-  // Filter expenses
-  bool filterExpense(WidgetRef ref, List<String> selectedCategories,
+  // Filter transactions
+  bool filterTransaction(WidgetRef ref, List<String> selectedCategories,
       String fromDate, String toDate, BuildContext context) {
     // Update dateRange filter if they are not empty
     if (fromDate.isNotEmpty && toDate.isNotEmpty) {
@@ -52,7 +52,7 @@ class ExpenseModule {
     return true;
   }
 
-  // Fetch expense category
+  // Fetch transaction category
   Future<List<Category>> fetchCategories(WidgetRef ref) async {
     final categories = await ref.read(categoriesProvider.future);
 
@@ -68,8 +68,8 @@ class ExpenseModule {
     return subcategories;
   }
 
-  // Add expense
-  Future<void> addExpense({
+  // Add transaction
+  Future<void> addTransaction({
     String? amount,
     String? description,
     String? categoryName,
@@ -81,7 +81,7 @@ class ExpenseModule {
   }) async {
     if (formKey.currentState!.validate()) {
       try {
-        await ref.read(expensesProvider.notifier).addUserExpenses(amount,
+        await ref.read(transactionsProvider.notifier).addUserTransaction(amount,
             description, categoryName, subcategoryAmounts, transactionType);
 
         if (!context.mounted) return;

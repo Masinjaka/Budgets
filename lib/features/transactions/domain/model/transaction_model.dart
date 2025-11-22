@@ -1,7 +1,8 @@
 import 'package:budgets/features/categories/domain/models/category_model.dart'; // Update with the actual path to your Category class
 import 'package:budgets/core/enums/transaction_type.dart';
 
-class Expense {
+class TransactionModel {
+  final String? id;
   final String? title;
   final String? description;
   final double? amount; // Changed from int? to double?
@@ -10,7 +11,8 @@ class Expense {
   final Category? category;
   final TransactionType? transactionType;
 
-  Expense({
+  TransactionModel({
+    this.id,
     this.title,
     this.description,
     this.amount,
@@ -20,8 +22,9 @@ class Expense {
     this.transactionType,
   });
 
-  factory Expense.fromMap(Map<String, dynamic> map) {
-    return Expense(
+  factory TransactionModel.fromMap(Map<String, dynamic> map) {
+    return TransactionModel(
+      id: map['id'] as String?,
       title: map['title'] as String?,
       description: map['description'] as String?,
       amount: map['amount'] != null
@@ -39,7 +42,8 @@ class Expense {
     );
   }
 
-  Expense copyWith({
+  TransactionModel copyWith({
+    String? id,
     String? title,
     String? description,
     double? amount, // Updated to double
@@ -48,7 +52,8 @@ class Expense {
     Category? category,
     TransactionType? transactionType,
   }) {
-    return Expense(
+    return TransactionModel(
+      id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       amount: amount ?? this.amount, // Updated to double
@@ -61,6 +66,7 @@ class Expense {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'title': title,
       'description': description,
       'amount': amount, // Updated to double

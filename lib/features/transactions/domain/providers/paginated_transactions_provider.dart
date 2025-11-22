@@ -1,12 +1,12 @@
-import 'package:budgets/features/transactions/data/datasource/expense_api.dart';
+import 'package:budgets/features/transactions/data/datasource/transaction_api.dart';
 import 'package:budgets/features/transactions/domain/model/paginated_transaction_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'paginated_expenses_provider.g.dart';
+part 'paginated_transactions_provider.g.dart';
 
 @riverpod
-class PaginatedExpenses extends _$PaginatedExpenses {
+class PaginatedTransactions extends _$PaginatedTransactions {
   static const int pageSize = 10;
 
   // Ensures we don't schedule the initial load multiple times

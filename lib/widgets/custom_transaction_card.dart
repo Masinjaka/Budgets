@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class ExpenseTile extends ConsumerStatefulWidget {
-  const ExpenseTile({
+class TransactionTile extends ConsumerStatefulWidget {
+  const TransactionTile({
     super.key,
     required this.designation,
     required this.category,
@@ -29,10 +29,10 @@ class ExpenseTile extends ConsumerStatefulWidget {
   final String transactionType;
 
   @override
-  ConsumerState<ExpenseTile> createState() => _ExpenseTileState();
+  ConsumerState<TransactionTile> createState() => _TransactionTileState();
 }
 
-class _ExpenseTileState extends ConsumerState<ExpenseTile> {
+class _TransactionTileState extends ConsumerState<TransactionTile> {
   // Removed local formatting helpers in favor of shared utils
 
   @override

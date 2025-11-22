@@ -1,5 +1,5 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_detail_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +7,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 // Widget for displaying a single transaction item in the list
 class TransactionListItem extends StatelessWidget {
-  final Expense transaction;
+  final TransactionModel transaction;
 
   const TransactionListItem({super.key, required this.transaction});
 

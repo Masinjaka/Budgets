@@ -4,26 +4,27 @@ import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_state_widgets.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
-import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_states.dart';
-import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_state.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_transactions_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-/// Expense tab content that contains the search bar and expense list
-class ExpenseTabContent extends ConsumerStatefulWidget {
+/// Transaction tab content that contains the search bar and transaction list
+class TransactionTabContent extends ConsumerStatefulWidget {
   final AnimationController appBarAnimationController;
 
-  const ExpenseTabContent({
+  const TransactionTabContent({
     super.key,
     required this.appBarAnimationController,
   });
 
   @override
-  ConsumerState<ExpenseTabContent> createState() => _ExpenseTabContentState();
+  ConsumerState<TransactionTabContent> createState() =>
+      _TransactionTabContentState();
 }
 
-class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
+class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
     with TransactionSearchMixin {
   late ScrollController _scrollController;
 
@@ -54,14 +55,14 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
     // Only trigger load more if there's actual scrollable content
     if (maxScrollExtent > 0 && currentPixels >= maxScrollExtent - 200) {
       // Load more when near bottom
-      ref.read(paginatedExpensesProvider.notifier).loadNextPage();
+      ref.read(paginatedTransactionsProvider.notifier).loadNextPage();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch paginated expense data from provider
-    final paginatedState = ref.watch(paginatedExpensesProvider);
+    // Watch paginated transaction data from provider
+    final paginatedState = ref.watch(paginatedTransactionsProvider);
 
     // Handle initial loading state
     if (paginatedState.isLoading && paginatedState.transactions.isEmpty) {
@@ -94,33 +95,34 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
       return TransactionErrorState(
         error: paginatedState.errorMessage!,
         errorMessage: 'Erreur lors du chargement des dépenses',
-        onRetry: () => ref.read(paginatedExpensesProvider.notifier).refresh(),
+        onRetry: () =>
+            ref.read(paginatedTransactionsProvider.notifier).refresh(),
       );
     }
 
     // Filter to only show expenses (transaction_type = 'expense')
-    final allExpenses = paginatedState.transactions;
-    final expenses = TransactionUtils.filterByTransactionType(
-      allExpenses,
+    final allTransactions = paginatedState.transactions;
+    final transactions = TransactionUtils.filterByTransactionType(
+      allTransactions,
       TransactionType.expense,
     );
 
     // Filter and group expenses based on search/filters
-    final filteredExpenses = TransactionUtils.filterTransactions(
-      expenses,
+    final filteredTransactions = TransactionUtils.filterTransactions(
+      transactions,
       searchController.text,
       selectedCategories,
     );
     final groupedTransactions = TransactionUtils.groupTransactionsByDate(
-      filteredExpenses,
+      filteredTransactions,
       localeInitialized,
     );
     final availableCategories =
-        TransactionUtils.extractCategoriesFromTransactions(expenses);
+        TransactionUtils.extractCategoriesFromTransactions(transactions);
 
     return RefreshIndicator(
       onRefresh: () async {
-        await ref.read(paginatedExpensesProvider.notifier).refresh();
+        await ref.read(paginatedTransactionsProvider.notifier).refresh();
       },
       child: CustomScrollView(
         controller: _scrollController,
@@ -142,13 +144,13 @@ class _ExpenseTabContentState extends ConsumerState<ExpenseTabContent>
               onCategorySelectionChanged: onCategorySelectionChanged,
             ),
           ),
-          // Expense list content with pagination
+          // Transaction list content with pagination
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 6.w),
             sliver: groupedTransactions.isEmpty
                 ? SliverFillRemaining(
                     hasScrollBody: false,
-                    child: ExpenseEmptyState(hasFilters: hasFilters),
+                    child: TransactionEmptyState(hasFilters: hasFilters),
                   )
                 : PaginatedTransactionDateGroup(
                     groupedTransactions: groupedTransactions,

@@ -2,12 +2,12 @@ import 'package:budgets/core/utils/response_parser.dart';
 import 'package:budgets/core/utils/wrapper.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/main.dart';
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:flutter/foundation.dart';
 
 /// Paginated response model for transactions
 class PaginatedTransactions {
-  final List<Expense> transactions;
+  final List<TransactionModel> transactions;
   final bool hasMore;
   final int currentPage;
 
@@ -18,10 +18,11 @@ class PaginatedTransactions {
   });
 }
 
-Future<List<Expense>> getExpenses() {
+Future<List<TransactionModel>> getTransactions() {
   return Wrapper.execute(() async {
     try {
       final response = await supabase.from('transaction').select('''
+    id,
     title,
     description,
     amount,
@@ -33,10 +34,11 @@ Future<List<Expense>> getExpenses() {
 
       if (response.isEmpty) return [];
 
-      List<Expense> expense =
-          (response as List).map((item) => Expense.fromMap(item)).toList();
+      List<TransactionModel> transactions = (response as List)
+          .map((item) => TransactionModel.fromMap(item))
+          .toList();
 
-      return expense;
+      return transactions;
     } catch (e, s) {
       debugPrint('$e,$s');
       rethrow;
@@ -55,6 +57,7 @@ Future<PaginatedTransactions> getTransactionsPaginated({
       final offset = page * limit;
 
       var query = supabase.from('transaction').select('''
+            id,
             title,
             description,
             amount,
@@ -81,8 +84,9 @@ Future<PaginatedTransactions> getTransactionsPaginated({
         );
       }
 
-      final List<Expense> transactions =
-          (response as List).map((item) => Expense.fromMap(item)).toList();
+      final List<TransactionModel> transactions = (response as List)
+          .map((item) => TransactionModel.fromMap(item))
+          .toList();
 
       // Check if there are more items by seeing if we got more than limit
       final hasMore = transactions.length > limit;
@@ -104,8 +108,8 @@ Future<PaginatedTransactions> getTransactionsPaginated({
   });
 }
 
-// Add expenses
-Future<void> addExpense(
+// Add transactions
+Future<void> addTransaction(
     String? amount,
     String? description,
     String? categoryName,
@@ -126,9 +130,9 @@ Future<void> addExpense(
     final result = parseRpcAddExpenseResponse(response);
 
     if (!result.success) {
-      throw Exception(result.errorMessage ?? 'Failed to add expense');
+      throw Exception(result.errorMessage ?? 'Failed to add transaction');
     }
 
-    debugPrint("Expense created: ${response.runtimeType} -> $response");
+    debugPrint("Transaction created: ${response.runtimeType} -> $response");
   });
 }

@@ -1,6 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
-import 'package:budgets/features/transactions/presentation/pages/expense_tab_content.dart';
+import 'package:budgets/features/transactions/presentation/pages/transaction_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,7 +59,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
           floatHeaderSlivers: true,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
-              // Moved SliverAppBar from expense list page
+              // Moved SliverAppBar from transaction list page
               AnimatedBuilder(
                 animation: _appBarAnimation,
                 builder: (context, child) {
@@ -122,7 +122,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                       final transactionType =
                                           isExpenseTab ? 'expense' : 'income';
                                       context.push(
-                                          "/add-expense?type=$transactionType");
+                                          "/add-transaction?type=$transactionType");
                                     }),
                               ),
                             ),
@@ -146,8 +146,8 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
             physics:
                 const NeverScrollableScrollPhysics(), // disable horizontal swipe
             children: [
-              // Expenses tab - contains the expense list content
-              ExpenseTabContent(
+              // Expenses tab - contains the transaction list content
+              TransactionTabContent(
                 appBarAnimationController: _appBarAnimationController,
               ),
               // Income tab - contains the income content

@@ -1,6 +1,6 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -12,11 +12,11 @@ class TransactionUtils {
   }
 
   /// Groups transactions by date and formats the date strings
-  static Map<String, List<Expense>> groupTransactionsByDate(
-    List<Expense> transactions,
+  static Map<String, List<TransactionModel>> groupTransactionsByDate(
+    List<TransactionModel> transactions,
     bool localeInitialized,
   ) {
-    final Map<String, List<Expense>> grouped = {};
+    final Map<String, List<TransactionModel>> grouped = {};
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -58,12 +58,12 @@ class TransactionUtils {
   }
 
   /// Filters transactions based on search text and selected categories
-  static List<Expense> filterTransactions(
-    List<Expense> transactions,
+  static List<TransactionModel> filterTransactions(
+    List<TransactionModel> transactions,
     String searchText,
     List<Category> selectedCategories,
   ) {
-    List<Expense> filteredTransactions = transactions;
+    List<TransactionModel> filteredTransactions = transactions;
 
     // Filter by search text
     final normalizedSearchText = searchText.toLowerCase().trim();
@@ -97,7 +97,7 @@ class TransactionUtils {
 
   /// Extracts unique categories from transactions
   static List<Category> extractCategoriesFromTransactions(
-      List<Expense> transactions) {
+      List<TransactionModel> transactions) {
     final Set<String> seenCategoryIds = {};
     final List<Category> categories = [];
 
@@ -117,8 +117,8 @@ class TransactionUtils {
   }
 
   /// Filters transactions by transaction type
-  static List<Expense> filterByTransactionType(
-    List<Expense> transactions,
+  static List<TransactionModel> filterByTransactionType(
+    List<TransactionModel> transactions,
     TransactionType type,
   ) {
     return transactions

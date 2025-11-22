@@ -1,8 +1,8 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
-import 'package:budgets/features/transactions/domain/providers/expense_provider.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -13,7 +13,7 @@ class Jumbotron extends ConsumerWidget {
   });
 
   /// Calculates the balance for the current month (income - expenses)
-  double _calculateCurrentMonthBalance(List<Expense> transactions) {
+  double _calculateCurrentMonthBalance(List<TransactionModel> transactions) {
     final now = DateTime.now();
     final currentYear = now.year;
     final currentMonth = now.month;
@@ -40,7 +40,7 @@ class Jumbotron extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncTransactions = ref.watch(expensesProvider);
+    final asyncTransactions = ref.watch(transactionsProvider);
 
     return Container(
       height: 16.h,

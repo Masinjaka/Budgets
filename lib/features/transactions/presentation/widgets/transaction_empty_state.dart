@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-/// Reusable empty state widget for expenses
-class ExpenseEmptyState extends StatelessWidget {
+/// Reusable empty state widget for transactions
+class TransactionEmptyState extends StatelessWidget {
   final bool hasFilters;
 
-  const ExpenseEmptyState({
+  const TransactionEmptyState({
     super.key,
     required this.hasFilters,
   });

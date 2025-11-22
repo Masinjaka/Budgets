@@ -1,4 +1,4 @@
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 class AppChartData {
   /// Returns a list of [BarChartGroupData] suitable for [BarChart] with separate bars for expenses and income.
   static List<BarChartGroupData> getWeeklyExpenseIncomeData(
-      List<Expense> transactions) {
+      List<TransactionModel> transactions) {
     final now = DateTime.now();
     // Create a list of the last 7 days, normalized to the start of each day.
     List<DateTime> last7Days = List.generate(7, (index) {
@@ -62,7 +62,8 @@ class AppChartData {
   }
 
   /// Returns a list of [BarChartGroupData] suitable for [BarChart] - legacy method for expenses only.
-  static List<BarChartGroupData> getWeeklyData(List<Expense> expenses) {
+  static List<BarChartGroupData> getWeeklyData(
+      List<TransactionModel> expenses) {
     final now = DateTime.now();
     // Create a list of the last 7 days, normalized to the start of each day.
     // This helps in consistent comparison regardless of time.
@@ -111,7 +112,7 @@ class AppChartData {
   }
 
   // Get monthly data
-  static List<FlSpot> getMonthlyData(List<Expense> expenses) {
+  static List<FlSpot> getMonthlyData(List<TransactionModel> expenses) {
     final now = DateTime.now();
     final currentYear = now.year;
 
@@ -139,7 +140,7 @@ class AppChartData {
   }
 
   // Monthly data
-  static List<FlSpot> getYearlyData(List<Expense> expenses) {
+  static List<FlSpot> getYearlyData(List<TransactionModel> expenses) {
     final now = DateTime.now();
     // Get the current year.
     final currentYear = now.year;

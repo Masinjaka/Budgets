@@ -1,4 +1,4 @@
-import 'package:budgets/features/transactions/domain/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/functions/chart_data.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [BarChart] widget for daily expenses and income.
-Widget dailyBarChart(List<Expense> transactions) {
+Widget dailyBarChart(List<TransactionModel> transactions) {
   final dailyData = AppChartData.getWeeklyExpenseIncomeData(transactions);
   double maxAmount = 0;
 
@@ -101,7 +101,7 @@ Widget dailyBarChart(List<Expense> transactions) {
 }
 
 /// Builds and returns a [BarChart] widget for daily expenses only - legacy function.
-Widget dailyExpensesBarChart(List<Expense> expenses) {
+Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
   final dailyData = AppChartData.getWeeklyData(expenses);
   double maxDailyAmount = 0;
   // Determine the maximum Y-axis value for proper scaling.

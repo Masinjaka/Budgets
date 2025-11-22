@@ -11,7 +11,7 @@ import 'package:budgets/features/onboarding/presentation/pages/splash_page.dart'
 import 'package:budgets/features/categories/presentation/pages/add_category_page.dart';
 import 'package:budgets/features/transactions/presentation/pages/add_transaction.dart';
 import 'package:budgets/features/transactions/presentation/pages/transaction_page.dart';
-import 'package:budgets/features/transactions/presentation/pages/filter_transactions.dart';
+import 'package:budgets/features/transactions/presentation/pages/filter_transactions_page.dart';
 import 'package:budgets/features/navigation/presentation/pages/navigation_page.dart';
 import 'package:budgets/features/home/presentation/pages/accueil_page.dart'
     as accueil;
@@ -93,7 +93,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/expense-list',
+                path: '/transaction-list',
                 builder: (context, state) => const TransactionPage(),
               ),
             ],
@@ -117,15 +117,15 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         ],
       ),
       GoRoute(
-        path: '/add-expense',
+        path: '/add-transaction',
         builder: (context, state) {
           final type = state.uri.queryParameters['type'] ?? 'expense';
-          return ExpenseCreationPage(transactionType: type);
+          return TransactionCreationPage(transactionType: type);
         },
       ),
       GoRoute(
-          path: '/filter-expense',
-          builder: (context, state) => const ExpenseFilterPage()),
+          path: '/filter-transaction',
+          builder: (context, state) => const TransactionFilterPage()),
       GoRoute(
         path: '/add-category',
         builder: (context, state) {

@@ -3,7 +3,7 @@ import 'package:budgets/core/functions/transaction_search_mixin.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_state_widgets.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
-import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_states.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_state.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
