@@ -17,9 +17,9 @@ In this phase, we will update the `SubcategoryTransaction` model, the data sourc
 - [x] Run `fvm dart fix --apply`.
 - [x] Run `fvm dart analyze` and fix any issues.
 - [x] Run `fvm dart format .`.
-- [ ] Update the `MODIFICATION_IMPLEMENTATION_3.md` file with the current state.
-- [ ] Use `git diff` to verify the changes and propose a commit message to the user.
-- [ ] Wait for approval before committing.
+- [x] Update the `MODIFICATION_IMPLEMENTATION_3.md` file with the current state.
+- [x] Use `git diff` to verify the changes and propose a commit message to the user.
+- [x] Wait for approval before committing.
 
 ## Phase 2: Finalization
 
