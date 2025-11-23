@@ -33,14 +33,18 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      # 5. Build the Android App Bundle (AAB)
+      # 5. Run build_runner
+      - name: Run build_runner
+        run: dart run build_runner build -d
+
+      # 6. Build the Android App Bundle (AAB)
       #    Using AAB is the recommended format for Google Play.
       #    For Firebase App Distribution, an APK is often simpler.
       #    We will build an APK here for simplicity.
       - name: Build Android APK
         run: flutter build apk --release
 
-      # 6. Upload the generated APK as an artifact
+      # 7. Upload the generated APK as an artifact
       #    This allows you to download the APK from the GitHub Actions run.
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -48,7 +52,7 @@ jobs:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      # 7. Distribute the APK to Firebase App Distribution
+      # 8. Distribute the APK to Firebase App Distribution
       - name: Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.1
         with:
