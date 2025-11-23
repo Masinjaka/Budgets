@@ -1,3 +1,5 @@
+import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
 import 'package:budgets/main.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
@@ -85,6 +87,13 @@ class TransactionModule {
             description, categoryName, subcategoryAmounts, transactionType);
 
         if (!context.mounted) return;
+
+        // Refresh the correct paginated provider based on transaction type
+        if (transactionType == TransactionType.income) {
+          ref.read(paginatedIncomesProvider.notifier).refresh();
+        } else {
+          ref.read(paginatedExpensesProvider.notifier).refresh();
+        }
 
         context.pop();
       } catch (e) {

@@ -1,6 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
-import 'package:budgets/features/transactions/presentation/pages/transaction_tab_content.dart';
+import 'package:budgets/features/transactions/presentation/pages/expense_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

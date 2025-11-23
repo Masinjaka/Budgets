@@ -5,7 +5,7 @@ import 'package:budgets/features/transactions/presentation/widgets/transaction_s
 import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_state.dart';
-import 'package:budgets/features/transactions/domain/providers/paginated_transactions_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -55,14 +55,14 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
     // Only trigger load more if there's actual scrollable content
     if (maxScrollExtent > 0 && currentPixels >= maxScrollExtent - 200) {
       // Load more when near bottom
-      ref.read(paginatedTransactionsProvider.notifier).loadNextPage();
+      ref.read(paginatedExpensesProvider.notifier).loadNextPage();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // Watch paginated transaction data from provider
-    final paginatedState = ref.watch(paginatedTransactionsProvider);
+    final paginatedState = ref.watch(paginatedExpensesProvider);
 
     // Handle initial loading state
     if (paginatedState.isLoading && paginatedState.transactions.isEmpty) {
@@ -96,7 +96,7 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
         error: paginatedState.errorMessage!,
         errorMessage: 'Erreur lors du chargement des dépenses',
         onRetry: () =>
-            ref.read(paginatedTransactionsProvider.notifier).refresh(),
+            ref.read(paginatedExpensesProvider.notifier).refresh(),
       );
     }
 
@@ -122,7 +122,7 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
 
     return RefreshIndicator(
       onRefresh: () async {
-        await ref.read(paginatedTransactionsProvider.notifier).refresh();
+        await ref.read(paginatedExpensesProvider.notifier).refresh();
       },
       child: CustomScrollView(
         controller: _scrollController,
