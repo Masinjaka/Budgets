@@ -95,8 +95,7 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
       return TransactionErrorState(
         error: paginatedState.errorMessage!,
         errorMessage: 'Erreur lors du chargement des dépenses',
-        onRetry: () =>
-            ref.read(paginatedExpensesProvider.notifier).refresh(),
+        onRetry: () => ref.read(paginatedExpensesProvider.notifier).refresh(),
       );
     }
 

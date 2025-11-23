@@ -225,7 +225,7 @@ class _CustomSubcategoryDropdownState
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withAlpha((255 * 0.1).round()),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -266,7 +266,7 @@ class _CustomSubcategoryDropdownState
               ? 'Aucune sous-catégorie disponible'
               : 'Aucune sous-catégorie trouvée',
           style: TextStyle(
-            color: AppTheme.textDark.withOpacity(0.6),
+            color: Color.fromRGBO(239, 239, 239, 0.6),
             fontSize: 14.sp,
           ),
         ),
@@ -295,7 +295,7 @@ class _CustomSubcategoryDropdownState
                 padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppTheme.textDark.withOpacity(0.1)
+                      ? AppTheme.textDark.withAlpha((255 * 0.1).round())
                       : Colors.transparent,
                 ),
                 child: Row(
@@ -303,7 +303,7 @@ class _CustomSubcategoryDropdownState
                     Icon(
                       Icons.category_outlined,
                       size: 16.sp,
-                      color: AppTheme.textDark.withOpacity(0.7),
+                      color: Color.fromRGBO(239, 239, 239, 0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
@@ -312,7 +312,7 @@ class _CustomSubcategoryDropdownState
                         style: TextStyle(
                           color: isSelected
                               ? AppTheme.textDark
-                              : AppTheme.textDark.withOpacity(0.8),
+                              : Color.fromRGBO(239, 239, 239, 0.8),
                           fontSize: 14.sp,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -351,14 +351,14 @@ class _CustomSubcategoryDropdownState
                     Icon(
                       Icons.add_circle_outline,
                       size: 16.sp,
-                      color: AppTheme.textDark.withOpacity(0.7),
+                      color: Color.fromRGBO(239, 239, 239, 0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
                       child: Text(
                         'Créer "$searchText"',
                         style: TextStyle(
-                          color: AppTheme.textDark.withOpacity(0.8),
+                          color: Color.fromRGBO(239, 239, 239, 0.8),
                           fontSize: 14.sp,
                           fontStyle: FontStyle.italic,
                         ),
@@ -434,7 +434,7 @@ class _CustomSubcategoryDropdownState
                             hintText: widget.hint ??
                                 'Sélectionnez ou tapez une sous-catégorie',
                             hintStyle: TextStyle(
-                              color: AppTheme.textDark.withOpacity(0.6),
+                              color: Color.fromRGBO(239, 239, 239, 0.6),
                               fontSize: 15.sp,
                             ),
                             border: InputBorder.none,

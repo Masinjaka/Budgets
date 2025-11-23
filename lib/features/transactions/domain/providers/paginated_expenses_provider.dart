@@ -1,6 +1,6 @@
 import 'package:budgets/features/transactions/data/datasource/transaction_api.dart';
 import 'package:budgets/features/transactions/domain/model/paginated_transaction_state.dart';
-import 'package:budgets/core/enums/transaction_type.dart'; // Added import
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -38,11 +38,12 @@ class PaginatedExpenses extends _$PaginatedExpenses {
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
 
-      final result = await getTransactionsPaginated(
-        page: 0,
-        limit: pageSize,
-        type: TransactionType.expense, // Modified
-      );
+      final result =
+          await ref.read(transactionsApiProvider).getTransactionsPaginated(
+                page: 0,
+                limit: pageSize,
+                type: TransactionType.expense,
+              );
 
       state = PaginatedTransactionsState(
         transactions: result.transactions,
@@ -70,11 +71,12 @@ class PaginatedExpenses extends _$PaginatedExpenses {
       state = state.copyWith(isLoadingMore: true, errorMessage: null);
 
       final nextPage = state.currentPage + 1;
-      final result = await getTransactionsPaginated(
-        page: nextPage,
-        limit: pageSize,
-        type: TransactionType.expense, // Modified
-      );
+      final result =
+          await ref.read(transactionsApiProvider).getTransactionsPaginated(
+                page: nextPage,
+                limit: pageSize,
+                type: TransactionType.expense,
+              );
 
       state = state.copyWith(
         transactions: [...state.transactions, ...result.transactions],

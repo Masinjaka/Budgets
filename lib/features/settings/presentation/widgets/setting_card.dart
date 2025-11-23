@@ -96,7 +96,7 @@ class _SettingCardState extends State<SettingCard> {
                           setState(() => _switchValue = val);
                           widget.onSwitchChanged?.call(val);
                         },
-                        activeColor: AppTheme.primaryGreen,
+                        activeThumbColor: AppTheme.primaryGreen,
                       )
                     : Icon(
                         Icons.arrow_forward_ios,

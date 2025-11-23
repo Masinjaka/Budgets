@@ -1,7 +1,7 @@
 import 'package:budgets/features/transactions/data/datasource/transaction_api.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
+// Keep this import if still needed
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -11,7 +11,9 @@ part 'transaction_provider.g.dart';
 class Transactions extends _$Transactions {
   @override
   Future<List<TransactionModel>> build() async {
-    return await getTransactions();
+    return await ref
+        .read(transactionsApiProvider)
+        .getTransactions(); // Modified
   }
 
   Future<void> addUserTransaction(
@@ -21,8 +23,13 @@ class Transactions extends _$Transactions {
       Map<String, String>? subcategoryAmounts,
       TransactionType? transactionType) async {
     try {
-      await addTransaction(amount, description, categoryName,
-          subcategoryAmounts, transactionType);
+      await ref.read(transactionsApiProvider).addTransaction(
+          // Modified
+          amount,
+          description,
+          categoryName,
+          subcategoryAmounts,
+          transactionType);
       // ignore: unused_result
       // ref.read(paginatedTransactionsProvider.notifier).refresh();
       ref.invalidateSelf();

@@ -228,7 +228,7 @@ class _TransactionCreationPageState
                                 }
                               });
                             },
-                            activeColor: Colors.white,
+                            activeThumbColor: Colors.white,
                             activeTrackColor: AppTheme.textDark,
                             inactiveThumbColor: AppTheme.secondaryDark,
                             inactiveTrackColor: AppTheme.borderColorDark,
@@ -426,7 +426,7 @@ class _TransactionCreationPageState
             debugPrint("Category: ${_selectedCategory!.name ?? ''}");
             debugPrint("Subcategory Map: $subcategoryMap");
 
-            await _module.addTransaction(
+            final transactionAdded = await _module.addTransaction(
               amount: totalAmount.toString(),
               description: _descriptionController.text.trim(),
               categoryName: _selectedCategory!.name ?? '',
@@ -434,20 +434,34 @@ class _TransactionCreationPageState
               transactionType: transactionType,
               formKey: _formKey,
               ref: ref,
-              context: context,
+              // context: context, // Removed context
             );
 
-            // For now, show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                    '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
-                backgroundColor: Colors.green,
-              ),
-            );
+            if (!mounted) {
+              return; // Ensure widget is still mounted before UI interactions
+            }
+
+            if (transactionAdded) {
+              // For now, show success message
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              context.pop();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erreur lors de l\'ajout de la transaction.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           } else {
             // Single amount mode - use existing logic
-            await _module.addTransaction(
+            final transactionAdded = await _module.addTransaction(
               amount: _montantController.text.trim(),
               description: _descriptionController.text.trim(),
               categoryName: _selectedCategory!.name ?? '',
@@ -455,8 +469,29 @@ class _TransactionCreationPageState
               transactionType: transactionType,
               formKey: _formKey,
               ref: ref,
-              context: context,
+              // context: context, // Removed context
             );
+            if (!mounted) {
+              return;
+            }
+
+            if (transactionAdded) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      '${transactionType.displayName} ajoutée: ${_montantController.text.trim()}'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              context.pop();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erreur lors de l\'ajout de la transaction.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           }
 
           setState(() => _isLoading = false);
