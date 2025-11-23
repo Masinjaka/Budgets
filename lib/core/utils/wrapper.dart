@@ -12,4 +12,17 @@ class Wrapper {
       rethrow; // Optionally rethrow the error
     }
   }
+
+  static Stream<T> executeStream<T>(Stream<T> Function() function) {
+    try {
+      return function().handleError((e, stackTrace) {
+        debugPrint('Stream Error: $e');
+        debugPrint('StackTrace: $stackTrace');
+      });
+    } catch (e, stackTrace) {
+      debugPrint('Error: $e');
+      debugPrint('StackTrace: $stackTrace');
+      return Stream.error(e, stackTrace);
+    }
+  }
 }

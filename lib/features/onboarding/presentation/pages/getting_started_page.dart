@@ -27,7 +27,7 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
   final List<String> _texts = const [
     'Suivez vos dépenses et revenus.',
     'Atteignez vos objectifs financiers.',
-    'Suivez vos abonnements facilement.',    
+    'Suivez vos abonnements facilement.',
   ];
 
   late final PageController _pageController =
@@ -88,11 +88,16 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
                             colors: [
-                              AppTheme.backgroundDark.withAlpha((1 * 255).round()),
-                              AppTheme.backgroundDark.withAlpha((0.8 * 255).round()),
-                              AppTheme.backgroundDark.withAlpha((0.6 * 255).round()),
-                              AppTheme.backgroundDark.withAlpha((0.4 * 255).round()),
-                              AppTheme.backgroundDark.withAlpha((0.2 * 255).round()),
+                              AppTheme.backgroundDark
+                                  .withAlpha((1 * 255).round()),
+                              AppTheme.backgroundDark
+                                  .withAlpha((0.8 * 255).round()),
+                              AppTheme.backgroundDark
+                                  .withAlpha((0.6 * 255).round()),
+                              AppTheme.backgroundDark
+                                  .withAlpha((0.4 * 255).round()),
+                              AppTheme.backgroundDark
+                                  .withAlpha((0.2 * 255).round()),
                               Colors.transparent,
                             ],
                           ),
@@ -145,16 +150,19 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                           .fadeIn(duration: 450.ms, curve: Curves.easeOut)
                           .then() // keep chain explicit
                           .shake(duration: 0.ms) // no-op to satisfy lints
-                          ,
+                      ,
                     ),
                     const Spacer(),
-                    CustomButton(text: 'Commencer', onPressed:() => context.push('/signup'),),
+                    CustomButton(
+                      text: 'Commencer',
+                      onPressed: () => context.push('/signup'),
+                    ),
                     SizedBox(height: 2.h),
                     Align(
                       alignment: Alignment.center,
                       child: Text.rich(
                         TextSpan(
-                          text:'J\'ai déjà un compte. ',
+                          text: 'J\'ai déjà un compte. ',
                           style: TextStyle(
                             fontSize: 15.5.sp,
                           ),

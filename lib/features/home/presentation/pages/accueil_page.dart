@@ -1,8 +1,8 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/model/expense_model.dart';
-import 'package:budgets/provider/expense_provider.dart';
-import 'package:budgets/provider/filter_provider.dart';
-import 'package:budgets/widgets/custom_expense_card.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
+import 'package:budgets/widgets/custom_transaction_card.dart';
 import 'package:budgets/features/home/presentation/widgets/custom_greeting_app_bar.dart';
 import 'package:budgets/features/home/presentation/widgets/jumbotron.dart';
 import 'package:budgets/features/home/presentation/widgets/section_title.dart';
@@ -25,7 +25,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncExpenses = ref.watch(expensesProvider);
+    final asyncTransactions = ref.watch(transactionsProvider);
 
     _selectedCategories = ref.watch(selectedCategoriesProvider);
 
@@ -48,13 +48,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                   SectionTitle(
                     title: 'Activités récentes',
                     onTap: () {
-                      context.go('/expense-list');
+                      context.go('/transaction-list');
                     },
                   ),
-                  
                   SizedBox(height: 2.h),
-                  switch (asyncExpenses) {
-                    AsyncData(:final value) => _buildExpenseList(value),
+                  switch (asyncTransactions) {
+                    AsyncData(:final value) => _buildTransactionList(value),
                     AsyncError(:final error) => Text('error: $error'),
                     _ => const Center(
                         child: CircularProgressIndicator(
@@ -68,8 +67,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     onTap: () {},
                   ),
                   SizedBox(height: 3.h),
-                  StatsHomeWidget(asyncExpenses: asyncExpenses),
-                  
+                  StatsHomeWidget(asyncExpenses: asyncTransactions),
                 ],
               ),
             ),
@@ -79,37 +77,38 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  _buildExpenseList(List<Expense> expenses) {
-    if (expenses.isEmpty) {
+  _buildTransactionList(List<TransactionModel> transactions) {
+    if (transactions.isEmpty) {
       return const Center(
         child: Text('Vous n\' avez pas encore de depense'),
       );
     }
 
     if (_selectedCategories.isNotEmpty) {
-      expenses = expenses
-          .where(
-              (expense) => _selectedCategories.contains(expense.category?.name))
+      transactions = transactions
+          .where((transaction) =>
+              _selectedCategories.contains(transaction.category?.name))
           .toList();
     }
 
     if (dateRange != null) {
-      expenses = expenses.where((expense) {
-        final expenseDate = expense.date!;
-        return expenseDate.isAfter(dateRange!.start) &&
-            expenseDate.isBefore(dateRange!.end.add(const Duration(days: 1)));
+      transactions = transactions.where((transaction) {
+        final transactionDate = transaction.date!;
+        return transactionDate.isAfter(dateRange!.start) &&
+            transactionDate
+                .isBefore(dateRange!.end.add(const Duration(days: 1)));
       }).toList();
     }
 
-    expenses.sort((a, b) => b.date!.compareTo(a.date!));
+    transactions.sort((a, b) => b.date!.compareTo(a.date!));
 
-    expenses = expenses.take(4).toList();
+    transactions = transactions.take(4).toList();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: expenses
+      children: transactions
           .map(
-            (e) => ExpenseTile(
+            (e) => TransactionTile(
               designation: e.title ?? "Designation inconnue",
               category: e.category?.name ?? "Categorie inconnue",
               amount: e.amount?.toString() ?? "Montant inconnue",

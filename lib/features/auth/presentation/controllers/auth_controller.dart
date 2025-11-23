@@ -23,11 +23,15 @@ class AuthController extends _$AuthController {
     }
   }
 
-  Future<void> signUp({required String username, required String email, required String password}) async {
+  Future<void> signUp(
+      {required String username,
+      required String email,
+      required String password}) async {
     state = const AsyncLoading();
     final repo = ref.read(authRepositoryProvider);
     try {
-      await repo.signUpWithPassword(email: email, password: password, username: username);
+      await repo.signUpWithPassword(
+          email: email, password: password, username: username);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);
@@ -47,7 +51,8 @@ class AuthController extends _$AuthController {
     }
   }
 
-  Future<void> resetPassword({required String email, String? redirectTo}) async {
+  Future<void> resetPassword(
+      {required String email, String? redirectTo}) async {
     state = const AsyncLoading();
     final repo = ref.read(authRepositoryProvider);
     try {
@@ -59,11 +64,13 @@ class AuthController extends _$AuthController {
     }
   }
 
-  Future<void> changePassword({required String currentPassword, required String newPassword}) async {
+  Future<void> changePassword(
+      {required String currentPassword, required String newPassword}) async {
     state = const AsyncLoading();
     final repo = ref.read(authRepositoryProvider);
     try {
-      await repo.changePassword(currentPassword: currentPassword, newPassword: newPassword);
+      await repo.changePassword(
+          currentPassword: currentPassword, newPassword: newPassword);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);

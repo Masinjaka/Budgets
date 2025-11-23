@@ -71,7 +71,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           fontSize: 20.5.sp,
                         ),
                       ),
-                      IconButton(onPressed: () => context.pop(), icon: Icon(Icons.close,size: 20.sp,),),
+                      IconButton(
+                        onPressed: () => context.pop(),
+                        icon: Icon(
+                          Icons.close,
+                          size: 20.sp,
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 2.h),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/model/category_model.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 
 class CategoryFilterWidget extends StatefulWidget {
   final List<Category> categories;
@@ -30,8 +30,10 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
 
   void _toggleCategory(Category category) {
     setState(() {
-      if (_selectedCategories.any((cat) => _areCategoriesEqual(cat, category))) {
-        _selectedCategories.removeWhere((cat) => _areCategoriesEqual(cat, category));
+      if (_selectedCategories
+          .any((cat) => _areCategoriesEqual(cat, category))) {
+        _selectedCategories
+            .removeWhere((cat) => _areCategoriesEqual(cat, category));
       } else {
         _selectedCategories.add(category);
       }
@@ -65,7 +67,8 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.primaryGreen : Colors.transparent,
+                  color:
+                      isSelected ? AppTheme.primaryGreen : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
                     color: isSelected ? AppTheme.primaryGreen : Colors.white,
@@ -75,7 +78,8 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (category.emoji != null && category.emoji!.isNotEmpty) ...[
+                    if (category.emoji != null &&
+                        category.emoji!.isNotEmpty) ...[
                       Text(
                         category.emoji!,
                         style: TextStyle(fontSize: 14.sp),

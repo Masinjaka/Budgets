@@ -13,8 +13,6 @@ class CustomGreetingAppBar extends ConsumerWidget
     this.onNotificationPressed,
   });
 
-  
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final double avatarSize = 24.sp;
@@ -24,7 +22,7 @@ class CustomGreetingAppBar extends ConsumerWidget
     return PreferredSize(
       preferredSize: preferredSize,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w,vertical: 2.h),
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

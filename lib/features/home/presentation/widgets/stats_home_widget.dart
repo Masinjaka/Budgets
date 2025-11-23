@@ -1,5 +1,5 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/model/expense_model.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/widgets/charts/bar_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +11,7 @@ class StatsHomeWidget extends StatelessWidget {
     required this.asyncExpenses,
   });
 
-  final AsyncValue<List<Expense>> asyncExpenses;
+  final AsyncValue<List<TransactionModel>> asyncExpenses;
 
   @override
   Widget build(BuildContext context) {

@@ -123,11 +123,14 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
             text: 'Sauvegarder',
             onPressed: () async {
               if (!_formKey.currentState!.validate()) return;
-              
+
               // Check if new passwords match
-              if (_newPasswordController.text != _confirmPasswordController.text) {
+              if (_newPasswordController.text !=
+                  _confirmPasswordController.text) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Les nouveaux mots de passe ne correspondent pas')),
+                  const SnackBar(
+                      content: Text(
+                          'Les nouveaux mots de passe ne correspondent pas')),
                 );
                 return;
               }
@@ -135,7 +138,9 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
               // Check if new password is different from current
               if (_passwordController.text == _newPasswordController.text) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Le nouveau mot de passe doit être différent de l\'actuel')),
+                  const SnackBar(
+                      content: Text(
+                          'Le nouveau mot de passe doit être différent de l\'actuel')),
                 );
                 return;
               }
@@ -146,16 +151,15 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
                       currentPassword: _passwordController.text,
                       newPassword: _newPasswordController.text,
                     );
-                
-                
+
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Mot de passe modifié avec succès')),
+                  const SnackBar(
+                      content: Text('Mot de passe modifié avec succès')),
                 );
 
                 if (!mounted) return;
                 context.pop();
-
               } catch (_) {
                 // Error handling is done by the listener above
               }

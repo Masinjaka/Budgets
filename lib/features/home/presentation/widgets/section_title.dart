@@ -29,11 +29,14 @@ class SectionTitle extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50.w),
               color: AppTheme.secondaryDark,
-              
             ),
-            child: Icon(Icons.arrow_right_alt_sharp,size: 18.sp,),
+            child: Icon(
+              Icons.arrow_right_alt_sharp,
+              size: 18.sp,
+            ),
           ),
         )
-    ],);
+      ],
+    );
   }
 }

@@ -20,7 +20,6 @@ class CustomNavItem extends ConsumerStatefulWidget {
 }
 
 class _CustomNavItemState extends ConsumerState<CustomNavItem> {
-
   @override
   Widget build(BuildContext context) {
     // Always use dark theme colors
@@ -34,14 +33,14 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w,vertical: 1.w),
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.w),
             margin: EdgeInsets.only(bottom: 0.5.w),
             decoration: BoxDecoration(
               border: Border.all(
-                color: widget.isActive ? backgroundColor :Colors.transparent,
+                color: widget.isActive ? backgroundColor : Colors.transparent,
               ),
               borderRadius: BorderRadius.circular(20.w),
-              color: widget.isActive  ? backgroundColor: Colors.transparent,
+              color: widget.isActive ? backgroundColor : Colors.transparent,
             ),
             child: Icon(widget.icon),
           ),

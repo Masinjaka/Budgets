@@ -18,7 +18,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmpasswordController = TextEditingController();
+  final TextEditingController _confirmpasswordController =
+      TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -74,7 +75,13 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                           fontSize: 20.5.sp,
                         ),
                       ),
-                      IconButton(onPressed: () => context.pop(), icon: Icon(Icons.close,size: 20.sp,),),
+                      IconButton(
+                        onPressed: () => context.pop(),
+                        icon: Icon(
+                          Icons.close,
+                          size: 20.sp,
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 2.h),
@@ -172,7 +179,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     const SnackBar(content: Text('Vérifier le mot de passe')));
                 return;
               }
-                
+
               setState(() => _isLoading = true);
               try {
                 await ref.read(authControllerProvider.notifier).signUp(
