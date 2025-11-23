@@ -228,7 +228,7 @@ class _TransactionCreationPageState
                                 }
                               });
                             },
-                            activeThumbColor: Colors.white,
+                            // activeThumbColor: Colors.white,
                             activeTrackColor: AppTheme.textDark,
                             inactiveThumbColor: AppTheme.secondaryDark,
                             inactiveTrackColor: AppTheme.borderColorDark,

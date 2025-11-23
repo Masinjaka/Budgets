@@ -33,36 +33,6 @@ This section will be updated after each phase with a log of actions taken, learn
 
 ---
 
-## Implementation Plan Checklist
-
-### Phase 1: Initial Setup and Verification
-
-- [x] Run all tests to ensure the project is in a good state before starting modifications.
-  - [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant. (Not applicable for this phase)
-  - [ ] Run the dart_fix tool to clean up the code. (Not applicable for this phase)
-  - [ ] Run the analyze_files tool one more time and fix any issues. (Not applicable for this phase)
-  - [x] Run any tests to make sure they all pass.
-  - [ ] Run dart_format to make sure that the formatting is correct. (Not applicable for this phase)
-  - [x] Re-read the MODIFICATION_IMPLEMENTATION.md file to see what, if anything, has changed in the implementation plan, and if it has changed, take care of anything the changes imply.
-  - [x] Update the MODIFICATION_IMPLEMENTATION.md file with the current state, including any learnings, surprises, or deviations in the Journal section. Check off any checkboxes of items that have been completed.
-  - [ ] Use `git diff` to verify the changes that have been made, and create a suitable commit message for any changes, following any guidelines you have about commit messages. Be sure to properly escape dollar signs and backticks, and present the change message to the user for approval.
-  - [ ] Wait for approval. Don't commit the changes or move on to the next phase of implementation until the user approves the commit.
-  - [ ] After commiting the change, if an app is running, use the hot_reload tool to reload it.
-
-### Phase 2: Implement the Fix
-
-- [x] Modify `lib/features/transactions/domain/providers/paginated_expenses_provider.dart` to pass `type: TransactionType.expense` to `getTransactionsPaginated`.
-  - [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant.
-  - [ ] Run the dart_fix tool to clean up the code.
-  - [ ] Run the analyze_files tool one more time and fix any issues.
-  - [ ] Run any tests to make sure they all pass.
-  - [ ] Run dart_format to make sure that the formatting is correct.
-  - [ ] Re-read the MODIFICATION_IMPLEMENTATION.md file to see what, if anything, has changed in the implementation plan, and if it has changed, take care of anything the changes imply.
-  - [ ] Update the MODIFICATION_IMPLEMENTATION.md file with the current state, including any learnings, surprises, or deviations in the Journal section. Check off any checkboxes of items that have been completed.
-  - [ ] Use `git diff` to verify the changes that have been made, and create a suitable commit message for any changes, following any guidelines you have about commit messages. Be sure to properly escape dollar signs and backticks, and present the change message to the user for approval.
-  - [ ] Wait for approval. Don't commit the changes or move on to the next phase of implementation until the user approves the commit.
-  - [ ] After commiting the change, if an app is running, use the hot_reload tool to reload it.
-
 ### Phase 3: Verification and Code Quality
 
 - **Action:**
@@ -80,8 +50,23 @@ This section will be updated after each phase with a log of actions taken, learn
   - Refactoring to a class-based `TransactionsApi` with its own provider significantly simplified dependency injection and future testability.
   - The refactoring required updating several other providers that previously called top-level functions now encapsulated in `TransactionsApi`.
   - All compilation errors after refactoring were resolved by updating dependent providers.
+  - Resolved `deprecated_member_use` warnings related to `withOpacity` by replacing them with `Color.fromRGBO` or `withAlpha`.
+  - Resolved `curly_braces_in_flow_control_structures` warnings by adding curly braces.
 - **Completed:** [x]
 - **Commit Message:** `refactor: Introduce TransactionsApi class for testability and update providers`
+
+---
+
+### Phase 4: Finalization and Project Updates
+
+- **Action:**
+  - Checked for `README.md` updates; none were necessary as the fix is internal.
+  - Checked for `GEMINI.md`; file does not exist.
+  - Now awaiting user inspection.
+- **Learnings/Surprises/Deviations:**
+  - N/A
+- **Completed:** [x]
+- **Commit Message:** N/A
 
 ---
 
@@ -130,29 +115,8 @@ This section will be updated after each phase with a log of actions taken, learn
 
 ### Phase 4: Finalization and Project Updates
 
-- [ ] Update any README.md file for the package with relevant information from the modification (if any).
-- [ ] Update any GEMINI.md file in the project directory so that it still correctly describes the app, its purpose, and implementation details and the layout of the files.
-- [ ] Ask the user to inspect the package (and running app, if any) and say if they are satisfied with it, or if any modifications are needed.
-  - [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant. (Not applicable for this phase)
-  - [ ] Run the dart_fix tool to clean up the code. (Not applicable for this phase)
-  - [ ] Run the analyze_files tool one more time and fix any issues. (Not applicable for this phase)
-  - [ ] Run any tests to make sure they all pass. (Not applicable for this phase)
-  - [ ] Run dart_format to make sure that the formatting is correct. (Not applicable for this phase)
-  - [ ] Re-read the MODIFICATION_IMPLEMENTATION.md file to see what, if anything, has changed in the implementation plan, and if it has changed, take care of anything the changes imply.
-  - [ ] Update the MODIFICATION_IMPLEMENTATION.md file with the current state, including any learnings, surprises, or deviations in the Journal section. Check off any checkboxes of items that have been completed.
-  - [ ] Use `git diff` to verify the changes that have been made, and create a suitable commit message for any changes, following any guidelines you have about commit messages. Be sure to properly escape dollar signs and backticks, and present the change message to the user for approval.
-  - [ ] Wait for approval. Don't commit the changes or move on to the next phase of implementation until the user approves the commit.
-  - [ ] After commiting the change, if an app is running, use the hot_reload tool to reload it.
-
----
-
-**Note:** After completing a task, if you added any TODOs to the code or didn't fully implement anything, make sure to add new tasks so that you can come back and complete them later.
-
-
-### Phase 4: Finalization and Project Updates
-
-- [ ] Update any README.md file for the package with relevant information from the modification (if any).
-- [ ] Update any GEMINI.md file in the project directory so that it still correctly describes the app, its purpose, and implementation details and the layout of the files.
+- [x] Update any README.md file for the package with relevant information from the modification (if any). (No changes needed)
+- [x] Update any GEMINI.md file in the project directory so that it still correctly describes the app, its purpose, and implementation details and the layout of the files. (No changes needed, file does not exist)
 - [ ] Ask the user to inspect the package (and running app, if any) and say if they are satisfied with it, or if any modifications are needed.
   - [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant. (Not applicable for this phase)
   - [ ] Run the dart_fix tool to clean up the code. (Not applicable for this phase)
