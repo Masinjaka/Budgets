@@ -88,10 +88,8 @@ Future<PaginatedTransactions> getTransactionsPaginated({
           .map((item) => TransactionModel.fromMap(item))
           .toList();
 
-      // Check if there are more items by seeing if we got more than limit
+      // Correct pagination: if more than limit, set hasMore and remove last
       final hasMore = transactions.length > limit;
-
-      // If we have more than limit, remove the extra item
       if (hasMore) {
         transactions.removeLast();
       }
