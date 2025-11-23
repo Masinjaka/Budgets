@@ -48,7 +48,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   SectionTitle(
                     title: 'Activités récentes',
                     onTap: () {
-                      context.go('/expense-list');
+                      context.go('/transaction-list');
                     },
                   ),
                   SizedBox(height: 2.h),

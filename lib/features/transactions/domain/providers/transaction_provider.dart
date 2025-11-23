@@ -1,7 +1,7 @@
 import 'package:budgets/features/transactions/data/datasource/transaction_api.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/features/transactions/domain/providers/paginated_transactions_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -23,8 +23,8 @@ class Transactions extends _$Transactions {
     try {
       await addTransaction(amount, description, categoryName,
           subcategoryAmounts, transactionType);
-      // ignore: unused_local_variable
-      final paginated = ref.refresh(paginatedTransactionsProvider);
+      // ignore: unused_result
+      // ref.read(paginatedTransactionsProvider.notifier).refresh();
       ref.invalidateSelf();
     } catch (e, s) {
       debugPrint('Error in addUserTransaction: $e, StackTrace: $s');
