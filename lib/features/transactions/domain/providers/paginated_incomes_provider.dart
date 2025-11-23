@@ -5,7 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
-  PaginatedIncomes()
+  final Ref _ref; // Stored ref
+
+  PaginatedIncomes(this._ref) // Constructor takes ref
       : super(const PaginatedTransactionsState(
           transactions: [],
           hasMore: true,
@@ -23,11 +25,13 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
   Future<void> _loadFirstPage() async {
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
-      final result = await getTransactionsPaginated(
-        page: 0,
-        limit: pageSize,
-        type: TransactionType.income,
-      );
+      final result =
+          await _ref.read(transactionsApiProvider).getTransactionsPaginated(
+                // Modified
+                page: 0,
+                limit: pageSize,
+                type: TransactionType.income,
+              );
       state = PaginatedTransactionsState(
         transactions: result.transactions,
         hasMore: result.hasMore,
@@ -55,11 +59,13 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
     try {
       state = state.copyWith(isLoadingMore: true, errorMessage: null);
       final nextPage = state.currentPage + 1;
-      final result = await getTransactionsPaginated(
-        page: nextPage,
-        limit: pageSize,
-        type: TransactionType.income,
-      );
+      final result =
+          await _ref.read(transactionsApiProvider).getTransactionsPaginated(
+                // Modified
+                page: nextPage,
+                limit: pageSize,
+                type: TransactionType.income,
+              );
       state = state.copyWith(
         transactions: [...state.transactions, ...result.transactions],
         hasMore: result.hasMore,
@@ -99,5 +105,5 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
 
 final paginatedIncomesProvider = StateNotifierProvider.autoDispose<
     PaginatedIncomes, PaginatedTransactionsState>((ref) {
-  return PaginatedIncomes();
+  return PaginatedIncomes(ref); // Pass ref
 });

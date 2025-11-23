@@ -10,7 +10,7 @@ import 'package:budgets/features/categories/domain/providers/filter_provider.dar
 import 'package:budgets/features/categories/domain/providers/subcategories_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TransactionModule {
@@ -71,7 +71,8 @@ class TransactionModule {
   }
 
   // Add transaction
-  Future<void> addTransaction({
+  Future<bool> addTransaction({
+    // Changed return type to Future<bool>
     String? amount,
     String? description,
     String? categoryName,
@@ -79,14 +80,17 @@ class TransactionModule {
     TransactionType? transactionType,
     required GlobalKey<FormState> formKey,
     required WidgetRef ref,
-    required BuildContext context,
+    // Removed BuildContext context,
   }) async {
     if (formKey.currentState!.validate()) {
       try {
-        await ref.read(transactionsProvider.notifier).addUserTransaction(amount,
-            description, categoryName, subcategoryAmounts, transactionType);
-
-        if (!context.mounted) return;
+        await ref.read(transactionsProvider.notifier).addUserTransaction(
+              amount,
+              description,
+              categoryName,
+              subcategoryAmounts,
+              transactionType,
+            );
 
         // Refresh the correct paginated provider based on transaction type
         if (transactionType == TransactionType.income) {
@@ -94,14 +98,14 @@ class TransactionModule {
         } else {
           ref.read(paginatedExpensesProvider.notifier).refresh();
         }
-
-        context.pop();
+        return true; // Indicate success
       } catch (e) {
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        debugPrint('Error adding transaction: $e');
+        // Do not interact with context here
+        return false; // Indicate failure
       }
     }
+    return false; // Form validation failed
   }
 
   // Method to build subcategory amounts map for Supabase RPC

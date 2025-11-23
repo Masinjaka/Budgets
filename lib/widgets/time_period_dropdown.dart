@@ -157,8 +157,9 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(
-                                    0.1 * _dropdownAnimation.value),
+                                color: Colors.black.withAlpha(
+                                    (255 * 0.1 * _dropdownAnimation.value)
+                                        .round()),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),

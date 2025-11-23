@@ -79,7 +79,8 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (group) => Colors.black.withOpacity(0.8),
+            getTooltipColor: (group) =>
+                Colors.black.withAlpha((255 * 0.8).round()),
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
               return BarTooltipItem(
