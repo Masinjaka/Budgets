@@ -21,6 +21,18 @@ This section will be updated after each phase with a log of actions taken, learn
 
 ---
 
+### Phase 2: Implement the Fix
+
+- **Action:**
+  - Modified `lib/features/transactions/domain/providers/paginated_expenses_provider.dart` to pass `type: TransactionType.expense` to the `getTransactionsPaginated` function in both `_loadFirstPage()` and `loadNextPage()`.
+  - Added `import 'package:budgets/core/enums/transaction_type.dart';` to the file.
+- **Learnings/Surprises/Deviations:**
+  - The change was straightforward and required minimal code modification in two places, along with a new import.
+- **Completed:** [x]
+- **Commit Message:** `feat: Filter expenses by type in paginated expenses provider`
+
+---
+
 ## Implementation Plan Checklist
 
 ### Phase 1: Initial Setup and Verification
@@ -39,7 +51,7 @@ This section will be updated after each phase with a log of actions taken, learn
 
 ### Phase 2: Implement the Fix
 
-- [ ] Modify `lib/features/transactions/domain/providers/paginated_expenses_provider.dart` to pass `type: TransactionType.expense` to `getTransactionsPaginated`.
+- [x] Modify `lib/features/transactions/domain/providers/paginated_expenses_provider.dart` to pass `type: TransactionType.expense` to `getTransactionsPaginated`.
   - [ ] Create/modify unit tests for testing the code added or modified in this phase, if relevant.
   - [ ] Run the dart_fix tool to clean up the code.
   - [ ] Run the analyze_files tool one more time and fix any issues.
