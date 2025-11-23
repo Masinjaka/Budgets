@@ -1,93 +1,64 @@
-# Modification Design: Fetch Subcategory Expenses by Transaction ID
+# Transaction Fetching Bug Fix Design Document
 
 ## 1. Overview
 
-This document outlines the design for a new feature that allows fetching subcategory expenses associated with a specific transaction ID. This feature will follow the existing architectural pattern found in the `lib/features/auth` module, which is a clean architecture approach using the Repository Pattern with Riverpod for state management.
+This document outlines the design for fixing a critical bug in the transaction fetching mechanism where expense transactions fail to lazy load correctly when income transactions are also present in the system. The root cause has been identified as an incorrect call to the paginated transaction fetching function, leading to mixed transaction types being retrieved for expense-specific views.
 
-## 2. Detailed Analysis of the Goal
+## 2. Detailed Analysis of the Goal/Problem
 
-The goal is to create a new function that retrieves a list of `SubcategoryTransaction` objects from the `subcategory_expenses` table in Supabase. The function will take a `transaction_id` as input and return all expenses associated with that transaction.
+The application exhibits a bug where, in scenarios with a significant number of both income and expense transactions, the expense tab fails to fully lazy load all expense transactions. Specifically, when the number of income transactions is approximately equal to the number of expense transactions, only a subset of expenses is loaded, and subsequent attempts to lazy load more expenses are unsuccessful. Conversely, if there are no income transactions, all expenses load as expected.
 
-This functionality will be encapsulated within a new vertical slice in the `lib/features/categories` feature, following the established pattern of:
+Upon investigation, the problem stems from the `PaginatedExpenses` Riverpod `StateNotifier` provider (`lib/features/transactions/domain/providers/paginated_expenses_provider.dart`). This provider is intended to manage the state and fetching of *expense-only* transactions. However, its call to the `getTransactionsPaginated` function (defined in `lib/features/transactions/data/datasource/transaction_api.dart`) is missing the `type` parameter.
 
--   Repository Interface
--   Repository Implementation
--   Riverpod Providers
--   Riverpod Controller
+The `getTransactionsPaginated` function in `transaction_api.dart` is designed to accept an optional `TransactionType` parameter to filter results at the data source level. When this parameter is omitted, the function defaults to fetching *all* transaction types.
 
-The final result will be a new Riverpod controller that can be used in the UI to get the list of subcategory expenses for a given transaction.
+Consequently, when `PaginatedExpenses` requests a page of transactions without specifying `type: TransactionType.expense`, the `getTransactionsPaginated` function returns a mix of both income and expense transactions (if available) up to the specified `limit`. This means that the paginated list, which should only contain expenses, is being filled with income transactions as well. When the page limit is reached, legitimate expense transactions are effectively "pushed out" by income transactions, and the `hasMore` flag (which determines if more pages can be loaded) is set based on this mixed list, leading to an incomplete display and a failure to lazy load the remaining expenses.
+
+In contrast, the `PaginatedIncomes` provider (`lib/features/transactions/domain/providers/paginated_incomes_provider.dart`) correctly calls `getTransactionsPaginated` with `type: TransactionType.income`, ensuring that only income transactions are fetched for its specific view. This consistency is lacking in the `PaginatedExpenses` provider.
 
 ## 3. Alternatives Considered
 
-No other alternatives were considered, as the user explicitly requested to follow the existing architecture of the `auth` feature. The current architecture is a solid choice for a Flutter application, providing good separation of concerns and testability.
+One might consider filtering the `PaginatedTransactions` list *after* it has been returned from `getTransactionsPaginated` within the domain or presentation layer. However, this approach is highly inefficient and incorrect for the following reasons:
+*   **Performance Overhead:** Fetching all transaction types from the database only to discard incomes client-side wastes bandwidth and processing power.
+*   **Inaccurate Pagination:** Even if filtered client-side, the pagination logic (e.g., `hasMore` flag) would still be based on the *total* number of fetched items (including incomes), not just the desired type. This would still lead to an incomplete list of expenses and incorrect lazy loading behavior.
 
-## 4. Detailed Design
+Therefore, filtering at the data source is the only correct and efficient approach.
 
-The implementation will be done in the `lib/features/categories` feature and will consist of the following new files and modifications:
+## 4. Detailed Design for the Modification
 
-### 4.1. Data Source (Modification)
+The modification is highly targeted and involves a single change within the `PaginatedExpenses` provider.
 
--   **File:** `lib/features/categories/data/datasource/subcategories_expenses_api.dart`
--   **Content:** A new class, `SubcategoriesExpensesApi`, will be created. This class will contain a method `fetchSubcategoryExpenses(String transactionId)` that will query the `subcategory_expenses` table in Supabase and return a list of `SubcategoryTransaction` objects.
+The current call in `lib/features/transactions/domain/providers/paginated_expenses_provider.dart` to `getTransactionsPaginated` resembles:
 
-### 4.2. Repository Interface (New)
-
--   **File:** `lib/features/categories/domain/interfaces/subcategory_expenses_repository.dart`
--   **Content:** An abstract class, `SubcategoryExpensesRepository`, will be created. It will define the contract for the repository with a single method: `Future<List<SubcategoryTransaction>> fetchSubcategoryExpenses(String transactionId);`.
-
-### 4.3. Repository Implementation (New)
-
--   **File:** `lib/features/categories/data/repository/subcategory_expenses_repository_impl.dart`
--   **Content:** A class, `SubcategoryExpensesRepositoryImpl`, will implement the `SubcategoryExpensesRepository` interface. It will take the `SubcategoriesExpensesApi` as a dependency and will call its `fetchSubcategoryExpenses` method.
-
-### 4.4. Riverpod Providers (New)
-
--   **File:** `lib/features/categories/domain/providers/subcategory_expenses_providers.dart`
--   **Content:** This file will contain the Riverpod providers for this feature.
-    -   A provider for the `SubcategoriesExpensesApi`.
-    -   A provider for the `SubcategoryExpensesRepository`, which will provide the `SubcategoryExpensesRepositoryImpl`.
-    -   A provider that takes a `transactionId` and returns the list of `SubcategoryTransaction` objects.
-
-### 4.5. Riverpod Controller (New)
-
--   **File:** `lib/features/categories/presentation/controllers/subcategory_expenses_controller.dart`
--   **Content:** A Riverpod `AsyncNotifier` controller, `SubcategoryExpensesController`, will be created. This controller will use the providers to fetch the subcategory expenses and will handle the loading and error states. It will have a method to trigger the fetch operation, for example `fetch(String transactionId)`.
-
-### 4.6. Mermaid Diagram
-
-```mermaid
-graph TD
-    A[UI] --> B(SubcategoryExpensesController);
-    B --> C{Providers};
-    C --> D[SubcategoryExpensesRepository];
-    D --> E[SubcategoriesExpensesApi];
-    E --> F((Supabase));
-
-    subgraph "Presentation Layer"
-        A
-        B
-    end
-
-    subgraph "Domain Layer"
-        C
-        D
-    end
-
-    subgraph "Data Layer"
-        E
-    end
-
-    subgraph "External"
-        F
-    end
+```dart
+// Current (problematic) call in PaginatedExpenses
+final result = await getTransactionsPaginated(
+  page: state.currentPage + 1,
+  limit: _limit,
+);
 ```
 
-## 5. Summary of the Design
+The design proposes to modify this call to explicitly include the `TransactionType.expense` parameter:
 
-The proposed design introduces a new vertical slice for fetching subcategory expenses, following the established architectural pattern of the application. This ensures consistency, maintainability, and testability. The new feature will be easy to use from the UI by simply calling the new Riverpod controller.
+```dart
+// Proposed (corrected) call in PaginatedExpenses
+final result = await getTransactionsPaginated(
+  page: state.currentPage + 1,
+  limit: _limit,
+  type: TransactionType.expense, // <-- ADDED THIS LINE
+);
+```
 
-## 6. Research URLs
+This change will ensure that `getTransactionsPaginated` only retrieves transactions of type `expense` when called by the `PaginatedExpenses` provider, resolving the issue of mixed transaction types and restoring correct lazy loading behavior for expenses.
 
--   [Riverpod Documentation](https://riverpod.dev/)
--   [Clean Architecture with Flutter and Riverpod](https://codewithandrea.com/articles/flutter-project-structure/)
--   [Supabase Dart Documentation](https://supabase.com/docs/reference/dart/introduction)
+## 5. Diagrams
+
+Not applicable for this targeted, single-line code change. The textual description provides sufficient clarity.
+
+## 6. Summary of the Design
+
+The bug preventing proper lazy loading of expense transactions is due to the `PaginatedExpenses` provider failing to specify `TransactionType.expense` when calling `getTransactionsPaginated`. The proposed fix involves adding `type: TransactionType.expense` to this function call, ensuring that the data layer correctly filters transactions before they are returned to the provider. This simple and direct modification aligns with efficient data fetching practices and will resolve the described bug.
+
+## 7. References to Research URLs
+
+No external research URLs were required as the issue was identified through internal codebase investigation.
