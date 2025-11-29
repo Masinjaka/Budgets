@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -20,14 +19,14 @@ class PermissionRequestDialog extends StatelessWidget {
     this.denyText = 'Refuser',
     required this.onAllow,
     required this.onDeny,
-    this.backgroundColor = AppTheme.primaryGreen,
+    this.backgroundColor = Colors.green, // Changed to a generic green
   });
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: Theme.of(context).cardColor,
       child: Padding(
         padding: EdgeInsets.all(5.w),
         child: Column(
@@ -36,12 +35,12 @@ class PermissionRequestDialog extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
             ),
             SizedBox(height: 1.5.h),
             Text(
               message,
-              style: TextStyle(fontSize: 15.sp),
+              style: TextStyle(fontSize: 15.sp, color: Theme.of(context).textTheme.bodyLarge?.color),
             ),
             SizedBox(height: 3.h),
             Row(
@@ -50,14 +49,14 @@ class PermissionRequestDialog extends StatelessWidget {
                 CustomButton(
                   text: denyText,
                   onPressed: onDeny,
-                  backgroundColor: AppTheme.secondaryDark,
+                  backgroundColor: Theme.of(context).cardColor,
                   width: 15.h,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
                   borderColor: Colors.transparent,
                 ),
                 SizedBox(width: 2.w),
                 CustomButton(
-                  backgroundColor: backgroundColor,
+                  backgroundColor: Theme.of(context).primaryColor,
                   text: allowText,
                   onPressed: onAllow,
                   width: 15.h,

@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -22,9 +21,8 @@ class CustomNavItem extends ConsumerStatefulWidget {
 class _CustomNavItemState extends ConsumerState<CustomNavItem> {
   @override
   Widget build(BuildContext context) {
-    // Always use dark theme colors
-    Color textColor = AppTheme.textDark;
-    Color backgroundColor = AppTheme.secondaryDark;
+    Color? textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    Color backgroundColor = Theme.of(context).cardColor;
 
     return InkWell(
       onTap: widget.onTap,
@@ -42,7 +40,7 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
               borderRadius: BorderRadius.circular(20.w),
               color: widget.isActive ? backgroundColor : Colors.transparent,
             ),
-            child: Icon(widget.icon),
+            child: Icon(widget.icon, color: textColor,),
           ),
           Text(
             widget.title,

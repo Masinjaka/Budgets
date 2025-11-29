@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -107,18 +106,23 @@ class CategoryModule {
             ),
             Center(
               child: AlertDialog(
-                backgroundColor: AppTheme.secondaryDark,
+                backgroundColor: Theme.of(dialogContext).cardColor,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(
-                    color: AppTheme.borderColorDark,
+                  side: BorderSide(
+                    color: Theme.of(dialogContext).dividerColor,
                   ),
                   borderRadius: BorderRadius.circular(5.w),
                 ),
-                title: const Text('Supprimer la catégorie ?'),
+                title: Text(
+                  'Supprimer la catégorie ?',
+                  style: TextStyle(
+                    color: Theme.of(dialogContext).textTheme.bodyLarge?.color,
+                  ),
+                ),
                 content: Text(
                   'T\'es sûr de vouloir retirer cette catégorie ?',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(dialogContext).textTheme.bodyLarge?.color,
                     fontSize: 15.sp,
                   ),
                 ),
@@ -128,7 +132,7 @@ class CategoryModule {
                     child: Text(
                       'Annuler',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(dialogContext).textTheme.bodyLarge?.color,
                         fontSize: 15.sp,
                       ),
                     ),
