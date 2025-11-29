@@ -228,7 +228,7 @@ class TransactionModule {
 
     listKey.currentState?.removeItem(
       index,
-      (context, animation) => buildRemovedItem(removedItem, animation),
+      (context, animation) => buildRemovedItem(removedItem, index,animation),
       duration: const Duration(milliseconds: 300),
     );
 
@@ -255,7 +255,7 @@ class TransactionModule {
 
       listKey.currentState?.removeItem(
         i,
-        (context, animation) => buildRemovedItem(removedItem, animation),
+        (context, animation) => buildRemovedItem(removedItem,i, animation),
         duration: Duration(milliseconds: 200 + (i * 50)), // Staggered animation
       );
 

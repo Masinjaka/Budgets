@@ -42,7 +42,7 @@ class _CustomButtonState extends State<CustomButton> {
           elevation: const WidgetStatePropertyAll(0),
           side: WidgetStatePropertyAll(
             widget.backgroundColor == AppTheme.primaryGreen ||
-                    widget.backgroundColor == AppTheme.primaryRed
+                    widget.backgroundColor == Colors.red
                 ? BorderSide.none
                 : BorderSide(
                     color: widget.borderColor ??

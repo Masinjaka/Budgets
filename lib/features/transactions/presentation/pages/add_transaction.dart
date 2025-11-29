@@ -675,31 +675,31 @@ class _TransactionCreationPageState
                   ),
                 ),
                 SizedBox(width: 2.w),
-                GestureDetector(
-                  onTap: () => _module.removeSubcategoryAmount(
-                    index: index,
-                    subcategoryAmounts: _subcategoryAmounts,
-                    listKey: _listKey,
-                    buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
-                    onStateChanged: () => setState(() {}),
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.all(2.w),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(1.w),
-                      border: Border.all(
-                        color: Colors.red.withOpacity(0.3),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.remove,
-                      color: Colors.red,
-                      size: 16.sp,
-                    ),
-                  ),
-                ),
+                // GestureDetector(
+                //   onTap: () => _module.removeSubcategoryAmount(
+                //     index: index,
+                //     subcategoryAmounts: _subcategoryAmounts,
+                //     listKey: _listKey,
+                //     buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
+                //     onStateChanged: () => setState(() {}),
+                //   ),
+                //   child: Container(
+                //     padding: EdgeInsets.all(2.w),
+                //     decoration: BoxDecoration(
+                //       color: Colors.red.withOpacity(0.1),
+                //       borderRadius: BorderRadius.circular(1.w),
+                //       border: Border.all(
+                //         color: Colors.red.withOpacity(0.3),
+                //         width: 1.0,
+                //       ),
+                //     ),
+                //     child: Icon(
+                //       Icons.remove,
+                //       color: Colors.red,
+                //       size: 16.sp,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
