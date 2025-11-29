@@ -1,4 +1,4 @@
-import 'package:budgets/core/theme.dart';
+
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
@@ -66,7 +66,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 builder: (context, child) {
                   return SliverAppBar(
                     surfaceTintColor: Colors.transparent,
-                    backgroundColor: AppTheme.backgroundDark,
+                    backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
                     pinned: true,
                     floating: true,
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
@@ -84,8 +84,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18.sp,
-                                  color: Colors.white.withValues(
-                                      alpha: _appBarAnimation.value),
+                                  color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(
+                                      _appBarAnimation.value > 0.1 ? 1 : 0),
                                 ),
                               ),
                             ),
@@ -101,8 +101,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                     0, (1 - _appBarAnimation.value) * -20),
                                 child: ActionButton(
                                   icon: Icons.add,
-                                  iconColor: AppTheme.secondaryDark,
-                                  backgroundColor: AppTheme.primaryGreen,
+                                  iconColor: Theme.of(context).colorScheme.onPrimary,
+                                  backgroundColor: Theme.of(context).primaryColor,
                                   onPressed: () {
                                     // Get the current active tab to determine transaction type
                                     final isExpenseTab =
@@ -126,6 +126,10 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 pinned: true,
                 delegate: _CategoryTabBarDelegate(
                   tabController: _tabController,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  labelColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  unselectedLabelColor: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                  indicatorColor: Theme.of(context).primaryColor,
                 ),
               ),
             ];
@@ -167,9 +171,9 @@ class _CategoryTabContent extends ConsumerWidget {
           Expanded(
             child: switch (categoriesAsyncValue) {
               AsyncData(:final value) =>
-                _categoryGrid(_filterCategories(value)),
+                _categoryGrid(context, _filterCategories(value)),
               AsyncError(:final error) => Text('error: $error'),
-              _ => _skeleton(),
+              _ => _skeleton(context),
             },
           ),
         ],
@@ -184,7 +188,7 @@ class _CategoryTabContent extends ConsumerWidget {
         .toList();
   }
 
-  GridView _skeleton() {
+  GridView _skeleton(BuildContext context) {
     return GridView.builder(
       padding: EdgeInsets.zero,
       itemCount: 5,
@@ -196,20 +200,20 @@ class _CategoryTabContent extends ConsumerWidget {
       ),
       itemBuilder: (context, index) => Container(
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 119, 119, 119),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(5.w),
         ),
       ),
     );
   }
 
-  _categoryGrid(List<Category> categories) {
+  _categoryGrid(BuildContext context, List<Category> categories) {
     if (categories.isEmpty) {
       return Center(
         child: Text(
           'Aucune catégorie trouvée.',
           style: TextStyle(
-            color: AppTheme.borderColorDark,
+            color: Theme.of(context).hintColor,
             fontSize: 16.sp,
           ),
         ),
@@ -234,7 +238,7 @@ class _CategoryTabContent extends ConsumerWidget {
             color: Color(int.parse(categories[index].color!, radix: 16)),
             borderRadius: BorderRadius.circular(5.w),
             border: Border.all(
-              color: AppTheme.borderColorDark,
+              color: Theme.of(context).dividerColor,
             ),
           ),
           child: Wrap(
@@ -250,7 +254,7 @@ class _CategoryTabContent extends ConsumerWidget {
                   fontSize: 20.sp,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withValues(alpha: 0.15),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.15),
                       offset: const Offset(1, 2),
                       blurRadius: 4,
                     ),
@@ -263,7 +267,7 @@ class _CategoryTabContent extends ConsumerWidget {
                   fontSize: 15.sp,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withValues(alpha: 0.12),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
                       offset: const Offset(1, 2),
                       blurRadius: 3,
                     ),
@@ -283,14 +287,24 @@ class _CategoryTabContent extends ConsumerWidget {
 
 class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabController tabController;
+  final Color backgroundColor;
+  final Color? labelColor;
+  final Color? unselectedLabelColor;
+  final Color? indicatorColor;
 
-  _CategoryTabBarDelegate({required this.tabController});
+  _CategoryTabBarDelegate({
+    required this.tabController,
+    required this.backgroundColor,
+    this.labelColor,
+    this.unselectedLabelColor,
+    this.indicatorColor,
+  });
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppTheme.backgroundDark,
+      color: backgroundColor,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
         child: Align(
@@ -304,11 +318,11 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
             ),
             child: TabBar(
               controller: tabController,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
+              labelColor: labelColor,
+              unselectedLabelColor: unselectedLabelColor,
               indicator: UnderlineTabIndicator(
-                borderSide: const BorderSide(
-                  color: AppTheme.primaryGreen,
+                borderSide: BorderSide(
+                  color: indicatorColor ?? Theme.of(context).primaryColor,
                   width: 3.0,
                 ),
                 insets: EdgeInsets.symmetric(horizontal: 4.w),

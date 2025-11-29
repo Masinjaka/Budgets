@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/widgets/custom_border_painter.dart';
@@ -167,10 +166,10 @@ class _TransactionCreationPageState
                   Container(
                     padding: EdgeInsets.all(4.w),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryDark,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(2.w),
                       border: Border.all(
-                        color: AppTheme.borderColorDark,
+                        color: Theme.of(context).dividerColor,
                         width: 1.0,
                       ),
                     ),
@@ -185,7 +184,7 @@ class _TransactionCreationPageState
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
-                                  color: AppTheme.textDark,
+                                  color: Theme.of(context).textTheme.bodyLarge?.color,
                                 ),
                               ),
                               SizedBox(height: 0.5.h),
@@ -196,7 +195,7 @@ class _TransactionCreationPageState
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   color:
-                                      AppTheme.textDark.withValues(alpha: 0.7),
+                                      Theme.of(context).hintColor,
                                 ),
                               ),
                             ],
@@ -207,7 +206,7 @@ class _TransactionCreationPageState
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: AppTheme.borderColorDark,
+                              color: Theme.of(context).dividerColor,
                               width: 1.5,
                             ),
                           ),
@@ -229,9 +228,9 @@ class _TransactionCreationPageState
                               });
                             },
                             // activeThumbColor: Colors.white,
-                            activeTrackColor: AppTheme.textDark,
-                            inactiveThumbColor: AppTheme.secondaryDark,
-                            inactiveTrackColor: AppTheme.borderColorDark,
+                            activeTrackColor: Theme.of(context).primaryColor,
+                            inactiveThumbColor: Theme.of(context).cardColor,
+                            inactiveTrackColor: Theme.of(context).dividerColor,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
                           ),
@@ -315,7 +314,7 @@ class _TransactionCreationPageState
             padding: EdgeInsets.symmetric(vertical: 1.5.w),
             child: CustomPaint(
               painter: DashedBorderPainter(
-                color: (AppTheme.textDark).withValues(alpha: 0.3),
+                color: Theme.of(context).dividerColor.withOpacity(0.3),
                 strokeWidth: 1.0,
                 borderRadius: 2.w,
               ),
@@ -326,14 +325,14 @@ class _TransactionCreationPageState
                   children: [
                     Icon(
                       Icons.add,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).iconTheme.color,
                       size: 16.sp,
                     ),
                     SizedBox(width: 2.w),
                     Text(
                       'Ajouter une sous-catégorie',
                       style: TextStyle(
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -378,7 +377,7 @@ class _TransactionCreationPageState
       padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 5.w),
       child: CustomButton(
         text: 'Confirmer',
-        backgroundColor: AppTheme.primaryGreen,
+        backgroundColor: Theme.of(context).primaryColor,
         onPressed: () async {
           setState(() => _isLoading = true);
 
@@ -519,10 +518,10 @@ class _TransactionCreationPageState
           margin: EdgeInsets.only(bottom: 2.h),
           padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
           decoration: BoxDecoration(
-            color: AppTheme.secondaryDark.withValues(alpha: 0.5),
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(2.w),
             border: Border.all(
-              color: AppTheme.borderColorDark,
+              color: Theme.of(context).dividerColor,
               width: 1.0,
             ),
           ),
@@ -535,7 +534,7 @@ class _TransactionCreationPageState
               Container(
                 height: 4.h,
                 width: 1,
-                color: (AppTheme.borderColorDark).withValues(alpha: 0.5),
+                color: Theme.of(context).dividerColor.withOpacity(0.5),
                 margin: EdgeInsets.symmetric(horizontal: 2.w),
               ),
               Expanded(
@@ -564,7 +563,7 @@ class _TransactionCreationPageState
                         EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                   ),
                   style: TextStyle(
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontSize: 14.sp,
                   ),
                 ),
@@ -581,10 +580,10 @@ class _TransactionCreationPageState
                 child: Container(
                   padding: EdgeInsets.all(2.w),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
+                    color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(1.w),
                     border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.3),
+                      color: Colors.red.withOpacity(0.3),
                       width: 1.0,
                     ),
                   ),
@@ -626,10 +625,10 @@ class _TransactionCreationPageState
             margin: EdgeInsets.only(bottom: 2.h),
             padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
             decoration: BoxDecoration(
-              color: AppTheme.secondaryDark.withValues(alpha: 0.5),
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(2.w),
               border: Border.all(
-                color: AppTheme.borderColorDark,
+                color: Theme.of(context).dividerColor,
                 width: 1.0,
               ),
             ),
@@ -649,7 +648,7 @@ class _TransactionCreationPageState
                 Container(
                   height: 4.h,
                   width: 1,
-                  color: AppTheme.borderColorDark.withValues(alpha: 0.5),
+                  color: Theme.of(context).dividerColor.withOpacity(0.5),
                   margin: EdgeInsets.symmetric(horizontal: 2.w),
                 ),
                 Expanded(
@@ -669,26 +668,35 @@ class _TransactionCreationPageState
                           EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                     ),
                     style: TextStyle(
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 14.sp,
                     ),
                   ),
                 ),
                 SizedBox(width: 2.w),
-                Container(
-                  padding: EdgeInsets.all(2.w),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(1.w),
-                    border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.3),
-                      width: 1.0,
-                    ),
+                GestureDetector(
+                  onTap: () => _module.removeSubcategoryAmount(
+                    index: index,
+                    subcategoryAmounts: _subcategoryAmounts,
+                    listKey: _listKey,
+                    buildRemovedItem: _buildRemovedSubcategoryItem,
+                    onStateChanged: () => setState(() {}),
                   ),
-                  child: Icon(
-                    Icons.remove,
-                    color: Colors.red,
-                    size: 16.sp,
+                  child: Container(
+                    padding: EdgeInsets.all(2.w),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(1.w),
+                      border: Border.all(
+                        color: Colors.red.withOpacity(0.3),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.remove,
+                      color: Colors.red,
+                      size: 16.sp,
+                    ),
                   ),
                 ),
               ],

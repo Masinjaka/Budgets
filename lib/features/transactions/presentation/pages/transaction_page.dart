@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:budgets/features/transactions/presentation/pages/expense_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
@@ -65,7 +64,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                 builder: (context, child) {
                   return SliverAppBar(
                     surfaceTintColor: Colors.transparent,
-                    backgroundColor: AppTheme.backgroundDark,
+                    backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
                     pinned: true,
                     floating: true,
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
@@ -83,8 +82,8 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18.sp,
-                                  color: Colors.white.withValues(
-                                      alpha: _appBarAnimation.value),
+                                  color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(
+                                      _appBarAnimation.value > 0.1 ? 1 : 0),
                                 ),
                               ),
                             ),
@@ -100,8 +99,8 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                     0, (1 - _appBarAnimation.value) * -20),
                                 child: ActionButton(
                                     icon: Icons.fullscreen,
-                                    iconColor: AppTheme.secondaryDark,
-                                    backgroundColor: AppTheme.primaryGreen,
+                                    iconColor: Theme.of(context).colorScheme.onPrimary,
+                                    backgroundColor: Theme.of(context).primaryColor,
                                     onPressed: () {}),
                               ),
                             ),
@@ -113,8 +112,8 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                     0, (1 - _appBarAnimation.value) * -20),
                                 child: ActionButton(
                                     icon: Icons.add,
-                                    iconColor: AppTheme.secondaryDark,
-                                    backgroundColor: AppTheme.primaryGreen,
+                                    iconColor: Theme.of(context).colorScheme.onPrimary,
+                                    backgroundColor: Theme.of(context).primaryColor,
                                     onPressed: () {
                                       // Get the current active tab to determine transaction type
                                       final isExpenseTab =
@@ -137,6 +136,10 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                 pinned: true,
                 delegate: _TabBarDelegate(
                   tabController: _tabController,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  labelColor: Theme.of(context).textTheme.bodyLarge?.color,
+                  unselectedLabelColor: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                  indicatorColor: Theme.of(context).primaryColor,
                 ),
               ),
             ];
@@ -164,14 +167,24 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
 
 class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabController tabController;
+  final Color backgroundColor;
+  final Color? labelColor;
+  final Color? unselectedLabelColor;
+  final Color? indicatorColor;
 
-  _TabBarDelegate({required this.tabController});
+  _TabBarDelegate({
+    required this.tabController,
+    required this.backgroundColor,
+    this.labelColor,
+    this.unselectedLabelColor,
+    this.indicatorColor,
+  });
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppTheme.backgroundDark,
+      color: backgroundColor,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
         child: Align(
@@ -185,11 +198,11 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
             ),
             child: TabBar(
               controller: tabController,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
+              labelColor: labelColor,
+              unselectedLabelColor: unselectedLabelColor,
               indicator: UnderlineTabIndicator(
-                borderSide: const BorderSide(
-                  color: AppTheme.primaryGreen,
+                borderSide: BorderSide(
+                  color: indicatorColor ?? Theme.of(context).primaryColor,
                   width: 3.0,
                 ),
                 insets: EdgeInsets.symmetric(horizontal: 4.w),
