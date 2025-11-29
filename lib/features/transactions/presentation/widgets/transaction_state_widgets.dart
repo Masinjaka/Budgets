@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +9,9 @@ class TransactionLoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: CircularProgressIndicator(
-        color: AppTheme.primaryGreen,
+        color: Theme.of(context).primaryColor,
       ),
     );
   }
@@ -46,7 +45,7 @@ class TransactionErrorState extends ConsumerWidget {
           Text(
             errorMessage,
             style: TextStyle(
-              color: Colors.white,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
               fontSize: 16.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -55,7 +54,7 @@ class TransactionErrorState extends ConsumerWidget {
           Text(
             error.toString(),
             style: TextStyle(
-              color: Colors.grey[400],
+              color: Theme.of(context).hintColor,
               fontSize: 12.sp,
             ),
             textAlign: TextAlign.center,
@@ -71,8 +70,8 @@ class TransactionErrorState extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryGreen,
-              foregroundColor: AppTheme.secondaryDark,
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             child: const Text('Réessayer'),
           ),

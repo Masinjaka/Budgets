@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -21,6 +20,7 @@ class SectionTitle extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16.sp,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
             )),
         GestureDetector(
           onTap: onTap,
@@ -28,11 +28,12 @@ class SectionTitle extends StatelessWidget {
             padding: EdgeInsets.all(0.8.h),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50.w),
-              color: AppTheme.secondaryDark,
+              color: Theme.of(context).cardColor,
             ),
             child: Icon(
               Icons.arrow_right_alt_sharp,
               size: 18.sp,
+              color: Theme.of(context).iconTheme.color,
             ),
           ),
         )

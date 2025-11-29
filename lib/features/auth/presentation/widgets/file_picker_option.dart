@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -25,18 +24,19 @@ class _FileOptionState extends State<FileOption> {
       child: Container(
         padding: EdgeInsets.all(2.h),
         decoration: BoxDecoration(
-          color: AppTheme.secondaryDark,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(4.w),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(widget.icon),
+            Icon(widget.icon, color: Theme.of(context).iconTheme.color),
             SizedBox(height: 1.h),
             Text(
               widget.title,
               style: TextStyle(
                 fontSize: 15.5.sp,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
           ],

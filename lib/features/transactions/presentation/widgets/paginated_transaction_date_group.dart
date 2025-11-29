@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_widget.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +42,7 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
                 child: Text(
                   date,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.bold,
                     fontSize: 14.5.sp,
                   ),
@@ -82,21 +81,20 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
           child: Text(
             'Plus de transactions à charger',
             style: TextStyle(
-              color: Colors.grey[400],
+              color: Theme.of(context).hintColor,
               fontSize: 14.sp,
             ),
           ),
-        ),
-      );
-    }
+        );
+      }
 
     return const SizedBox.shrink();
   }
 
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
-      baseColor: AppTheme.secondaryDark,
-      highlightColor: AppTheme.borderColorDark,
+      baseColor: Theme.of(context).cardColor,
+      highlightColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
       child: Column(
         children: List.generate(
           3,
@@ -104,7 +102,7 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 1.h),
             height: 8.h,
             decoration: BoxDecoration(
-              color: AppTheme.secondaryDark,
+              color: Theme.of(context).cardColor,
               // Increased border radius for bottom lazy-loading skeletons
               borderRadius: BorderRadius.circular(6.w),
             ),
@@ -132,8 +130,8 @@ class TransactionListShimmer extends StatelessWidget {
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             return Shimmer.fromColors(
-              baseColor: AppTheme.secondaryDark,
-              highlightColor: AppTheme.borderColorDark,
+              baseColor: Theme.of(context).cardColor,
+              highlightColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -144,7 +142,7 @@ class TransactionListShimmer extends StatelessWidget {
                       height: 2.h,
                       margin: EdgeInsets.fromLTRB(0, 2.w, 0, 2.w),
                       decoration: BoxDecoration(
-                        color: AppTheme.secondaryDark,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(6.w),
                       ),
                     ),
@@ -154,7 +152,7 @@ class TransactionListShimmer extends StatelessWidget {
                     height: 8.h,
                     margin: EdgeInsets.only(bottom: 1.h),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryDark,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(6.w),
                     ),
                   ),

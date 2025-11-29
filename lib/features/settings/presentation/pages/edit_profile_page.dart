@@ -3,7 +3,6 @@
 import 'dart:io';
 
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/settings/presentation/modules/edit_profile_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -72,7 +71,7 @@ class _State extends ConsumerState<EditProfilePage> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          backgroundColor: AppTheme.backgroundDark,
+          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           surfaceTintColor: Colors.transparent,
           toolbarHeight: 10.h,
           actions: [
@@ -100,15 +99,15 @@ class _State extends ConsumerState<EditProfilePage> {
                     ? SizedBox(
                         width: 2.h,
                         height: 2.h,
-                        child: const CircularProgressIndicator(
-                          color: AppTheme.primaryGreen,
+                        child: CircularProgressIndicator(
+                          color: Theme.of(context).primaryColor,
                         ),
                       )
                     : Text(
                         'Sauvegarder',
                         style: TextStyle(
                           fontSize: 15.5.sp,
-                          color: AppTheme.primaryGreen,
+                          color: Theme.of(context).primaryColor,
                         ),
                       ),
               ),
@@ -134,8 +133,8 @@ class _State extends ConsumerState<EditProfilePage> {
                         dashPattern: const [8, 4],
                         child: Container(
                           padding: EdgeInsets.all(2.w),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.secondaryDark,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
                             shape: BoxShape.circle,
                           ),
                           child: _buildAvatarWidget(),

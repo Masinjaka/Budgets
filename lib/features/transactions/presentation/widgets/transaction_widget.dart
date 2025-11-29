@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_detail_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,7 @@ class TransactionListItem extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.8.h),
         decoration: BoxDecoration(
-          color: AppTheme.secondaryDark,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(5.w),
         ),
         child: Row(
@@ -60,7 +59,7 @@ class TransactionListItem extends StatelessWidget {
                   Text(
                     transaction.category!.name!,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.bold,
                       fontSize: 16.sp,
                     ),
@@ -69,7 +68,7 @@ class TransactionListItem extends StatelessWidget {
                   Text(
                     transaction.description!,
                     style: TextStyle(
-                      color: const Color(0xFF8E8E93),
+                      color: Theme.of(context).hintColor,
                       fontSize: 14.sp,
                     ),
                   ),
@@ -84,7 +83,7 @@ class TransactionListItem extends StatelessWidget {
                 Text(
                   "MGA",
                   style: TextStyle(
-                    color: const Color(0xff303237),
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -93,7 +92,7 @@ class TransactionListItem extends StatelessWidget {
                 Text(
                   currencyFormatter.format(transaction.amount),
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.bold,
                     fontSize: 15.sp,
                   ),
