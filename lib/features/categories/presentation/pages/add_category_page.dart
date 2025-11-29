@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/categories/presentation/modules/categori_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -56,10 +55,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
         child: Container(
           height: 55.h,
           decoration: BoxDecoration(
-            color: AppTheme.backgroundDark,
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(4.w)),
-            border: const Border(
-              top: BorderSide(color: AppTheme.borderColorDark),
+            border: Border(
+              top: BorderSide(color: Theme.of(context).dividerColor),
             ),
           ),
           child: ClipRRect(
@@ -67,42 +66,42 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
             child: EmojiPicker(
               config: Config(
                 searchViewConfig: SearchViewConfig(
-                  backgroundColor: AppTheme.backgroundDark,
-                  buttonIconColor: Colors.white,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  buttonIconColor: Theme.of(context).iconTheme.color,
                   hintText: 'Rechercher un emoji',
                   hintTextStyle: TextStyle(
                     fontSize: 15.sp,
-                    color: const Color.fromARGB(255, 126, 127, 129),
+                    color: Theme.of(context).hintColor,
                     fontWeight: FontWeight.w600,
                   ),
                   inputTextStyle: TextStyle(
                     fontSize: 15.sp,
-                    color: const Color.fromARGB(255, 126, 127, 129),
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 categoryViewConfig: CategoryViewConfig(
-                  backgroundColor: AppTheme.secondaryDark,
+                  backgroundColor: Theme.of(context).cardColor,
                   tabBarHeight: 7.h,
-                  iconColorSelected: Colors.white,
-                  backspaceColor: Colors.white,
-                  indicatorColor: Colors.white,
+                  iconColorSelected: Theme.of(context).iconTheme.color,
+                  backspaceColor: Theme.of(context).iconTheme.color,
+                  indicatorColor: Theme.of(context).primaryColor,
                 ),
                 emojiViewConfig: EmojiViewConfig(
                   gridPadding: EdgeInsets.symmetric(horizontal: 2.w),
                   buttonMode: ButtonMode.CUPERTINO,
                   columns: 5,
-                  backgroundColor: AppTheme.backgroundDark,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   emojiSizeMax: 20.sp,
                 ),
                 bottomActionBarConfig: BottomActionBarConfig(
                   customBottomActionBar: (config, state, showSearchView) {
                     return Container(
                       height: 5.h,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.secondaryDark,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
                         border: Border(
-                          top: BorderSide(color: AppTheme.borderColorDark),
+                          top: BorderSide(color: Theme.of(context).dividerColor),
                         ),
                       ),
                       child: Center(
@@ -114,14 +113,14 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               IconButton(
                                 icon: const Icon(Icons.search),
                                 onPressed: () {},
-                                color: const Color.fromARGB(255, 126, 127, 129),
+                                color: Theme.of(context).hintColor,
                               ),
                               Text(
                                 'Rechercher',
                                 style: TextStyle(
                                   fontSize: 15.sp,
                                   color:
-                                      const Color.fromARGB(255, 126, 127, 129),
+                                      Theme.of(context).hintColor,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -131,8 +130,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                       ),
                     );
                   },
-                  buttonColor: AppTheme.borderColorDark,
-                  backgroundColor: AppTheme.backgroundDark,
+                  buttonColor: Theme.of(context).dividerColor,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   showBackspaceButton: false,
                 ),
               ),
@@ -194,7 +193,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
             children: [
               Expanded(
                 child: CustomButton(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).primaryColor,
                   text: _isEditing ? 'Modifier' : 'Ajouter',
                   onPressed: () {
                     setState(() => _isLoading = true);
@@ -206,8 +205,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                             name: _categoryNameController.text.trim(),
                             emoji: _selectedEmoji,
                             color: _selectedColor == null
-                                ? Colors.teal.value32bit.toRadixString(16)
-                                : _selectedColor!.value32bit.toRadixString(16),
+                                ? Colors.teal.value.toRadixString(16)
+                                : _selectedColor!.value.toRadixString(16),
                             // transactionType: widget.category?.transactionType ?? transactionType,
                             context: context,
                             formKey: _formKey,
@@ -221,8 +220,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                             name: _categoryNameController.text.trim(),
                             emoji: _selectedEmoji,
                             color: _selectedColor == null
-                                ? Colors.teal.value32bit.toRadixString(16)
-                                : _selectedColor!.value32bit.toRadixString(16),
+                                ? Colors.teal.value.toRadixString(16)
+                                : _selectedColor!.value.toRadixString(16),
                             transactionType: transactionType,
                             context: context,
                             formKey: _formKey,
@@ -257,10 +256,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                   Container(
                     padding: EdgeInsets.all(2.h),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryDark,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(5.w),
                       border: Border.all(
-                        color: AppTheme.borderColorDark,
+                        color: Theme.of(context).dividerColor,
                       ),
                     ),
                     child: CustomTextField(
@@ -293,10 +292,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                   Container(
                     height: 14.h,
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryDark,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(5.w),
                       border: Border.all(
-                        color: AppTheme.borderColorDark,
+                        color: Theme.of(context).dividerColor,
                       ),
                     ),
                     child: ClipRRect(
@@ -347,7 +346,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                                   decoration: BoxDecoration(
                                       color: _selectedColor ?? Colors.teal,
                                       border: Border.all(
-                                        color: AppTheme.borderColorDark,
+                                        color: Theme.of(context).dividerColor,
                                       ),
                                       shape: BoxShape.circle),
                                   child: Center(
@@ -369,10 +368,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                   SizedBox(height: 3.h),
                   Container(
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryDark,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(5.w),
                       border: Border.all(
-                        color: AppTheme.borderColorDark,
+                        color: Theme.of(context).dividerColor,
                       ),
                     ),
                     child: Column(
@@ -413,7 +412,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                             child: ColorPicker(
                               color: _selectedColor ?? Colors.teal,
                               onColorChanged: (Color color) {
-                                // String colortest = color.value32bit.toRadixString(16);
+                                // String colortest = color.value.toRadixString(16);
                                 // int colorInt = int.parse(colortest, radix: 16);
                                 // debugPrint('Selected color: $colortest');
                                 setState(() => _selectedColor = color);
@@ -442,7 +441,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               },
                               pickerTypeTextStyle: TextStyle(
                                 fontSize: 14.sp,
-                                color: Colors.white,
+                                color: Theme.of(context).textTheme.bodyLarge?.color,
                               ),
                             ),
                           ),
@@ -467,10 +466,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                         width: double.infinity,
                         padding: EdgeInsets.all(2.h),
                         decoration: BoxDecoration(
-                          color: AppTheme.secondaryDark,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(5.w),
                           border: Border.all(
-                            color: AppTheme.borderColorDark,
+                            color: Theme.of(context).dividerColor,
                           ),
                         ),
                         child: Row(
@@ -497,8 +496,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               SizedBox(
                                 width: 5.w,
                                 height: 5.w,
-                                child: const CircularProgressIndicator(
-                                  color: Colors.white,
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
                               ),
                           ],

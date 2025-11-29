@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -148,18 +147,15 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
                             maxHeight: 40.h, // Limit height to 40% of screen
                           ),
                           decoration: BoxDecoration(
-                            color:
-                                AppTheme.secondaryDark, // Always use dark color
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(2.w),
                             border: Border.all(
-                              color: AppTheme.borderColorDark,
+                              color: Theme.of(context).dividerColor,
                               width: 1.0,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withAlpha(
-                                    (255 * 0.1 * _dropdownAnimation.value)
-                                        .round()),
+                                color: Colors.black.withOpacity(0.1),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -210,7 +206,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
                   child: Text(
                     period,
                     style: TextStyle(
-                      color: Colors.white, // Always white text
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 15.sp,
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -221,7 +217,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
                 if (isSelected)
                   Icon(
                     Icons.check,
-                    color: Colors.white, // Always white icon
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     size: 18.sp,
                   ),
               ],
@@ -246,7 +242,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
               child: Text(
                 _selectedItem ?? widget.defaultText,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.normal,
                 ),
@@ -256,7 +252,7 @@ class _TimePeriodDropdownState extends ConsumerState<TimePeriodDropdown>
             SizedBox(width: 1.w),
             Icon(
               _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-              color: Colors.white,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
               size: 20.sp,
             ),
           ],

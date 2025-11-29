@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,8 +74,8 @@ class _UploadProfilePhotoPageState
                     dashPattern: const [8, 4],
                     child: Container(
                       padding: EdgeInsets.all(2.w),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.secondaryDark,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
                         shape: BoxShape.circle,
                       ),
                       child: _selectedImage == null
@@ -176,9 +175,9 @@ class _UploadProfilePhotoPageState
           SizedBox(height: 2.h),
           CustomButton(
             text: 'Passer',
-            foregroundColor: Colors.white,
+            foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
             borderColor: Colors.transparent,
-            backgroundColor: AppTheme.secondaryDark,
+            backgroundColor: Theme.of(context).cardColor,
             onPressed: () async {
               if (mounted) context.go('/home');
             },
