@@ -67,7 +67,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
               config: Config(
                 searchViewConfig: SearchViewConfig(
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  buttonIconColor: Theme.of(context).iconTheme.color,
+                  buttonIconColor: Theme.of(context).iconTheme.color ?? Colors.white,
                   hintText: 'Rechercher un emoji',
                   hintTextStyle: TextStyle(
                     fontSize: 15.sp,
@@ -83,8 +83,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                 categoryViewConfig: CategoryViewConfig(
                   backgroundColor: Theme.of(context).cardColor,
                   tabBarHeight: 7.h,
-                  iconColorSelected: Theme.of(context).iconTheme.color,
-                  backspaceColor: Theme.of(context).iconTheme.color,
+                  iconColorSelected: Theme.of(context).iconTheme.color ?? Colors.white,
+                  backspaceColor: Theme.of(context).iconTheme.color ?? Colors.white,
                   indicatorColor: Theme.of(context).primaryColor,
                 ),
                 emojiViewConfig: EmojiViewConfig(

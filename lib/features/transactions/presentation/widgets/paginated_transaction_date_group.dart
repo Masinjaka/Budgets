@@ -28,7 +28,7 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
         (context, index) {
           // Check if this is the last item and we should show loading indicator
           if (index == groupedTransactions.length) {
-            return _buildLoadMoreIndicator();
+            return _buildLoadMoreIndicator(context);
           }
 
           final date = groupedTransactions.keys.elementAt(index);
@@ -69,9 +69,9 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadMoreIndicator() {
+  Widget _buildLoadMoreIndicator(BuildContext context) {
     if (isLoadingMore) {
-      return _buildShimmerLoading();
+      return _buildShimmerLoading(context);
     }
 
     if (!hasMore) {
@@ -92,7 +92,7 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
-  Widget _buildShimmerLoading() {
+  Widget _buildShimmerLoading(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: Theme.of(context).cardColor,
       highlightColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),

@@ -27,10 +27,10 @@ class UserCard extends ConsumerWidget {
         children: [
           userAsync.when(
             data: (user) {
-              return avatar(user?.profilePhoto, 32.sp);
+              return avatar(context, user?.profilePhoto, 32.sp);
             },
-            loading: () => avatarSkeleton(32.sp),
-            error: (_, __) => avatarSkeleton(32.sp),
+            loading: () => avatarSkeleton(context, 32.sp),
+            error: (_, __) => avatarSkeleton(context, 32.sp),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,

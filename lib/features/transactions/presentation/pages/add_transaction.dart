@@ -222,8 +222,7 @@ class _TransactionCreationPageState
                                   _module.clearAllSubcategoryAmounts(
                                     subcategoryAmounts: _subcategoryAmounts,
                                     listKey: _listKey,
-                                    buildRemovedItem:
-                                        _buildRemovedSubcategoryItem,
+                                    buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
                                     onStateChanged: () => setState(() {}),
                                   );
                                 }
@@ -576,7 +575,7 @@ class _TransactionCreationPageState
                   index: index,
                   subcategoryAmounts: _subcategoryAmounts,
                   listKey: _listKey,
-                  buildRemovedItem: _buildRemovedSubcategoryItem,
+                  buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
                   onStateChanged: () => setState(() {}),
                 ),
                 child: Container(
@@ -681,7 +680,7 @@ class _TransactionCreationPageState
                     index: index,
                     subcategoryAmounts: _subcategoryAmounts,
                     listKey: _listKey,
-                    buildRemovedItem: _buildRemovedSubcategoryItem,
+                    buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
                     onStateChanged: () => setState(() {}),
                   ),
                   child: Container(

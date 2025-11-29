@@ -202,7 +202,7 @@ class _State extends ConsumerState<EditProfilePage> {
       );
     }
     if (_isLoadingPhoto) {
-      return avatarSkeleton(50.sp);
+      return avatarSkeleton(context, 50.sp);
     }
     if (_profilePhotoUrl != null && _profilePhotoUrl!.isNotEmpty) {
       return ClipOval(

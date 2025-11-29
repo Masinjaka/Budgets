@@ -31,10 +31,10 @@ class CustomGreetingAppBar extends ConsumerWidget
               children: [
                 userAsync.when(
                   data: (user) {
-                    return avatar(user?.profilePhoto, avatarSize);
+                    return avatar(context, user?.profilePhoto, avatarSize);
                   },
-                  loading: () => avatarSkeleton(avatarSize),
-                  error: (_, __) => avatarSkeleton(avatarSize),
+                  loading: () => avatarSkeleton(context, avatarSize),
+                  error: (_, __) => avatarSkeleton(context, avatarSize),
                 ),
                 userAsync.when(
                   data: (user) {
@@ -46,18 +46,18 @@ class CustomGreetingAppBar extends ConsumerWidget
                         style: TextStyle(
                           fontSize: 17.sp,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                     );
                   },
                   loading: () => Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: textSkeleton(40.w, 2.4.h),
+                    child: textSkeleton(context, 40.w, 2.4.h),
                   ),
                   error: (_, __) => Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: textSkeleton(40.w, 2.4.h),
+                    child: textSkeleton(context, 40.w, 2.4.h),
                   ),
                 ),
               ],

@@ -215,7 +215,7 @@ class TransactionModule {
     required int index,
     required List<Map<String, dynamic>> subcategoryAmounts,
     required GlobalKey<AnimatedListState> listKey,
-    required Widget Function(Map<String, dynamic>, Animation<double>)
+    required Widget Function(Map<String, dynamic>, int, Animation<double>)
         buildRemovedItem,
     required VoidCallback onStateChanged,
   }) {
@@ -243,7 +243,7 @@ class TransactionModule {
   void clearAllSubcategoryAmounts({
     required List<Map<String, dynamic>> subcategoryAmounts,
     required GlobalKey<AnimatedListState> listKey,
-    required Widget Function(Map<String, dynamic>, Animation<double>)
+    required Widget Function(Map<String, dynamic>, int, Animation<double>)
         buildRemovedItem,
     required VoidCallback onStateChanged,
   }) {
