@@ -266,7 +266,7 @@ class _CustomSubcategoryDropdownState
               ? 'Aucune sous-catégorie disponible'
               : 'Aucune sous-catégorie trouvée',
           style: TextStyle(
-            color: Color.fromRGBO(239, 239, 239, 0.6),
+            color: const Color.fromRGBO(239, 239, 239, 0.6),
             fontSize: 14.sp,
           ),
         ),
@@ -303,7 +303,7 @@ class _CustomSubcategoryDropdownState
                     Icon(
                       Icons.category_outlined,
                       size: 16.sp,
-                      color: Color.fromRGBO(239, 239, 239, 0.7),
+                      color: const Color.fromRGBO(239, 239, 239, 0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
@@ -312,7 +312,7 @@ class _CustomSubcategoryDropdownState
                         style: TextStyle(
                           color: isSelected
                               ? AppTheme.textDark
-                              : Color.fromRGBO(239, 239, 239, 0.8),
+                              : const Color.fromRGBO(239, 239, 239, 0.8),
                           fontSize: 14.sp,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -351,14 +351,14 @@ class _CustomSubcategoryDropdownState
                     Icon(
                       Icons.add_circle_outline,
                       size: 16.sp,
-                      color: Color.fromRGBO(239, 239, 239, 0.7),
+                      color: const Color.fromRGBO(239, 239, 239, 0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
                       child: Text(
                         'Créer "$searchText"',
                         style: TextStyle(
-                          color: Color.fromRGBO(239, 239, 239, 0.8),
+                          color: const Color.fromRGBO(239, 239, 239, 0.8),
                           fontSize: 14.sp,
                           fontStyle: FontStyle.italic,
                         ),
@@ -434,7 +434,7 @@ class _CustomSubcategoryDropdownState
                             hintText: widget.hint ??
                                 'Sélectionnez ou tapez une sous-catégorie',
                             hintStyle: TextStyle(
-                              color: Color.fromRGBO(239, 239, 239, 0.6),
+                              color: const Color.fromRGBO(239, 239, 239, 0.6),
                               fontSize: 15.sp,
                             ),
                             border: InputBorder.none,

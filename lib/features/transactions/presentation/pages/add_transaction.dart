@@ -453,7 +453,7 @@ class _TransactionCreationPageState
               context.pop();
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Erreur lors de l\'ajout de la transaction.'),
                   backgroundColor: Colors.red,
                 ),
@@ -486,7 +486,7 @@ class _TransactionCreationPageState
               context.pop();
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Erreur lors de l\'ajout de la transaction.'),
                   backgroundColor: Colors.red,
                 ),

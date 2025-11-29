@@ -61,6 +61,7 @@ dependencies:
   shimmer: ^3.0.0
   package_info_plus: ^4.2.0
   gleap_sdk: ^15.0.1
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

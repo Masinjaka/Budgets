@@ -17,10 +17,10 @@ import 'package:budgets/features/home/presentation/pages/accueil_page.dart'
     as accueil;
 import 'package:budgets/features/settings/presentation/pages/setting_page.dart';
 import 'package:budgets/features/categories/presentation/pages/category_page.dart';
+import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,7 +28,6 @@ import 'package:budgets/core/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:gleap_sdk/gleap_sdk.dart';
-
 
 final supabase = Supabase.instance.client;
 
@@ -66,8 +65,7 @@ class MyApp extends ConsumerStatefulWidget {
   ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
-  // Create router once to prevent resets on rebuilds (e.g., keyboard focus changes)
+class _MyAppState extends ConsumerState<MyApp> {
   late final GoRouter _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
@@ -152,31 +150,15 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeProvider);
     return ResponsiveSizer(
       builder: (p0, p1, p2) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           title: 'Budgets',
-          themeMode: ThemeMode.dark,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-            textTheme: GoogleFonts.alexandriaTextTheme(),
-            textSelectionTheme: const TextSelectionThemeData(
-              cursorColor: Colors.white,
-              selectionHandleColor: Color.fromARGB(255, 51, 51, 51),
-              selectionColor: Color(0xffDDFFBC),
-            ),
-          ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: AppTheme.backgroundDark,
-            textSelectionTheme: const TextSelectionThemeData(
-              cursorColor: Colors.white,
-              selectionHandleColor: Color.fromARGB(255, 183, 183, 183),
-              selectionColor: Color.fromARGB(255, 79, 104, 56),
-            ),
-          ),
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
           routerConfig: _router,
         );
       },
