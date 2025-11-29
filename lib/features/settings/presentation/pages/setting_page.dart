@@ -1,4 +1,5 @@
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
 import 'package:budgets/features/settings/presentation/widgets/user_card.dart';
@@ -114,11 +115,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         SettingCard(
                           title: 'Apparence',
                           iconData: Icons.dark_mode_outlined,
-                          onTap: () {
-                            // Open theme dialog
-                          },
+                          onTap: () => _showThemeDialog(
+                              context, ref.read(themeProvider.notifier)),
                           showSuffixSettingChoice: true,
-                          settingChoice: 'Système',
+                          settingChoice:
+                              _themeModeToString(ref.watch(themeProvider)),
                         ),
                       ],
                     ),
@@ -165,6 +166,52 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               )),
         ),
       ),
+    );
+  }
+
+  String _themeModeToString(ThemeMode themeMode) {
+    switch (themeMode) {
+      case ThemeMode.light:
+        return 'Jour';
+      case ThemeMode.dark:
+        return 'Nuit';
+      case ThemeMode.system:
+      default:
+        return 'Système';
+    }
+  }
+
+  void _showThemeDialog(BuildContext context, ThemeNotifier themeNotifier) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Apparence'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () {
+                themeNotifier.setTheme(ThemeOptions.light);
+                Navigator.pop(context);
+              },
+              child: const Text('Jour'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                themeNotifier.setTheme(ThemeOptions.dark);
+                Navigator.pop(context);
+              },
+              child: const Text('Nuit'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                themeNotifier.setTheme(ThemeOptions.system);
+                Navigator.pop(context);
+              },
+              child: const Text('Système'),
+            ),
+          ],
+        );
+      },
     );
   }
 
