@@ -78,7 +78,7 @@ Future<File?> pickImageWithPermissions(BuildContext context) async {
 
   final source = await showModalBottomSheet<ImageSource>(
     context: context,
-    backgroundColor: AppTheme.backgroundDark,
+    backgroundColor: Theme.of(context).cardColor,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(3.w)),
     ),

@@ -41,9 +41,13 @@ class _CustomButtonState extends State<CustomButton> {
           ),
           elevation: const WidgetStatePropertyAll(0),
           side: WidgetStatePropertyAll(
-            BorderSide(
-              color: widget.borderColor ?? Colors.black,
-            ),
+            widget.backgroundColor == AppTheme.primaryGreen ||
+                    widget.backgroundColor == AppTheme.primaryRed
+                ? BorderSide.none
+                : BorderSide(
+                    color: widget.borderColor ??
+                        Theme.of(context).colorScheme.onPrimary,
+                  ),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -55,8 +59,8 @@ class _CustomButtonState extends State<CustomButton> {
             ? SizedBox(
                 height: 6.w,
                 width: 6.w,
-                child: const CircularProgressIndicator(
-                  color: Colors.black,
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               )
             : Text(
@@ -64,7 +68,8 @@ class _CustomButtonState extends State<CustomButton> {
                 style: TextStyle(
                   fontSize: 15.5.sp,
                   fontWeight: FontWeight.w900,
-                  color: widget.foregroundColor ?? Colors.black,
+                  color: widget.foregroundColor ??
+                      Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
       ),

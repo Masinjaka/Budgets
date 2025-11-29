@@ -49,7 +49,6 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
             ),
           ),
           centerTitle: true,
-          backgroundColor: AppTheme.backgroundDark,
           surfaceTintColor: Colors.transparent,
           toolbarHeight: 10.h,
         ),

@@ -14,7 +14,7 @@ class AppTheme {
   // Light colors
   static const Color backgroundLight = Color(0xffFFFFFF);
   static const Color secondaryLight = Color(0xffE9E9E9);
-  static const Color textLight = Color(0xff0A0C10);
+  static const Color textLight = Color(0xff333333);
 
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
