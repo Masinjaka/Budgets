@@ -27,6 +27,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/core/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:gleap_sdk/gleap_sdk.dart';
+
 
 final supabase = Supabase.instance.client;
 
@@ -39,6 +41,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize Gleap
+  Gleap.initialize(token: 'Qq2gB5CN8MF6U7XdK5xUhETe49WgA0aa');
 
   // initialize supabase
   await Supabase.initialize(

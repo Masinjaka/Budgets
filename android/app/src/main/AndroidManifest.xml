@@ -1,4 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest 
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:tools="http://schemas.android.com/tools" >
+    
     <!-- Camera & media permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- For Android 12 and lower -->
@@ -6,10 +9,15 @@
     <!-- For Android 13+ scoped media permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-sdk  android:minSdkVersion="21"
+        tools:overrideLibrary="io.gleap.gleap_sdk"/>
+
     <application
         android:label="Drala"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        tools:overrideLibrary="io.gleap.gleap_sdk">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -37,6 +45,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        
+
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -560,6 +560,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.2"
+  gleap_sdk:
+    dependency: "direct main"
+    description:
+      name: gleap_sdk
+      sha256: d9bdb9f3e567bf27cb8beb1dd446251cc0ed583ada59e2b3c85b00d907ffc926
+      url: "https://pub.dev"
+    source: hosted
+    version: "15.0.1"
   glob:
     dependency: transitive
     description:
@@ -748,10 +756,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: "53385261521cc4a0c4658fd0ad07a7d14591cf8fc33abbceae306ddb974888dc"
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
+    version: "0.6.7"
   json_annotation:
     dependency: transitive
     description:

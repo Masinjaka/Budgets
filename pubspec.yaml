@@ -60,6 +60,7 @@ dependencies:
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
   package_info_plus: ^4.2.0
+  gleap_sdk: ^15.0.1
 
 dev_dependencies:
   flutter_test:
