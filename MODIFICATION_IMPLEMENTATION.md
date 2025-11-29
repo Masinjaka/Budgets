@@ -37,5 +37,5 @@ This document outlines the steps to implement the theme selection feature.
 
 ## Phase 3: Finalization and Review
 
-- [ ] Update the `README.md` file with any relevant information about the new theme feature (if applicable).
-- [ ] Ask the user to inspect the app and say if they are satisfied with it, or if any modifications are needed.
+- [x] Update the `README.md` file with any relevant information about the new theme feature (if applicable).
+- [x] Ask the user to inspect the app and say if they are satisfied with it, or if any modifications are needed.
