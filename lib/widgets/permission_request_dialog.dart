@@ -35,12 +35,17 @@ class PermissionRequestDialog extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
+              style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyLarge?.color),
             ),
             SizedBox(height: 1.5.h),
             Text(
               message,
-              style: TextStyle(fontSize: 15.sp, color: Theme.of(context).textTheme.bodyLarge?.color),
+              style: TextStyle(
+                  fontSize: 15.sp,
+                  color: Theme.of(context).textTheme.bodyLarge?.color),
             ),
             SizedBox(height: 3.h),
             Row(

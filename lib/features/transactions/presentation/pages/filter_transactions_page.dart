@@ -346,14 +346,18 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
               vertical: 2.w,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).cardColor,
               border: Border.all(color: Colors.transparent),
               borderRadius: BorderRadius.circular(5.w),
             ),
             child: Text(
               e.name ?? 'Inconnu',
               style: TextStyle(
-                  color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).textTheme.bodyLarge?.color,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).textTheme.bodyLarge?.color,
                   fontSize: 15.sp),
             ),
           ),

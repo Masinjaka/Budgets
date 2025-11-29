@@ -265,7 +265,8 @@ class _CustomSubcategoryDropdownState
               ? 'Aucune sous-catégorie disponible'
               : 'Aucune sous-catégorie trouvée',
           style: TextStyle(
-            color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
+            color:
+                Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
             fontSize: 14.sp,
           ),
         ),
@@ -302,7 +303,11 @@ class _CustomSubcategoryDropdownState
                     Icon(
                       Icons.category_outlined,
                       size: 16.sp,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.color
+                          ?.withOpacity(0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
@@ -311,7 +316,11 @@ class _CustomSubcategoryDropdownState
                         style: TextStyle(
                           color: isSelected
                               ? Theme.of(context).textTheme.bodyLarge?.color
-                              : Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.8),
+                              : Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.color
+                                  ?.withOpacity(0.8),
                           fontSize: 14.sp,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -350,14 +359,22 @@ class _CustomSubcategoryDropdownState
                     Icon(
                       Icons.add_circle_outline,
                       size: 16.sp,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.color
+                          ?.withOpacity(0.7),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
                       child: Text(
                         'Créer "$searchText"',
                         style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.8),
+                          color: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.color
+                              ?.withOpacity(0.8),
                           fontSize: 14.sp,
                           fontStyle: FontStyle.italic,
                         ),
@@ -433,7 +450,11 @@ class _CustomSubcategoryDropdownState
                             hintText: widget.hint ??
                                 'Sélectionnez ou tapez une sous-catégorie',
                             hintStyle: TextStyle(
-                              color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.color
+                                  ?.withOpacity(0.6),
                               fontSize: 15.sp,
                             ),
                             border: InputBorder.none,

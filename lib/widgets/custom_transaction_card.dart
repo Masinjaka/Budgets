@@ -89,7 +89,11 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                           softWrap: false,
                           style: TextStyle(
                             fontSize: 15.sp,
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.color
+                                ?.withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -108,7 +112,11 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.color
+                          ?.withOpacity(0.6),
                     ),
                   ),
                   SizedBox(height: 1.h),

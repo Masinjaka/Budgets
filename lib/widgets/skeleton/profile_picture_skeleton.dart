@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 Widget avatarSkeleton(double size) {
-  final theme = Theme.of(WidgetsBinding.instance.platformDispatcher.views.first.context);
+  final theme =
+      Theme.of(WidgetsBinding.instance.platformDispatcher.views.first.context);
   return Shimmer.fromColors(
     baseColor: theme.colorScheme.surface,
     highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
@@ -19,7 +20,8 @@ Widget avatarSkeleton(double size) {
 }
 
 Widget textSkeleton(double width, double height) {
-  final theme = Theme.of(WidgetsBinding.instance.platformDispatcher.views.first.context);
+  final theme =
+      Theme.of(WidgetsBinding.instance.platformDispatcher.views.first.context);
   return Shimmer.fromColors(
     baseColor: theme.colorScheme.surface,
     highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
@@ -35,7 +37,8 @@ Widget textSkeleton(double width, double height) {
 }
 
 Widget avatar(String? url, double size) {
-  final theme = Theme.of(WidgetsBinding.instance.platformDispatcher.views.first.context);
+  final theme =
+      Theme.of(WidgetsBinding.instance.platformDispatcher.views.first.context);
   if (url == null || url.isEmpty) {
     return ClipOval(
       child: Icon(Icons.person, size: size, color: theme.colorScheme.onSurface),

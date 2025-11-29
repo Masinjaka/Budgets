@@ -132,7 +132,8 @@ class CategoryModule {
                     child: Text(
                       'Annuler',
                       style: TextStyle(
-                        color: Theme.of(dialogContext).textTheme.bodyLarge?.color,
+                        color:
+                            Theme.of(dialogContext).textTheme.bodyLarge?.color,
                         fontSize: 15.sp,
                       ),
                     ),

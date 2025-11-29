@@ -1,4 +1,3 @@
-
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
@@ -66,7 +65,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 builder: (context, child) {
                   return SliverAppBar(
                     surfaceTintColor: Colors.transparent,
-                    backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+                    backgroundColor:
+                        Theme.of(context).appBarTheme.backgroundColor,
                     pinned: true,
                     floating: true,
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
@@ -84,8 +84,12 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18.sp,
-                                  color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(
-                                      _appBarAnimation.value > 0.1 ? 1 : 0),
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color
+                                      ?.withOpacity(
+                                          _appBarAnimation.value > 0.1 ? 1 : 0),
                                 ),
                               ),
                             ),
@@ -101,8 +105,10 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                     0, (1 - _appBarAnimation.value) * -20),
                                 child: ActionButton(
                                   icon: Icons.add,
-                                  iconColor: Theme.of(context).colorScheme.onPrimary,
-                                  backgroundColor: Theme.of(context).primaryColor,
+                                  iconColor:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
                                   onPressed: () {
                                     // Get the current active tab to determine transaction type
                                     final isExpenseTab =
@@ -128,7 +134,11 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                   tabController: _tabController,
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   labelColor: Theme.of(context).textTheme.bodyLarge?.color,
-                  unselectedLabelColor: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                  unselectedLabelColor: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.color
+                      ?.withOpacity(0.7),
                   indicatorColor: Theme.of(context).primaryColor,
                 ),
               ),
@@ -254,7 +264,10 @@ class _CategoryTabContent extends ConsumerWidget {
                   fontSize: 20.sp,
                   shadows: [
                     Shadow(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.15),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.15),
                       offset: const Offset(1, 2),
                       blurRadius: 4,
                     ),
@@ -267,7 +280,10 @@ class _CategoryTabContent extends ConsumerWidget {
                   fontSize: 15.sp,
                   shadows: [
                     Shadow(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.12),
                       offset: const Offset(1, 2),
                       blurRadius: 3,
                     ),

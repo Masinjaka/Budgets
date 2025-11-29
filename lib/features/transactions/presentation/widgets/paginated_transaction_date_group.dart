@@ -85,8 +85,9 @@ class PaginatedTransactionDateGroup extends StatelessWidget {
               fontSize: 14.sp,
             ),
           ),
-        );
-      }
+        ),
+      );
+    }
 
     return const SizedBox.shrink();
   }
@@ -131,7 +132,8 @@ class TransactionListShimmer extends StatelessWidget {
           (context, index) {
             return Shimmer.fromColors(
               baseColor: Theme.of(context).cardColor,
-              highlightColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+              highlightColor:
+                  Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

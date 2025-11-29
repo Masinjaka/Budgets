@@ -78,7 +78,8 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
           hintStyle: TextStyle(color: Theme.of(context).hintColor),
           prefixIcon: widget.isSearchFocused
               ? IconButton(
-                  icon: Icon(Icons.arrow_back, color: Theme.of(context).hintColor),
+                  icon: Icon(Icons.arrow_back,
+                      color: Theme.of(context).hintColor),
                   onPressed: widget.onSearchUnfocused,
                 )
               : Icon(Icons.search, color: Theme.of(context).hintColor),

@@ -362,7 +362,11 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             style: TextStyle(
                               color: _selectedItem != null
                                   ? Theme.of(context).textTheme.bodyLarge?.color
-                                  : Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
+                                  : Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color
+                                      ?.withOpacity(0.6),
                               fontSize: 15.sp,
                             ),
                             overflow: TextOverflow.ellipsis,

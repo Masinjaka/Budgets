@@ -101,7 +101,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
                         border: Border(
-                          top: BorderSide(color: Theme.of(context).dividerColor),
+                          top:
+                              BorderSide(color: Theme.of(context).dividerColor),
                         ),
                       ),
                       child: Center(
@@ -119,8 +120,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                                 'Rechercher',
                                 style: TextStyle(
                                   fontSize: 15.sp,
-                                  color:
-                                      Theme.of(context).hintColor,
+                                  color: Theme.of(context).hintColor,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -441,7 +441,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               },
                               pickerTypeTextStyle: TextStyle(
                                 fontSize: 14.sp,
-                                color: Theme.of(context).textTheme.bodyLarge?.color,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color,
                               ),
                             ),
                           ),

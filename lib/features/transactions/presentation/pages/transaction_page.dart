@@ -64,7 +64,8 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                 builder: (context, child) {
                   return SliverAppBar(
                     surfaceTintColor: Colors.transparent,
-                    backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+                    backgroundColor:
+                        Theme.of(context).appBarTheme.backgroundColor,
                     pinned: true,
                     floating: true,
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
@@ -82,8 +83,12 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18.sp,
-                                  color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(
-                                      _appBarAnimation.value > 0.1 ? 1 : 0),
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color
+                                      ?.withOpacity(
+                                          _appBarAnimation.value > 0.1 ? 1 : 0),
                                 ),
                               ),
                             ),
@@ -99,8 +104,10 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                     0, (1 - _appBarAnimation.value) * -20),
                                 child: ActionButton(
                                     icon: Icons.fullscreen,
-                                    iconColor: Theme.of(context).colorScheme.onPrimary,
-                                    backgroundColor: Theme.of(context).primaryColor,
+                                    iconColor:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
                                     onPressed: () {}),
                               ),
                             ),
@@ -112,8 +119,10 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                     0, (1 - _appBarAnimation.value) * -20),
                                 child: ActionButton(
                                     icon: Icons.add,
-                                    iconColor: Theme.of(context).colorScheme.onPrimary,
-                                    backgroundColor: Theme.of(context).primaryColor,
+                                    iconColor:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
                                     onPressed: () {
                                       // Get the current active tab to determine transaction type
                                       final isExpenseTab =
@@ -138,7 +147,11 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                   tabController: _tabController,
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   labelColor: Theme.of(context).textTheme.bodyLarge?.color,
-                  unselectedLabelColor: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                  unselectedLabelColor: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.color
+                      ?.withOpacity(0.7),
                   indicatorColor: Theme.of(context).primaryColor,
                 ),
               ),

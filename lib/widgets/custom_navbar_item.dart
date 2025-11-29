@@ -40,7 +40,10 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
               borderRadius: BorderRadius.circular(20.w),
               color: widget.isActive ? backgroundColor : Colors.transparent,
             ),
-            child: Icon(widget.icon, color: textColor,),
+            child: Icon(
+              widget.icon,
+              color: textColor,
+            ),
           ),
           Text(
             widget.title,

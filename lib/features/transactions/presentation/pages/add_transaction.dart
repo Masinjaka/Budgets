@@ -184,7 +184,10 @@ class _TransactionCreationPageState
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
-                                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color,
                                 ),
                               ),
                               SizedBox(height: 0.5.h),
@@ -194,8 +197,7 @@ class _TransactionCreationPageState
                                     : 'Montant général pour la catégorie',
                                 style: TextStyle(
                                   fontSize: 12.sp,
-                                  color:
-                                      Theme.of(context).hintColor,
+                                  color: Theme.of(context).hintColor,
                                 ),
                               ),
                             ],

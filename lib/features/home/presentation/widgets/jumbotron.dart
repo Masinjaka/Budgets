@@ -104,7 +104,9 @@ class Jumbotron extends ConsumerWidget {
                     '${isNegative ? '-' : ''}${formatAmount(balance.abs().toString())}',
                     style: TextStyle(
                       fontSize: 22.sp,
-                      color: isNegative ? Colors.red : Theme.of(context).textTheme.bodyLarge?.color,
+                      color: isNegative
+                          ? Colors.red
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.w600,
                     ),
                   );
