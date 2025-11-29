@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -64,32 +63,32 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.secondaryDark,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(50.w),
       ),
       child: TextFormField(
         controller: widget.controller,
-        cursorColor: Colors.white,
-        style: const TextStyle(color: Colors.white),
+        cursorColor: Theme.of(context).textTheme.bodyLarge?.color,
+        style: Theme.of(context).textTheme.bodyLarge,
         onTap: widget.onSearchFocused,
         textAlign: TextAlign.start,
         textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Color(0xFF8E8E93)),
+          hintStyle: TextStyle(color: Theme.of(context).hintColor),
           prefixIcon: widget.isSearchFocused
               ? IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Color(0xFF8E8E93)),
+                  icon: Icon(Icons.arrow_back, color: Theme.of(context).hintColor),
                   onPressed: widget.onSearchUnfocused,
                 )
-              : const Icon(Icons.search, color: Color(0xFF8E8E93)),
+              : Icon(Icons.search, color: Theme.of(context).hintColor),
           prefixIconConstraints: const BoxConstraints(
             minWidth: 48,
             minHeight: 48,
           ),
           suffixIcon: widget.isSearchFocused && _hasText
               ? IconButton(
-                  icon: const Icon(Icons.close, color: Color(0xFF8E8E93)),
+                  icon: Icon(Icons.close, color: Theme.of(context).hintColor),
                   onPressed: widget.onClearSearch,
                 )
               : null,

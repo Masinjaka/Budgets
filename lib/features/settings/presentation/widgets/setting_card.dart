@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -46,7 +45,7 @@ class _SettingCardState extends State<SettingCard> {
         width: double.infinity,
         padding: EdgeInsets.all(3.w),
         decoration: BoxDecoration(
-          color: AppTheme.secondaryDark,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(5.w),
         ),
         child: Row(
@@ -58,13 +57,13 @@ class _SettingCardState extends State<SettingCard> {
                 Container(
                   padding: EdgeInsets.all(3.w),
                   decoration: BoxDecoration(
-                    color: AppTheme.backgroundDark,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(3.w),
                   ),
                   child: Icon(
                     widget.iconData,
                     size: 20.sp,
-                    color: Colors.white,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
                 SizedBox(width: 4.w),
@@ -72,7 +71,7 @@ class _SettingCardState extends State<SettingCard> {
                   widget.title,
                   style: TextStyle(
                     fontSize: 15.sp,
-                    color: Colors.white,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
               ],
@@ -101,7 +100,7 @@ class _SettingCardState extends State<SettingCard> {
                     : Icon(
                         Icons.arrow_forward_ios,
                         size: 16.sp,
-                        color: Colors.white,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
               ],
             ),

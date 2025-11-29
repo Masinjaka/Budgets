@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/widgets/charts/bar_chart.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,7 @@ class StatsHomeWidget extends StatelessWidget {
       height: 35.h,
       padding: EdgeInsets.only(bottom: 2.h, left: 5.w, right: 5.w),
       decoration: BoxDecoration(
-        color: AppTheme.secondaryDark,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(5.w),
       ),
       child: Column(
@@ -29,9 +28,9 @@ class StatsHomeWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem('Dépenses', Colors.redAccent),
+              _buildLegendItem(context, 'Dépenses', Colors.redAccent),
               SizedBox(width: 4.w),
-              _buildLegendItem('Revenus', Colors.greenAccent),
+              _buildLegendItem(context, 'Revenus', Colors.greenAccent),
             ],
           ),
           SizedBox(height: 2.h),
@@ -49,7 +48,7 @@ class StatsHomeWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(BuildContext context, String label, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -65,7 +64,7 @@ class StatsHomeWidget extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
             fontSize: 12.sp,
             fontWeight: FontWeight.w500,
           ),

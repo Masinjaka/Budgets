@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +40,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
       margin: EdgeInsets.symmetric(vertical: 0.5.h),
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
       decoration: BoxDecoration(
-        color: AppTheme.secondaryDark,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(5.w),
       ),
       // Use LayoutBuilder to get tile width and constrain description to half
@@ -56,7 +55,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: widget.categoryColor.withValues(alpha: 0.2),
+                      color: widget.categoryColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(3.w),
                     ),
                     child: Padding(
@@ -90,7 +89,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                           softWrap: false,
                           style: TextStyle(
                             fontSize: 15.sp,
-                            color: const Color.fromARGB(255, 63, 65, 68),
+                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -109,7 +108,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xff303237),
+                      color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
                     ),
                   ),
                   SizedBox(height: 1.h),
@@ -118,8 +117,8 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: widget.transactionType == 'expense'
-                          ? const Color.fromARGB(255, 181, 76, 69)
-                          : const Color.fromARGB(255, 64, 139, 67),
+                          ? Colors.red
+                          : Colors.green,
                     ),
                   ),
                 ],

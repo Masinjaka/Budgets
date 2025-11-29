@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
@@ -250,7 +249,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
       keyboardType: TextInputType.datetime,
       decoration: InputDecoration(
         filled: true,
-        fillColor: AppTheme.secondaryDark,
+        fillColor: Theme.of(context).cardColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(2.w),
         ),
@@ -283,9 +282,9 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
           ),
         ),
         hintText: hint,
-        suffixIcon: const Icon(
+        suffixIcon: Icon(
           Icons.calendar_month_outlined,
-          color: AppTheme.textDark,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
       ),
     );
@@ -347,14 +346,14 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
               vertical: 2.w,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.textDark : AppTheme.secondaryDark,
+              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
               border: Border.all(color: Colors.transparent),
               borderRadius: BorderRadius.circular(5.w),
             ),
             child: Text(
               e.name ?? 'Inconnu',
               style: TextStyle(
-                  color: isSelected ? Colors.black : AppTheme.textDark,
+                  color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).textTheme.bodyLarge?.color,
                   fontSize: 15.sp),
             ),
           ),

@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/main.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
@@ -19,7 +18,7 @@ class UserCard extends ConsumerWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: AppTheme.secondaryDark,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(5.w),
       ),
       child: Wrap(
@@ -43,7 +42,7 @@ class UserCard extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
                 loading: () => SizedBox(

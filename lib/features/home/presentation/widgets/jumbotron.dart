@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
@@ -45,7 +44,7 @@ class Jumbotron extends ConsumerWidget {
     return Container(
       height: 16.h,
       decoration: BoxDecoration(
-        color: AppTheme.secondaryDark,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(5.w),
       ),
       child: Stack(
@@ -60,7 +59,7 @@ class Jumbotron extends ConsumerWidget {
                 'Reste à dépenser',
                 style: TextStyle(
                   fontSize: 15.5.sp,
-                  color: Colors.white,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
             ),
@@ -77,14 +76,14 @@ class Jumbotron extends ConsumerWidget {
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5.w),
-                  color: AppTheme.borderColorDark,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 child: Text(
                   'MGA',
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
               ),
@@ -105,7 +104,7 @@ class Jumbotron extends ConsumerWidget {
                     '${isNegative ? '-' : ''}${formatAmount(balance.abs().toString())}',
                     style: TextStyle(
                       fontSize: 22.sp,
-                      color: isNegative ? Colors.red : Colors.white,
+                      color: isNegative ? Colors.red : Theme.of(context).textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.w600,
                     ),
                   );

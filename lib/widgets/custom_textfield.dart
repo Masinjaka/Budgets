@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -119,10 +118,10 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
               value,
             );
           },
-          cursorColor: AppTheme.textDark,
+          cursorColor: Theme.of(context).textTheme.bodyLarge?.color,
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppTheme.secondaryDark,
+            fillColor: Theme.of(context).cardColor,
             contentPadding:
                 EdgeInsets.symmetric(vertical: 1.7.h, horizontal: 5.w),
             enabledBorder: OutlineInputBorder(
@@ -164,7 +163,7 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
                       isObscure
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   )
                 : widget.suffixIcon,

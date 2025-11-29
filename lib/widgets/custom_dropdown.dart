@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -176,22 +175,22 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             maxHeight: 40.h, // Limit height to 40% of screen
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.secondaryDark,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.only(
                               bottomLeft: Radius.circular(2.w),
                               bottomRight: Radius.circular(2.w),
                             ),
-                            border: const Border(
+                            border: Border(
                               left: BorderSide(
-                                color: AppTheme.borderColorDark,
+                                color: Theme.of(context).dividerColor,
                                 width: 1.0,
                               ),
                               right: BorderSide(
-                                color: AppTheme.borderColorDark,
+                                color: Theme.of(context).dividerColor,
                                 width: 1.0,
                               ),
                               bottom: BorderSide(
-                                color: AppTheme.borderColorDark,
+                                color: Theme.of(context).dividerColor,
                                 width: 1.0,
                               ),
                               // No top border to seamlessly connect with text field
@@ -234,7 +233,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
       child: Text(
         'Aucune catégorie disponible',
         style: TextStyle(
-          color: AppTheme.textDark.withAlpha((0.5 * 255).toInt()),
+          color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.5),
           fontSize: 15.sp,
           fontStyle: FontStyle.italic,
         ),
@@ -277,7 +276,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                   child: Text(
                     category.name ?? 'Catégorie sans nom',
                     style: TextStyle(
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 15.sp,
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -288,7 +287,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                 if (isSelected)
                   Icon(
                     Icons.check,
-                    color: Colors.white,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     size: 18.sp,
                   ),
               ],
@@ -328,7 +327,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                       vertical: 1.5.h,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondaryDark,
+                      color: Theme.of(context).cardColor,
                       borderRadius: _isDropdownOpen
                           ? BorderRadius.only(
                               topLeft: Radius.circular(2.w),
@@ -338,7 +337,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                       border: Border.all(
                         color: state.hasError
                             ? Colors.red
-                            : AppTheme.borderColorDark,
+                            : Theme.of(context).dividerColor,
                         width: 1.0,
                       ),
                     ),
@@ -362,9 +361,8 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                                 'Sélectionnez une option',
                             style: TextStyle(
                               color: _selectedItem != null
-                                  ? AppTheme.textDark
-                                  : AppTheme.textDark
-                                      .withAlpha((0.6 * 255).toInt()),
+                                  ? Theme.of(context).textTheme.bodyLarge?.color
+                                  : Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
                               fontSize: 15.sp,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -374,7 +372,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                           _isDropdownOpen
                               ? Icons.arrow_drop_up
                               : Icons.arrow_drop_down,
-                          color: AppTheme.textDark,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ],
                     ),
