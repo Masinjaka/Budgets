@@ -28,6 +28,7 @@ import 'package:budgets/core/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:gleap_sdk/gleap_sdk.dart';
+import 'package:shake/shake.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -66,6 +67,29 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
+  late ShakeDetector detector;
+
+  @override
+  void initState() {
+    super.initState();
+    detector = ShakeDetector.waitForStart(
+      onPhoneShake: (_) {
+        Gleap.open();
+      },
+      minimumShakeCount: 1,
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 3000,
+      shakeThresholdGravity: 2.7,
+    );
+    detector.startListening();
+  }
+
+  @override
+  void dispose() {
+    detector.stopListening();
+    super.dispose();
+  }
+
   late final GoRouter _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
