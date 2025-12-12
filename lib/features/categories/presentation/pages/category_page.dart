@@ -247,47 +247,38 @@ class _CategoryTabContent extends ConsumerWidget {
             // color: AppTheme.secondaryDark,
             color: Color(int.parse(categories[index].color!, radix: 16)),
             borderRadius: BorderRadius.circular(5.w),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-            ),
           ),
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runAlignment: WrapAlignment.center,
-            spacing: 2.w,
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              SizedBox(width: 4.w),
-              Text(
-                '${categories[index].emoji}',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  shadows: [
-                    Shadow(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.15),
-                      offset: const Offset(1, 2),
-                      blurRadius: 4,
+              Positioned.fill(
+                right: -5.w,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: RotationTransition(
+                    turns: const AlwaysStoppedAnimation(-25 / 360),
+                    child: Text(
+                      '${categories[index].emoji}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 35.sp,
+                            color: Colors.white,
+                          ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-              Text(
-                '${categories[index].name}',
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  shadows: [
-                    Shadow(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.12),
-                      offset: const Offset(1, 2),
-                      blurRadius: 3,
-                    ),
-                  ],
+              Positioned.fill(
+                left: 5.w,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${categories[index].name}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 14.5.sp,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                  ),
                 ),
               ),
             ],
@@ -336,6 +327,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
               controller: tabController,
               labelColor: labelColor,
               unselectedLabelColor: unselectedLabelColor,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(
                   color: indicatorColor ?? Theme.of(context).primaryColor,

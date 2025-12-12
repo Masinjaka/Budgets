@@ -27,6 +27,7 @@ class AppTheme {
       titleLarge: TextStyle(color: textLight),
       titleMedium: TextStyle(color: textLight),
       titleSmall: TextStyle(color: textLight),
+      bodySmall: TextStyle(color: textLight),
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: backgroundLight,
@@ -37,6 +38,8 @@ class AppTheme {
       primary: primaryGreen,
       secondary: secondaryGreen,
       surface: secondaryLight,
+      surfaceDim: backgroundLight,
+      inverseSurface: secondaryDark,
     ),
   );
 
@@ -51,6 +54,7 @@ class AppTheme {
       titleLarge: TextStyle(color: textDark),
       titleMedium: TextStyle(color: textDark),
       titleSmall: TextStyle(color: textDark),
+      bodySmall: TextStyle(color: textDark,),
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: backgroundDark,
@@ -61,6 +65,8 @@ class AppTheme {
       primary: primaryGreen,
       secondary: secondaryGreen,
       surface: secondaryDark,
+      surfaceDim: backgroundDark,
+      inverseSurface: secondaryLight,
     ),
   );
 }

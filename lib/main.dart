@@ -44,6 +44,7 @@ void main() async {
 
   // Initialize Gleap
   Gleap.initialize(token: 'Qq2gB5CN8MF6U7XdK5xUhETe49WgA0aa');
+  Gleap.showFeedbackButton(false);
 
   // initialize supabase
   await Supabase.initialize(

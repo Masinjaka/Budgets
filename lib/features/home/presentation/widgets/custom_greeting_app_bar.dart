@@ -62,13 +62,20 @@ class CustomGreetingAppBar extends ConsumerWidget
                 ),
               ],
             ),
-            IconButton(
-                icon: Icon(
-                  Icons.notifications,
-                  size: 21.sp,
-                  color: Colors.white,
-                ),
-                onPressed: onNotificationPressed),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                
+                  icon: Icon(
+                    Icons.notifications_none_rounded,
+                    size: 18.sp,
+                    color: Theme.of(context).colorScheme.inverseSurface,
+                  ),
+                  onPressed: onNotificationPressed),
+            ),
           ],
         ),
       ),

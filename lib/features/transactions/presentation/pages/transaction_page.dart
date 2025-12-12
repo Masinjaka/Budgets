@@ -213,6 +213,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
               controller: tabController,
               labelColor: labelColor,
               unselectedLabelColor: unselectedLabelColor,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
               indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(
                   color: indicatorColor ?? Theme.of(context).primaryColor,

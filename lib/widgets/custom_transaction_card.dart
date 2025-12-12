@@ -38,10 +38,10 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 0.5.h),
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(5.w),
+        borderRadius: BorderRadius.circular(4.w),
       ),
       // Use LayoutBuilder to get tile width and constrain description to half
       child: LayoutBuilder(
@@ -54,15 +54,19 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
+                    width: 12.w,
+                    height: 12.w,
                     decoration: BoxDecoration(
-                      color: widget.categoryColor.withOpacity(0.2),
+                      color: Theme.of(context).colorScheme.surfaceDim,
                       borderRadius: BorderRadius.circular(3.w),
                     ),
                     child: Padding(
                       padding: EdgeInsets.all(3.w),
-                      child: Text(
-                        widget.categoryEmoji,
-                        style: TextStyle(fontSize: 20.sp),
+                      child: Center(
+                        child: Text(
+                          widget.categoryEmoji,
+                          style: TextStyle(fontSize: 16.sp),
+                        ),
                       ),
                     ),
                   ),
@@ -93,7 +97,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                                 .textTheme
                                 .bodySmall
                                 ?.color
-                                ?.withOpacity(0.6),
+                                ?.withAlpha(153),
                           ),
                         ),
                       ],
@@ -116,18 +120,26 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                           .textTheme
                           .bodySmall
                           ?.color
-                          ?.withOpacity(0.6),
+                          ?.withAlpha(153),
                     ),
                   ),
                   SizedBox(height: 1.h),
                   Text(
-                    "${widget.transactionType == 'expense' ? '-' : '+'} ${formatAmount(widget.amount)}",
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: widget.transactionType == 'expense'
-                          ? Colors.red
-                          : Colors.green,
-                    ),
+                    formatAmount(widget.amount),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w900,
+                          color: widget.transactionType == 'expense'
+                              ? const Color.fromARGB(255, 215, 120, 113)
+                              : const Color.fromARGB(255, 82, 149, 84),
+                        ),
+                    
+                    // TextStyle(
+                    //   fontSize: 14.sp,
+                    //   color: widget.transactionType == 'expense'
+                    //       ? Colors.red
+                    //       : Colors.green,
+                    // ),
                   ),
                 ],
               ),
