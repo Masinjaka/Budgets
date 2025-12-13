@@ -27,10 +27,10 @@ class TransactionListItem extends StatelessWidget {
         );
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.8.h),
+        padding: EdgeInsets.all(2.5.w),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(5.w),
+          borderRadius: BorderRadius.circular(4.w),
         ),
         child: Row(
           children: [
@@ -39,8 +39,7 @@ class TransactionListItem extends StatelessWidget {
               width: 5.h,
               height: 5.h,
               decoration: BoxDecoration(
-                color:
-                    Color(int.parse(transaction.category!.color!, radix: 16)),
+                color: Theme.of(context).colorScheme.surfaceDim,
                 borderRadius: BorderRadius.circular(2.w),
               ),
               child: Center(
@@ -61,7 +60,7 @@ class TransactionListItem extends StatelessWidget {
                     style: TextStyle(
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.sp,
+                      fontSize: 15.sp,
                     ),
                   ),
                   SizedBox(height: 0.5.h),
@@ -80,22 +79,31 @@ class TransactionListItem extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  "MGA",
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w500,
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 1.5.w,
+                    vertical: 0.2.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceDim,
+                    borderRadius: BorderRadius.circular(8.w),
+                  ),
+                  child: Text(
+                    "MGA",
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                      // fontSize: 15.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 SizedBox(height: 0.5.h),
                 Text(
                   currencyFormatter.format(transaction.amount),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15.sp,
-                  ),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontSize: 14.sp,
+                      ),
                 ),
               ],
             )

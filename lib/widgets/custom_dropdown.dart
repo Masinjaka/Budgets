@@ -177,23 +177,8 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(2.w),
-                              bottomRight: Radius.circular(2.w),
-                            ),
-                            border: Border(
-                              left: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0,
-                              ),
-                              right: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0,
-                              ),
-                              bottom: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0,
-                              ),
-                              // No top border to seamlessly connect with text field
+                              bottomLeft: Radius.circular(5.w),
+                              bottomRight: Radius.circular(5.w),
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -330,16 +315,10 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                       color: Theme.of(context).cardColor,
                       borderRadius: _isDropdownOpen
                           ? BorderRadius.only(
-                              topLeft: Radius.circular(2.w),
-                              topRight: Radius.circular(2.w),
+                              topLeft: Radius.circular(6.w),
+                              topRight: Radius.circular(6.w),
                             )
-                          : BorderRadius.circular(2.w),
-                      border: Border.all(
-                        color: state.hasError
-                            ? Colors.red
-                            : Theme.of(context).dividerColor,
-                        width: 1.0,
-                      ),
+                          : BorderRadius.circular(6.w),
                     ),
                     child: Row(
                       children: [
@@ -361,12 +340,12 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                                 'Sélectionnez une option',
                             style: TextStyle(
                               color: _selectedItem != null
-                                  ? Theme.of(context).textTheme.bodyLarge?.color
+                                  ? Theme.of(context).textTheme.bodyMedium?.color
                                   : Theme.of(context)
                                       .textTheme
                                       .bodyLarge
                                       ?.color
-                                      ?.withOpacity(0.6),
+                                      ?.withAlpha(100),
                               fontSize: 15.sp,
                             ),
                             overflow: TextOverflow.ellipsis,

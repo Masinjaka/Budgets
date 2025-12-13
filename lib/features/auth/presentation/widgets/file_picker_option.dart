@@ -24,7 +24,7 @@ class _FileOptionState extends State<FileOption> {
       child: Container(
         padding: EdgeInsets.all(2.h),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: Theme.of(context).colorScheme.surfaceDim,
           borderRadius: BorderRadius.circular(4.w),
         ),
         child: Column(

@@ -43,7 +43,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: AppTheme.backgroundDark,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.w)),
           ),
           padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
@@ -59,7 +59,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                     height: 0.7.h,
                     margin: EdgeInsets.only(bottom: 2.h),
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(51),
                       borderRadius: BorderRadius.circular(2.w),
                     ),
                   ),
@@ -88,7 +88,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                           Text(
                             transaction.category?.name ?? '',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
                               fontWeight: FontWeight.bold,
                               fontSize: 16.sp,
                             ),
@@ -97,7 +97,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                           Text(
                             transaction.title ?? '',
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179),
                               fontSize: 15.sp,
                             ),
                           ),
@@ -119,7 +119,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                         Text(
                           currencyFormatter.format(transaction.amount),
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                             fontWeight: FontWeight.bold,
                             fontSize: 16.sp,
                           ),
@@ -132,25 +132,25 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                 Row(
                   children: [
                     Icon(Icons.calendar_today,
-                        color: Colors.white54, size: 15.sp),
+                        color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(128), size: 15.sp),
                     SizedBox(width: 2.w),
                     Text(
                       transaction.date != null
                           ? DateFormat.yMMMMd('fr_FR')
                               .format(transaction.date!.toLocal())
                           : '',
-                      style: TextStyle(color: Colors.white70, fontSize: 15.sp),
+                      style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179), fontSize: 15.sp),
                     ),
                     if (transaction.date != null) ...[
                       SizedBox(width: 3.w),
                       Icon(Icons.access_time,
-                          color: Colors.white54, size: 15.sp),
+                          color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(128), size: 15.sp),
                       SizedBox(width: 1.w),
                       Text(
                         DateFormat.Hm('fr_FR')
                             .format(transaction.date!.toLocal()),
                         style:
-                            TextStyle(color: Colors.white70, fontSize: 15.sp),
+                            TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179), fontSize: 15.sp),
                       ),
                     ],
                   ],
@@ -160,14 +160,14 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                   Text(
                     'Description',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontWeight: FontWeight.bold,
                         fontSize: 15.sp),
                   ),
                   SizedBox(height: 0.5.h),
                   Text(
                     transaction.description!,
-                    style: TextStyle(color: Colors.white70, fontSize: 15.sp),
+                    style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179), fontSize: 15.sp),
                   ),
                 ],
                 if ((transaction.invoiceFile ?? '').isNotEmpty) ...[
@@ -175,7 +175,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                   Text(
                     'Facture',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontWeight: FontWeight.bold,
                         fontSize: 15.sp),
                   ),
@@ -206,7 +206,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                           Text(
                             'Détails des sous-catégories',
                             style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).textTheme.bodyLarge?.color,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15.sp),
                           ),
@@ -220,13 +220,13 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                                     Text(
                                       sub.subcategory?.name ?? 'Unknown',
                                       style: TextStyle(
-                                          color: Colors.white70,
+                                          color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179),
                                           fontSize: 15.sp),
                                     ),
                                     Text(
                                       currencyFormatter.format(sub.amount),
                                       style: TextStyle(
-                                          color: Colors.white70,
+                                          color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179),
                                           fontSize: 15.sp),
                                     ),
                                   ],
@@ -235,7 +235,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                         ],
                       );
                     },
-                    loading: () => _buildSubSkeleton(),
+                    loading: () => _buildSubSkeleton(context),
                     error: (e, st) => const SizedBox.shrink(),
                   ),
                 ],
@@ -247,7 +247,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
     );
   }
 
-  _buildSubSkeleton() {
+  _buildSubSkeleton(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 1.h),
       child: Column(
@@ -260,26 +260,26 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Shimmer.fromColors(
-                  baseColor: Colors.white24,
-                  highlightColor: Colors.white38,
+                  baseColor: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(26) ?? Colors.grey.withAlpha(26),
+                  highlightColor: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(51) ?? Colors.grey.withAlpha(51),
                   child: Container(
                     width: 25.w,
                     height: 2.5.h,
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(26),
                       borderRadius: BorderRadius.circular(2.w),
                     ),
                   ),
                 ),
                 SizedBox(width: 2.w),
                 Shimmer.fromColors(
-                  baseColor: Colors.white24,
-                  highlightColor: Colors.white38,
+                  baseColor: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(26) ?? Colors.grey.withAlpha(26),
+                  highlightColor: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(51) ?? Colors.grey.withAlpha(51),
                   child: Container(
                     width: 15.w,
                     height: 2.5.h,
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(26),
                       borderRadius: BorderRadius.circular(2.w),
                     ),
                   ),

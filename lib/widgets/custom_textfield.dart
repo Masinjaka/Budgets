@@ -167,6 +167,9 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
                     ),
                   )
                 : widget.suffixIcon,
+            hintStyle: TextStyle(
+              color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(100),
+            ),
           ),
           onTap: widget.onTap,
         ),

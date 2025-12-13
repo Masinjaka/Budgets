@@ -328,6 +328,8 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
               labelColor: labelColor,
               unselectedLabelColor: unselectedLabelColor,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
+              splashFactory: NoSplash.splashFactory,
+              splashBorderRadius: BorderRadius.circular(8.w),
               indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(
                   color: indicatorColor ?? Theme.of(context).primaryColor,
@@ -380,6 +382,12 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
+    if (oldDelegate is _CategoryTabBarDelegate) {
+      return backgroundColor != oldDelegate.backgroundColor ||
+          labelColor != oldDelegate.labelColor ||
+          unselectedLabelColor != oldDelegate.unselectedLabelColor ||
+          indicatorColor != oldDelegate.indicatorColor;
+    }
+    return true;
   }
 }

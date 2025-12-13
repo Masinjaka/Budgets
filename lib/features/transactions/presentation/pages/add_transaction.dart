@@ -1,5 +1,6 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction/detailed_transaction_switch.dart';
 import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -101,12 +102,32 @@ class _TransactionCreationPageState
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.only(left: 2.w, right: 2.w, top: 5.h),
+            padding: EdgeInsets.only(left: 6.w, right: 6.w, top: 5.h),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Switch for multiple amounts
+                  DetailedTransactionSwitch(
+                    value: _isMultipleAmounts,
+                    onChanged: (value) {
+                      setState(() {
+                        _isMultipleAmounts = value;
+                        if (!value) {
+                          // Clear all items with animation
+                          _module.clearAllSubcategoryAmounts(
+                            subcategoryAmounts: _subcategoryAmounts,
+                            listKey: _listKey,
+                            buildRemovedItem: (item, index, animation) =>
+                                _buildRemovedSubcategoryItem(item, animation),
+                            onStateChanged: () => setState(() {}),
+                          );
+                        }
+                      });
+                    },
+                  ),
+                  SizedBox(height: 5.h),
                   CustomDropdown(
                     title: Text(
                       'Catégorie',
@@ -146,101 +167,7 @@ class _TransactionCreationPageState
                     validator: const <String, String>{"type": "required"},
                     showEmojis: true,
                   ),
-                  SizedBox(height: 3.h),
-                  CustomTextField(
-                    title: Text(
-                      'Description',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
-                      ),
-                    ),
-                    hint: 'Laoka atoandro sy hariva',
-                    controller: _descriptionController,
-                    keyboardType: TextInputType.text,
-                  ),
-                  SizedBox(height: 5.h),
-
-                  // Switch for multiple amounts
-                  Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(2.w),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor,
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Mode de saisie',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14.sp,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.color,
-                                ),
-                              ),
-                              SizedBox(height: 0.5.h),
-                              Text(
-                                _isMultipleAmounts
-                                    ? 'Montants multiples par sous-catégories'
-                                    : 'Montant général pour la catégorie',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: Theme.of(context).hintColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 3.w),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Theme.of(context).dividerColor,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Switch(
-                            value: _isMultipleAmounts,
-                            onChanged: (value) {
-                              setState(() {
-                                _isMultipleAmounts = value;
-                                if (!value) {
-                                  // Clear all items with animation
-                                  _module.clearAllSubcategoryAmounts(
-                                    subcategoryAmounts: _subcategoryAmounts,
-                                    listKey: _listKey,
-                                    buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
-                                    onStateChanged: () => setState(() {}),
-                                  );
-                                }
-                              });
-                            },
-                            // activeThumbColor: Colors.white,
-                            activeTrackColor: Theme.of(context).primaryColor,
-                            inactiveThumbColor: Theme.of(context).cardColor,
-                            inactiveTrackColor: Theme.of(context).dividerColor,
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-
+                  SizedBox(height: 2.h),
                   // Conditional content based on switch
                   if (!_isMultipleAmounts)
                     CustomTextField(
@@ -259,8 +186,23 @@ class _TransactionCreationPageState
                     )
                   else
                     _buildMultipleAmountsSection(),
+                  
+                  SizedBox(height: 2.h),
+                  CustomTextField(
+                    title: Text(
+                      'Description (Optionnel)',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15.5.sp,
+                      ),
+                    ),
+                    hint: 'Ajouter une description ...',
+                    controller: _descriptionController,
+                    keyboardType: TextInputType.text,
+                  ),
 
-                  SizedBox(height: 1.5.h),
+                  
                 ],
               ),
             ),
@@ -575,7 +517,8 @@ class _TransactionCreationPageState
                   index: index,
                   subcategoryAmounts: _subcategoryAmounts,
                   listKey: _listKey,
-                  buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
+                  buildRemovedItem: (item, index, animation) =>
+                      _buildRemovedSubcategoryItem(item, animation),
                   onStateChanged: () => setState(() {}),
                 ),
                 child: Container(

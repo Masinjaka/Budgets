@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Dark colors
@@ -21,13 +22,19 @@ class AppTheme {
     scaffoldBackgroundColor: backgroundLight,
     cardColor: secondaryLight,
     primaryColor: primaryGreen,
-    textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: textLight),
-      bodyMedium: TextStyle(color: textLight),
-      titleLarge: TextStyle(color: textLight),
-      titleMedium: TextStyle(color: textLight),
-      titleSmall: TextStyle(color: textLight),
-      bodySmall: TextStyle(color: textLight),
+    fontFamily: GoogleFonts.outfit().fontFamily,
+    textTheme: GoogleFonts.outfitTextTheme(
+      const TextTheme(
+        bodyLarge:TextStyle(color: textLight),
+        bodyMedium: TextStyle(color: textLight),
+        titleLarge: TextStyle(color: textLight),
+        titleMedium: TextStyle(color: textLight),
+        titleSmall: TextStyle(color: textLight),
+        bodySmall: TextStyle(color: textLight),
+        labelMedium: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: backgroundLight,
@@ -40,6 +47,7 @@ class AppTheme {
       surface: secondaryLight,
       surfaceDim: backgroundLight,
       inverseSurface: secondaryDark,
+      tertiary: borderColorDark,
     ),
   );
 
@@ -48,13 +56,19 @@ class AppTheme {
     scaffoldBackgroundColor: backgroundDark,
     cardColor: secondaryDark,
     primaryColor: primaryGreen,
-    textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: textDark),
-      bodyMedium: TextStyle(color: textDark),
-      titleLarge: TextStyle(color: textDark),
-      titleMedium: TextStyle(color: textDark),
-      titleSmall: TextStyle(color: textDark),
-      bodySmall: TextStyle(color: textDark,),
+    fontFamily: GoogleFonts.outfit().fontFamily,
+    textTheme: GoogleFonts.outfitTextTheme(
+      const TextTheme(
+        bodyLarge: TextStyle(color: textDark),
+        bodyMedium: TextStyle(color: textDark),
+        titleLarge: TextStyle(color: textDark),
+        titleMedium: TextStyle(color: textDark),
+        titleSmall: TextStyle(color: textDark),
+        bodySmall: TextStyle(color: textDark,),
+        labelMedium: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: backgroundDark,
@@ -67,6 +81,7 @@ class AppTheme {
       surface: secondaryDark,
       surfaceDim: backgroundDark,
       inverseSurface: secondaryLight,
+      tertiary: Color.fromARGB(255, 126, 126, 126),
     ),
   );
 }
