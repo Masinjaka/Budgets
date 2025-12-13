@@ -14,6 +14,14 @@ class CustomTextField extends ConsumerStatefulWidget {
     this.suffixIcon,
     this.isReadOnly,
     this.onTap,
+    this.width,
+    this.height,
+    this.textAlign,
+    this.fontSize,
+    this.borderRadius,
+    this.contentPadding,
+    this.maxLines = 1,
+    this.minLines,
   });
   final Widget title;
   final String? hint;
@@ -24,6 +32,14 @@ class CustomTextField extends ConsumerStatefulWidget {
   final Widget? suffixIcon;
   final bool? isReadOnly;
   final void Function()? onTap;
+  final double? width;
+  final double? height;
+  final TextAlign? textAlign;
+  final double? fontSize;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? contentPadding;
+  final int? maxLines;
+  final int? minLines;
 
   @override
   ConsumerState<CustomTextField> createState() => _CustomTextFieldState();
@@ -98,6 +114,24 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
   Widget build(BuildContext context) {
     bool isPassord = widget.isPassword != null && widget.isPassword!;
 
+    // Calculate vertical padding based on height if provided
+    EdgeInsetsGeometry effectivePadding;
+    if (widget.contentPadding != null) {
+      effectivePadding = widget.contentPadding!;
+    } else if (widget.height != null) {
+      // Calculate padding to center text vertically in the given height
+      // Account for text height and distribute remaining space
+      final textHeight = (widget.fontSize ?? 16.sp) * 1.2; // Rough text height with line height
+      final availableSpace = widget.height! - textHeight;
+      final verticalPadding = availableSpace / 2;
+      effectivePadding = EdgeInsets.symmetric(
+        vertical: verticalPadding > 0 ? verticalPadding : 1.7.h,
+        horizontal: 5.w,
+      );
+    } else {
+      effectivePadding = EdgeInsets.symmetric(vertical: 1.7.h, horizontal: 5.w);
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,46 +140,54 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
         SizedBox(
           height: 1.h,
         ),
-        TextFormField(
-          readOnly: widget.isReadOnly ?? false,
-          obscureText: isObscure && isPassord,
-          controller: widget.controller,
-          keyboardType: widget.keyboardType ?? TextInputType.text,
-          validator: (String? value) {
-            return validate(
-              widget.validator?['type'] ?? '',
-              widget.validator?['error'] ?? '',
-              value,
-            );
-          },
-          cursorColor: Theme.of(context).textTheme.bodyLarge?.color,
-          decoration: InputDecoration(
+        SizedBox(
+          width: widget.width,
+          child: TextFormField(
+            readOnly: widget.isReadOnly ?? false,
+            obscureText: isObscure && isPassord,
+            controller: widget.controller,
+            keyboardType: widget.keyboardType ?? TextInputType.text,
+            textAlign: widget.textAlign ?? TextAlign.start,
+            maxLines: widget.maxLines,
+            minLines: widget.minLines,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+              fontSize: widget.fontSize ?? 16.sp,
+            ),
+            validator: (String? value) {
+              return validate(
+                widget.validator?['type'] ?? '',
+                widget.validator?['error'] ?? '',
+                value,
+              );
+            },
+            cursorColor: Theme.of(context).textTheme.bodyLarge?.color,
+            decoration: InputDecoration(
             filled: true,
             fillColor: Theme.of(context).cardColor,
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 1.7.h, horizontal: 5.w),
+              contentPadding: effectivePadding,
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
-              borderRadius: BorderRadius.circular(50.w),
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50.w),
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
               borderSide: const BorderSide(
                 color: Colors.transparent, // Match blue stroke when focused
                 width: 1.8,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50.w),
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
               borderSide: const BorderSide(
                 color: Colors.transparent,
                 width: 1.8,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50.w),
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
               borderSide: const BorderSide(
                 color: Colors.transparent,
                 width: 1.8,
@@ -169,9 +211,11 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
                 : widget.suffixIcon,
             hintStyle: TextStyle(
               color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(100),
+              fontSize: widget.fontSize ?? 16.sp,
             ),
           ),
           onTap: widget.onTap,
+        ),
         ),
       ],
     );

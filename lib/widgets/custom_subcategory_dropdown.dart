@@ -433,11 +433,6 @@ class _CustomSubcategoryDropdownState
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(2.w),
-                    border: Border.all(
-                      color: state.hasError
-                          ? Colors.red
-                          : Theme.of(context).dividerColor,
-                    ),
                   ),
                   child: Row(
                     children: [

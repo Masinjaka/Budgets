@@ -13,6 +13,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// Result class for transaction submission
+class TransactionSubmissionResult {
+  final bool success;
+  final String message;
+  final double? totalAmount;
+
+  TransactionSubmissionResult({
+    required this.success,
+    required this.message,
+    this.totalAmount,
+  });
+}
+
 class TransactionModule {
   TransactionModule();
 
@@ -268,5 +281,105 @@ class TransactionModule {
 
     subcategoryAmounts.clear();
     onStateChanged();
+  }
+
+  // Submit transaction with validation and business logic
+  Future<TransactionSubmissionResult> submitTransaction({
+    required GlobalKey<FormState> formKey,
+    required Category? selectedCategory,
+    required bool isMultipleAmounts,
+    required List<Map<String, dynamic>> subcategoryAmounts,
+    required TextEditingController montantController,
+    required TextEditingController descriptionController,
+    required TransactionType transactionType,
+    required WidgetRef ref,
+  }) async {
+    // Validate form
+    if (!formKey.currentState!.validate()) {
+      return TransactionSubmissionResult(
+        success: false,
+        message: 'Validation du formulaire échouée',
+      );
+    }
+
+    // Check if category is selected
+    if (selectedCategory == null) {
+      return TransactionSubmissionResult(
+        success: false,
+        message: 'Tu dois choisir une catégorie',
+      );
+    }
+
+    // Handle multiple amounts mode
+    if (isMultipleAmounts) {
+      // Validate subcategory amounts
+      if (!validateSubcategoryAmounts(subcategoryAmounts)) {
+        return TransactionSubmissionResult(
+          success: false,
+          message: 'Veuillez remplir toutes les sous-catégories et montants',
+        );
+      }
+
+      // Build subcategory amounts map
+      final subcategoryMap = buildSubcategoryAmountsMap(subcategoryAmounts);
+      final totalAmount = calculateTotalAmount(subcategoryAmounts);
+
+      debugPrint("🗺️ FINAL SUBCATEGORY MAP: $subcategoryMap");
+      debugPrint("💰 TOTAL AMOUNT: $totalAmount");
+
+      debugPrint("Calling Supabase RPC with:");
+      debugPrint("Total Amount: $totalAmount");
+      debugPrint("Description: ${descriptionController.text.trim()}");
+      debugPrint("Category: ${selectedCategory.name ?? ''}");
+      debugPrint("Subcategory Map: $subcategoryMap");
+
+      final transactionAdded = await addTransaction(
+        amount: totalAmount.toString(),
+        description: descriptionController.text.trim(),
+        categoryName: selectedCategory.name ?? '',
+        subcategoryAmounts: subcategoryMap,
+        transactionType: transactionType,
+        formKey: formKey,
+        ref: ref,
+      );
+
+      if (transactionAdded) {
+        return TransactionSubmissionResult(
+          success: true,
+          message:
+              '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}',
+          totalAmount: totalAmount,
+        );
+      } else {
+        return TransactionSubmissionResult(
+          success: false,
+          message: 'Erreur lors de l\'ajout de la transaction.',
+        );
+      }
+    } else {
+      // Single amount mode
+      final transactionAdded = await addTransaction(
+        amount: montantController.text.trim(),
+        description: descriptionController.text.trim(),
+        categoryName: selectedCategory.name ?? '',
+        subcategoryAmounts: null,
+        transactionType: transactionType,
+        formKey: formKey,
+        ref: ref,
+      );
+
+      if (transactionAdded) {
+        return TransactionSubmissionResult(
+          success: true,
+          message:
+              '${transactionType.displayName} ajoutée: ${montantController.text.trim()}',
+        );
+      } else {
+        return TransactionSubmissionResult(
+          success: false,
+          message: 'Erreur lors de l\'ajout de la transaction.',
+        );
+      }
+    }
   }
 }

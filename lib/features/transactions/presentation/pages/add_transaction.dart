@@ -1,6 +1,7 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction/detailed_transaction_switch.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction/subcategory_amount_row.dart';
 import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -171,38 +172,47 @@ class _TransactionCreationPageState
                   // Conditional content based on switch
                   if (!_isMultipleAmounts)
                     CustomTextField(
-                      title: Text(
-                        'Montant',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15.5.sp,
-                        ),
-                      ),
-                      hint: '10000',
+                      title: const SizedBox.shrink(),
+                      // Text(
+                      //   'Montant',
+                      //   textAlign: TextAlign.left,
+                      //   style: TextStyle(
+                      //     fontWeight: FontWeight.w900,
+                      //     fontSize: 15.5.sp,
+                      //   ),
+                      // ),
+                      hint: '0.00',
                       controller: _montantController,
                       keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      fontSize: 24.sp,
+                      height: 16.h,// Increase vertical padding
+                      width: double.infinity,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5.w),
+                        topRight: Radius.circular(5.w),
+                        bottomLeft: Radius.circular(5.w),
+                        bottomRight: Radius.circular(5.w),
+                      ),
                       validator: const <String, String>{"type": "required"},
                     )
                   else
                     _buildMultipleAmountsSection(),
-                  
-                  SizedBox(height: 2.h),
                   CustomTextField(
-                    title: Text(
-                      'Description (Optionnel)',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
-                      ),
-                    ),
-                    hint: 'Ajouter une description ...',
+                    title: const SizedBox.shrink(),
+                    hint: 'Ajouter une description (optionnel)',
                     controller: _descriptionController,
                     keyboardType: TextInputType.text,
+                    textAlign: TextAlign.center ,
+                    maxLines: null,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5.w),
+                      topRight: Radius.circular(5.w),
+                      bottomLeft: Radius.circular(5.w),
+                      bottomRight: Radius.circular(5.w),
+                    ),
                   ),
-
-                  
+                  SizedBox(height: 2.h),
                 ],
               ),
             ),
@@ -324,119 +334,35 @@ class _TransactionCreationPageState
         onPressed: () async {
           setState(() => _isLoading = true);
 
-          if (!_formKey.currentState!.validate()) {
-            setState(() => _isLoading = false);
+          final result = await _module.submitTransaction(
+            formKey: _formKey,
+            selectedCategory: _selectedCategory,
+            isMultipleAmounts: _isMultipleAmounts,
+            subcategoryAmounts: _subcategoryAmounts,
+            montantController: _montantController,
+            descriptionController: _descriptionController,
+            transactionType: transactionType,
+            ref: ref,
+          );
+
+          if (!mounted) {
             return;
-          }
-
-          if (_selectedCategory == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Tu dois choisir une catégorie'),
-              ),
-            );
-            setState(() => _isLoading = false);
-            return;
-          }
-
-          // Handle different submission modes
-          if (_isMultipleAmounts) {
-            // Validate subcategory amounts
-            if (!_module.validateSubcategoryAmounts(_subcategoryAmounts)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                      'Veuillez remplir toutes les sous-catégories et montants'),
-                ),
-              );
-              setState(() => _isLoading = false);
-              return;
-            }
-
-            // Build subcategory amounts map
-            final subcategoryMap =
-                _module.buildSubcategoryAmountsMap(_subcategoryAmounts);
-            final totalAmount =
-                _module.calculateTotalAmount(_subcategoryAmounts);
-
-            debugPrint("🗺️ FINAL SUBCATEGORY MAP: $subcategoryMap");
-            debugPrint("💰 TOTAL AMOUNT: $totalAmount");
-
-            debugPrint("Calling Supabase RPC with:");
-            debugPrint("Total Amount: $totalAmount");
-            debugPrint("Description: ${_descriptionController.text.trim()}");
-            debugPrint("Category: ${_selectedCategory!.name ?? ''}");
-            debugPrint("Subcategory Map: $subcategoryMap");
-
-            final transactionAdded = await _module.addTransaction(
-              amount: totalAmount.toString(),
-              description: _descriptionController.text.trim(),
-              categoryName: _selectedCategory!.name ?? '',
-              subcategoryAmounts: subcategoryMap,
-              transactionType: transactionType,
-              formKey: _formKey,
-              ref: ref,
-              // context: context, // Removed context
-            );
-
-            if (!mounted) {
-              return; // Ensure widget is still mounted before UI interactions
-            }
-
-            if (transactionAdded) {
-              // For now, show success message
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              context.pop();
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Erreur lors de l\'ajout de la transaction.'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          } else {
-            // Single amount mode - use existing logic
-            final transactionAdded = await _module.addTransaction(
-              amount: _montantController.text.trim(),
-              description: _descriptionController.text.trim(),
-              categoryName: _selectedCategory!.name ?? '',
-              subcategoryAmounts: null,
-              transactionType: transactionType,
-              formKey: _formKey,
-              ref: ref,
-              // context: context, // Removed context
-            );
-            if (!mounted) {
-              return;
-            }
-
-            if (transactionAdded) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      '${transactionType.displayName} ajoutée: ${_montantController.text.trim()}'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              context.pop();
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Erreur lors de l\'ajout de la transaction.'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
           }
 
           setState(() => _isLoading = false);
+
+          // Show result message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.message),
+              backgroundColor: result.success ? Colors.green : Colors.red,
+            ),
+          );
+
+          // Navigate back on success
+          if (result.success) {
+            context.pop();
+          }
         },
         isLoading: _isLoading,
       ),
@@ -457,89 +383,41 @@ class _TransactionCreationPageState
       ),
       child: FadeTransition(
         opacity: animation,
-        child: Container(
-          margin: EdgeInsets.only(bottom: 2.h),
-          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(2.w),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-              width: 1.0,
-            ),
+        child: SubcategoryAmountRow(
+          item: item,
+          subcategories: _subcategories,
+          onAmountChanged: (value) {
+            final subcategoryName = item['subcategoryName'] as String?;
+            debugPrint("💰 AMOUNT CHANGED:");
+            debugPrint(
+                "  - Subcategory: ${subcategoryName ?? 'Not selected'}");
+            debugPrint("  - Amount: $value");
+            debugPrint(
+                "  - Item index: ${_subcategoryAmounts.indexOf(item)}");
+          },
+          onSubcategoryChanged: (Subcategory? subcategory) {
+            if (subcategory != null) {
+              (item['subcategoryController'] as TextEditingController).text =
+                  subcategory.name ?? '';
+              item['subcategoryName'] = subcategory.name ?? '';
+              debugPrint("🔥 SUBCATEGORY SELECTED:");
+              debugPrint("  - ID: ${subcategory.id}");
+              debugPrint("  - Name: ${subcategory.name}");
+              debugPrint("  - Category ID: ${subcategory.categoryId}");
+              debugPrint(
+                  "  - Stored in item['subcategoryName']: ${item['subcategoryName']}");
+              setState(() {});
+            }
+          },
+          onRemove: () => _module.removeSubcategoryAmount(
+            index: index,
+            subcategoryAmounts: _subcategoryAmounts,
+            listKey: _listKey,
+            buildRemovedItem: (item, index, animation) =>
+                _buildRemovedSubcategoryItem(item, animation),
+            onStateChanged: () => setState(() {}),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: _buildSubcategoryField(item),
-              ),
-              Container(
-                height: 4.h,
-                width: 1,
-                color: Theme.of(context).dividerColor.withOpacity(0.5),
-                margin: EdgeInsets.symmetric(horizontal: 2.w),
-              ),
-              Expanded(
-                child: TextFormField(
-                  controller:
-                      item['amountController'] as TextEditingController?,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    final subcategoryName = item['subcategoryName'] as String?;
-                    debugPrint("💰 AMOUNT CHANGED:");
-                    debugPrint(
-                        "  - Subcategory: ${subcategoryName ?? 'Not selected'}");
-                    debugPrint("  - Amount: $value");
-                    debugPrint(
-                        "  - Item index: ${_subcategoryAmounts.indexOf(item)}");
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Montant',
-                    isDense: true,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-                  ),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                    fontSize: 14.sp,
-                  ),
-                ),
-              ),
-              SizedBox(width: 2.w),
-              GestureDetector(
-                onTap: () => _module.removeSubcategoryAmount(
-                  index: index,
-                  subcategoryAmounts: _subcategoryAmounts,
-                  listKey: _listKey,
-                  buildRemovedItem: (item, index, animation) =>
-                      _buildRemovedSubcategoryItem(item, animation),
-                  onStateChanged: () => setState(() {}),
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(2.w),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(1.w),
-                    border: Border.all(
-                      color: Colors.red.withOpacity(0.3),
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.remove,
-                    color: Colors.red,
-                    size: 16.sp,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          enabled: true,
         ),
       ),
     );
@@ -565,113 +443,13 @@ class _TransactionCreationPageState
         ),
         child: FadeTransition(
           opacity: animation,
-          child: Container(
-            margin: EdgeInsets.only(bottom: 2.h),
-            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.w),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(2.w),
-              border: Border.all(
-                color: Theme.of(context).dividerColor,
-                width: 1.0,
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: CustomSubcategoryDropdown(
-                    title: const SizedBox.shrink(),
-                    hint: 'Tapez ou sélectionnez une sous-catégorie',
-                    items: _subcategories,
-                    selectedValue: item['subcategory'] as Subcategory?,
-                    onChanged: null, // Disabled for removed items
-                    enabled: false,
-                  ),
-                ),
-                Container(
-                  height: 4.h,
-                  width: 1,
-                  color: Theme.of(context).dividerColor.withOpacity(0.5),
-                  margin: EdgeInsets.symmetric(horizontal: 2.w),
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller:
-                        item['amountController'] as TextEditingController?,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Montant',
-                      isDense: true,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-                    ),
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 2.w),
-                // GestureDetector(
-                //   onTap: () => _module.removeSubcategoryAmount(
-                //     index: index,
-                //     subcategoryAmounts: _subcategoryAmounts,
-                //     listKey: _listKey,
-                //     buildRemovedItem: (item, index, animation) => _buildRemovedSubcategoryItem(item, animation),
-                //     onStateChanged: () => setState(() {}),
-                //   ),
-                //   child: Container(
-                //     padding: EdgeInsets.all(2.w),
-                //     decoration: BoxDecoration(
-                //       color: Colors.red.withOpacity(0.1),
-                //       borderRadius: BorderRadius.circular(1.w),
-                //       border: Border.all(
-                //         color: Colors.red.withOpacity(0.3),
-                //         width: 1.0,
-                //       ),
-                //     ),
-                //     child: Icon(
-                //       Icons.remove,
-                //       color: Colors.red,
-                //       size: 16.sp,
-                //     ),
-                //   ),
-                // ),
-              ],
-            ),
+          child: SubcategoryAmountRow(
+            item: item,
+            subcategories: _subcategories,
+            enabled: false,
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSubcategoryField(Map<String, dynamic> item) {
-    return CustomSubcategoryDropdown(
-      title: const SizedBox.shrink(),
-      hint: 'Tapez ou sélectionnez une sous-catégorie',
-      items: _subcategories,
-      selectedValue: null, // We'll handle selection differently
-      onChanged: (Subcategory? subcategory) {
-        if (subcategory != null) {
-          (item['subcategoryController'] as TextEditingController).text =
-              subcategory.name ?? '';
-          item['subcategoryName'] = subcategory.name ?? '';
-          debugPrint("🔥 SUBCATEGORY SELECTED:");
-          debugPrint("  - ID: ${subcategory.id}");
-          debugPrint("  - Name: ${subcategory.name}");
-          debugPrint("  - Category ID: ${subcategory.categoryId}");
-          debugPrint(
-              "  - Stored in item['subcategoryName']: ${item['subcategoryName']}");
-          setState(() {});
-        }
-      },
-      enabled: true,
     );
   }
 }
