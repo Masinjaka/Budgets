@@ -33,7 +33,7 @@ class SubcategoryAmountRow extends StatelessWidget {
       child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.only(top: onRemove != null ? 3.h : 0),
+            padding: EdgeInsets.only(top: onRemove != null ? 4.h : 0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

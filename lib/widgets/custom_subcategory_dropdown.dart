@@ -40,6 +40,7 @@ class _CustomSubcategoryDropdownState
   late TextEditingController _searchController;
   late FocusNode _focusNode;
   List<Subcategory> _filteredItems = [];
+  final LayerLink _layerLink = LayerLink();
 
   @override
   void initState() {
@@ -109,16 +110,11 @@ class _CustomSubcategoryDropdownState
 
   void _onSearchChanged() {
     _filterItems(_searchController.text);
-    if (!_isDropdownOpen &&
-        _focusNode.hasFocus &&
-        _searchController.text.isNotEmpty) {
+    if (!_isDropdownOpen && _focusNode.hasFocus) {
       _showOverlay();
     } else if (_isDropdownOpen) {
-      // Rebuild overlay with filtered items
-      _removeOverlay();
-      if (_filteredItems.isNotEmpty || _searchController.text.isNotEmpty) {
-        _showOverlay();
-      }
+      // Force overlay to rebuild with new filtered items
+      _overlayEntry?.markNeedsBuild();
     }
   }
 
@@ -192,54 +188,78 @@ class _CustomSubcategoryDropdownState
   void _showOverlay() {
     if (_overlayEntry != null) return;
 
-    final RenderBox renderBox =
-        _dropdownKey.currentContext!.findRenderObject() as RenderBox;
-    final Size size = renderBox.size;
-    final Offset offset = renderBox.localToGlobal(Offset.zero);
-
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        left: offset.dx,
-        top: offset.dy + size.height + 1.w,
-        width: size.width,
-        child: Material(
-          color: Colors.transparent,
-          child: AnimatedBuilder(
-            animation: _dropdownAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _dropdownAnimation.value,
-                alignment: Alignment.topCenter,
-                child: Opacity(
-                  opacity: _dropdownAnimation.value,
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxHeight: 40.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(2.w),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(2.w),
-                      child: _buildDropdownContent(),
-                    ),
-                  ),
-                ),
-              );
-            },
+      builder: (context) => Stack(
+        children: [
+          // Invisible barrier to detect clicks outside
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                _removeOverlay();
+                _handleCustomSubcategory();
+              },
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
           ),
-        ),
+          // Actual dropdown using CompositedTransformFollower
+          CompositedTransformFollower(
+            link: _layerLink,
+            showWhenUnlinked: false,
+            offset: Offset(
+                0,
+                (_dropdownKey.currentContext!.findRenderObject() as RenderBox)
+                    .size
+                    .height),
+            child: Material(
+              color: Colors.transparent,
+              child: AnimatedBuilder(
+                animation: _dropdownAnimation,
+                builder: (context, child) {
+                  final size = (_dropdownKey.currentContext!.findRenderObject()
+                          as RenderBox)
+                      .size;
+
+                  return Transform.scale(
+                    scale: _dropdownAnimation.value,
+                    alignment: Alignment.topCenter,
+                    child: Opacity(
+                      opacity: _dropdownAnimation.value,
+                      child: Container(
+                        width: size.width,
+                        constraints: BoxConstraints(
+                          maxHeight: 40.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceDim,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(5.w),
+                            bottomRight: Radius.circular(5.w),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(5.w),
+                            bottomRight: Radius.circular(5.w),
+                          ),
+                          child: _buildDropdownContent(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
 
@@ -431,59 +451,69 @@ class _CustomSubcategoryDropdownState
                 Container(
                   key: _dropdownKey,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(2.w),
+                    color: Theme.of(context).colorScheme.surfaceDim,
+                    borderRadius: _isDropdownOpen
+                        ? BorderRadius.only(
+                            topLeft: Radius.circular(5.w),
+                            topRight: Radius.circular(5.w),
+                          )
+                        : BorderRadius.circular(5.w),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _searchController,
-                          focusNode: _focusNode,
-                          enabled: widget.enabled,
-                          decoration: InputDecoration(
-                            hintText: widget.hint ??
-                                'Sélectionnez ou tapez une sous-catégorie',
-                            hintStyle: TextStyle(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.color
-                                  ?.withOpacity(0.6),
+                  child: CompositedTransformTarget(
+                    link: _layerLink,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _searchController,
+                            focusNode: _focusNode,
+                            enabled: widget.enabled,
+                            decoration: InputDecoration(
+                              hintText: widget.hint ??
+                                  'Sélectionnez ou tapez une sous-catégorie',
+                              hintStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color
+                                    ?.withOpacity(0.6),
+                                fontSize: 15.sp,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 4.w,
+                                vertical: 1.5.h,
+                              ),
+                            ),
+                            style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                               fontSize: 15.sp,
                             ),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 4.w,
-                              vertical: 1.5.h,
+                            onTap: () {
+                              if (!_isDropdownOpen) {
+                                _showOverlay();
+                              }
+                            },
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _toggleDropdown,
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 4.w),
+                            child: Icon(
+                              _isDropdownOpen
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                             ),
                           ),
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                            fontSize: 15.sp,
-                          ),
-                          onTap: () {
-                            if (!_isDropdownOpen) {
-                              _showOverlay();
-                            }
-                          },
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: _toggleDropdown,
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 4.w),
-                          child: Icon(
-                            _isDropdownOpen
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 if (state.hasError)
