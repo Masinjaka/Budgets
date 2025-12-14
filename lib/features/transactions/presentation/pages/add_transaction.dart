@@ -6,13 +6,13 @@ import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/widgets/custom_dropdown.dart';
-import 'package:budgets/widgets/custom_subcategory_dropdown.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class TransactionCreationPage extends ConsumerStatefulWidget {
   final String transactionType;
@@ -407,6 +407,19 @@ class _TransactionCreationPageState
               debugPrint(
                   "  - Stored in item['subcategoryName']: ${item['subcategoryName']}");
               setState(() {});
+            }
+          },
+          onSubcategoryTap: () {
+            if (_selectedCategory == null) {
+              Fluttertoast.showToast(
+                msg: "La catégorie doit être sélectionnée en premier",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 2,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
             }
           },
           onRemove: () => _module.removeSubcategoryAmount(

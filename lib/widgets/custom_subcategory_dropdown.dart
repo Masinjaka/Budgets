@@ -2,6 +2,7 @@ import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:vibration/vibration.dart';
 
 class CustomSubcategoryDropdown extends ConsumerStatefulWidget {
   const CustomSubcategoryDropdown({
@@ -13,6 +14,7 @@ class CustomSubcategoryDropdown extends ConsumerStatefulWidget {
     this.validator,
     this.selectedValue,
     this.enabled = true,
+    this.onTap,
   });
 
   final Widget title;
@@ -22,6 +24,7 @@ class CustomSubcategoryDropdown extends ConsumerStatefulWidget {
   final Map<String, String>? validator;
   final Subcategory? selectedValue;
   final bool enabled;
+  final VoidCallback? onTap;
 
   @override
   ConsumerState<CustomSubcategoryDropdown> createState() =>
@@ -33,14 +36,11 @@ class _CustomSubcategoryDropdownState
     with SingleTickerProviderStateMixin {
   Subcategory? _selectedItem;
   bool _isDropdownOpen = false;
-  final GlobalKey _dropdownKey = GlobalKey();
-  OverlayEntry? _overlayEntry;
   late AnimationController _animationController;
   late Animation<double> _dropdownAnimation;
   late TextEditingController _searchController;
   late FocusNode _focusNode;
   List<Subcategory> _filteredItems = [];
-  final LayerLink _layerLink = LayerLink();
 
   @override
   void initState() {
@@ -89,17 +89,12 @@ class _CustomSubcategoryDropdownState
     }
 
     if ((!widget.enabled || widget.items.isEmpty) && _isDropdownOpen) {
-      _removeOverlay();
+      _closeDropdown();
     }
   }
 
   @override
   void dispose() {
-    if (_overlayEntry != null) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-      _isDropdownOpen = false;
-    }
     _searchController.removeListener(_onSearchChanged);
     _focusNode.removeListener(_onFocusChanged);
     _searchController.dispose();
@@ -111,23 +106,22 @@ class _CustomSubcategoryDropdownState
   void _onSearchChanged() {
     _filterItems(_searchController.text);
     if (!_isDropdownOpen && _focusNode.hasFocus) {
-      _showOverlay();
-    } else if (_isDropdownOpen) {
-      // Force overlay to rebuild with new filtered items
-      _overlayEntry?.markNeedsBuild();
+      _openDropdown();
     }
   }
 
   void _onFocusChanged() {
     if (_focusNode.hasFocus && !_isDropdownOpen) {
+      // Call onTap callback before showing dropdown
+      widget.onTap?.call();
       if (_searchController.text.isNotEmpty || widget.items.isNotEmpty) {
-        _showOverlay();
+        _openDropdown();
       }
     } else if (!_focusNode.hasFocus && _isDropdownOpen) {
       // Allow some delay for item selection
       Future.delayed(const Duration(milliseconds: 150), () {
         if (!_focusNode.hasFocus) {
-          _removeOverlay();
+          _closeDropdown();
           _handleCustomSubcategory();
         }
       });
@@ -178,96 +172,30 @@ class _CustomSubcategoryDropdownState
     if (!widget.enabled) return;
 
     if (_isDropdownOpen) {
-      _removeOverlay();
+      _closeDropdown();
     } else {
+      // Call onTap callback before showing dropdown
+      widget.onTap?.call();
       _focusNode.requestFocus();
-      _showOverlay();
+      _openDropdown();
     }
   }
 
-  void _showOverlay() {
-    if (_overlayEntry != null) return;
-
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          // Invisible barrier to detect clicks outside
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                _removeOverlay();
-                _handleCustomSubcategory();
-              },
-              child: Container(
-                color: Colors.transparent,
-              ),
-            ),
-          ),
-          // Actual dropdown using CompositedTransformFollower
-          CompositedTransformFollower(
-            link: _layerLink,
-            showWhenUnlinked: false,
-            offset: Offset(
-                0,
-                (_dropdownKey.currentContext!.findRenderObject() as RenderBox)
-                    .size
-                    .height),
-            child: Material(
-              color: Colors.transparent,
-              child: AnimatedBuilder(
-                animation: _dropdownAnimation,
-                builder: (context, child) {
-                  final size = (_dropdownKey.currentContext!.findRenderObject()
-                          as RenderBox)
-                      .size;
-
-                  return Transform.scale(
-                    scale: _dropdownAnimation.value,
-                    alignment: Alignment.topCenter,
-                    child: Opacity(
-                      opacity: _dropdownAnimation.value,
-                      child: Container(
-                        width: size.width,
-                        constraints: BoxConstraints(
-                          maxHeight: 40.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceDim,
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(5.w),
-                            bottomRight: Radius.circular(5.w),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(5.w),
-                            bottomRight: Radius.circular(5.w),
-                          ),
-                          child: _buildDropdownContent(),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    Overlay.of(context).insert(_overlayEntry!);
+  void _openDropdown() {
     setState(() {
       _isDropdownOpen = true;
     });
     _animationController.forward();
+  }
+
+  void _closeDropdown() {
+    _animationController.reverse().then((_) {
+      if (mounted) {
+        setState(() {
+          _isDropdownOpen = false;
+        });
+      }
+    });
   }
 
   Widget _buildDropdownContent() {
@@ -279,6 +207,7 @@ class _CustomSubcategoryDropdownState
 
     if (!hasFilteredItems && !showCustomOption) {
       return Container(
+        width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
         child: Text(
           searchText.isEmpty
@@ -307,7 +236,7 @@ class _CustomSubcategoryDropdownState
                   _searchController.text = item.name ?? '';
                 });
                 widget.onChanged?.call(item);
-                _removeOverlay();
+                _closeDropdown();
                 _focusNode.unfocus();
               },
               child: Container(
@@ -361,46 +290,59 @@ class _CustomSubcategoryDropdownState
                 margin: EdgeInsets.symmetric(horizontal: 4.w),
                 color: Theme.of(context).dividerColor,
               ),
-            GestureDetector(
-              onTap: () {
-                final customSubcategory = Subcategory(name: searchText);
-                setState(() {
-                  _selectedItem = customSubcategory;
-                });
-                widget.onChanged?.call(customSubcategory);
-                _removeOverlay();
-                _focusNode.unfocus();
-              },
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.add_circle_outline,
-                      size: 16.sp,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.color
-                          ?.withOpacity(0.7),
+            SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                child: GestureDetector(
+                  onTap: () async {
+                    // Haptic feedback
+                    if (await Vibration.hasVibrator() ?? false) {
+                      Vibration.vibrate(duration: 10);
+                    }
+                    
+                    final customSubcategory = Subcategory(name: searchText);
+                    setState(() {
+                      _selectedItem = customSubcategory;
+                    });
+                    widget.onChanged?.call(customSubcategory);
+                    _closeDropdown();
+                    _focusNode.unfocus();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 4.w),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                    SizedBox(width: 2.w),
-                    Expanded(
-                      child: Text(
-                        'Créer "$searchText"',
-                        style: TextStyle(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.add_circle_outline,
+                          size: 16.sp,
                           color: Theme.of(context)
                               .textTheme
                               .bodyLarge
                               ?.color
-                              ?.withOpacity(0.8),
-                          fontSize: 14.sp,
-                          fontStyle: FontStyle.italic,
+                              ?.withOpacity(0.9),
                         ),
-                      ),
+                        SizedBox(width: 2.w),
+                        Text(
+                          'Créer "$searchText"',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.color
+                                ?.withOpacity(0.9),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -408,22 +350,6 @@ class _CustomSubcategoryDropdownState
         ],
       ),
     );
-  }
-
-  void _removeOverlay() {
-    if (_overlayEntry == null) return;
-
-    _animationController.reverse().then((_) {
-      if (_overlayEntry != null) {
-        _overlayEntry!.remove();
-        _overlayEntry = null;
-        if (mounted) {
-          setState(() {
-            _isDropdownOpen = false;
-          });
-        }
-      }
-    });
   }
 
   @override
@@ -448,8 +374,8 @@ class _CustomSubcategoryDropdownState
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Input field
                 Container(
-                  key: _dropdownKey,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceDim,
                     borderRadius: _isDropdownOpen
@@ -459,63 +385,95 @@ class _CustomSubcategoryDropdownState
                           )
                         : BorderRadius.circular(5.w),
                   ),
-                  child: CompositedTransformTarget(
-                    link: _layerLink,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _searchController,
-                            focusNode: _focusNode,
-                            enabled: widget.enabled,
-                            decoration: InputDecoration(
-                              hintText: widget.hint ??
-                                  'Sélectionnez ou tapez une sous-catégorie',
-                              hintStyle: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color
-                                    ?.withOpacity(0.6),
-                                fontSize: 15.sp,
-                              ),
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 4.w,
-                                vertical: 1.5.h,
-                              ),
-                            ),
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodyLarge?.color,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _searchController,
+                          focusNode: _focusNode,
+                          enabled: widget.enabled,
+                          decoration: InputDecoration(
+                            hintText: widget.hint ??
+                                'Sélectionnez ou tapez une sous-catégorie',
+                            hintStyle: TextStyle(
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.color
+                                  ?.withOpacity(0.6),
                               fontSize: 15.sp,
                             ),
-                            onTap: () {
-                              if (!_isDropdownOpen) {
-                                _showOverlay();
-                              }
-                            },
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: _toggleDropdown,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 4.w),
-                            child: Icon(
-                              _isDropdownOpen
-                                  ? Icons.arrow_drop_up
-                                  : Icons.arrow_drop_down,
-                              color:
-                                  Theme.of(context).textTheme.bodyLarge?.color,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 4.w,
+                              vertical: 1.5.h,
                             ),
                           ),
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).textTheme.bodyLarge?.color,
+                            fontSize: 15.sp,
+                          ),
+                          onTap: () {
+                            if (!_isDropdownOpen) {
+                              widget.onTap?.call();
+                              _openDropdown();
+                            }
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                      GestureDetector(
+                        onTap: _toggleDropdown,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 4.w),
+                          child: Icon(
+                            _isDropdownOpen
+                                ? Icons.arrow_drop_up
+                                : Icons.arrow_drop_down,
+                            color:
+                                Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                
+                // Dropdown content - directly in widget tree
+                if (_isDropdownOpen)
+                  SizeTransition(
+                    sizeFactor: _dropdownAnimation,
+                    axisAlignment: -1.0,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: 40.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceDim,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(5.w),
+                          bottomRight: Radius.circular(5.w),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(5.w),
+                          bottomRight: Radius.circular(5.w),
+                        ),
+                        child: _buildDropdownContent(),
+                      ),
+                    ),
+                  ),
+                
                 if (state.hasError)
                   Padding(
                     padding: EdgeInsets.only(top: 1.h, left: 3.w),

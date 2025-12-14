@@ -10,6 +10,7 @@ class SubcategoryAmountRow extends StatelessWidget {
   final ValueChanged<String>? onAmountChanged;
   final ValueChanged<Subcategory?>? onSubcategoryChanged;
   final bool enabled;
+  final VoidCallback? onSubcategoryTap;
 
   const SubcategoryAmountRow({
     super.key,
@@ -19,6 +20,7 @@ class SubcategoryAmountRow extends StatelessWidget {
     this.onAmountChanged,
     this.onSubcategoryChanged,
     this.enabled = true,
+    this.onSubcategoryTap,
   });
 
   @override
@@ -43,8 +45,7 @@ class SubcategoryAmountRow extends StatelessWidget {
                 items: subcategories,
                 selectedValue: item['subcategory'] as Subcategory?,
                 onChanged: enabled ? onSubcategoryChanged : null,
-                enabled: enabled,
-              ),
+                enabled: enabled,                onTap: onSubcategoryTap,              ),
               SizedBox(height: 1.h),
               TextFormField(
                 controller: item['amountController'] as TextEditingController?,

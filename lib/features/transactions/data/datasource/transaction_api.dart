@@ -124,11 +124,14 @@ class TransactionsApi {
       Map<String, String>? subcategoryAmounts,
       TransactionType? transactionType) {
     return Wrapper.execute(() async {
+      // Ensure description is never null, default to empty string
+      final validDescription = description?.trim() ?? "";
+      
       final response = await _supabaseClient.rpc(
         'add_expenses',
         params: {
           'amount': amount,
-          'description': description,
+          'description': validDescription,
           'category_name': categoryName,
           'tr_type': transactionType?.value ?? TransactionType.expense.value,
           'subcategories_amount': subcategoryAmounts,

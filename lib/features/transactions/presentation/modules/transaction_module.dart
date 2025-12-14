@@ -327,15 +327,19 @@ class TransactionModule {
       debugPrint("🗺️ FINAL SUBCATEGORY MAP: $subcategoryMap");
       debugPrint("💰 TOTAL AMOUNT: $totalAmount");
 
+      final description = descriptionController.text.trim().isEmpty 
+          ? "" 
+          : descriptionController.text.trim();
+      
       debugPrint("Calling Supabase RPC with:");
       debugPrint("Total Amount: $totalAmount");
-      debugPrint("Description: ${descriptionController.text.trim()}");
+      debugPrint("Description: $description");
       debugPrint("Category: ${selectedCategory.name ?? ''}");
       debugPrint("Subcategory Map: $subcategoryMap");
 
       final transactionAdded = await addTransaction(
         amount: totalAmount.toString(),
-        description: descriptionController.text.trim(),
+        description: description,
         categoryName: selectedCategory.name ?? '',
         subcategoryAmounts: subcategoryMap,
         transactionType: transactionType,
@@ -358,9 +362,13 @@ class TransactionModule {
       }
     } else {
       // Single amount mode
+      final description = descriptionController.text.trim().isEmpty 
+          ? "" 
+          : descriptionController.text.trim();
+      
       final transactionAdded = await addTransaction(
         amount: montantController.text.trim(),
-        description: descriptionController.text.trim(),
+        description: description,
         categoryName: selectedCategory.name ?? '',
         subcategoryAmounts: null,
         transactionType: transactionType,
