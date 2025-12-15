@@ -4,8 +4,13 @@ Changes in this version:
 
 New feature:
 
-    - Add setting pages
-    - Delete user feature added
-    - Change password feature added
+    [Fix]
+        - Adding detailed transaction
+    [feature]
+        - Added dark/light mode selection
+        - Added statistics
+        - Added haptic feedback
+    [Improvement]
+        - UI Improvements    
 
 Enjoy testing!
