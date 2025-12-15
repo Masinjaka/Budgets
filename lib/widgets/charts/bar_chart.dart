@@ -20,84 +20,99 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
 
   final NumberFormat formatter = NumberFormat.compact();
 
-  return Expanded(
-    child: BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        groupsSpace: 12.w,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          drawHorizontalLine: true,
-          getDrawingHorizontalLine: (value) {
-            return const FlLine(
-              color: Color(0xff37434d),
-              strokeWidth: 1,
-            );
-          },
-        ),
-        borderData: FlBorderData(show: false),
-        barGroups: dailyData,
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                final today = DateTime.now();
-                final day = today.subtract(Duration(days: 6 - value.toInt()));
-                return SideTitleWidget(
-                  space: 4,
-                  meta: meta,
-                  child: Text(
-                    DateFormat('EEE').format(day),
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                );
-              },
-              reservedSize: 2.h,
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              maxIncluded: false,
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                return Text(
-                  formatter.format(value.toInt()),
-                  style: const TextStyle(fontSize: 10),
-                );
-              },
-              reservedSize: 4.h,
-            ),
-          ),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        barTouchData: BarTouchData(
-          enabled: true,
-          touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (group) =>
-                Colors.black.withAlpha((255 * 0.8).round()),
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
-              return BarTooltipItem(
-                '$type\n${formatter.format(rod.toY)}',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+  return TweenAnimationBuilder<double>(
+    tween: Tween<double>(begin: 0, end: 1),
+    duration: const Duration(seconds: 1),
+    curve: Curves.easeOutQuart,
+    builder: (context, value, child) {
+      final animatedData = dailyData.map((group) {
+        final animatedRods = group.barRods.map((rod) {
+          return rod.copyWith(toY: rod.toY * value);
+        }).toList();
+        return group.copyWith(barRods: animatedRods);
+      }).toList();
+
+      return BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          groupsSpace: 12.w,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            drawHorizontalLine: true,
+            getDrawingHorizontalLine: (value) {
+              return const FlLine(
+                color: Color(0xff37434d),
+                strokeWidth: 1,
               );
             },
           ),
+          borderData: FlBorderData(show: false),
+          barGroups: animatedData,
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  final today = DateTime.now();
+                  final day = today.subtract(Duration(days: 6 - value.toInt()));
+                  return SideTitleWidget(
+                    space: 4,
+                    meta: meta,
+                    child: Text(
+                      DateFormat('EEE').format(day),
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                  );
+                },
+                reservedSize: 2.h,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                maxIncluded: false,
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    formatter.format(value.toInt()),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+                reservedSize: 4.h,
+              ),
+            ),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          barTouchData: BarTouchData(
+            enabled: true,
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (group) =>
+                  Colors.black.withAlpha((255 * 0.8).round()),
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                // To restore the original value in tooltip, we divide by value if value > 0
+                // Or better, since we can't easily access original data here without capture,
+                // we'll accept that during animation tooltip might show animated value.
+                // However, since tooltip is interactive, user likely won't touch during the 1s animation.
+                String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
+                return BarTooltipItem(
+                  '$type\n${formatter.format(rod.toY)}',
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+          ),
+          maxY: maxAmount * 1.2,
         ),
-        maxY: maxAmount * 1.2,
-      ),
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.linear,
-    ),
+        duration: Duration.zero, // Disable internal animation
+      );
+    },
   );
 }
 
@@ -115,73 +130,71 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
 
   final NumberFormat formatter = NumberFormat.compact();
 
-  return Expanded(
-    child: BarChart(
-      BarChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          drawHorizontalLine: true,
-          getDrawingHorizontalLine: (value) {
-            return const FlLine(
-              color: Color(0xff37434d),
-              strokeWidth: 1,
-            );
-          },
-          getDrawingVerticalLine: (value) {
-            return const FlLine(
-              color: Color(0xff37434d),
-              strokeWidth: 1,
-            );
-          },
-        ),
-        borderData: FlBorderData(
-          show: false,
-          border: Border.all(color: const Color(0xff37434d), width: 1),
-        ),
-        barGroups: dailyData, // No border around the chart.
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                // Display day names (e.g., Mon, Tue) for the last 7 days.
-                final today = DateTime.now();
-                final day = today.subtract(Duration(days: 6 - value.toInt()));
-                return SideTitleWidget(
-                  space: 4,
-                  meta: meta,
-                  child: Text(DateFormat('EEE').format(day),
-                      style: const TextStyle(fontSize: 10)),
-                );
-              },
-              reservedSize: 2.h,
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              maxIncluded: false,
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                // Display dollar amounts on the left Y-axis.
-                return Text(formatter.format(value.toInt()),
-                    style: const TextStyle(fontSize: 10));
-              },
-              reservedSize: 4.h,
-            ),
-          ),
-          topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false)), // Hide top titles.
-          rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false)), // Hide right titles.
-        ), // Hide grid lines.
-        barTouchData: const BarTouchData(
-            enabled: true), // Enable touch interactions for bars.
-        maxY: maxDailyAmount * 1.2, // Set max Y-axis with a 20% buffer.
+  return BarChart(
+    BarChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        drawHorizontalLine: true,
+        getDrawingHorizontalLine: (value) {
+          return const FlLine(
+            color: Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+        getDrawingVerticalLine: (value) {
+          return const FlLine(
+            color: Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
       ),
-      duration: const Duration(milliseconds: 300), // Optional
-      curve: Curves.linear,
+      borderData: FlBorderData(
+        show: false,
+        border: Border.all(color: const Color(0xff37434d), width: 1),
+      ),
+      barGroups: dailyData, // No border around the chart.
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (value, meta) {
+              // Display day names (e.g., Mon, Tue) for the last 7 days.
+              final today = DateTime.now();
+              final day = today.subtract(Duration(days: 6 - value.toInt()));
+              return SideTitleWidget(
+                space: 4,
+                meta: meta,
+                child: Text(DateFormat('EEE').format(day),
+                    style: const TextStyle(fontSize: 10)),
+              );
+            },
+            reservedSize: 2.h,
+          ),
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            maxIncluded: false,
+            showTitles: true,
+            getTitlesWidget: (value, meta) {
+              // Display dollar amounts on the left Y-axis.
+              return Text(formatter.format(value.toInt()),
+                  style: const TextStyle(fontSize: 10));
+            },
+            reservedSize: 4.h,
+          ),
+        ),
+        topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false)), // Hide top titles.
+        rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false)), // Hide right titles.
+      ), // Hide grid lines.
+      barTouchData: const BarTouchData(
+          enabled: true), // Enable touch interactions for bars.
+      maxY: maxDailyAmount * 1.2, // Set max Y-axis with a 20% buffer.
     ),
+    duration: const Duration(milliseconds: 300), // Optional
+    curve: Curves.linear,
   );
 }

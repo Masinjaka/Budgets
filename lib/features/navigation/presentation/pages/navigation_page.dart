@@ -51,19 +51,21 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
               },
               isActive: widget.navigationShell.currentIndex == 2,
             ),
-            // CustomNavItem(
-            //   icon: Icons.query_stats,
-            //   title: 'Vue d\'ensemble',
-            //   onTap: () => widget.navigationShell.goBranch(2),
-            //   isActive: widget.navigationShell.currentIndex == 2,
-            // ),
             CustomNavItem(
-              icon: Icons.person,
-              title: 'Profil',
+              icon: Icons.query_stats,
+              title: 'Stats',
               onTap: () {
                 widget.navigationShell.goBranch(3);
               },
               isActive: widget.navigationShell.currentIndex == 3,
+            ),
+            CustomNavItem(
+              icon: Icons.person,
+              title: 'Profil',
+              onTap: () {
+                widget.navigationShell.goBranch(4);
+              },
+              isActive: widget.navigationShell.currentIndex == 4,
             ),
           ],
         ),

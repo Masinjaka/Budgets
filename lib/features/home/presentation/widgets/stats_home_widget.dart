@@ -34,15 +34,17 @@ class StatsHomeWidget extends StatelessWidget {
             ],
           ),
           SizedBox(height: 2.h),
-          switch (asyncExpenses) {
-            AsyncData(:final value) => dailyBarChart(value),
-            AsyncError(:final error) => Text('error: $error'),
-            _ => const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.grey,
+          Expanded(
+            child: switch (asyncExpenses) {
+              AsyncData(:final value) => dailyBarChart(value),
+              AsyncError(:final error) => Text('error: $error'),
+              _ => const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-          },
+            },
+          ),
         ],
       ),
     );
