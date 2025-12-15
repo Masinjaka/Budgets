@@ -2,6 +2,7 @@ import 'package:budgets/features/auth/presentation/controllers/auth_controller.d
 import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
+import 'package:budgets/features/settings/presentation/widgets/theme_selection_dialog.dart';
 import 'package:budgets/features/settings/presentation/widgets/user_card.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -51,120 +52,134 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w),
-          child: SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const UserCard(),
-                    SizedBox(height: 4.h),
-                    SettingSection(
-                      title: 'Profil',
-                      children: [
-                        SizedBox(height: 2.h),
-                        SettingCard(
-                          title: 'Modifier le profil',
-                          iconData: Icons.person_outline,
-                          onTap: () {
-                            context.push('/edit-profile');
-                          },
-                        ),
-                        SizedBox(height: 2.h),
-                        SettingCard(
-                          title: 'Changer le mot de passe',
-                          iconData: Icons.lock_outline,
-                          onTap: () {
-                            context.push('/edit-password');
-                          },
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
-                    SettingSection(
-                      title: 'Préférences',
-                      children: [
-                        SizedBox(height: 2.h),
-                        SettingCard(
-                          title: 'Activer la notification',
-                          iconData: Icons.notifications_outlined,
-                          useSwitch: true,
-                          onSwitchChanged: (value) {
-                            // Handle switch change
-                          },
-                          onTap: () {
-                            // Toggle push notification settings
-                          },
-                        ),
-                        SizedBox(height: 2.h),
-                        SettingCard(
-                          title: 'Devise',
-                          iconData: Icons.attach_money_outlined,
-                          onTap: () {
-                            // Open currency selection dialog
-                          },
-                          showSuffixSettingChoice: true,
-                          settingChoice: 'MGA',
-                        ),
-                        SizedBox(height: 2.h),
-                        SettingCard(
-                          title: 'Apparence',
-                          iconData: Icons.dark_mode_outlined,
-                          onTap: () => _showThemeDialog(
-                              context, ref.read(themeProvider.notifier)),
-                          showSuffixSettingChoice: true,
-                          settingChoice:
-                              _themeModeToString(ref.watch(themeProvider)),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
-                    SettingSection(
-                      title: 'Support & légal',
-                      children: [
-                        SizedBox(height: 2.h),
-                        SettingCard(
-                          title: 'Centre d\'aide',
-                          iconData: Icons.contact_support_outlined,
-                          onTap: () {
-                            // Navigate to support web page
-                          },
-                        ),
-                        SizedBox(height: 2.h),
-                        SettingCard(
-                          title: 'CGU',
-                          iconData: Icons.article_outlined,
-                          onTap: () {
-                            // Navigate to terms and privacy policy web page
-                          },
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
-                    _buildSignoutButton(),
-                    SizedBox(height: 1.h),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 2.h),
-                        child: Text(
-                          'Version ${_appVersion.isEmpty ? '...' : _appVersion}',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            color: Colors.grey,
-                          ),
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          'Paramètres',
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        child: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const UserCard(),
+                  SizedBox(height: 4.h),
+                  SettingSection(
+                    title: 'Profil',
+                    children: [
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Modifier le profil',
+                        iconData: Icons.person_outline,
+                        onTap: () {
+                          context.push('/edit-profile');
+                        },
+                      ),
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Changer le mot de passe',
+                        iconData: Icons.lock_outline,
+                        onTap: () {
+                          context.push('/edit-password');
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  SettingSection(
+                    title: 'Préférences',
+                    children: [
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Activer la notification',
+                        iconData: Icons.notifications_outlined,
+                        useSwitch: true,
+                        onSwitchChanged: (value) {
+                          // Handle switch change
+                        },
+                        onTap: () {
+                          // Toggle push notification settings
+                        },
+                      ),
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Devise',
+                        iconData: Icons.attach_money_outlined,
+                        onTap: () {
+                          // Open currency selection dialog
+                        },
+                        showSuffixSettingChoice: true,
+                        settingChoice: 'MGA',
+                      ),
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Apparence',
+                        iconData: Icons.dark_mode_outlined,
+                        onTap: () => _showThemeDialog(
+                            context, ref.read(themeProvider.notifier)),
+                        showSuffixSettingChoice: true,
+                        settingChoice:
+                            _themeModeToString(ref.watch(themeProvider)),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  SettingSection(
+                    title: 'Support & légal',
+                    children: [
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Centre d\'aide',
+                        iconData: Icons.contact_support_outlined,
+                        onTap: () {
+                          // Navigate to support web page
+                        },
+                      ),
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'CGU',
+                        iconData: Icons.article_outlined,
+                        onTap: () {
+                          // Navigate to terms and privacy policy web page
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  _buildSignoutButton(),
+                  SizedBox(height: 1.h),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 2.h),
+                      child: Text(
+                        'Version ${_appVersion.isEmpty ? '...' : _appVersion}',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          color: Colors.grey,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              )),
-        ),
+                  ),
+                ],
+              ),
+            )),
       ),
     );
   }
@@ -185,31 +200,18 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Apparence'),
-          children: <Widget>[
-            SimpleDialogOption(
-              onPressed: () {
-                themeNotifier.setTheme(ThemeOptions.light);
-                Navigator.pop(context);
-              },
-              child: const Text('Jour'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                themeNotifier.setTheme(ThemeOptions.dark);
-                Navigator.pop(context);
-              },
-              child: const Text('Nuit'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                themeNotifier.setTheme(ThemeOptions.system);
-                Navigator.pop(context);
-              },
-              child: const Text('Système'),
-            ),
-          ],
+        return ThemeSelectionDialog(
+          currentTheme: ref.read(themeProvider),
+          onThemeChanged: (option) {
+            themeNotifier.setTheme(option);
+            // Optional: Close dialog on selection or let user close it by tapping outside/back
+            // Navigator.pop(context);
+            // Better to keep it open to see effect?
+            // User requested "theme selection dialog", standard tabs usually persist selection.
+            // But immediate switch feels good.
+            // Let's keep it open so they can switch back if they don't like it,
+            // they can dismiss by tapping outside.
+          },
         );
       },
     );

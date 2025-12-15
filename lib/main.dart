@@ -106,6 +106,8 @@ class _MyAppState extends ConsumerState<MyApp> {
       GoRoute(
           path: '/reset-password',
           builder: (context, state) => const ResetPasswordPage()),
+      GoRoute(
+          path: '/settings', builder: (context, state) => const SettingPage()),
       // Shell with IndexedStack to preserve state across tabs
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -140,14 +142,6 @@ class _MyAppState extends ConsumerState<MyApp> {
               GoRoute(
                 path: '/stats',
                 builder: (context, state) => const StatsPage(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/settings',
-                builder: (context, state) => const SettingPage(),
               ),
             ],
           ),

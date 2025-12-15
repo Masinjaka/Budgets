@@ -67,13 +67,10 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                 decoration: BoxDecoration(
-                  color:
-                      isSelected ? AppTheme.primaryGreen : Colors.transparent,
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(25),
-                  border: Border.all(
-                    color: isSelected ? AppTheme.primaryGreen : Colors.white,
-                    width: isSelected ? 1.5 : 0.8,
-                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -89,7 +86,9 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
                     Text(
                       category.name ?? 'Unknown',
                       style: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white,
+                        color: isSelected
+                            ? Colors.white
+                            : Theme.of(context).textTheme.bodyMedium?.color,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,
                       ),

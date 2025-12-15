@@ -59,14 +59,6 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
               },
               isActive: widget.navigationShell.currentIndex == 3,
             ),
-            CustomNavItem(
-              icon: Icons.person,
-              title: 'Profil',
-              onTap: () {
-                widget.navigationShell.goBranch(4);
-              },
-              isActive: widget.navigationShell.currentIndex == 4,
-            ),
           ],
         ),
       ),

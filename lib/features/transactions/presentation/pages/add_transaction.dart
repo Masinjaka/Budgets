@@ -186,7 +186,7 @@ class _TransactionCreationPageState
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       fontSize: 24.sp,
-                      height: 16.h,// Increase vertical padding
+                      height: 16.h, // Increase vertical padding
                       width: double.infinity,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(5.w),
@@ -203,7 +203,7 @@ class _TransactionCreationPageState
                     hint: 'Ajouter une description (optionnel)',
                     controller: _descriptionController,
                     keyboardType: TextInputType.text,
-                    textAlign: TextAlign.center ,
+                    textAlign: TextAlign.center,
                     maxLines: null,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5.w),
@@ -304,24 +304,20 @@ class _TransactionCreationPageState
     return AppBar(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      automaticallyImplyLeading: false,
+      centerTitle: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => context.pop(),
+      ),
       title: Text(
         transactionType == TransactionType.income
             ? 'Nouveau revenu'
             : 'Nouvelle dépense',
         style: TextStyle(
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.bold,
           fontSize: 18.sp,
         ),
       ),
-      actions: [
-        IconButton(
-            onPressed: () => context.pop(),
-            icon: Icon(
-              Icons.close,
-              size: 21.sp,
-            )),
-      ],
     );
   }
 
@@ -389,11 +385,9 @@ class _TransactionCreationPageState
           onAmountChanged: (value) {
             final subcategoryName = item['subcategoryName'] as String?;
             debugPrint("💰 AMOUNT CHANGED:");
-            debugPrint(
-                "  - Subcategory: ${subcategoryName ?? 'Not selected'}");
+            debugPrint("  - Subcategory: ${subcategoryName ?? 'Not selected'}");
             debugPrint("  - Amount: $value");
-            debugPrint(
-                "  - Item index: ${_subcategoryAmounts.indexOf(item)}");
+            debugPrint("  - Item index: ${_subcategoryAmounts.indexOf(item)}");
           },
           onSubcategoryChanged: (Subcategory? subcategory) {
             if (subcategory != null) {

@@ -19,7 +19,7 @@ class SettingSection extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 8.0),
+        SizedBox(height: 1.h),
         Column(children: children)
       ],
     );

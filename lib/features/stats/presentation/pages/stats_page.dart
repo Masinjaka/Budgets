@@ -50,45 +50,77 @@ class _StatsPageState extends ConsumerState<StatsPage>
               color: textColor,
             ),
           ),
-          bottom: TabBar(
-            controller: _tabController,
-            labelColor: AppTheme.primaryGreen,
-            unselectedLabelColor: textColor?.withOpacity(0.6),
-            indicatorColor: AppTheme.primaryGreen,
-            labelStyle: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.normal,
-            ),
-            tabs: const [
-              Tab(text: 'Jour'),
-              Tab(text: 'Semaine'),
-              Tab(text: 'Mois'),
-              Tab(text: 'Année'),
-            ],
-          ),
         ),
-        body: asyncTransactions.when(
-          data: (transactions) => TabBarView(
-            controller: _tabController,
-            children: [
-              _buildDailyView(transactions, surfaceDim, textColor),
-              _buildWeeklyView(transactions, surfaceDim, textColor),
-              _buildMonthlyView(transactions, surfaceDim, textColor),
-              _buildYearlyView(transactions, surfaceDim, textColor),
-            ],
-          ),
-          loading: () => const Center(
-            child: CircularProgressIndicator(
-              color: AppTheme.primaryGreen,
+        body: Column(
+          children: [
+            SizedBox(height: 2.h),
+            // Modern Pill Tab Bar
+            Center(
+              child: Container(
+                width: 90.w,
+                decoration: BoxDecoration(
+                  color: surfaceDim,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                padding: EdgeInsets.all(1.w),
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    color: AppTheme.primaryGreen,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: textColor,
+                  labelStyle: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  unselectedLabelStyle: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  splashFactory: NoSplash.splashFactory,
+                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) {
+                      return states.contains(WidgetState.focused)
+                          ? null
+                          : Colors.transparent;
+                    },
+                  ),
+                  tabs: const [
+                    Tab(text: 'Jour'),
+                    Tab(text: 'Semaine'),
+                    Tab(text: 'Mois'),
+                    Tab(text: 'Année'),
+                  ],
+                ),
+              ),
             ),
-          ),
-          error: (error, stack) => Center(
-            child: Text('Erreur: $error'),
-          ),
+            SizedBox(height: 1.h),
+            Expanded(
+              child: asyncTransactions.when(
+                data: (transactions) => TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildDailyView(transactions, surfaceDim, textColor),
+                    _buildWeeklyView(transactions, surfaceDim, textColor),
+                    _buildMonthlyView(transactions, surfaceDim, textColor),
+                    _buildYearlyView(transactions, surfaceDim, textColor),
+                  ],
+                ),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryGreen,
+                  ),
+                ),
+                error: (error, stack) => Center(
+                  child: Text('Erreur: $error'),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

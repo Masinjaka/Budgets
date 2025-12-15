@@ -1,5 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CustomButton extends StatefulWidget {
@@ -34,7 +35,12 @@ class _CustomButtonState extends State<CustomButton> {
       width: widget.width ?? double.infinity,
       height: widget.height ?? 5.5.h,
       child: ElevatedButton(
-        onPressed: widget.onPressed,
+        onPressed: widget.onPressed != null
+            ? () {
+                HapticFeedback.mediumImpact();
+                widget.onPressed!();
+              }
+            : null,
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(
             widget.backgroundColor ?? AppTheme.primaryGreen,

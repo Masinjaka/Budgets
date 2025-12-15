@@ -114,6 +114,8 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
         TransactionUtils.extractCategoriesFromTransactions(incomes);
 
     return RefreshIndicator(
+      notificationPredicate:
+          isSearchFocused ? (_) => false : defaultScrollNotificationPredicate,
       onRefresh: () async {
         await ref.read(paginatedIncomesProvider.notifier).refresh();
       },

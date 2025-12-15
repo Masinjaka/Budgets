@@ -1,4 +1,5 @@
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:go_router/go_router.dart';
 import 'package:budgets/features/categories/presentation/modules/categori_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -57,9 +58,6 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(4.w)),
-            border: Border(
-              top: BorderSide(color: Theme.of(context).dividerColor),
-            ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(4.w)),
@@ -67,7 +65,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
               config: Config(
                 searchViewConfig: SearchViewConfig(
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  buttonIconColor: Theme.of(context).iconTheme.color ?? Colors.white,
+                  buttonIconColor:
+                      Theme.of(context).iconTheme.color ?? Colors.white,
                   hintText: 'Rechercher un emoji',
                   hintTextStyle: TextStyle(
                     fontSize: 15.sp,
@@ -83,8 +82,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                 categoryViewConfig: CategoryViewConfig(
                   backgroundColor: Theme.of(context).cardColor,
                   tabBarHeight: 7.h,
-                  iconColorSelected: Theme.of(context).iconTheme.color ?? Colors.white,
-                  backspaceColor: Theme.of(context).iconTheme.color ?? Colors.white,
+                  iconColorSelected:
+                      Theme.of(context).iconTheme.color ?? Colors.white,
+                  backspaceColor:
+                      Theme.of(context).iconTheme.color ?? Colors.white,
                   indicatorColor: Theme.of(context).primaryColor,
                 ),
                 emojiViewConfig: EmojiViewConfig(
@@ -100,10 +101,6 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                       height: 5.h,
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
-                        border: Border(
-                          top:
-                              BorderSide(color: Theme.of(context).dividerColor),
-                        ),
                       ),
                       child: Center(
                         child: GestureDetector(
@@ -175,11 +172,14 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
         title: Text(
-          _isEditing
-              ? 'Modifier la catégorie'
-              : 'Créer une catégorie ${transactionType == TransactionType.income ? 'de revenu' : 'de dépense'}',
-          style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.w600),
+          _isEditing ? 'Modifier la catégorie' : 'Créer une catégorie',
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -188,7 +188,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
       body: _form(context),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(4.w, 0, 4.w, 2.h),
+          padding: EdgeInsets.fromLTRB(6.w, 0, 6.w, 2.h),
           child: Row(
             children: [
               Expanded(
@@ -245,7 +245,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          padding: EdgeInsets.symmetric(horizontal: 6.w),
           child: SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -258,9 +258,6 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(5.w),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor,
-                      ),
                     ),
                     child: CustomTextField(
                       title: Wrap(
@@ -294,9 +291,6 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(5.w),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor,
-                      ),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5.w),
@@ -370,9 +364,6 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(5.w),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor,
-                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -471,9 +462,6 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(5.w),
-                          border: Border.all(
-                            color: Theme.of(context).dividerColor,
-                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

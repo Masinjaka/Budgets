@@ -120,6 +120,8 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
         TransactionUtils.extractCategoriesFromTransactions(transactions);
 
     return RefreshIndicator(
+      notificationPredicate:
+          isSearchFocused ? (_) => false : defaultScrollNotificationPredicate,
       onRefresh: () async {
         await ref.read(paginatedExpensesProvider.notifier).refresh();
       },

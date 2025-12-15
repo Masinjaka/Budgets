@@ -64,7 +64,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                   SizedBox(height: 3.h),
                   SectionTitle(
                     title: 'Vue d\'ensemble',
-                    onTap: () {},
+                    onTap: () {
+                      context.go('/stats');
+                    },
                   ),
                   SizedBox(height: 3.h),
                   StatsHomeWidget(asyncExpenses: asyncTransactions),

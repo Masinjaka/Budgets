@@ -43,7 +43,7 @@ class _SettingCardState extends State<SettingCard> {
       },
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(3.w),
+        padding: EdgeInsets.all(2.w),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(5.w),

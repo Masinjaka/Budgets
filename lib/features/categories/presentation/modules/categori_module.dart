@@ -108,9 +108,6 @@ class CategoryModule {
               child: AlertDialog(
                 backgroundColor: Theme.of(dialogContext).cardColor,
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Theme.of(dialogContext).dividerColor,
-                  ),
                   borderRadius: BorderRadius.circular(5.w),
                 ),
                 title: Text(

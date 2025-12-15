@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -25,7 +26,10 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
     Color backgroundColor = Theme.of(context).cardColor;
 
     return InkWell(
-      onTap: widget.onTap,
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        widget.onTap?.call();
+      },
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       child: Column(
         mainAxisSize: MainAxisSize.min,

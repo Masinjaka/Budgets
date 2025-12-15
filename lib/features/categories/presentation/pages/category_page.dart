@@ -83,7 +83,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                 'Catégories',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 18.sp,
+                                  fontSize: 20.sp,
                                   color: Theme.of(context)
                                       .textTheme
                                       .bodyLarge
@@ -314,31 +314,32 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
       color: backgroundColor,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-        child: Align(
-          alignment: Alignment.centerLeft,
+        child: Center(
           child: Container(
-            width: 60.w, // Set a fixed width for the TabBar
-            height: 5.h,
+            width: 90.w,
             decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(8.w),
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(50),
             ),
+            padding: EdgeInsets.all(1.w),
             child: TabBar(
               controller: tabController,
-              labelColor: labelColor,
-              unselectedLabelColor: unselectedLabelColor,
-              overlayColor: WidgetStateProperty.all(Colors.transparent),
-              splashFactory: NoSplash.splashFactory,
-              splashBorderRadius: BorderRadius.circular(8.w),
-              indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(
-                  color: indicatorColor ?? Theme.of(context).primaryColor,
-                  width: 3.0,
-                ),
-                insets: EdgeInsets.symmetric(horizontal: 4.w),
+              indicator: BoxDecoration(
+                color: indicatorColor ?? Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(50),
               ),
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
+              labelColor: Colors.white,
+              unselectedLabelColor: unselectedLabelColor,
+              overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                (Set<WidgetState> states) {
+                  return states.contains(WidgetState.focused)
+                      ? null
+                      : Colors.transparent;
+                },
+              ),
+              splashFactory: NoSplash.splashFactory,
               labelStyle: TextStyle(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
@@ -348,24 +349,8 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
                 fontWeight: FontWeight.w500,
               ),
               tabs: [
-                Tab(
-                  child: Text(
-                    'Dépenses',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Tab(
-                  child: Text(
-                    'Revenus',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                Tab(text: 'Dépenses'),
+                Tab(text: 'Revenus'),
               ],
             ),
           ),

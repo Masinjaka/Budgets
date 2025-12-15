@@ -2,6 +2,7 @@ import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CustomGreetingAppBar extends ConsumerWidget
@@ -62,19 +63,38 @@ class CustomGreetingAppBar extends ConsumerWidget
                 ),
               ],
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                
-                  icon: Icon(
-                    Icons.notifications_none_rounded,
-                    size: 18.sp,
-                    color: Theme.of(context).colorScheme.inverseSurface,
+            Wrap(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    shape: BoxShape.circle,
                   ),
-                  onPressed: onNotificationPressed),
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.settings_outlined,
+                        size: 18.sp,
+                        color: Theme.of(context).colorScheme.inverseSurface,
+                      ),
+                      onPressed: () {
+                        context.push('/settings');
+                      }),
+                ),
+                SizedBox(width: 3.w),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.notifications_none_rounded,
+                        size: 18.sp,
+                        color: Theme.of(context).colorScheme.inverseSurface,
+                      ),
+                      onPressed: onNotificationPressed),
+                ),
+              ],
             ),
           ],
         ),

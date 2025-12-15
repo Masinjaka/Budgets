@@ -162,12 +162,20 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   final weekIndex = value.toInt();
+                  // Calculate date range for the week
+                  // weekIndex 3 is current week, 0 is 3 weeks ago
+                  final weeksBack = 3 - weekIndex;
+                  // Start of the week (Monday)
+                  final weekStart = now.subtract(
+                      Duration(days: now.weekday - 1 + (weeksBack * 7)));
+                  final weekEnd = weekStart.add(const Duration(days: 6));
+
                   return SideTitleWidget(
                     space: 4,
                     meta: meta,
                     child: Text(
-                      'S${weekIndex + 1}',
-                      style: const TextStyle(fontSize: 10),
+                      '${weekStart.day}-${weekEnd.day}',
+                      style: const TextStyle(fontSize: 9),
                     ),
                   );
                 },
