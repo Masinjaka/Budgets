@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:vibration/vibration.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 // A reusable button for actions like add, scan, or filter.
@@ -32,7 +32,7 @@ class ActionButton extends StatelessWidget {
       child: IconButton(
         icon: Icon(icon, color: iconColor),
         onPressed: () {
-          HapticFeedback.mediumImpact();
+          Vibration.vibrate(duration: 30);
           onPressed();
         },
       ),

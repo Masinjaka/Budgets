@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:vibration/vibration.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -27,7 +27,7 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
 
     return InkWell(
       onTap: () {
-        HapticFeedback.mediumImpact();
+        Vibration.vibrate(duration: 30);
         widget.onTap?.call();
       },
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),

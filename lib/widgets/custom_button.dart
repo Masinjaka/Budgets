@@ -1,6 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:vibration/vibration.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CustomButton extends StatefulWidget {
@@ -37,7 +37,7 @@ class _CustomButtonState extends State<CustomButton> {
       child: ElevatedButton(
         onPressed: widget.onPressed != null
             ? () {
-                HapticFeedback.mediumImpact();
+                Vibration.vibrate(duration: 30);
                 widget.onPressed!();
               }
             : null,
