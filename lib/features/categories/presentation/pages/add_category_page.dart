@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:go_router/go_router.dart';
 import 'package:budgets/features/categories/presentation/modules/categori_module.dart';
@@ -171,6 +172,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         centerTitle: true,
         leading: IconButton(
@@ -182,6 +184,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
           style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
+        flexibleSpace: const GlassFlexibleSpace(),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
@@ -243,199 +246,113 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   _form(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 2.h),
-                  Container(
-                    padding: EdgeInsets.all(2.h),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(5.w),
-                    ),
-                    child: CustomTextField(
-                      title: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 2.w,
-                        children: [
-                          const Icon(
-                            Icons.edit,
-                          ),
-                          Text(
-                            'Nom',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 15.5.sp,
-                            ),
-                          ),
-                        ],
-                      ),
-                      hint: 'Entre le nom de ta catégorie',
-                      controller: _categoryNameController,
-                      validator: const {
-                        'type': 'required',
-                        'error': 'Le nom de la catégorie est requis',
-                      },
-                    ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 12.h), // Top padding for glass effect
+                Container(
+                  padding: EdgeInsets.all(2.h),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(5.w),
                   ),
-                  SizedBox(height: 3.h),
-                  Container(
-                    height: 14.h,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(5.w),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(5.w),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  left: 2.h, top: 2.h, bottom: 2.h),
-                              child: CustomTextField(
-                                title: Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 2.w,
-                                  children: [
-                                    const Icon(
-                                      Icons.emoji_emotions,
-                                    ),
-                                    Text(
-                                      'Emoji',
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 15.5.sp,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                hint: 'Choisis un emoji pour ta catégorie',
-                                controller: _emoticonController,
-                                isReadOnly: true,
-                                onTap: () {
-                                  _showEmojiPicker(context);
-                                },
-                              ),
-                            ),
+                  child: CustomTextField(
+                    title: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 2.w,
+                      children: [
+                        const Icon(
+                          Icons.edit,
+                        ),
+                        Text(
+                          'Nom',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 15.5.sp,
                           ),
-                          Expanded(
-                            flex: 2,
-                            child: GestureDetector(
+                        ),
+                      ],
+                    ),
+                    hint: 'Entre le nom de ta catégorie',
+                    controller: _categoryNameController,
+                    validator: const {
+                      'type': 'required',
+                      'error': 'Le nom de la catégorie est requis',
+                    },
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                Container(
+                  height: 14.h,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(5.w),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5.w),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: 2.h, top: 2.h, bottom: 2.h),
+                            child: CustomTextField(
+                              title: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 2.w,
+                                children: [
+                                  const Icon(
+                                    Icons.emoji_emotions,
+                                  ),
+                                  Text(
+                                    'Emoji',
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 15.5.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              hint: 'Choisis un emoji pour ta catégorie',
+                              controller: _emoticonController,
+                              isReadOnly: true,
                               onTap: () {
                                 _showEmojiPicker(context);
                               },
-                              child: Padding(
-                                padding: EdgeInsets.all(4.w),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: _selectedColor ?? Colors.teal,
-                                      border: Border.all(
-                                        color: Theme.of(context).dividerColor,
-                                      ),
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                    child: Text(
-                                      _selectedEmoji ?? '',
-                                      style: TextStyle(
-                                        fontSize: 22.sp,
-                                      ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: GestureDetector(
+                            onTap: () {
+                              _showEmojiPicker(context);
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(4.w),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: _selectedColor ?? Colors.teal,
+                                    border: Border.all(
+                                      color: Theme.of(context).dividerColor,
+                                    ),
+                                    shape: BoxShape.circle),
+                                child: Center(
+                                  child: Text(
+                                    _selectedEmoji ?? '',
+                                    style: TextStyle(
+                                      fontSize: 22.sp,
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(5.w),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          height: 2.h,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 4.w),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 2.w,
-                              children: [
-                                const Icon(
-                                  Icons.color_lens,
-                                ),
-                                Text(
-                                  "Choisis la couleur de fond de ta catégorie",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 15.5.sp,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 2.h,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 4.h),
-                          child: Center(
-                            child: ColorPicker(
-                              color: _selectedColor ?? Colors.teal,
-                              onColorChanged: (Color color) {
-                                // String colortest = color.value.toRadixString(16);
-                                // int colorInt = int.parse(colortest, radix: 16);
-                                // debugPrint('Selected color: $colortest');
-                                setState(() => _selectedColor = color);
-                              },
-                              pickersEnabled: const <ColorPickerType, bool>{
-                                ColorPickerType.wheel: true,
-                                ColorPickerType.accent: false,
-                                ColorPickerType.primary: false,
-                                ColorPickerType.both: true,
-                                ColorPickerType.custom: true,
-                                ColorPickerType.bw: false,
-                              },
-                              wheelDiameter: 200,
-                              wheelWidth: 16,
-                              wheelHasBorder: false,
-                              enableShadesSelection: false,
-                              columnSpacing: 3.h,
-                              wheelSquarePadding: 2.w,
-                              pickerTypeLabels: const <ColorPickerType, String>{
-                                ColorPickerType.wheel: 'Personnalisé',
-                                ColorPickerType.accent: 'Accent',
-                                ColorPickerType.primary: 'Primaire',
-                                ColorPickerType.both: 'Basique',
-                                ColorPickerType.custom: 'Personnalisé',
-                                ColorPickerType.bw: 'N&B',
-                              },
-                              pickerTypeTextStyle: TextStyle(
-                                fontSize: 14.sp,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color,
                               ),
                             ),
                           ),
@@ -443,65 +360,147 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 3.h),
-                  if (widget.category != null)
-                    GestureDetector(
-                      onTap: () async {
-                        setState(() => _isDeleting = true);
-                        // Handle delete category
-                        await _categoryModule.deleteCategory(
-                          ref,
-                          widget.category!,
-                          context,
-                        );
-                        setState(() => _isDeleting = false);
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(2.h),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(5.w),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 2.w,
-                              children: [
-                                const Icon(
-                                  Icons.delete_forever_outlined,
-                                ),
-                                Text(
-                                  'Supprimer la catégorie',
-                                  style: TextStyle(
-                                    fontSize: 15.sp,
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (_isDeleting)
-                              SizedBox(
-                                width: 5.w,
-                                height: 5.w,
-                                child: CircularProgressIndicator(
-                                  color: Theme.of(context).iconTheme.color,
+                ),
+                SizedBox(height: 3.h),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(5.w),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: 2.h,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 4.w),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 2.w,
+                            children: [
+                              const Icon(
+                                Icons.color_lens,
+                              ),
+                              Text(
+                                "Choisis la couleur de fond de ta catégorie",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 15.5.sp,
                                 ),
                               ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
+                      SizedBox(
+                        height: 2.h,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4.h),
+                        child: Center(
+                          child: ColorPicker(
+                            color: _selectedColor ?? Colors.teal,
+                            onColorChanged: (Color color) {
+                              // String colortest = color.value.toRadixString(16);
+                              // int colorInt = int.parse(colortest, radix: 16);
+                              // debugPrint('Selected color: $colortest');
+                              setState(() => _selectedColor = color);
+                            },
+                            pickersEnabled: const <ColorPickerType, bool>{
+                              ColorPickerType.wheel: true,
+                              ColorPickerType.accent: false,
+                              ColorPickerType.primary: false,
+                              ColorPickerType.both: true,
+                              ColorPickerType.custom: true,
+                              ColorPickerType.bw: false,
+                            },
+                            wheelDiameter: 200,
+                            wheelWidth: 16,
+                            wheelHasBorder: false,
+                            enableShadesSelection: false,
+                            columnSpacing: 3.h,
+                            wheelSquarePadding: 2.w,
+                            pickerTypeLabels: const <ColorPickerType, String>{
+                              ColorPickerType.wheel: 'Personnalisé',
+                              ColorPickerType.accent: 'Accent',
+                              ColorPickerType.primary: 'Primaire',
+                              ColorPickerType.both: 'Basique',
+                              ColorPickerType.custom: 'Personnalisé',
+                              ColorPickerType.bw: 'N&B',
+                            },
+                            pickerTypeTextStyle: TextStyle(
+                              fontSize: 14.sp,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                if (widget.category != null)
+                  GestureDetector(
+                    onTap: () async {
+                      setState(() => _isDeleting = true);
+                      // Handle delete category
+                      await _categoryModule.deleteCategory(
+                        ref,
+                        widget.category!,
+                        context,
+                      );
+                      setState(() => _isDeleting = false);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(2.h),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(5.w),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 2.w,
+                            children: [
+                              const Icon(
+                                Icons.delete_forever_outlined,
+                              ),
+                              Text(
+                                'Supprimer la catégorie',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (_isDeleting)
+                            SizedBox(
+                              width: 5.w,
+                              height: 5.w,
+                              child: CircularProgressIndicator(
+                                color: Theme.of(context).iconTheme.color,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  SizedBox(height: 3.h),
-                ],
-              ),
+                  ),
+                SizedBox(height: 3.h),
+              ],
             ),
           ),
         ),
-      ),
-    );
+      ), // Padding
+    ); // GestureDetector
   }
 }

@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
@@ -53,9 +54,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.transparent,
+        flexibleSpace: const GlassFlexibleSpace(),
         surfaceTintColor: Colors.transparent,
         title: Text(
           'Paramètres',
@@ -78,6 +81,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 12.h), // Top padding for glass effect
                   const UserCard(),
                   SizedBox(height: 4.h),
                   SettingSection(

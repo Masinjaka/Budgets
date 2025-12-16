@@ -54,6 +54,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        extendBodyBehindAppBar: false,
         body: NestedScrollView(
           floatHeaderSlivers: true,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -64,8 +65,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                 builder: (context, child) {
                   return SliverAppBar(
                     surfaceTintColor: Colors.transparent,
-                    backgroundColor:
-                        Theme.of(context).appBarTheme.backgroundColor,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                     pinned: true,
                     floating: true,
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
@@ -87,8 +87,9 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                                       .textTheme
                                       .bodyLarge
                                       ?.color
-                                      ?.withOpacity(
-                                          _appBarAnimation.value > 0.1 ? 1 : 0),
+                                      ?.withAlpha(_appBarAnimation.value > 0.1
+                                          ? 255
+                                          : 0),
                                 ),
                               ),
                             ),
@@ -151,7 +152,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                       .textTheme
                       .bodyLarge
                       ?.color
-                      ?.withOpacity(0.7),
+                      ?.withAlpha(128),
                   indicatorColor: Theme.of(context).primaryColor,
                 ),
               ),
@@ -199,7 +200,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       color: backgroundColor,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
         child: Center(
           child: Container(
             width: 90.w,
@@ -234,7 +235,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w500,
               ),
-              tabs: [
+              tabs: const [
                 Tab(text: 'Dépenses'),
                 Tab(text: 'Revenus'),
               ],

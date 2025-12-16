@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/functions/chart_data.dart';
 import 'package:budgets/core/theme.dart';
@@ -39,89 +41,90 @@ class _StatsPageState extends ConsumerState<StatsPage>
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final surfaceDim = Theme.of(context).colorScheme.surface;
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Statistiques',
-            style: TextStyle(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
+    return Scaffold(
+      extendBodyBehindAppBar: false,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        titleSpacing: 6.w,
+        title: Text(
+          'Statistiques',
+          style: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+            color: textColor,
           ),
         ),
-        body: Column(
-          children: [
-            SizedBox(height: 2.h),
-            // Modern Pill Tab Bar
-            Center(
-              child: Container(
-                width: 90.w,
-                decoration: BoxDecoration(
-                  color: surfaceDim,
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 2.h), // Top padding compensation
+          // Modern Pill Tab Bar
+          Center(
+            child: Container(
+              width: 90.w,
+              decoration: BoxDecoration(
+                color: surfaceDim,
+                borderRadius: BorderRadius.circular(50),
+              ),
+              padding: EdgeInsets.all(1.w),
+              child: TabBar(
+                controller: _tabController,
+                indicator: BoxDecoration(
+                  color: AppTheme.primaryGreen,
                   borderRadius: BorderRadius.circular(50),
                 ),
-                padding: EdgeInsets.all(1.w),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: AppTheme.primaryGreen,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: textColor,
-                  labelStyle: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  unselectedLabelStyle: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                    (Set<WidgetState> states) {
-                      return states.contains(WidgetState.focused)
-                          ? null
-                          : Colors.transparent;
-                    },
-                  ),
-                  tabs: const [
-                    Tab(text: 'Jour'),
-                    Tab(text: 'Semaine'),
-                    Tab(text: 'Mois'),
-                    Tab(text: 'Année'),
-                  ],
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                labelColor: Colors.white,
+                unselectedLabelColor: textColor,
+                labelStyle: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
                 ),
+                unselectedLabelStyle: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.normal,
+                ),
+                splashFactory: NoSplash.splashFactory,
+                overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                  (Set<WidgetState> states) {
+                    return states.contains(WidgetState.focused)
+                        ? null
+                        : Colors.transparent;
+                  },
+                ),
+                tabs: const [
+                  Tab(text: 'Jour'),
+                  Tab(text: 'Semaine'),
+                  Tab(text: 'Mois'),
+                  Tab(text: 'Année'),
+                ],
               ),
             ),
-            SizedBox(height: 1.h),
-            Expanded(
-              child: asyncTransactions.when(
-                data: (transactions) => TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildDailyView(transactions, surfaceDim, textColor),
-                    _buildWeeklyView(transactions, surfaceDim, textColor),
-                    _buildMonthlyView(transactions, surfaceDim, textColor),
-                    _buildYearlyView(transactions, surfaceDim, textColor),
-                  ],
-                ),
-                loading: () => const Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.primaryGreen,
-                  ),
-                ),
-                error: (error, stack) => Center(
-                  child: Text('Erreur: $error'),
+          ),
+          SizedBox(height: 1.h),
+          Expanded(
+            child: asyncTransactions.when(
+              data: (transactions) => TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildDailyView(transactions, surfaceDim, textColor),
+                  _buildWeeklyView(transactions, surfaceDim, textColor),
+                  _buildMonthlyView(transactions, surfaceDim, textColor),
+                  _buildYearlyView(transactions, surfaceDim, textColor),
+                ],
+              ),
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.primaryGreen,
                 ),
               ),
+              error: (error, stack) => Center(
+                child: Text('Erreur: $error'),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

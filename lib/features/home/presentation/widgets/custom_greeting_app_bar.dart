@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +21,20 @@ class CustomGreetingAppBar extends ConsumerWidget
 
     final userAsync = ref.watch(userModelProvider);
 
-    return PreferredSize(
-      preferredSize: preferredSize,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+          child: Container(
+            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7),
+          ),
+        ),
+      ),
+      toolbarHeight: 10.h,
+      title: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 2.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

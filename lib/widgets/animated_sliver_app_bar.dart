@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedSliverAppBar extends StatelessWidget {
@@ -26,7 +27,8 @@ class AnimatedSliverAppBar extends StatelessWidget {
       builder: (context, constraints) {
         return SliverAppBar(
           surfaceTintColor: Colors.transparent,
-          backgroundColor: backgroundColor,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: const GlassFlexibleSpace(),
           pinned: true,
           floating: true,
           leading: leading,

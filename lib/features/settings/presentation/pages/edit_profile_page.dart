@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
 import 'package:budgets/features/settings/presentation/modules/edit_profile_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -70,8 +71,10 @@ class _State extends ConsumerState<EditProfilePage> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
-          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: const GlassFlexibleSpace(),
           surfaceTintColor: Colors.transparent,
           toolbarHeight: 10.h,
           actions: [
@@ -119,11 +122,12 @@ class _State extends ConsumerState<EditProfilePage> {
           child: SizedBox(
             height: double.infinity,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+              padding: EdgeInsets.symmetric(horizontal: 6.w),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(height: 12.h), // Top padding for glass effect
                     GestureDetector(
                       onTap: _pickImage,
                       child: DottedBorder(

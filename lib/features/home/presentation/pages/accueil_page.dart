@@ -31,47 +31,47 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     dateRange = ref.watch(dateRangeProvider);
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: const CustomGreetingAppBar(),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w),
-          child: SizedBox(
-            height: double.infinity,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  SizedBox(height: 2.h),
-                  const Jumbotron(),
-                  SizedBox(height: 3.h),
-                  SectionTitle(
-                    title: 'Activités récentes',
-                    onTap: () {
-                      context.go('/transaction-list');
-                    },
-                  ),
-                  SizedBox(height: 2.h),
-                  switch (asyncTransactions) {
-                    AsyncData(:final value) => _buildTransactionList(value),
-                    AsyncError(:final error) => Text('error: $error'),
-                    _ => const Center(
-                        child: CircularProgressIndicator(
-                          color: AppTheme.primaryGreen,
-                        ),
-                      ),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: const CustomGreetingAppBar(),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        child: SizedBox(
+          height: double.infinity,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                SizedBox(
+                    height: 14.h), // Adjusted for AppBar height + Safe Area
+                const Jumbotron(),
+                SizedBox(height: 3.h),
+                SectionTitle(
+                  title: 'Activités récentes',
+                  onTap: () {
+                    context.go('/transaction-list');
                   },
-                  SizedBox(height: 3.h),
-                  SectionTitle(
-                    title: 'Vue d\'ensemble',
-                    onTap: () {
-                      context.go('/stats');
-                    },
-                  ),
-                  SizedBox(height: 3.h),
-                  StatsHomeWidget(asyncExpenses: asyncTransactions),
-                ],
-              ),
+                ),
+                SizedBox(height: 2.h),
+                switch (asyncTransactions) {
+                  AsyncData(:final value) => _buildTransactionList(value),
+                  AsyncError(:final error) => Text('error: $error'),
+                  _ => const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primaryGreen,
+                      ),
+                    ),
+                },
+                SizedBox(height: 3.h),
+                SectionTitle(
+                  title: 'Vue d\'ensemble',
+                  onTap: () {
+                    context.go('/stats');
+                  },
+                ),
+                SizedBox(height: 3.h),
+                StatsHomeWidget(asyncExpenses: asyncTransactions),
+              ],
             ),
           ),
         ),

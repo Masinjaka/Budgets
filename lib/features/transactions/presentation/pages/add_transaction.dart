@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction/detailed_transaction_switch.dart';
@@ -89,6 +90,7 @@ class _TransactionCreationPageState
   Widget build(BuildContext context) {
     // Always use dark mode
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: _buildAppBar(context),
       body: _buildForm(),
       bottomNavigationBar: _buildAddButton(),
@@ -109,6 +111,7 @@ class _TransactionCreationPageState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 10.h), // Top padding for glass effect
                   // Switch for multiple amounts
                   DetailedTransactionSwitch(
                     value: _isMultipleAmounts,
@@ -240,6 +243,7 @@ class _TransactionCreationPageState
         AnimatedList(
           key: _listKey,
           shrinkWrap: true,
+          padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
           initialItemCount: 0, // Start with 0 to ensure all items animate
           itemBuilder: (context, index, animation) {
@@ -267,9 +271,9 @@ class _TransactionCreationPageState
             padding: EdgeInsets.symmetric(vertical: 1.5.w),
             child: CustomPaint(
               painter: DashedBorderPainter(
-                color: Theme.of(context).dividerColor.withOpacity(0.3),
+                color: Theme.of(context).dividerColor.withAlpha(128),
                 strokeWidth: 1.0,
-                borderRadius: 2.w,
+                borderRadius: 5.w,
               ),
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
@@ -304,6 +308,7 @@ class _TransactionCreationPageState
     return AppBar(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
+      flexibleSpace: const GlassFlexibleSpace(),
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
@@ -323,7 +328,7 @@ class _TransactionCreationPageState
 
   Padding _buildAddButton() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 5.w),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 5.w),
       child: CustomButton(
         text: 'Confirmer',
         backgroundColor: Theme.of(context).primaryColor,

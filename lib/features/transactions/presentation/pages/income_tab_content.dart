@@ -24,37 +24,15 @@ class IncomeTabContent extends ConsumerStatefulWidget {
 
 class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
     with TransactionSearchMixin {
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    // Add guards to prevent scroll position errors
-    if (!_scrollController.hasClients) return;
-    if (!_scrollController.position.hasContentDimensions) return;
-    if (!_scrollController.position.hasPixels) return;
-
-    final position = _scrollController.position;
-    final maxScrollExtent = position.maxScrollExtent;
-    final currentPixels = position.pixels;
-
-    // Only trigger load more if there's actual scrollable content
-    if (maxScrollExtent > 0 && currentPixels >= maxScrollExtent - 200) {
-      // Load more when near bottom
-      ref.read(paginatedIncomesProvider.notifier).loadNextPage();
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      if (notification.metrics.maxScrollExtent > 0 &&
+          notification.metrics.pixels >=
+              notification.metrics.maxScrollExtent - 200) {
+        ref.read(paginatedIncomesProvider.notifier).loadNextPage();
+      }
     }
+    return false;
   }
 
   @override
@@ -113,47 +91,49 @@ class _IncomeTabContentState extends ConsumerState<IncomeTabContent>
     final availableCategories =
         TransactionUtils.extractCategoriesFromTransactions(incomes);
 
-    return RefreshIndicator(
-      notificationPredicate:
-          isSearchFocused ? (_) => false : defaultScrollNotificationPredicate,
-      onRefresh: () async {
-        await ref.read(paginatedIncomesProvider.notifier).refresh();
-      },
-      child: CustomScrollView(
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          // Search bar section
-          SliverToBoxAdapter(
-            child: TransactionSearchSection(
-              isSearchFocused: isSearchFocused,
-              onSearchFocused: () =>
-                  onSearchFocused(widget.appBarAnimationController),
-              onSearchUnfocused: () =>
-                  onSearchUnfocused(widget.appBarAnimationController),
-              onClearSearch: onClearSearch,
-              searchController: searchController,
-              hintText: 'Rechercher...',
-              availableCategories: availableCategories,
-              selectedCategories: selectedCategories,
-              onCategorySelectionChanged: onCategorySelectionChanged,
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScrollNotification,
+      child: RefreshIndicator(
+        notificationPredicate:
+            isSearchFocused ? (_) => false : defaultScrollNotificationPredicate,
+        onRefresh: () async {
+          await ref.read(paginatedIncomesProvider.notifier).refresh();
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            // Search bar section
+            SliverToBoxAdapter(
+              child: TransactionSearchSection(
+                isSearchFocused: isSearchFocused,
+                onSearchFocused: () =>
+                    onSearchFocused(widget.appBarAnimationController),
+                onSearchUnfocused: () =>
+                    onSearchUnfocused(widget.appBarAnimationController),
+                onClearSearch: onClearSearch,
+                searchController: searchController,
+                hintText: 'Rechercher...',
+                availableCategories: availableCategories,
+                selectedCategories: selectedCategories,
+                onCategorySelectionChanged: onCategorySelectionChanged,
+              ),
             ),
-          ),
-          // Income list content with pagination
-          SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w),
-            sliver: groupedIncomes.isEmpty
-                ? const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: IncomeEmptyState(),
-                  )
-                : PaginatedTransactionDateGroup(
-                    groupedTransactions: groupedIncomes,
-                    isLoadingMore: paginatedState.isLoadingMore,
-                    hasMore: paginatedState.hasMore,
-                  ),
-          ),
-        ],
+            // Income list content with pagination
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: 6.w),
+              sliver: groupedIncomes.isEmpty
+                  ? const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: IncomeEmptyState(),
+                    )
+                  : PaginatedTransactionDateGroup(
+                      groupedTransactions: groupedIncomes,
+                      isLoadingMore: paginatedState.isLoadingMore,
+                      hasMore: paginatedState.hasMore,
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

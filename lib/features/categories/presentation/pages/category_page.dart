@@ -55,6 +55,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        extendBodyBehindAppBar: false,
         body: NestedScrollView(
           floatHeaderSlivers: true,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -65,8 +66,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 builder: (context, child) {
                   return SliverAppBar(
                     surfaceTintColor: Colors.transparent,
-                    backgroundColor:
-                        Theme.of(context).appBarTheme.backgroundColor,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                     pinned: true,
                     floating: true,
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
@@ -313,7 +313,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       color: backgroundColor,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
         child: Center(
           child: Container(
             width: 90.w,
