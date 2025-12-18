@@ -1,15 +1,10 @@
-This is a new automated build from the main branch.
-
 Changes in this version:
 
-New feature:
-
     [Fix]
-        - Adding detailed transaction
+        - Add Sentry to  report bugs in production
     [feature]
-        - Added dark/light mode selection
-        - Added statistics
-        - Added haptic feedback
+        - Detailled comparaison page
+        - Trend page
     [Improvement]
         - UI Improvements    
 
