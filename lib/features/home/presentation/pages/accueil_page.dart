@@ -43,7 +43,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Column(
               children: [
                 SizedBox(
-                    height: 14.h), // Adjusted for AppBar height + Safe Area
+                    height: 15.h), // Adjusted for AppBar height + Safe Area
                 const Jumbotron(),
                 SizedBox(height: 3.h),
                 SectionTitle(
