@@ -147,16 +147,16 @@ class _MyAppState extends ConsumerState<MyApp> {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/transaction-list',
-                builder: (context, state) => const TransactionPage(),
+                path: '/categories',
+                builder: (context, state) => const CategoryPage(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/categories',
-                builder: (context, state) => const CategoryPage(),
+                path: '/transaction-list',
+                builder: (context, state) => const TransactionPage(),
               ),
             ],
           ),

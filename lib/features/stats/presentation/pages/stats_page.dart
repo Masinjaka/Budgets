@@ -87,7 +87,7 @@ class _StatsPageState extends ConsumerState<StatsPage> {
         titleSpacing: 6.w,
         surfaceTintColor: Colors.transparent,
         title: Text(
-          'Rapport',
+          'Rapports',
           style: TextStyle(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
