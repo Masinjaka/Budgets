@@ -2,6 +2,7 @@ import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class BalanceCard extends StatelessWidget {
   final String title;
@@ -13,6 +14,8 @@ class BalanceCard extends StatelessWidget {
   final Color? backgroundColor;
   final bool isLarge;
   final bool isHidden;
+  final VoidCallback? onVisibilityToggle;
+  final bool showVisibilityToggle;
 
   const BalanceCard({
     super.key,
@@ -25,6 +28,8 @@ class BalanceCard extends StatelessWidget {
     this.backgroundColor,
     this.isLarge = false,
     this.isHidden = false,
+    this.onVisibilityToggle,
+    this.showVisibilityToggle = false,
   });
 
   String _formatAmount(double amount) {
@@ -44,53 +49,60 @@ class BalanceCard extends StatelessWidget {
     final isNegative = amount < 0;
     final displayColor = isNegative ? Colors.red : Theme.of(context).textTheme.bodyMedium?.color;
 
-    return Card(
-      color: surfaceDim,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.w),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(isLarge ? 6.w : 4.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: isLarge ? 14.sp : 13.sp,
-                fontWeight: FontWeight.w600,
-                color: textColor?.withValues(alpha: 0.7),
-              ),
-            ),
+    return Stack(
+      children: [
+        Card(
+          color: surfaceDim,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.w),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(isLarge ? 6.w : 4.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: isLarge ? 14.sp : 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: textColor?.withValues(alpha: 0.7),
+                  ),
+                ),
             SizedBox(height: isLarge ? 1.5.h : 1.h),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    transitionBuilder: (Widget child, Animation<double> animation) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: ScaleTransition(
-                          scale: animation,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Text(
-                      isHidden ? '*******' : '${isNegative ? '-' : ''}${_formatAmount(amount)}',
-                      key: ValueKey<bool>(isHidden),
-                      style: TextStyle(
-                        fontSize: isLarge ? 22.sp : 18.sp,
-                        fontWeight: FontWeight.bold,
-                        color: displayColor,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                  child: Text(
+                    isHidden ? '••••••••' : '${isNegative ? '-' : ''}${_formatAmount(amount)}',
+                    key: ValueKey<bool>(isHidden),
+                    style: TextStyle(
+                      fontSize: isLarge ? 19.sp : 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: displayColor,
+                      letterSpacing: isHidden ? 2.0 : 0.0,
                     ),
-                  ),
+                    overflow: TextOverflow.ellipsis,
+                  )
+                      .animate(key: ValueKey<bool>(isHidden))
+                      .fadeIn(
+                        duration: 600.ms,
+                        curve: Curves.easeOutCubic,
+                      )
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        duration: 600.ms,
+                        curve: Curves.easeOutCubic,
+                      )
+                      .blur(
+                        begin: const Offset(0, 8),
+                        end: const Offset(0, 0),
+                        duration: 400.ms,
+                      ),
                 ),
                 if (comparisonAmount != null && comparisonPercentage != null)
                   Padding(
@@ -99,19 +111,37 @@ class BalanceCard extends StatelessWidget {
                   ),
               ],
             ),
-            if (subtitle != null) ...[
-              SizedBox(height: 1.h),
-              Text(
-                subtitle!,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: textColor?.withValues(alpha: 0.6),
-                ),
-              ),
-            ],
-          ],
+                // if (subtitle != null) ..[
+                //   SizedBox(height: 1.h),
+                //   Text(
+                //     subtitle!,
+                //     style: TextStyle(
+                //       fontSize: 12.sp,
+                //       color: textColor?.withValues(alpha: 0.6),
+                //     ),
+                //   ),
+                // ],
+              ],
+            ),
+          ),
         ),
-      ),
+        if (showVisibilityToggle && onVisibilityToggle != null)
+          Positioned(
+            top: isLarge ? 4.w : 2.w,
+            right: isLarge ? 4.w : 2.w,
+            child: IconButton(
+              icon: Icon(
+                isHidden
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: isLarge ? 20.sp : 18.sp,
+                color: textColor?.withValues(alpha: 0.6),
+              ),
+              onPressed: onVisibilityToggle,
+              tooltip: isHidden ? 'Afficher' : 'Masquer',
+            ),
+          ),
+      ],
     );
   }
 

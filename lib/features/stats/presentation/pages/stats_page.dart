@@ -4,6 +4,7 @@ import 'package:budgets/features/stats/presentation/modules/balance_card.dart';
 import 'package:budgets/features/stats/presentation/modules/category_breakdown.dart';
 import 'package:budgets/features/stats/presentation/pages/trends_page.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class StatsPage extends ConsumerStatefulWidget {
   const StatsPage({super.key});
@@ -24,7 +26,10 @@ class _StatsPageState extends ConsumerState<StatsPage> {
   late DateTime _selectedEndDate;
   late DateTime _previousStartDate;
   late DateTime _previousEndDate;
-  bool _isBalanceVisible = true;
+  bool _isBalanceVisible = false;
+  bool _isPeriodBalanceVisible = false;
+  bool _isIncomeVisible = false;
+  bool _isExpensesVisible = false;
   final LocalAuthentication _localAuth = LocalAuthentication();
 
   @override
@@ -79,10 +84,10 @@ class _StatsPageState extends ConsumerState<StatsPage> {
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         titleSpacing: 6.w,
+        surfaceTintColor: Colors.transparent,
         title: Text(
-          'Statistiques',
+          'Rapport',
           style: TextStyle(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
@@ -90,22 +95,18 @@ class _StatsPageState extends ConsumerState<StatsPage> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.trending_up,
-              color: textColor,
-              size: 24.sp,
-            ),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const TrendsPage(),
-                ),
-              );
-            },
-            tooltip: 'Voir les tendances',
-          ),
-          SizedBox(width: 2.w),
+          ActionButton(
+              icon: Icons.trending_up,
+              iconColor: Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: Theme.of(context).primaryColor,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const TrendsPage(),
+                  ),
+                );
+              }),
+          SizedBox(width: 6.w),
         ],
       ),
       body: SingleChildScrollView(
@@ -117,41 +118,22 @@ class _StatsPageState extends ConsumerState<StatsPage> {
             children: [
               // All-time balance card - MOVED TO TOP
               allTimeBalanceAsync.when(
-                data: (allTimeBalance) => Stack(
-                  children: [
-                    BalanceCard(
-                      title: 'Solde total',
-                      amount: _isBalanceVisible ? allTimeBalance : 0,
-                      subtitle: 'Tous vos revenus et dépenses',
-                      isLarge: true,
-                      isHidden: !_isBalanceVisible,
-                    ),
-                    Positioned(
-                      top: 4.w,
-                      right: 4.w,
-                      child: IconButton(
-                        icon: Icon(
-                          _isBalanceVisible
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          size: 20.sp,
-                          color: textColor?.withValues(alpha: 0.6),
-                        ),
-                        onPressed: () {
-                          if (_isBalanceVisible) {
-                            // Hide immediately
-                            setState(() {
-                              _isBalanceVisible = false;
-                            });
-                          } else {
-                            // Show authentication bottom sheet
-                            _showAuthenticationBottomSheet();
-                          }
-                        },
-                        tooltip: _isBalanceVisible ? 'Masquer' : 'Afficher',
-                      ),
-                    ),
-                  ],
+                data: (allTimeBalance) => BalanceCard(
+                  title: 'Solde total',
+                  amount: _isBalanceVisible ? allTimeBalance : 0,
+                  subtitle: 'Tous vos revenus et dépenses',
+                  isLarge: true,
+                  isHidden: !_isBalanceVisible,
+                  showVisibilityToggle: true,
+                  onVisibilityToggle: () {
+                    if (_isBalanceVisible) {
+                      setState(() {
+                        _isBalanceVisible = false;
+                      });
+                    } else {
+                      _authenticateAndShowBalance();
+                    }
+                  },
                 ),
                 loading: () => _buildLoadingCard(),
                 error: (error, stack) => _buildErrorCard('Erreur: $error'),
@@ -168,11 +150,24 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                   children: [
                     BalanceCard(
                       title: 'Solde de la période',
-                      amount: balanceData.currentPeriodBalance,
+                      amount: _isPeriodBalanceVisible
+                          ? balanceData.currentPeriodBalance
+                          : 0,
                       subtitle: 'Revenus - Dépenses',
                       comparisonAmount: balanceData.changeAmount,
                       comparisonPercentage: balanceData.changePercentage,
                       isPositiveChange: balanceData.isPositiveChange,
+                      isHidden: !_isPeriodBalanceVisible,
+                      showVisibilityToggle: true,
+                      onVisibilityToggle: () {
+                        if (_isPeriodBalanceVisible) {
+                          setState(() {
+                            _isPeriodBalanceVisible = false;
+                          });
+                        } else {
+                          _authenticateAndShowPeriodBalance();
+                        }
+                      },
                     ),
                     SizedBox(height: 1.h),
                     Row(
@@ -181,9 +176,20 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                           child: periodStatsAsync.when(
                             data: (stats) => BalanceCard(
                               title: 'Revenus',
-                              amount: stats.totalIncome,
+                              amount: _isIncomeVisible ? stats.totalIncome : 0,
                               subtitle:
                                   '${stats.transactionCount} transactions',
+                              isHidden: !_isIncomeVisible,
+                              showVisibilityToggle: true,
+                              onVisibilityToggle: () {
+                                if (_isIncomeVisible) {
+                                  setState(() {
+                                    _isIncomeVisible = false;
+                                  });
+                                } else {
+                                  _authenticateAndShowIncome();
+                                }
+                              },
                             ),
                             loading: () => _buildLoadingCard(),
                             error: (error, stack) => _buildErrorCard('Erreur'),
@@ -194,9 +200,21 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                           child: periodStatsAsync.when(
                             data: (stats) => BalanceCard(
                               title: 'Dépenses',
-                              amount: -stats.totalExpenses,
+                              amount:
+                                  _isExpensesVisible ? -stats.totalExpenses : 0,
                               subtitle:
                                   '${stats.transactionCount} transactions',
+                              isHidden: !_isExpensesVisible,
+                              showVisibilityToggle: true,
+                              onVisibilityToggle: () {
+                                if (_isExpensesVisible) {
+                                  setState(() {
+                                    _isExpensesVisible = false;
+                                  });
+                                } else {
+                                  _authenticateAndShowExpenses();
+                                }
+                              },
                             ),
                             loading: () => _buildLoadingCard(),
                             error: (error, stack) => _buildErrorCard('Erreur'),
@@ -223,7 +241,17 @@ class _StatsPageState extends ConsumerState<StatsPage> {
               ),
               SizedBox(height: 3.h),
 
-              // Category Breakdown
+              // Category Breakdown Title
+              SizedBox(height: 2.h),
+              Text(
+                'Transactions par catégorie',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
+              SizedBox(height: 2.h),
               periodStatsAsync.when(
                 data: (stats) {
                   // Extract category colors and emojis from transactions
@@ -319,9 +347,9 @@ class _StatsPageState extends ConsumerState<StatsPage> {
   void _showPeriodMenu(BuildContext context) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
-        Navigator.of(context).overlay!.context.findRenderObject()
-            as RenderBox;
-    final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final Offset buttonPosition =
+        button.localToGlobal(Offset.zero, ancestor: overlay);
     final Size buttonSize = button.size;
 
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
@@ -462,6 +490,7 @@ class _StatsPageState extends ConsumerState<StatsPage> {
       ),
     );
   }
+
   Future<void> _showAuthenticationBottomSheet() async {
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
@@ -530,7 +559,8 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                   SizedBox(width: 2.w),
                   Text(
                     'Authentifier',
-                    style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                    style:
+                        TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -580,6 +610,120 @@ class _StatsPageState extends ConsumerState<StatsPage> {
       }
     }
   }
+
+  Future<void> _authenticateAndShowPeriodBalance() async {
+    try {
+      final bool canAuthenticate = await _localAuth.canCheckBiometrics ||
+          await _localAuth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        setState(() {
+          _isPeriodBalanceVisible = true;
+        });
+        return;
+      }
+
+      final bool didAuthenticate = await _localAuth.authenticate(
+        localizedReason:
+            'Veuillez vous authentifier pour afficher le solde de la période',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: false,
+        ),
+      );
+
+      if (didAuthenticate) {
+        setState(() {
+          _isPeriodBalanceVisible = true;
+        });
+      }
+    } on PlatformException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur d\'authentification: ${e.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _authenticateAndShowIncome() async {
+    try {
+      final bool canAuthenticate = await _localAuth.canCheckBiometrics ||
+          await _localAuth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        setState(() {
+          _isIncomeVisible = true;
+        });
+        return;
+      }
+
+      final bool didAuthenticate = await _localAuth.authenticate(
+        localizedReason: 'Veuillez vous authentifier pour afficher les revenus',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: false,
+        ),
+      );
+
+      if (didAuthenticate) {
+        setState(() {
+          _isIncomeVisible = true;
+        });
+      }
+    } on PlatformException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur d\'authentification: ${e.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _authenticateAndShowExpenses() async {
+    try {
+      final bool canAuthenticate = await _localAuth.canCheckBiometrics ||
+          await _localAuth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        setState(() {
+          _isExpensesVisible = true;
+        });
+        return;
+      }
+
+      final bool didAuthenticate = await _localAuth.authenticate(
+        localizedReason:
+            'Veuillez vous authentifier pour afficher les dépenses',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: false,
+        ),
+      );
+
+      if (didAuthenticate) {
+        setState(() {
+          _isExpensesVisible = true;
+        });
+      }
+    } on PlatformException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur d\'authentification: ${e.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildLoadingCard() {
     final surfaceDim = Theme.of(context).colorScheme.surface;
     return Card(

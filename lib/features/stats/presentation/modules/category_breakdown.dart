@@ -28,7 +28,8 @@ class CategoryBreakdown extends StatelessWidget {
 
   Color _parseColor(String hexColor) {
     try {
-      return Color(int.parse(hexColor.replaceAll('#', '0xFF')));
+      return Color(int.parse(hexColor, radix: 16));
+      //  Color(int.parse(hexColor.replaceAll('#', '0xFF')));
     } catch (e) {
       return AppTheme.primaryGreen;
     }
@@ -58,33 +59,17 @@ class CategoryBreakdown extends StatelessWidget {
         borderRadius: BorderRadius.circular(5.w),
       ),
       child: Padding(
-        padding: EdgeInsets.all(4.w),
+        padding: EdgeInsets.all(6.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Transactions par catégorie',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-            SizedBox(height: 2.h),
+            // Title removed, now handled outside
+            // ...existing code...
 
             // Expenses section
             if (sortedExpenses.isNotEmpty) ...[
               Row(
                 children: [
-                  Container(
-                    width: 1.w,
-                    height: 4.h,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(1.w),
-                    ),
-                  ),
-                  SizedBox(width: 2.w),
                   Text(
                     'Dépenses',
                     style: TextStyle(
@@ -104,7 +89,7 @@ class CategoryBreakdown extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 1.h),
+              SizedBox(height: 2.h),
               ...sortedExpenses.take(5).map((entry) {
                 final percentage = (entry.value / totalExpenses * 100);
                 final color =
@@ -112,7 +97,7 @@ class CategoryBreakdown extends StatelessWidget {
                 final emoji = categoryEmojis[entry.key] ?? '💰';
 
                 return Padding(
-                  padding: EdgeInsets.only(bottom: 1.h),
+                  padding: EdgeInsets.only(bottom: 2.h),
                   child: _buildCategoryItem(
                     emoji: emoji,
                     name: entry.key,
@@ -120,6 +105,7 @@ class CategoryBreakdown extends StatelessWidget {
                     percentage: percentage,
                     color: color,
                     textColor: textColor,
+                    surfaceDim: Theme.of(context).colorScheme.surfaceDim,
                   ),
                 );
               }),
@@ -141,15 +127,6 @@ class CategoryBreakdown extends StatelessWidget {
             if (sortedIncome.isNotEmpty) ...[
               Row(
                 children: [
-                  Container(
-                    width: 1.w,
-                    height: 4.h,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryGreen,
-                      borderRadius: BorderRadius.circular(1.w),
-                    ),
-                  ),
-                  SizedBox(width: 2.w),
                   Text(
                     'Revenus',
                     style: TextStyle(
@@ -169,7 +146,7 @@ class CategoryBreakdown extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 1.h),
+              SizedBox(height: 2.h),
               ...sortedIncome.take(5).map((entry) {
                 final percentage = (entry.value / totalIncome * 100);
                 final color =
@@ -177,7 +154,7 @@ class CategoryBreakdown extends StatelessWidget {
                 final emoji = categoryEmojis[entry.key] ?? '💰';
 
                 return Padding(
-                  padding: EdgeInsets.only(bottom: 1.h),
+                  padding: EdgeInsets.only(bottom: 2.h),
                   child: _buildCategoryItem(
                     emoji: emoji,
                     name: entry.key,
@@ -185,6 +162,7 @@ class CategoryBreakdown extends StatelessWidget {
                     percentage: percentage,
                     color: color,
                     textColor: textColor,
+                    surfaceDim: Theme.of(context).colorScheme.surfaceDim,
                   ),
                 );
               }),
@@ -239,17 +217,19 @@ class CategoryBreakdown extends StatelessWidget {
     required double percentage,
     required Color color,
     required Color? textColor,
+    required Color surfaceDim,
   }) {
     return Column(
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               width: 10.w,
               height: 10.w,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2.w),
+                color: surfaceDim,
+                borderRadius: BorderRadius.circular(50.w),
               ),
               child: Center(
                 child: Text(
@@ -263,14 +243,33 @@ class CategoryBreakdown extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w500,
-                      color: textColor,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w500,
+                            color: textColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Spacer(),
+                      Expanded(
+                        child: Text(
+                          textAlign: TextAlign.end,
+                          _formatAmount(amount),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 0.5.h),
                   Row(
@@ -282,7 +281,8 @@ class CategoryBreakdown extends StatelessWidget {
                             value: percentage / 100,
                             backgroundColor: color.withValues(alpha: 0.2),
                             valueColor: AlwaysStoppedAnimation<Color>(color),
-                            minHeight: 0.8.h,
+                            minHeight: 1.5.h,
+                            borderRadius: BorderRadius.circular(5.w),
                           ),
                         ),
                       ),
@@ -290,7 +290,7 @@ class CategoryBreakdown extends StatelessWidget {
                       Text(
                         '${percentage.toStringAsFixed(0)}%',
                         style: TextStyle(
-                          fontSize: 11.sp,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           color: textColor?.withValues(alpha: 0.7),
                         ),
@@ -298,15 +298,6 @@ class CategoryBreakdown extends StatelessWidget {
                     ],
                   ),
                 ],
-              ),
-            ),
-            SizedBox(width: 3.w),
-            Text(
-              _formatAmount(amount),
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.bold,
-                color: textColor,
               ),
             ),
           ],
