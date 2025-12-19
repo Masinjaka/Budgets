@@ -1,18 +1,15 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/stats/domain/providers/stats_provider.dart';
-import 'package:budgets/features/stats/presentation/modules/balance_card.dart';
-import 'package:budgets/features/stats/presentation/modules/category_breakdown.dart';
+import 'package:budgets/features/stats/presentation/widgets/balance_card.dart';
+import 'package:budgets/features/stats/presentation/widgets/category_breakdown.dart';
 import 'package:budgets/features/stats/presentation/pages/trends_page.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:budgets/features/stats/presentation/widgets/period_dropdown.dart';
+import 'package:budgets/features/stats/presentation/modules/authentication_utils.dart';
 
 class StatsPage extends ConsumerStatefulWidget {
   const StatsPage({super.key});
@@ -30,7 +27,6 @@ class _StatsPageState extends ConsumerState<StatsPage> {
   bool _isPeriodBalanceVisible = false;
   bool _isIncomeVisible = false;
   bool _isExpensesVisible = false;
-  final LocalAuthentication _localAuth = LocalAuthentication();
 
   @override
   void initState() {
@@ -131,7 +127,15 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                         _isBalanceVisible = false;
                       });
                     } else {
-                      _authenticateAndShowBalance();
+                      AuthenticationUtils.authenticateAndShow(
+                        context,
+                        'Veuillez vous authentifier pour afficher le solde',
+                        () {
+                          setState(() {
+                            _isBalanceVisible = true;
+                          });
+                        },
+                      );
                     }
                   },
                 ),
@@ -141,7 +145,12 @@ class _StatsPageState extends ConsumerState<StatsPage> {
               SizedBox(height: 2.h),
 
               // Period Selector - REDESIGNED AS DROPDOWN
-              _buildPeriodDropdown(textColor),
+              PeriodDropdown(
+                selectedStartDate: _selectedStartDate,
+                selectedEndDate: _selectedEndDate,
+                onPeriodChanged: _onPeriodChanged,
+                textColor: textColor,
+              ),
               SizedBox(height: 2.h),
 
               // Current period balance with comparison
@@ -165,7 +174,15 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                             _isPeriodBalanceVisible = false;
                           });
                         } else {
-                          _authenticateAndShowPeriodBalance();
+                          AuthenticationUtils.authenticateAndShow(
+                            context,
+                            'Veuillez vous authentifier pour afficher le solde de la période',
+                            () {
+                              setState(() {
+                                _isPeriodBalanceVisible = true;
+                              });
+                            },
+                          );
                         }
                       },
                     ),
@@ -187,7 +204,15 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                                     _isIncomeVisible = false;
                                   });
                                 } else {
-                                  _authenticateAndShowIncome();
+                                  AuthenticationUtils.authenticateAndShow(
+                                    context,
+                                    'Veuillez vous authentifier pour afficher les revenus',
+                                    () {
+                                      setState(() {
+                                        _isIncomeVisible = true;
+                                      });
+                                    },
+                                  );
                                 }
                               },
                             ),
@@ -212,7 +237,15 @@ class _StatsPageState extends ConsumerState<StatsPage> {
                                     _isExpensesVisible = false;
                                   });
                                 } else {
-                                  _authenticateAndShowExpenses();
+                                  AuthenticationUtils.authenticateAndShow(
+                                    context,
+                                    'Veuillez vous authentifier pour afficher les dépenses',
+                                    () {
+                                      setState(() {
+                                        _isExpensesVisible = true;
+                                      });
+                                    },
+                                  );
                                 }
                               },
                             ),
@@ -292,437 +325,6 @@ class _StatsPageState extends ConsumerState<StatsPage> {
     );
   }
 
-  Widget _buildPeriodDropdown(Color? textColor) {
-    String getPeriodLabel() {
-      final format = DateFormat('d MMM yyyy', 'fr_FR');
-      if (_selectedStartDate.year == _selectedEndDate.year &&
-          _selectedStartDate.month == _selectedEndDate.month &&
-          _selectedStartDate.day == _selectedEndDate.day) {
-        return format.format(_selectedStartDate);
-      }
-      return '${format.format(_selectedStartDate)} - ${format.format(_selectedEndDate)}';
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Période',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        Builder(
-          builder: (BuildContext buttonContext) {
-            return GestureDetector(
-              onTap: () => _showPeriodMenu(buttonContext),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    getPeriodLabel(),
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                  ),
-                  SizedBox(width: 2.w),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: textColor,
-                    size: 18.sp,
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  void _showPeriodMenu(BuildContext context) {
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay =
-        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
-    final Offset buttonPosition =
-        button.localToGlobal(Offset.zero, ancestor: overlay);
-    final Size buttonSize = button.size;
-
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
-
-    showMenu<String>(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        buttonPosition.dx,
-        buttonPosition.dy + buttonSize.height,
-        buttonPosition.dx + buttonSize.width,
-        buttonPosition.dy + buttonSize.height,
-      ),
-      color: surfaceColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(3.w),
-      ),
-      items: [
-        PopupMenuItem<String>(
-          value: 'today',
-          child: Row(
-            children: [
-              Icon(Icons.today, size: 16.sp, color: textColor),
-              SizedBox(width: 3.w),
-              Text(
-                'Aujourd\'hui',
-                style: TextStyle(color: textColor, fontSize: 14.sp),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: 'week',
-          child: Row(
-            children: [
-              Icon(Icons.date_range, size: 16.sp, color: textColor),
-              SizedBox(width: 3.w),
-              Text(
-                'Cette semaine',
-                style: TextStyle(color: textColor, fontSize: 14.sp),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: 'month',
-          child: Row(
-            children: [
-              Icon(Icons.calendar_month, size: 16.sp, color: textColor),
-              SizedBox(width: 3.w),
-              Text(
-                'Ce mois',
-                style: TextStyle(color: textColor, fontSize: 14.sp),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: 'year',
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today, size: 16.sp, color: textColor),
-              SizedBox(width: 3.w),
-              Text(
-                'Cette année',
-                style: TextStyle(color: textColor, fontSize: 14.sp),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: 'custom',
-          child: Row(
-            children: [
-              Icon(Icons.edit_calendar, size: 16.sp, color: textColor),
-              SizedBox(width: 3.w),
-              Text(
-                'Personnalisée',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 14.sp,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-      elevation: 8.0,
-    ).then((value) {
-      if (value != null) {
-        _handlePeriodSelection(value);
-      }
-    });
-  }
-
-  void _handlePeriodSelection(String value) {
-    final now = DateTime.now();
-    DateTime startDate;
-    DateTime endDate;
-
-    switch (value) {
-      case 'today':
-        startDate = DateTime(now.year, now.month, now.day);
-        endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
-        _onPeriodChanged(startDate, endDate);
-        break;
-      case 'week':
-        startDate = now.subtract(Duration(days: now.weekday - 1));
-        startDate = DateTime(startDate.year, startDate.month, startDate.day);
-        endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
-        _onPeriodChanged(startDate, endDate);
-        break;
-      case 'month':
-        startDate = DateTime(now.year, now.month, 1);
-        endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
-        _onPeriodChanged(startDate, endDate);
-        break;
-      case 'year':
-        startDate = DateTime(now.year, 1, 1);
-        endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
-        _onPeriodChanged(startDate, endDate);
-        break;
-      case 'custom':
-        _showCustomDatePicker();
-        break;
-    }
-  }
-
-  void _showCustomDatePicker() {
-    showDialog(
-      context: context,
-      builder: (context) => _CustomDateRangeDialog(
-        initialStartDate: _selectedStartDate,
-        initialEndDate: _selectedEndDate,
-        onConfirm: (start, end) {
-          _onPeriodChanged(start, end);
-        },
-      ),
-    );
-  }
-
-  Future<void> _showAuthenticationBottomSheet() async {
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(5.w)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.all(6.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 12.w,
-              height: 0.5.h,
-              decoration: BoxDecoration(
-                color: textColor?.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2.w),
-              ),
-            ),
-            SizedBox(height: 3.h),
-            Icon(
-              Icons.lock_outline,
-              size: 40.sp,
-              color: textColor?.withValues(alpha: 0.7),
-            ),
-            SizedBox(height: 2.h),
-            Text(
-              'Authentification requise',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-            SizedBox(height: 1.h),
-            Text(
-              'Veuillez vous authentifier pour afficher le solde',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: textColor?.withValues(alpha: 0.7),
-              ),
-            ),
-            SizedBox(height: 3.h),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await _authenticateAndShowBalance();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryGreen,
-                foregroundColor: Colors.white,
-                minimumSize: Size(double.infinity, 6.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3.w),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.fingerprint, size: 20.sp),
-                  SizedBox(width: 2.w),
-                  Text(
-                    'Authentifier',
-                    style:
-                        TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 2.h),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _authenticateAndShowBalance() async {
-    try {
-      final bool canAuthenticate = await _localAuth.canCheckBiometrics ||
-          await _localAuth.isDeviceSupported();
-
-      if (!canAuthenticate) {
-        // Device doesn't support biometrics, show balance directly
-        setState(() {
-          _isBalanceVisible = true;
-        });
-        return;
-      }
-
-      final bool didAuthenticate = await _localAuth.authenticate(
-        localizedReason: 'Veuillez vous authentifier pour afficher le solde',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
-      );
-
-      if (didAuthenticate) {
-        setState(() {
-          _isBalanceVisible = true;
-        });
-      }
-    } on PlatformException catch (e) {
-      // Handle authentication errors
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur d\'authentification: ${e.message}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _authenticateAndShowPeriodBalance() async {
-    try {
-      final bool canAuthenticate = await _localAuth.canCheckBiometrics ||
-          await _localAuth.isDeviceSupported();
-
-      if (!canAuthenticate) {
-        setState(() {
-          _isPeriodBalanceVisible = true;
-        });
-        return;
-      }
-
-      final bool didAuthenticate = await _localAuth.authenticate(
-        localizedReason:
-            'Veuillez vous authentifier pour afficher le solde de la période',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
-      );
-
-      if (didAuthenticate) {
-        setState(() {
-          _isPeriodBalanceVisible = true;
-        });
-      }
-    } on PlatformException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur d\'authentification: ${e.message}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _authenticateAndShowIncome() async {
-    try {
-      final bool canAuthenticate = await _localAuth.canCheckBiometrics ||
-          await _localAuth.isDeviceSupported();
-
-      if (!canAuthenticate) {
-        setState(() {
-          _isIncomeVisible = true;
-        });
-        return;
-      }
-
-      final bool didAuthenticate = await _localAuth.authenticate(
-        localizedReason: 'Veuillez vous authentifier pour afficher les revenus',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
-      );
-
-      if (didAuthenticate) {
-        setState(() {
-          _isIncomeVisible = true;
-        });
-      }
-    } on PlatformException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur d\'authentification: ${e.message}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _authenticateAndShowExpenses() async {
-    try {
-      final bool canAuthenticate = await _localAuth.canCheckBiometrics ||
-          await _localAuth.isDeviceSupported();
-
-      if (!canAuthenticate) {
-        setState(() {
-          _isExpensesVisible = true;
-        });
-        return;
-      }
-
-      final bool didAuthenticate = await _localAuth.authenticate(
-        localizedReason:
-            'Veuillez vous authentifier pour afficher les dépenses',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
-      );
-
-      if (didAuthenticate) {
-        setState(() {
-          _isExpensesVisible = true;
-        });
-      }
-    } on PlatformException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur d\'authentification: ${e.message}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
 
   Widget _buildLoadingCard() {
     final surfaceDim = Theme.of(context).colorScheme.surface;
@@ -761,169 +363,6 @@ class _StatsPageState extends ConsumerState<StatsPage> {
               color: textColor?.withValues(alpha: 0.6),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CustomDateRangeDialog extends StatefulWidget {
-  final DateTime initialStartDate;
-  final DateTime initialEndDate;
-  final Function(DateTime start, DateTime end) onConfirm;
-
-  const _CustomDateRangeDialog({
-    required this.initialStartDate,
-    required this.initialEndDate,
-    required this.onConfirm,
-  });
-
-  @override
-  State<_CustomDateRangeDialog> createState() => _CustomDateRangeDialogState();
-}
-
-class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
-  late DateTime _focusedDay;
-  late DateTime _selectedStartDate;
-  late DateTime _selectedEndDate;
-  final RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOn;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusedDay = widget.initialStartDate;
-    _selectedStartDate = widget.initialStartDate;
-    _selectedEndDate = widget.initialEndDate;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
-    return Dialog(
-      backgroundColor: backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.w),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(4.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Sélectionner une période',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-            SizedBox(height: 2.h),
-            TableCalendar(
-              firstDay: DateTime(2020, 1, 1),
-              lastDay: DateTime.now(),
-              focusedDay: _focusedDay,
-              locale: 'fr_FR',
-              rangeStartDay: _selectedStartDate,
-              rangeEndDay: _selectedEndDate,
-              rangeSelectionMode: _rangeSelectionMode,
-              calendarFormat: CalendarFormat.month,
-              startingDayOfWeek: StartingDayOfWeek.monday,
-              headerStyle: HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
-                titleTextStyle: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-                leftChevronIcon: Icon(Icons.chevron_left, color: textColor),
-                rightChevronIcon: Icon(Icons.chevron_right, color: textColor),
-              ),
-              calendarStyle: CalendarStyle(
-                todayDecoration: BoxDecoration(
-                  color: AppTheme.primaryGreen.withValues(alpha: 0.3),
-                  shape: BoxShape.circle,
-                ),
-                selectedDecoration: const BoxDecoration(
-                  color: AppTheme.primaryGreen,
-                  shape: BoxShape.circle,
-                ),
-                rangeStartDecoration: const BoxDecoration(
-                  color: AppTheme.primaryGreen,
-                  shape: BoxShape.circle,
-                ),
-                rangeEndDecoration: const BoxDecoration(
-                  color: AppTheme.primaryGreen,
-                  shape: BoxShape.circle,
-                ),
-                rangeHighlightColor:
-                    AppTheme.primaryGreen.withValues(alpha: 0.2),
-                withinRangeTextStyle: TextStyle(color: textColor),
-                outsideDaysVisible: false,
-              ),
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _focusedDay = focusedDay;
-                });
-              },
-              onRangeSelected: (start, end, focusedDay) {
-                setState(() {
-                  _selectedStartDate = start ?? _selectedStartDate;
-                  _selectedEndDate = end ?? _selectedEndDate;
-                  _focusedDay = focusedDay;
-                });
-              },
-            ),
-            SizedBox(height: 2.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
-                    'Annuler',
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 2.w),
-                ElevatedButton(
-                  onPressed: () {
-                    final start = DateTime(
-                      _selectedStartDate.year,
-                      _selectedStartDate.month,
-                      _selectedStartDate.day,
-                    );
-                    final end = DateTime(
-                      _selectedEndDate.year,
-                      _selectedEndDate.month,
-                      _selectedEndDate.day,
-                      23,
-                      59,
-                      59,
-                    );
-                    widget.onConfirm(start, end);
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.w),
-                    ),
-                  ),
-                  child: Text(
-                    'Confirmer',
-                    style: TextStyle(fontSize: 14.sp),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );
