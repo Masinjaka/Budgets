@@ -115,7 +115,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               category: e.category?.name ?? "Categorie inconnue",
               amount: e.amount?.toString() ?? "Montant inconnue",
               date: e.date!,
-              categoryColor: Color(int.parse(e.category!.color!, radix: 16)),
+                categoryColor: (e.category?.color != null)
+                  ? Color(int.parse(e.category!.color!, radix: 16))
+                  : Theme.of(context).colorScheme.surfaceDim,
               categoryEmoji: e.category?.emoji ?? '❓',
               description: e.description ?? "Aucune description",
               categoryId: e.category?.id ?? "",

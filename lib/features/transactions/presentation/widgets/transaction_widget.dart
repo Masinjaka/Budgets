@@ -44,7 +44,9 @@ class TransactionListItem extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  transaction.category!.emoji!,
+                    (transaction.category != null && transaction.category!.emoji != null)
+                      ? transaction.category!.emoji!
+                      : '❓',
                   style: TextStyle(fontSize: 18.sp),
                 ),
               ),
