@@ -58,7 +58,7 @@ class TransactionListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    transaction.category!.name!,
+                    transaction.category?.name ?? 'Uncategorized',
                     style: TextStyle(
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class TransactionListItem extends StatelessWidget {
                   ),
                   SizedBox(height: 0.5.h),
                   Text(
-                    transaction.description!,
+                    transaction.description ?? '',
                     style: TextStyle(
                       color: Theme.of(context).hintColor,
                       fontSize: 14.sp,

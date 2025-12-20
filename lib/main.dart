@@ -38,9 +38,36 @@ final supabase = Supabase.instance.client;
 Box<dynamic> get storageBox => Hive.box(LocalAppStorage.storageBox);
 
 void main() async {
+  
+  SentryWidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize French locale for date formatting
+  await initializeDateFormatting('fr_FR', null);
+
+  // Initialize Gleap
+  Gleap.initialize(token: 'Qq2gB5CN8MF6U7XdK5xUhETe49WgA0aa');
+  Gleap.showFeedbackButton(false);
+
+  // initialize supabase
+  await Supabase.initialize(
+    url: 'https://fqqpmzurvunhilnnhmtf.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcXBtenVydnVuaGlsbm5obXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxOTIxNTcsImV4cCI6MjA2NDc2ODE1N30.ur3oGU8SIjsWZHGQS9Vk8y9Y1UXBJCrEw_KahPCAI_k',
+  );
+
+  // initialise hive box
+  await Hive.initFlutter();
+  await Hive.openBox<dynamic>(LocalAppStorage.storageBox);
+
   await SentryFlutter.init(
     (options) {
-      options.dsn = 'https://6dc8de8176b18952876db1f2980a7787@o4508336559947776.ingest.de.sentry.io/4510556562915408';
+      options.dsn =
+          'https://6dc8de8176b18952876db1f2980a7787@o4508336559947776.ingest.de.sentry.io/4510556562915408';
       options.environment = 'production';
       // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
       // We recommend adjusting this value in production.
@@ -53,32 +80,8 @@ void main() async {
       options.debug = false;
     },
     appRunner: () async {
-      WidgetsFlutterBinding.ensureInitialized();
-
-      // Initialize firebase
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-
-      // Initialize French locale for date formatting
-      await initializeDateFormatting('fr_FR', null);
-
-      // Initialize Gleap
-      Gleap.initialize(token: 'Qq2gB5CN8MF6U7XdK5xUhETe49WgA0aa');
-      Gleap.showFeedbackButton(false);
-
-      // initialize supabase
-      await Supabase.initialize(
-        url: 'https://fqqpmzurvunhilnnhmtf.supabase.co',
-        anonKey:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcXBtenVydnVuaGlsbm5obXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxOTIxNTcsImV4cCI6MjA2NDc2ODE1N30.ur3oGU8SIjsWZHGQS9Vk8y9Y1UXBJCrEw_KahPCAI_k',
-      );
-
-      // initialise hive box
-      await Hive.initFlutter();
-      await Hive.openBox<dynamic>(LocalAppStorage.storageBox);
-
-      runApp(const ProviderScope(child: SentryScreenshotWidget(child: MyApp())));
+      runApp(
+          const ProviderScope(child: SentryScreenshotWidget(child: MyApp())));
     },
   );
 }
