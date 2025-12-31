@@ -9,6 +9,7 @@ import 'package:budgets/features/auth/presentation/pages/login_page.dart';
 import 'package:budgets/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:budgets/features/onboarding/presentation/pages/splash_page.dart';
 import 'package:budgets/features/categories/presentation/pages/add_category_page.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/pages/add_transaction.dart';
 import 'package:budgets/features/transactions/presentation/pages/transaction_page.dart';
 import 'package:budgets/features/transactions/presentation/pages/filter_transactions_page.dart';
@@ -38,7 +39,6 @@ final supabase = Supabase.instance.client;
 Box<dynamic> get storageBox => Hive.box(LocalAppStorage.storageBox);
 
 void main() async {
-  
   SentryWidgetsFlutterBinding.ensureInitialized();
 
   // Initialize firebase
@@ -177,7 +177,11 @@ class _MyAppState extends ConsumerState<MyApp> {
         path: '/add-transaction',
         builder: (context, state) {
           final type = state.uri.queryParameters['type'] ?? 'expense';
-          return TransactionCreationPage(transactionType: type);
+          final transaction = state.extra as TransactionModel?;
+          return TransactionCreationPage(
+            transactionType: type,
+            transaction: transaction,
+          );
         },
       ),
       GoRoute(

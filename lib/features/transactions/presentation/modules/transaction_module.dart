@@ -121,6 +121,39 @@ class TransactionModule {
     return false; // Form validation failed
   }
 
+  // Edit transaction
+  Future<bool> editTransaction({
+    required String transactionId,
+    String? amount,
+    String? description,
+    String? categoryName,
+    Map<String, String>? subcategoryAmounts,
+    TransactionType? transactionType,
+    DateTime? date,
+    required GlobalKey<FormState> formKey,
+    required WidgetRef ref,
+  }) async {
+    if (formKey.currentState!.validate()) {
+      try {
+        await ref.read(transactionsProvider.notifier).editTransaction(
+              transactionId,
+              amount,
+              description,
+              categoryName,
+              subcategoryAmounts,
+              transactionType,
+              date,
+            );
+
+        return true; // Indicate success
+      } catch (e) {
+        debugPrint('Error editing transaction: $e');
+        return false; // Indicate failure
+      }
+    }
+    return false; // Form validation failed
+  }
+
   // Method to build subcategory amounts map for Supabase RPC
   Map<String, String> buildSubcategoryAmountsMap(
       List<Map<String, dynamic>> subcategoryAmounts) {
@@ -241,7 +274,7 @@ class TransactionModule {
 
     listKey.currentState?.removeItem(
       index,
-      (context, animation) => buildRemovedItem(removedItem, index,animation),
+      (context, animation) => buildRemovedItem(removedItem, index, animation),
       duration: const Duration(milliseconds: 300),
     );
 
@@ -268,7 +301,7 @@ class TransactionModule {
 
       listKey.currentState?.removeItem(
         i,
-        (context, animation) => buildRemovedItem(removedItem,i, animation),
+        (context, animation) => buildRemovedItem(removedItem, i, animation),
         duration: Duration(milliseconds: 200 + (i * 50)), // Staggered animation
       );
 
@@ -293,6 +326,8 @@ class TransactionModule {
     required TextEditingController descriptionController,
     required TransactionType transactionType,
     required WidgetRef ref,
+    String? transactionId, // Optional transaction ID for editing
+    DateTime? transactionDate, // Optional date for editing
   }) async {
     // Validate form
     if (!formKey.currentState!.validate()) {
@@ -327,65 +362,95 @@ class TransactionModule {
       debugPrint("🗺️ FINAL SUBCATEGORY MAP: $subcategoryMap");
       debugPrint("💰 TOTAL AMOUNT: $totalAmount");
 
-      final description = descriptionController.text.trim().isEmpty 
-          ? "" 
+      final description = descriptionController.text.trim().isEmpty
+          ? ""
           : descriptionController.text.trim();
-      
+
       debugPrint("Calling Supabase RPC with:");
       debugPrint("Total Amount: $totalAmount");
       debugPrint("Description: $description");
       debugPrint("Category: ${selectedCategory.name ?? ''}");
       debugPrint("Subcategory Map: $subcategoryMap");
 
-      final transactionAdded = await addTransaction(
-        amount: totalAmount.toString(),
-        description: description,
-        categoryName: selectedCategory.name ?? '',
-        subcategoryAmounts: subcategoryMap,
-        transactionType: transactionType,
-        formKey: formKey,
-        ref: ref,
-      );
+      final transactionSuccess = transactionId != null
+          ? await editTransaction(
+              transactionId: transactionId,
+              amount: totalAmount.toString(),
+              description: description,
+              categoryName: selectedCategory.name ?? '',
+              subcategoryAmounts: subcategoryMap,
+              transactionType: transactionType,
+              date: transactionDate,
+              formKey: formKey,
+              ref: ref,
+            )
+          : await addTransaction(
+              amount: totalAmount.toString(),
+              description: description,
+              categoryName: selectedCategory.name ?? '',
+              subcategoryAmounts: subcategoryMap,
+              transactionType: transactionType,
+              formKey: formKey,
+              ref: ref,
+            );
 
-      if (transactionAdded) {
+      if (transactionSuccess) {
         return TransactionSubmissionResult(
           success: true,
-          message:
-              '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}',
+          message: transactionId != null
+              ? '${transactionType.displayName} modifiée avec succès'
+              : '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}',
           totalAmount: totalAmount,
         );
       } else {
         return TransactionSubmissionResult(
           success: false,
-          message: 'Erreur lors de l\'ajout de la transaction.',
+          message: transactionId != null
+              ? 'Erreur lors de la modification de la transaction.'
+              : 'Erreur lors de l\'ajout de la transaction.',
         );
       }
     } else {
       // Single amount mode
-      final description = descriptionController.text.trim().isEmpty 
-          ? "" 
+      final description = descriptionController.text.trim().isEmpty
+          ? ""
           : descriptionController.text.trim();
-      
-      final transactionAdded = await addTransaction(
-        amount: montantController.text.trim(),
-        description: description,
-        categoryName: selectedCategory.name ?? '',
-        subcategoryAmounts: null,
-        transactionType: transactionType,
-        formKey: formKey,
-        ref: ref,
-      );
 
-      if (transactionAdded) {
+      final transactionSuccess = transactionId != null
+          ? await editTransaction(
+              transactionId: transactionId,
+              amount: montantController.text.trim(),
+              description: description,
+              categoryName: selectedCategory.name ?? '',
+              subcategoryAmounts: null,
+              transactionType: transactionType,
+              date: transactionDate,
+              formKey: formKey,
+              ref: ref,
+            )
+          : await addTransaction(
+              amount: montantController.text.trim(),
+              description: description,
+              categoryName: selectedCategory.name ?? '',
+              subcategoryAmounts: null,
+              transactionType: transactionType,
+              formKey: formKey,
+              ref: ref,
+            );
+
+      if (transactionSuccess) {
         return TransactionSubmissionResult(
           success: true,
-          message:
-              '${transactionType.displayName} ajoutée: ${montantController.text.trim()}',
+          message: transactionId != null
+              ? '${transactionType.displayName} modifiée avec succès'
+              : '${transactionType.displayName} ajoutée: ${montantController.text.trim()}',
         );
       } else {
         return TransactionSubmissionResult(
           success: false,
-          message: 'Erreur lors de l\'ajout de la transaction.',
+          message: transactionId != null
+              ? 'Erreur lors de la modification de la transaction.'
+              : 'Erreur lors de l\'ajout de la transaction.',
         );
       }
     }

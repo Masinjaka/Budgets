@@ -126,7 +126,7 @@ class TransactionsApi {
     return Wrapper.execute(() async {
       // Ensure description is never null, default to empty string
       final validDescription = description?.trim() ?? "";
-      
+
       final response = await _supabaseClient.rpc(
         'add_expenses',
         params: {
@@ -145,6 +145,66 @@ class TransactionsApi {
       }
 
       debugPrint("Transaction created: ${response.runtimeType} -> $response");
+    });
+  }
+
+  // Delete transaction
+  Future<void> deleteTransaction(String transactionId) {
+    return Wrapper.execute(() async {
+      final response = await _supabaseClient.rpc(
+        'delete_expense',
+        params: {
+          'expense_id': transactionId,
+        },
+      );
+
+      debugPrint("Transaction deleted: $response");
+    });
+  }
+
+  // Edit transaction
+  Future<void> editTransaction(
+      String transactionId,
+      String? amount,
+      String? description,
+      String? categoryName,
+      Map<String, String>? subcategoryAmounts,
+      TransactionType? transactionType,
+      DateTime? date) {
+    return Wrapper.execute(() async {
+      // Ensure description is never null
+      final validDescription = description?.trim() ?? "";
+
+      final response = await _supabaseClient.rpc(
+        'edit_expense',
+        params: {
+          'expense_id': transactionId,
+          'amount': amount,
+          'description': validDescription,
+          'category_name': categoryName,
+          'tr_type': transactionType?.value ?? TransactionType.expense.value,
+          'transaction_date': date?.toIso8601String(),
+          'subcategories_amount': subcategoryAmounts,
+        },
+      );
+
+      // The function returns a table with success and error_message
+      // We need to parse it similar to add_expense if needed, or check response
+      // Based on the user definition: RETURNS TABLE (success boolean, error_message text)
+      // Supabase RPC returns List<dynamic> (rows) for RETURNS TABLE
+
+      final rows = response as List<dynamic>;
+      if (rows.isNotEmpty) {
+        final row = rows.first as Map<String, dynamic>;
+        final success = row['success'] as bool? ?? false;
+        final errorMessage = row['error_message'] as String?;
+
+        if (!success) {
+          throw Exception(errorMessage ?? 'Failed to edit transaction');
+        }
+      }
+
+      debugPrint("Transaction edited: $response");
     });
   }
 }

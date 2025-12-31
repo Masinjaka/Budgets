@@ -1,5 +1,6 @@
 import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction/detailed_transaction_switch.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction/subcategory_amount_row.dart';
@@ -9,18 +10,22 @@ import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/widgets/custom_dropdown.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
+import 'package:budgets/features/categories/domain/providers/subcategory_expenses_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class TransactionCreationPage extends ConsumerStatefulWidget {
   final String transactionType;
+  final TransactionModel? transaction; // Optional transaction for edit mode
 
   const TransactionCreationPage({
     super.key,
     this.transactionType = 'expense',
+    this.transaction,
   });
 
   @override
@@ -39,9 +44,13 @@ class _TransactionCreationPageState
       TransactionType.fromValue(widget.transactionType) ??
       TransactionType.expense;
 
+  // Check if in edit mode
+  bool get isEditMode => widget.transaction != null;
+
   final TextEditingController _designationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _montantController = TextEditingController();
+  DateTime? _selectedDate;
 
   List<Category> _categories = [];
   Category? _selectedCategory;
@@ -49,10 +58,19 @@ class _TransactionCreationPageState
   bool _isMultipleAmounts = false;
   final List<Map<String, dynamic>> _subcategoryAmounts = [];
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  bool _isInitializing = false;
 
   @override
   void initState() {
     super.initState();
+
+    _isInitializing = isEditMode;
+
+    // Pre-fill form if in edit mode
+    if (isEditMode) {
+      _descriptionController.text = widget.transaction!.description ?? '';
+      _selectedDate = widget.transaction!.date;
+    }
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
@@ -62,11 +80,111 @@ class _TransactionCreationPageState
             .where((category) => category.transactionType == transactionType)
             .toList();
 
-        setState(() {
-          _categories = filteredCategories;
-        });
-        debugPrint(
-            "CATEGORIES FOR ${transactionType.value}: ${filteredCategories.length}");
+        // Local variables for state update
+        List<Category> newCategories = filteredCategories;
+        Category? newSelectedCategory;
+        List<Subcategory> newSubcategories = [];
+        bool newIsMultipleAmounts = false;
+
+        // Pre-select category if in edit mode
+        if (isEditMode && widget.transaction!.category != null) {
+          newSelectedCategory = filteredCategories.firstWhere(
+            (cat) => cat.id == widget.transaction!.category!.id,
+            orElse: () => filteredCategories.first,
+          );
+        }
+
+        // In edit mode, check if transaction has subcategories
+        if (isEditMode && widget.transaction!.id != null) {
+          try {
+            // Fetch subcategory expenses for this transaction
+            final subcategoryExpenses = await ref.read(
+              subcategoryExpensesProvider(widget.transaction!.id!).future,
+            );
+
+            // If subcategories exist, activate detailed transaction mode
+            if (subcategoryExpenses.isNotEmpty) {
+              // Fetch subcategories for the selected category
+              if (newSelectedCategory?.id != null) {
+                newSubcategories = await _module.fetchSubcategories(
+                  ref,
+                  newSelectedCategory!.id!,
+                );
+              }
+
+              newIsMultipleAmounts = true;
+
+              // Clear any existing entries
+              _subcategoryAmounts.clear();
+
+              // Add each subcategory expense to the list
+              for (var subExpense in subcategoryExpenses) {
+                final subcategoryController = TextEditingController(
+                  text: subExpense.subcategory?.name ?? '',
+                );
+                final amountController = TextEditingController(
+                  text: subExpense.amount?.toString() ?? '',
+                );
+
+                // Find matching subcategory instance from the fetched list
+                Subcategory? matchedSubcategory;
+                if (subExpense.subcategory?.id != null &&
+                    newSubcategories.isNotEmpty) {
+                  try {
+                    matchedSubcategory = newSubcategories.firstWhere(
+                      (s) => s.id == subExpense.subcategory!.id,
+                    );
+                  } catch (_) {
+                    // Not found in current category list
+                  }
+                }
+
+                // Fallback to the expense's subcategory if match failed
+                matchedSubcategory ??= subExpense.subcategory;
+
+                final item = {
+                  'subcategoryController': subcategoryController,
+                  'amountController': amountController,
+                  'subcategoryName': subExpense.subcategory?.name ?? '',
+                  'subcategoryId': subExpense.subcategory?.id,
+                  'subcategory': matchedSubcategory,
+                };
+
+                _subcategoryAmounts.add(item);
+              }
+
+              debugPrint(
+                "✅ Pre-filled ${subcategoryExpenses.length} subcategory expenses",
+              );
+            } else {
+              // No subcategories, use regular amount field
+              _montantController.text =
+                  widget.transaction!.amount?.toString() ?? '';
+            }
+          } catch (e) {
+            debugPrint("❌ Error fetching subcategory expenses: $e");
+            // Fallback to regular amount field
+            _montantController.text =
+                widget.transaction!.amount?.toString() ?? '';
+          }
+        } else if (!isEditMode) {
+          // Not in edit mode, keep amount field empty for new transactions
+        } else {
+          // Edit mode but no transaction ID, use the total amount
+          _montantController.text =
+              widget.transaction!.amount?.toString() ?? '';
+        }
+
+        // Apply all changes
+        if (mounted) {
+          setState(() {
+            _categories = newCategories;
+            _selectedCategory = newSelectedCategory;
+            _subcategories = newSubcategories;
+            _isMultipleAmounts = newIsMultipleAmounts;
+            _isInitializing = false;
+          });
+        }
       },
     );
   }
@@ -88,6 +206,15 @@ class _TransactionCreationPageState
 
   @override
   Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+      );
+    }
     // Always use dark mode
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -215,6 +342,71 @@ class _TransactionCreationPageState
                       bottomRight: Radius.circular(5.w),
                     ),
                   ),
+                  // Date picker field - only visible in edit mode
+                  if (isEditMode) ...[
+                    SizedBox(height: 2.h),
+                    GestureDetector(
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _selectedDate = picked;
+                          });
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 5.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(5.w),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Date',
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color,
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  _selectedDate != null
+                                      ? DateFormat.yMMMd('fr_FR')
+                                          .format(_selectedDate!)
+                                      : 'Sélectionner une date',
+                                  style: TextStyle(
+                                    color: Theme.of(context).hintColor,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                                SizedBox(width: 2.w),
+                                Icon(
+                                  Icons.calendar_today,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 18.sp,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                   SizedBox(height: 2.h),
                 ],
               ),
@@ -245,7 +437,8 @@ class _TransactionCreationPageState
           shrinkWrap: true,
           padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
-          initialItemCount: 0, // Start with 0 to ensure all items animate
+          initialItemCount: _subcategoryAmounts
+              .length, // Start with current length to ensure all items animate
           itemBuilder: (context, index, animation) {
             if (index >= _subcategoryAmounts.length) {
               return const SizedBox.shrink();
@@ -315,9 +508,13 @@ class _TransactionCreationPageState
         onPressed: () => context.pop(),
       ),
       title: Text(
-        transactionType == TransactionType.income
-            ? 'Nouveau revenu'
-            : 'Nouvelle dépense',
+        isEditMode
+            ? (transactionType == TransactionType.income
+                ? 'Modifier le revenu'
+                : 'Modifier la dépense')
+            : (transactionType == TransactionType.income
+                ? 'Nouveau revenu'
+                : 'Nouvelle dépense'),
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 18.sp,
@@ -330,7 +527,7 @@ class _TransactionCreationPageState
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 5.w),
       child: CustomButton(
-        text: 'Confirmer',
+        text: isEditMode ? 'Enregistrer' : 'Confirmer',
         backgroundColor: Theme.of(context).primaryColor,
         onPressed: () async {
           setState(() => _isLoading = true);
@@ -344,6 +541,8 @@ class _TransactionCreationPageState
             descriptionController: _descriptionController,
             transactionType: transactionType,
             ref: ref,
+            transactionId: widget.transaction?.id,
+            transactionDate: isEditMode ? _selectedDate : null,
           );
 
           if (!mounted) {
