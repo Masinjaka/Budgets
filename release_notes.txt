@@ -1,11 +1,5 @@
 Changes in this version:
-
-    [Fix]
-        - Add Sentry to  report bugs in production
     [feature]
-        - Detailled comparaison page
-        - Trend page
-    [Improvement]
-        - UI Improvements    
+        - Edit and delete transactions
 
 Enjoy testing!
