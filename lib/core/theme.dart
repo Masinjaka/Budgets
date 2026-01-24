@@ -25,7 +25,7 @@ class AppTheme {
     fontFamily: GoogleFonts.outfit().fontFamily,
     textTheme: GoogleFonts.outfitTextTheme(
       const TextTheme(
-        bodyLarge:TextStyle(color: textLight),
+        bodyLarge: TextStyle(color: textLight),
         bodyMedium: TextStyle(color: textLight),
         titleLarge: TextStyle(color: textLight),
         titleMedium: TextStyle(color: textLight),
@@ -64,7 +64,9 @@ class AppTheme {
         titleLarge: TextStyle(color: textDark),
         titleMedium: TextStyle(color: textDark),
         titleSmall: TextStyle(color: textDark),
-        bodySmall: TextStyle(color: textDark,),
+        bodySmall: TextStyle(
+          color: textDark,
+        ),
         labelMedium: TextStyle(
           fontWeight: FontWeight.bold,
         ),

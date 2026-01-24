@@ -55,19 +55,15 @@ void main() {
       });
 
       test('parses error_message key', () {
-        final result = parseRpcAddExpenseResponse({
-          'success': false,
-          'error_message': 'Something went wrong'
-        });
+        final result = parseRpcAddExpenseResponse(
+            {'success': false, 'error_message': 'Something went wrong'});
         expect(result.success, false);
         expect(result.errorMessage, 'Something went wrong');
       });
 
       test('parses error key', () {
-        final result = parseRpcAddExpenseResponse({
-          'success': false,
-          'error': 'Database error'
-        });
+        final result = parseRpcAddExpenseResponse(
+            {'success': false, 'error': 'Database error'});
         expect(result.success, false);
         expect(result.errorMessage, 'Database error');
       });
@@ -90,10 +86,8 @@ void main() {
       });
 
       test('extracts string error from map values', () {
-        final result = parseRpcAddExpenseResponse({
-          'result': false,
-          'message': 'Error occurred'
-        });
+        final result = parseRpcAddExpenseResponse(
+            {'result': false, 'message': 'Error occurred'});
         expect(result.errorMessage, 'Error occurred');
       });
     });

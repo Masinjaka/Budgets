@@ -4,7 +4,6 @@ import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/main.dart'; // For supabase instance
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // For SupabaseClient
 

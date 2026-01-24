@@ -133,7 +133,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                               ? const Color.fromARGB(255, 215, 120, 113)
                               : const Color.fromARGB(255, 82, 149, 84),
                         ),
-                    
+
                     // TextStyle(
                     //   fontSize: 14.sp,
                     //   color: widget.transactionType == 'expense'

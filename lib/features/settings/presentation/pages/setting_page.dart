@@ -220,7 +220,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
   }
 
-  _buildSignoutButton() {
+  CustomButton _buildSignoutButton() {
     return CustomButton(
       text: 'Se déconnecter',
       onPressed: () async {

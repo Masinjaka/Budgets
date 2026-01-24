@@ -340,7 +340,10 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                                 'Sélectionnez une option',
                             style: TextStyle(
                               color: _selectedItem != null
-                                  ? Theme.of(context).textTheme.bodyMedium?.color
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.color
                                   : Theme.of(context)
                                       .textTheme
                                       .bodyLarge

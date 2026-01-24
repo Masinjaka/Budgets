@@ -121,7 +121,8 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
     } else if (widget.height != null) {
       // Calculate padding to center text vertically in the given height
       // Account for text height and distribute remaining space
-      final textHeight = (widget.fontSize ?? 16.sp) * 1.2; // Rough text height with line height
+      final textHeight = (widget.fontSize ?? 16.sp) *
+          1.2; // Rough text height with line height
       final availableSpace = widget.height! - textHeight;
       final verticalPadding = availableSpace / 2;
       effectivePadding = EdgeInsets.symmetric(
@@ -163,59 +164,67 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
             },
             cursorColor: Theme.of(context).textTheme.bodyLarge?.color,
             decoration: InputDecoration(
-            filled: true,
-            fillColor: Theme.of(context).cardColor,
+              filled: true,
+              fillColor: Theme.of(context).cardColor,
               contentPadding: effectivePadding,
-            enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                color: Colors.transparent,
+              enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Colors.transparent,
+                ),
+                borderRadius:
+                    widget.borderRadius ?? BorderRadius.circular(50.w),
               ),
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
-              borderSide: const BorderSide(
-                color: Colors.transparent, // Match blue stroke when focused
-                width: 1.8,
+              focusedBorder: OutlineInputBorder(
+                borderRadius:
+                    widget.borderRadius ?? BorderRadius.circular(50.w),
+                borderSide: const BorderSide(
+                  color: Colors.transparent, // Match blue stroke when focused
+                  width: 1.8,
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius:
+                    widget.borderRadius ?? BorderRadius.circular(50.w),
+                borderSide: const BorderSide(
+                  color: Colors.transparent,
+                  width: 1.8,
+                ),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius:
+                    widget.borderRadius ?? BorderRadius.circular(50.w),
+                borderSide: const BorderSide(
+                  color: Colors.transparent,
+                  width: 1.8,
+                ),
+              ),
+              hintText: widget.hint,
+              suffixIcon: isPassord
+                  ? IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isObscure = !isObscure;
+                        });
+                      },
+                      icon: Icon(
+                        isObscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
+                    )
+                  : widget.suffixIcon,
+              hintStyle: TextStyle(
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.color
+                    ?.withAlpha(100),
+                fontSize: widget.fontSize ?? 16.sp,
               ),
             ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
-              borderSide: const BorderSide(
-                color: Colors.transparent,
-                width: 1.8,
-              ),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(50.w),
-              borderSide: const BorderSide(
-                color: Colors.transparent,
-                width: 1.8,
-              ),
-            ),
-            hintText: widget.hint,
-            suffixIcon: isPassord
-                ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isObscure = !isObscure;
-                      });
-                    },
-                    icon: Icon(
-                      isObscure
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                  )
-                : widget.suffixIcon,
-            hintStyle: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(100),
-              fontSize: widget.fontSize ?? 16.sp,
-            ),
+            onTap: widget.onTap,
           ),
-          onTap: widget.onTap,
-        ),
         ),
       ],
     );

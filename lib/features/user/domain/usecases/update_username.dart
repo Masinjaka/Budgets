@@ -1,6 +1,5 @@
 import 'package:budgets/features/user/domain/interfaces/user_repository.dart';
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'update_username.g.dart';

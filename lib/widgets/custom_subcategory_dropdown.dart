@@ -300,7 +300,7 @@ class _CustomSubcategoryDropdownState
                     if (await Vibration.hasVibrator()) {
                       Vibration.vibrate(duration: 10);
                     }
-                    
+
                     final customSubcategory = Subcategory(name: searchText);
                     setState(() {
                       _selectedItem = customSubcategory;
@@ -310,7 +310,8 @@ class _CustomSubcategoryDropdownState
                     _focusNode.unfocus();
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 4.w),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 1.h, horizontal: 4.w),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(100),
@@ -412,8 +413,7 @@ class _CustomSubcategoryDropdownState
                             ),
                           ),
                           style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.bodyLarge?.color,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                             fontSize: 15.sp,
                           ),
                           onTap: () {
@@ -432,15 +432,14 @@ class _CustomSubcategoryDropdownState
                             _isDropdownOpen
                                 ? Icons.arrow_drop_up
                                 : Icons.arrow_drop_down,
-                            color:
-                                Theme.of(context).textTheme.bodyLarge?.color,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                
+
                 // Dropdown content - directly in widget tree
                 if (_isDropdownOpen)
                   SizeTransition(
@@ -473,7 +472,7 @@ class _CustomSubcategoryDropdownState
                       ),
                     ),
                   ),
-                
+
                 if (state.hasError)
                   Padding(
                     padding: EdgeInsets.only(top: 1.h, left: 3.w),

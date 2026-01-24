@@ -40,36 +40,39 @@ class SubcategoryAmountRow extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 CustomSubcategoryDropdown(
-                title: const SizedBox.shrink(),
-                hint: 'Tapez ou sélectionnez une sous-catégorie',
-                items: subcategories,
-                selectedValue: item['subcategory'] as Subcategory?,
-                onChanged: enabled ? onSubcategoryChanged : null,
-                enabled: enabled,                onTap: onSubcategoryTap,              ),
-              SizedBox(height: 1.h),
-              TextFormField(
-                controller: item['amountController'] as TextEditingController?,
-                keyboardType: TextInputType.number,
-                enabled: enabled,
-                onChanged: onAmountChanged,
-                decoration: InputDecoration(
-                  hintText: '0.00',
-                  isDense: true,
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  filled: true,
-                  fillColor: Colors.transparent,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+                  title: const SizedBox.shrink(),
+                  hint: 'Tapez ou sélectionnez une sous-catégorie',
+                  items: subcategories,
+                  selectedValue: item['subcategory'] as Subcategory?,
+                  onChanged: enabled ? onSubcategoryChanged : null,
+                  enabled: enabled,
+                  onTap: onSubcategoryTap,
                 ),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                  fontSize: 18.sp,
+                SizedBox(height: 1.h),
+                TextFormField(
+                  controller:
+                      item['amountController'] as TextEditingController?,
+                  keyboardType: TextInputType.number,
+                  enabled: enabled,
+                  onChanged: onAmountChanged,
+                  decoration: InputDecoration(
+                    hintText: '0.00',
+                    isDense: true,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+                  ),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                    fontSize: 18.sp,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
             ),
           ),
           if (onRemove != null)

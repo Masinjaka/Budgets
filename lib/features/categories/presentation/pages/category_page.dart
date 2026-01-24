@@ -217,7 +217,7 @@ class _CategoryTabContent extends ConsumerWidget {
     );
   }
 
-  _categoryGrid(BuildContext context, List<Category> categories) {
+  Widget _categoryGrid(BuildContext context, List<Category> categories) {
     if (categories.isEmpty) {
       return Center(
         child: Text(

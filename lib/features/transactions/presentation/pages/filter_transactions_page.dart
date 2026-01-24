@@ -320,7 +320,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
   }
 
   // build categories
-  _buildCategories(List<Category> categories) {
+  Wrap _buildCategories(List<Category> categories) {
     return Wrap(
       runSpacing: 2.5.w,
       children: categories.map((e) {
@@ -365,7 +365,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
     );
   }
 
-  _buildCategorySkeleton() {
+  Wrap _buildCategorySkeleton() {
     return Wrap(
       runSpacing: 2.5.w,
       children: List.generate(

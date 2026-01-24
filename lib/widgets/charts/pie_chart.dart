@@ -136,7 +136,7 @@ Widget categoryPieChart(
             ],
           ),
         );
-      }).toList(),
+      }),
     ],
   );
 }

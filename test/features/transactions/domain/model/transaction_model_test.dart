@@ -255,9 +255,11 @@ void main() {
         expect(resultMap['amount'], originalMap['amount']);
         expect(resultMap['invoice_file'], originalMap['invoice_file']);
         expect(resultMap['transaction_type'], originalMap['transaction_type']);
-        
-        final originalCategories = originalMap['categories'] as Map<String, dynamic>;
-        final resultCategories = resultMap['categories'] as Map<String, dynamic>;
+
+        final originalCategories =
+            originalMap['categories'] as Map<String, dynamic>;
+        final resultCategories =
+            resultMap['categories'] as Map<String, dynamic>;
         expect(resultCategories['name'], originalCategories['name']);
       });
     });

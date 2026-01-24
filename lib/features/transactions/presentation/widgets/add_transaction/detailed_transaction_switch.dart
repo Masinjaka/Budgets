@@ -24,10 +24,7 @@ class DetailedTransactionSwitch extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15.sp,
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.color,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
               Text(
@@ -35,10 +32,7 @@ class DetailedTransactionSwitch extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.w400,
                   fontSize: 14.sp,
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.color,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
                 ),
               ),
             ],
@@ -56,11 +50,11 @@ class DetailedTransactionSwitch extends StatelessWidget {
             if (states.contains(WidgetState.selected)) {
               return null; // No outline when active
             }
-            return Theme.of(context).colorScheme.tertiary; // Match inactive thumb color
+            return Theme.of(context)
+                .colorScheme
+                .tertiary; // Match inactive thumb color
           }),
-          materialTapTargetSize:
-              MaterialTapTargetSize.shrinkWrap,
-          
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ],
     );

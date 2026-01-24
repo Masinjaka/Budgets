@@ -323,7 +323,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
     );
   }
 
-  _buildSubSkeleton(BuildContext context) {
+  Padding _buildSubSkeleton(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 1.h),
       child: Column(
