@@ -1,10 +1,11 @@
+import 'package:budgets/features/stats/presentation/modules/authentication_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 enum BalanceCardType { expense, income }
 
-class NewBalanceCard extends StatelessWidget {
+class NewBalanceCard extends StatefulWidget {
   final BalanceCardType type;
   final double amount;
 
@@ -13,6 +14,13 @@ class NewBalanceCard extends StatelessWidget {
     required this.type,
     required this.amount,
   });
+
+  @override
+  State<NewBalanceCard> createState() => _NewBalanceCardState();
+}
+
+class _NewBalanceCardState extends State<NewBalanceCard> {
+  bool _isHidden = true;
 
   String _formatAmount(double amount) {
     final formatter = NumberFormat.currency(
@@ -23,11 +31,29 @@ class NewBalanceCard extends StatelessWidget {
     return formatter.format(amount.abs());
   }
 
+  void _toggleVisibility() {
+    if (_isHidden) {
+      AuthenticationUtils.authenticateAndShow(
+        context,
+        'Veuillez vous authentifier pour afficher le montant',
+        () {
+          setState(() {
+            _isHidden = false;
+          });
+        },
+      );
+    } else {
+      setState(() {
+        _isHidden = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final cardColor = Theme.of(context).cardColor;
-    final isExpense = type == BalanceCardType.expense;
+    final isExpense = widget.type == BalanceCardType.expense;
     final title = isExpense ? 'Dépense' : 'Revenue';
 
     return Container(
@@ -40,21 +66,37 @@ class NewBalanceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w500,
-              color: textColor?.withValues(alpha: 0.7),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500,
+                  color: textColor?.withValues(alpha: 0.7),
+                ),
+              ),
+              GestureDetector(
+                onTap: _toggleVisibility,
+                child: Icon(
+                  _isHidden
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  size: 18.sp,
+                  color: textColor?.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 2.h),
           Text(
-            _formatAmount(amount),
+            _isHidden ? '••••••••' : _formatAmount(widget.amount),
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
               color: textColor,
+              letterSpacing: _isHidden ? 2.0 : 0.0,
             ),
             overflow: TextOverflow.ellipsis,
           ),
