@@ -18,6 +18,10 @@ class StatsChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
 
+    // Softer accent colors for the chart lines
+    const expenseColor = Color(0xFFEF9A9A); // Lighter red accent
+    const incomeColor = Color(0xFFA5D6A7); // Lighter green accent
+
     // Calculate max value for y-axis
     double maxValue = 0;
     for (final value in expenseData) {
@@ -39,15 +43,15 @@ class StatsChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildLegendItem(context, 'Dépense', Colors.red),
-              SizedBox(width: 6.w),
-              _buildLegendItem(context, 'Revenue', Colors.green),
-            ],
+          Text(
+            'Évolution',
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w500,
+              color: textColor?.withValues(alpha: 0.7),
+            ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 1.h),
           Expanded(
             child: LineChart(
               LineChartData(
@@ -105,26 +109,26 @@ class StatsChart extends StatelessWidget {
                   LineChartBarData(
                     spots: _createSpots(expenseData),
                     isCurved: true,
-                    color: Colors.red,
+                    color: expenseColor,
                     barWidth: 2,
                     isStrokeCapRound: true,
                     dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.red.withValues(alpha: 0.1),
+                      color: expenseColor.withValues(alpha: 0.1),
                     ),
                   ),
                   // Income line
                   LineChartBarData(
                     spots: _createSpots(incomeData),
                     isCurved: true,
-                    color: Colors.green,
+                    color: incomeColor,
                     barWidth: 2,
                     isStrokeCapRound: true,
                     dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.green.withValues(alpha: 0.1),
+                      color: incomeColor.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -138,7 +142,7 @@ class StatsChart extends StatelessWidget {
                         return LineTooltipItem(
                           '${spot.y.toInt()} MGA',
                           TextStyle(
-                            color: isExpense ? Colors.red : Colors.green,
+                            color: isExpense ? expenseColor : incomeColor,
                             fontWeight: FontWeight.bold,
                             fontSize: 12.sp,
                           ),
@@ -161,30 +165,5 @@ class StatsChart extends StatelessWidget {
       spots.add(FlSpot(i.toDouble(), data[i]));
     }
     return spots;
-  }
-
-  Widget _buildLegendItem(BuildContext context, String label, Color color) {
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 3.w,
-          height: 3.w,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        SizedBox(width: 1.w),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: textColor?.withValues(alpha: 0.7),
-          ),
-        ),
-      ],
-    );
   }
 }
