@@ -297,7 +297,7 @@ class _CustomSubcategoryDropdownState
                 child: GestureDetector(
                   onTap: () async {
                     // Haptic feedback
-                    if (await Vibration.hasVibrator() ?? false) {
+                    if (await Vibration.hasVibrator()) {
                       Vibration.vibrate(duration: 10);
                     }
                     

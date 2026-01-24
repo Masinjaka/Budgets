@@ -81,7 +81,7 @@ void main() async {
     },
     appRunner: () async {
       runApp(
-          const ProviderScope(child: SentryScreenshotWidget(child: MyApp())));
+          ProviderScope(child: SentryScreenshotWidget(child: MyApp())));
     },
   );
 }

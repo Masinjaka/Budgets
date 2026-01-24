@@ -59,10 +59,10 @@ class TransactionModule {
         return false;
       }
       final dateRange = DateTimeRange(start: startDate, end: endDate);
-      ref.read(dateRangeProvider.notifier).state = dateRange;
+      ref.read(dateRangeProvider.notifier).update(dateRange);
     }
 
-    ref.read(selectedCategoriesProvider.notifier).state = selectedCategories;
+    ref.read(selectedCategoriesProvider.notifier).update(selectedCategories);
 
     return true;
   }

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/auth/presentation/widgets/file_picker_option.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:flutter/material.dart';

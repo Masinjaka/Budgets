@@ -1,4 +1,3 @@
-import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -19,8 +18,6 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final NumberFormat currencyFormatter = NumberFormat.decimalPattern('en_US');
-    final isExpense = transaction.transactionType == TransactionType.expense;
-    final color = isExpense ? Colors.redAccent : AppTheme.primaryGreen;
     // Fix: Ensure color string starts with 0xff
     String? rawColor = transaction.category?.color;
     Color categoryColor;

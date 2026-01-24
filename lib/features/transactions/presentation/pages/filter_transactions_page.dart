@@ -196,8 +196,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
                               setState(() {
                                 _fromDate.clear();
                                 _toDate.clear();
-                                ref.read(dateRangeProvider.notifier).state =
-                                    null;
+                                ref.read(dateRangeProvider.notifier).clear();
                               });
                             },
                             icon: const Icon(Icons.clear),

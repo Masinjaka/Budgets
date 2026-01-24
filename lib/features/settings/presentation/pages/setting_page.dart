@@ -195,7 +195,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       case ThemeMode.dark:
         return 'Nuit';
       case ThemeMode.system:
-      default:
         return 'Système';
     }
   }
