@@ -98,15 +98,15 @@ This document outlines the phased implementation plan for redesigning the report
 - [x] Run tests.
 - [x] Run `dart_format`.
 - [x] Review and update `MODIFICATION_IMPLEMENTATION.md`.
-- [ ] Present commit message for approval.
-- [ ] Wait for approval to commit.
-- [ ] Hot reload if app is running.
+- [x] Present commit message for approval.
+- [x] Wait for approval to commit.
+- [x] Hot reload if app is running.
 
 ## Phase 5: Finalization and Cleanup
 
-- [ ] Review the complete implementation against the design files for pixel-perfect accuracy.
-- [ ] Update the project's `README.md` file with any relevant information about the new reports page, if necessary.
-- [ ] Update any `GEMINI.md` file in the project directory to correctly describe the app's current state.
+- [x] Review the complete implementation against the design files for pixel-perfect accuracy.
+- [x] Update the project's `README.md` file with any relevant information about the new reports page, if necessary.
+- [x] Update any `GEMINI.md` file in the project directory to correctly describe the app's current state.
 - [ ] Ask the user to inspect the package (and running app, if any) and say if they are satisfied.
 
 ### Post-Phase 5 Tasks
