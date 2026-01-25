@@ -2,32 +2,42 @@ import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/data/datasource/transaction_api.dart';
 import 'package:budgets/features/transactions/domain/model/paginated_transaction_state.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
-  final Ref _ref; // Stored ref
+part 'paginated_incomes_provider.g.dart';
 
-  PaginatedIncomes(this._ref) // Constructor takes ref
-      : super(const PaginatedTransactionsState(
-          transactions: [],
-          hasMore: true,
-          isLoading: true,
-          isLoadingMore: false,
-          currentPage: 0,
-        )) {
-    // Defer first load so provider is fully mounted
-    Future.microtask(_loadFirstPage);
-  }
-
+@riverpod
+class PaginatedIncomes extends _$PaginatedIncomes {
   static const int pageSize = 10;
-  bool _loadingNext = false;
+
+  // Ensures we don't schedule the initial load multiple times
+  bool _initialLoadScheduled = false;
+
+  @override
+  PaginatedTransactionsState build() {
+    // Set the initial state synchronously
+    const initialState = PaginatedTransactionsState(
+      transactions: [],
+      hasMore: true,
+      isLoading: true,
+      isLoadingMore: false,
+      currentPage: 0,
+    );
+
+    // Schedule the first page load after the initial state is set
+    if (!_initialLoadScheduled) {
+      _initialLoadScheduled = true;
+      Future.microtask(_loadFirstPage);
+    }
+
+    return initialState;
+  }
 
   Future<void> _loadFirstPage() async {
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
       final result =
-          await _ref.read(transactionsApiProvider).getTransactionsPaginated(
-                // Modified
+          await ref.read(transactionsApiProvider).getTransactionsPaginated(
                 page: 0,
                 limit: pageSize,
                 type: TransactionType.income,
@@ -49,19 +59,14 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
   }
 
   Future<void> loadNextPage() async {
-    if (_loadingNext ||
-        state.isLoadingMore ||
-        !state.hasMore ||
-        state.isLoading) {
+    if (state.isLoadingMore || !state.hasMore || state.isLoading) {
       return;
     }
-    _loadingNext = true;
     try {
       state = state.copyWith(isLoadingMore: true, errorMessage: null);
       final nextPage = state.currentPage + 1;
       final result =
-          await _ref.read(transactionsApiProvider).getTransactionsPaginated(
-                // Modified
+          await ref.read(transactionsApiProvider).getTransactionsPaginated(
                 page: nextPage,
                 limit: pageSize,
                 type: TransactionType.income,
@@ -78,8 +83,6 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
         isLoadingMore: false,
         errorMessage: e.toString(),
       );
-    } finally {
-      _loadingNext = false;
     }
   }
 
@@ -102,8 +105,3 @@ class PaginatedIncomes extends StateNotifier<PaginatedTransactionsState> {
     }
   }
 }
-
-final paginatedIncomesProvider = StateNotifierProvider.autoDispose<
-    PaginatedIncomes, PaginatedTransactionsState>((ref) {
-  return PaginatedIncomes(ref); // Pass ref
-});

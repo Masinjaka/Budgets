@@ -243,7 +243,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
     );
   }
 
-  _form(BuildContext context) {
+  GestureDetector _form(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Padding(

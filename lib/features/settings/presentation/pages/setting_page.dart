@@ -195,7 +195,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       case ThemeMode.dark:
         return 'Nuit';
       case ThemeMode.system:
-      default:
         return 'Système';
     }
   }
@@ -221,7 +220,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
   }
 
-  _buildSignoutButton() {
+  CustomButton _buildSignoutButton() {
     return CustomButton(
       text: 'Se déconnecter',
       onPressed: () async {

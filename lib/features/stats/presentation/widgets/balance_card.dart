@@ -47,7 +47,8 @@ class BalanceCard extends StatelessWidget {
     final surfaceDim = backgroundColor ?? Theme.of(context).colorScheme.surface;
 
     final isNegative = amount < 0;
-    final displayColor = isNegative ? Colors.red : Theme.of(context).textTheme.bodyMedium?.color;
+    final displayColor =
+        isNegative ? Colors.red : Theme.of(context).textTheme.bodyMedium?.color;
 
     return Stack(
       children: [
@@ -71,46 +72,49 @@ class BalanceCard extends StatelessWidget {
                     color: textColor?.withValues(alpha: 0.7),
                   ),
                 ),
-            SizedBox(height: isLarge ? 1.5.h : 1.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    isHidden ? '••••••••' : '${isNegative ? '-' : ''}${_formatAmount(amount)}',
-                    key: ValueKey<bool>(isHidden),
-                    style: TextStyle(
-                      fontSize: isLarge ? 19.sp : 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: displayColor,
-                      letterSpacing: isHidden ? 2.0 : 0.0,
+                SizedBox(height: isLarge ? 1.5.h : 1.h),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        isHidden
+                            ? '••••••••'
+                            : '${isNegative ? '-' : ''}${_formatAmount(amount)}',
+                        key: ValueKey<bool>(isHidden),
+                        style: TextStyle(
+                          fontSize: isLarge ? 19.sp : 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: displayColor,
+                          letterSpacing: isHidden ? 2.0 : 0.0,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      )
+                          .animate(key: ValueKey<bool>(isHidden))
+                          .fadeIn(
+                            duration: 600.ms,
+                            curve: Curves.easeOutCubic,
+                          )
+                          .slideY(
+                            begin: 0.3,
+                            end: 0,
+                            duration: 600.ms,
+                            curve: Curves.easeOutCubic,
+                          )
+                          .blur(
+                            begin: const Offset(0, 8),
+                            end: const Offset(0, 0),
+                            duration: 400.ms,
+                          ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  )
-                      .animate(key: ValueKey<bool>(isHidden))
-                      .fadeIn(
-                        duration: 600.ms,
-                        curve: Curves.easeOutCubic,
-                      )
-                      .slideY(
-                        begin: 0.3,
-                        end: 0,
-                        duration: 600.ms,
-                        curve: Curves.easeOutCubic,
-                      )
-                      .blur(
-                        begin: const Offset(0, 8),
-                        end: const Offset(0, 0),
-                        duration: 400.ms,
+                    if (comparisonAmount != null &&
+                        comparisonPercentage != null)
+                      Padding(
+                        padding: EdgeInsets.only(left: 2.w),
+                        child: _buildComparisonChip(),
                       ),
+                  ],
                 ),
-                if (comparisonAmount != null && comparisonPercentage != null)
-                  Padding(
-                    padding: EdgeInsets.only(left: 2.w),
-                    child: _buildComparisonChip(),
-                  ),
-              ],
-            ),
                 // if (subtitle != null) ..[
                 //   SizedBox(height: 1.h),
                 //   Text(

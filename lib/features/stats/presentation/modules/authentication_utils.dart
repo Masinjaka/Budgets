@@ -22,10 +22,7 @@ class AuthenticationUtils {
 
       final bool didAuthenticate = await _localAuth.authenticate(
         localizedReason: localizedReason,
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
+        authMessages: const [],
       );
 
       if (didAuthenticate) {

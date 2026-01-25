@@ -80,8 +80,7 @@ void main() async {
       options.debug = false;
     },
     appRunner: () async {
-      runApp(
-          const ProviderScope(child: SentryScreenshotWidget(child: MyApp())));
+      runApp(ProviderScope(child: SentryScreenshotWidget(child: MyApp())));
     },
   );
 }

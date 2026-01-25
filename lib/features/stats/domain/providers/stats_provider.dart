@@ -1,6 +1,5 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'stats_provider.g.dart';

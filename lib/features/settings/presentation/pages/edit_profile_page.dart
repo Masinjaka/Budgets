@@ -131,10 +131,11 @@ class _State extends ConsumerState<EditProfilePage> {
                     GestureDetector(
                       onTap: _pickImage,
                       child: DottedBorder(
-                        borderType: BorderType.Circle,
-                        color: Colors.grey,
-                        strokeWidth: 2,
-                        dashPattern: const [8, 4],
+                        options: const CircularDottedBorderOptions(
+                          color: Colors.grey,
+                          strokeWidth: 2,
+                          dashPattern: [8, 4],
+                        ),
                         child: Container(
                           padding: EdgeInsets.all(2.w),
                           decoration: BoxDecoration(

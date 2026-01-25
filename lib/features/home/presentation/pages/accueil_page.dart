@@ -79,7 +79,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  _buildTransactionList(List<TransactionModel> transactions) {
+  RenderObjectWidget _buildTransactionList(
+      List<TransactionModel> transactions) {
     if (transactions.isEmpty) {
       return const Center(
         child: Text('Vous n\' avez pas encore de depense'),
@@ -115,7 +116,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               category: e.category?.name ?? "Categorie inconnue",
               amount: e.amount?.toString() ?? "Montant inconnue",
               date: e.date!,
-                categoryColor: (e.category?.color != null)
+              categoryColor: (e.category?.color != null)
                   ? Color(int.parse(e.category!.color!, radix: 16))
                   : Theme.of(context).colorScheme.surfaceDim,
               categoryEmoji: e.category?.emoji ?? '❓',
