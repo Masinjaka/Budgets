@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vibration/vibration.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -26,10 +25,7 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
     Color backgroundColor = Theme.of(context).cardColor;
 
     return InkWell(
-      onTap: () {
-        Vibration.vibrate(duration: 30);
-        widget.onTap?.call();
-      },
+      onTap: widget.onTap,
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       child: Column(
         mainAxisSize: MainAxisSize.min,
