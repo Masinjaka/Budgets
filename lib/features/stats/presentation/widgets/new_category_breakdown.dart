@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -116,7 +117,14 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
                           : textColor,
                     ),
                   ),
-                ),
+                )
+                    .animate(key: ValueKey('expense-$_showExpenses'))
+                    .scaleX(
+                      begin: _showExpenses ? 0.95 : 1.0,
+                      end: 1.0,
+                      duration: 200.ms,
+                      curve: Curves.easeOut,
+                    ),
               ),
               SizedBox(width: 2.w),
               GestureDetector(
@@ -144,7 +152,14 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
                           : textColor,
                     ),
                   ),
-                ),
+                )
+                    .animate(key: ValueKey('income-${!_showExpenses}'))
+                    .scaleX(
+                      begin: !_showExpenses ? 0.95 : 1.0,
+                      end: 1.0,
+                      duration: 200.ms,
+                      curve: Curves.easeOut,
+                    ),
               ),
             ],
           ),

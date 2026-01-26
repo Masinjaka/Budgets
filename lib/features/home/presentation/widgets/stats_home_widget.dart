@@ -1,5 +1,6 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/widgets/charts/bar_chart.dart';
+import 'package:budgets/widgets/skeleton/home_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -38,14 +39,10 @@ class StatsHomeWidget extends StatelessWidget {
             child: switch (asyncExpenses) {
               AsyncData(:final value) => dailyBarChart(value),
               AsyncError(:final error) => Text('error: $error'),
-              _ => const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.grey,
-                  ),
-                ),
+              _ => const StatsHomeWidgetSkeleton(),
             },
           ),
-        ],
+        ], 
       ),
     );
   }

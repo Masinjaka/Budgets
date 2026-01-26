@@ -2,6 +2,7 @@ import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/widgets/skeleton/home_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -111,13 +112,7 @@ class Jumbotron extends ConsumerWidget {
                     ),
                   );
                 },
-                loading: () => Text(
-                  '---',
-                  style: TextStyle(
-                    fontSize: 25.sp,
-                    color: Colors.grey,
-                  ),
-                ),
+                loading: () => const JumbotronAmountSkeleton(),
                 error: (error, stack) => Text(
                   'Erreur',
                   style: TextStyle(
