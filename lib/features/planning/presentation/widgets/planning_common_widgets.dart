@@ -100,11 +100,17 @@ class PlanningProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: LinearProgressIndicator(
-        value: progress,
-        minHeight: 1.h,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(context)),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0, end: progress),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+        builder: (context, value, _) => LinearProgressIndicator(
+          value: value,
+          minHeight: 1.h,
+          backgroundColor: Theme.of(context).colorScheme.surfaceDim,
+          valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(context)),
+          borderRadius: BorderRadius.circular(50),
+        ),
       ),
     );
   }

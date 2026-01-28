@@ -1,8 +1,10 @@
+import 'package:budgets/features/categories/domain/models/category_model.dart';
+
 class Budget {
   final int? id;
   final DateTime? createdAt;
   final String? userId;
-  final String? category; // UUID reference to categories table
+  final Category? category; // UUID reference to categories table
   final String? amount;
   final String? amountSpent;
 
@@ -22,7 +24,7 @@ class Budget {
           ? DateTime.parse(map['created_at'] as String)
           : null,
       userId: map['user_id'] as String?,
-      category: map['category'] as String?,
+      category: map['category'] != null ? Category.fromMap(map['category'] as Map<String, dynamic>) : null,
       amount: map['amount'] as String?,
       amountSpent: map['amount_spent'] as String?,
     );
@@ -33,7 +35,7 @@ class Budget {
       'id': id,
       'created_at': createdAt?.toIso8601String(),
       'user_id': userId,
-      'category': category,
+      'category': category?.toMap(),
       'amount': amount,
       'amount_spent': amountSpent,
     };
@@ -43,7 +45,7 @@ class Budget {
     int? id,
     DateTime? createdAt,
     String? userId,
-    String? category,
+    Category? category,
     String? amount,
     String? amountSpent,
   }) {

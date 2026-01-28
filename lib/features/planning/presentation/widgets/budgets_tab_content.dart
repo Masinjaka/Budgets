@@ -89,6 +89,7 @@ class _BudgetListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final category = budget.category;
     final amount = double.tryParse(budget.amount ?? '0') ?? 0;
     final spent = double.tryParse(budget.amountSpent ?? '0') ?? 0;
     final progress = amount > 0 ? (spent / amount).clamp(0.0, 1.0) : 0.0;
@@ -123,11 +124,33 @@ class _BudgetListItem extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Budget',
-                      style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).textTheme.bodyLarge?.color)),
+                  Wrap(
+                    spacing: 2.w,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceDim,
+                          shape: BoxShape.circle,
+                        ),
+                        padding: EdgeInsets.all(1.5.w),
+                        child: Center(
+                          child: Text(
+                            category?.emoji ?? '🏷️',
+                            style: TextStyle(fontSize: 18.sp),
+                          ),
+                        ),
+                      ),
+                      Text(category?.name ?? 'Catégorie inconnue',
+                          style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.color)),
+                    ],
+                  ),
                   Text(
                       '${spent.toStringAsFixed(0)} / ${amount.toStringAsFixed(0)} Ar',
                       style: TextStyle(

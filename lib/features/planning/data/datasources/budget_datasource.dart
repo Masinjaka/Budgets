@@ -10,7 +10,7 @@ Future<List<Budget>> getBudgets() {
 
     final response = await supabase
         .from('budgets')
-        .select('id, created_at, user_id, category, amount, amount_spent')
+        .select('id, created_at, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent')
         .eq('user_id', userId);
 
     if (response.isEmpty) return [];
@@ -27,7 +27,7 @@ Future<void> addBudget(Budget budget) {
 
     await supabase.from('budgets').insert({
       'user_id': userId,
-      'category': budget.category,
+      'category': budget.category?.id,
       'amount': budget.amount,
       'amount_spent': budget.amountSpent ?? '0',
     });
@@ -38,7 +38,7 @@ Future<void> addBudget(Budget budget) {
 Future<void> updateBudget(Budget budget) {
   return Wrapper.execute(() async {
     await supabase.from('budgets').update({
-      'category': budget.category,
+      'category': budget.category?.id,
       'amount': budget.amount,
       'amount_spent': budget.amountSpent,
     }).eq('id', budget.id!);

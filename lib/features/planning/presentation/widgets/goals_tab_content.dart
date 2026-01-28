@@ -93,6 +93,9 @@ class _GoalListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final goalImage = goal.imagePath != null
+        ? AssetImage(goal.imagePath!)
+        : const AssetImage('assets/images/image-placeholder.png');
     final goalAmount = double.tryParse(goal.goalAmount ?? '0') ?? 0;
     final currentAmount = double.tryParse(goal.currentAmount ?? '0') ?? 0;
     final progress =
@@ -119,23 +122,68 @@ class _GoalListItem extends StatelessWidget {
         ),
         child: Icon(Icons.delete_outline, color: Colors.white, size: 18.sp),
       ),
-      child: GestureDetector(
-        onTap: () => _showEditBottomSheet(context),
-        child: PlanningCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              SizedBox(height: 2.h),
-              _buildAmountRow(context, currentAmount, goalAmount),
-              SizedBox(height: 1.h),
-              PlanningProgressBar(progress: progress),
-              SizedBox(height: 0.5.h),
-              Text('${(progress * 100).toStringAsFixed(0)}% atteint',
-                  style: TextStyle(
-                      fontSize: 12.sp, color: Theme.of(context).hintColor)),
-            ],
-          ),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 2.h),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(4.w),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 15.h,
+              margin: EdgeInsets.all(2.w),
+              decoration: BoxDecoration(
+                image: DecorationImage(image: goalImage, fit: BoxFit.cover),
+                borderRadius: BorderRadius.circular(2.5.w),
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned(
+                    top: 1.w,
+                    right: 1.w,
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () => _showEditBottomSheet(context),
+                        child: Container(
+                          padding: EdgeInsets.all(1.5.w),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(20.w),
+                          ),
+                          child: Icon(Icons.edit_outlined,
+                              color: Theme.of(context).textTheme.bodyMedium?.color,
+                              size: 18.sp),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  SizedBox(height: 1.h),
+                  _buildAmountRow(context, currentAmount, goalAmount),
+                  SizedBox(height: 1.h),
+                  PlanningProgressBar(progress: progress),
+                  SizedBox(height: 0.5.h),
+                  Text('${(progress * 100).toStringAsFixed(0)}% atteint',
+                      style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Theme.of(context).hintColor)),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     )
@@ -153,20 +201,80 @@ class _GoalListItem extends StatelessWidget {
     );
   }
 
+  Future<void> _showAddAmountDialog(BuildContext context) async {
+    final amountController = TextEditingController();
+    final currentAmount = double.tryParse(goal.currentAmount ?? '0') ?? 0;
+    final goalAmount = double.tryParse(goal.goalAmount ?? '0') ?? 0;
+
+    final result = await showDialog<double>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Ajouter à ${goal.name ?? 'l\'objectif'}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Montant actuel: ${currentAmount.toStringAsFixed(0)} Ar',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Text(
+              'Objectif: ${goalAmount.toStringAsFixed(0)} Ar',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+            SizedBox(height: 2.h),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'Montant à ajouter',
+                hintText: '0',
+                suffixText: 'Ar',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(2.w),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () {
+              final amount = double.tryParse(amountController.text);
+              if (amount != null && amount > 0) {
+                Navigator.of(ctx).pop(amount);
+              }
+            },
+            child: const Text('Ajouter'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      final newAmount = currentAmount + result;
+      final updatedGoal = goal.copyWith(
+        currentAmount: newAmount.toStringAsFixed(0),
+      );
+      await ref.read(goalsProvider.notifier).updateSomeGoal(updatedGoal);
+    }
+  }
+
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 12.w,
-          height: 12.w,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(3.w),
-          ),
-          child: Icon(Icons.savings,
-              color: Theme.of(context).primaryColor, size: 20.sp),
-        ),
-        SizedBox(width: 3.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,10 +285,18 @@ class _GoalListItem extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).textTheme.bodyLarge?.color)),
               if (goal.dateAim != null)
-                Text('Échéance: ${_formatDate(goal.dateAim!)}',
+                Text('D\'ici le ${_formatDate(goal.dateAim!)}',
                     style: TextStyle(
                         fontSize: 13.sp, color: Theme.of(context).hintColor)),
             ],
+          ),
+        ),
+        InkWell(
+          onTap: () => _showAddAmountDialog(context),
+          child: Icon(
+            Icons.add_circle_outline_rounded,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+            size: 20.sp,
           ),
         ),
       ],

@@ -32,7 +32,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     super.initState();
     if (widget.budget != null) {
       _amountController.text = widget.budget!.amount ?? '';
-      _selectedCategoryId = widget.budget!.category;
+      _selectedCategoryId = widget.budget!.category?.id;
       if (widget.budget!.createdAt != null) {
         _selectedMonth = widget.budget!.createdAt!;
       }
@@ -81,7 +81,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     try {
       final budget = Budget(
         id: widget.budget?.id,
-        category: _selectedCategoryId,
+        category: _selectedCategoryId != null ? Category(id: _selectedCategoryId) : null,
         amount: _amountController.text,
         amountSpent: widget.budget?.amountSpent ?? '0',
       );

@@ -12,7 +12,8 @@ Future<List<Goal>> getGoals() {
         .from('goals')
         .select(
             'id, created_at, user_id, name, date_aim, goal_amount, current_amount, image_path')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .order('created_at', ascending: true);
 
     if (response.isEmpty) return [];
 
