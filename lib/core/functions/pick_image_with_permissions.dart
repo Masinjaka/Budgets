@@ -9,7 +9,12 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Pick an image from camera or gallery with proper permission handling.
 /// Returns the picked image as a File, or null if the user cancels or permissions are denied.
-Future<File?> pickImageWithPermissions(BuildContext context) async {
+/// [description] - Custom message to show in the permission dialog.
+Future<File?> pickImageWithPermissions(
+  BuildContext context, {
+  String description =
+      'Nous avons besoin de la caméra et l\'accès aux fichiers pour continuer.',
+}) async {
   // Determine required media permission based on platform/version
   Permission mediaPermission;
   if (Platform.isIOS) {
@@ -28,14 +33,13 @@ Future<File?> pickImageWithPermissions(BuildContext context) async {
     final granted = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => PermissionRequestDialog(
-        message:
-            'Nous avons besoin de la caméra et l\'accès aux fichiers pour ajouter votre avatar.',
-        onAllow: () async {
-          Navigator.of(context).pop(true);
+      builder: (dialogContext) => PermissionRequestDialog(
+        message: description,
+        onAllow: () {
+          Navigator.of(dialogContext).pop(true);
         },
         onDeny: () {
-          Navigator.of(context).pop(false);
+          Navigator.of(dialogContext).pop(false);
         },
       ),
     );

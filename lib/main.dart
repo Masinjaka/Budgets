@@ -19,6 +19,7 @@ import 'package:budgets/features/home/presentation/pages/accueil_page.dart'
 import 'package:budgets/features/settings/presentation/pages/setting_page.dart';
 import 'package:budgets/features/categories/presentation/pages/category_page.dart';
 import 'package:budgets/features/stats/presentation/pages/stats_page.dart';
+import 'package:budgets/features/planning/presentation/pages/planning_page.dart';
 import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -167,6 +168,14 @@ class _MyAppState extends ConsumerState<MyApp> {
               GoRoute(
                 path: '/stats',
                 builder: (context, state) => const StatsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/planning',
+                builder: (context, state) => const PlanningPage(),
               ),
             ],
           ),
