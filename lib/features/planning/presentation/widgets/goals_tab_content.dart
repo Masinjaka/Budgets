@@ -155,7 +155,8 @@ class _GoalListItem extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20.w),
                           ),
                           child: Icon(Icons.edit_outlined,
-                              color: Theme.of(context).textTheme.bodyMedium?.color,
+                              color:
+                                  Theme.of(context).textTheme.bodyMedium?.color,
                               size: 18.sp),
                         ),
                       ),
@@ -178,8 +179,7 @@ class _GoalListItem extends StatelessWidget {
                   SizedBox(height: 0.5.h),
                   Text('${(progress * 100).toStringAsFixed(0)}% atteint',
                       style: TextStyle(
-                          fontSize: 12.sp,
-                          color: Theme.of(context).hintColor)),
+                          fontSize: 12.sp, color: Theme.of(context).hintColor)),
                 ],
               ),
             ),

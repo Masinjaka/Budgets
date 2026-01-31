@@ -90,9 +90,8 @@ class MonthYearPicker extends ConsumerWidget {
                 ),
               ),
             ),
-          )
-              .animate(key: ValueKey(formattedMonthYear))
-              .scaleX(begin: 0.95, end: 1.0, duration: 200.ms, curve: Curves.easeOut),
+          ).animate(key: ValueKey(formattedMonthYear)).scaleX(
+              begin: 0.95, end: 1.0, duration: 200.ms, curve: Curves.easeOut),
         ),
         const Spacer(),
         IconButton(

@@ -3,10 +3,14 @@ import 'package:budgets/features/categories/domain/providers/category_provider.d
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
 import 'package:budgets/features/planning/domain/providers/budget_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
+import 'package:budgets/widgets/custom_textfield.dart';
+import 'package:budgets/widgets/skeleton/planning_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:budgets/core/utils/amount_input_formatter.dart';
+import 'package:flutter/services.dart';
 
 /// Bottom sheet for adding or editing a budget
 class AddBudgetBottomSheet extends ConsumerStatefulWidget {
@@ -21,6 +25,7 @@ class AddBudgetBottomSheet extends ConsumerStatefulWidget {
 
 class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _monthController = TextEditingController();
   String? _selectedCategoryId;
   DateTime _selectedMonth = DateTime.now();
   bool _isLoading = false;
@@ -31,17 +36,27 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
   void initState() {
     super.initState();
     if (widget.budget != null) {
-      _amountController.text = widget.budget!.amount ?? '';
+      if (widget.budget!.amount != null) {
+        final cleanAmount = widget.budget!.amount!.replaceAll(RegExp(r'[^\d]'), '');
+        if (cleanAmount.isNotEmpty) {
+          final value = int.parse(cleanAmount);
+          final formatter = NumberFormat("#,##0", "en_US");
+          _amountController.text = formatter.format(value);
+        }
+      }
       _selectedCategoryId = widget.budget!.category?.id;
       if (widget.budget!.createdAt != null) {
         _selectedMonth = widget.budget!.createdAt!;
       }
     }
+    _monthController.text =
+        DateFormat('MMMM yyyy', 'fr_FR').format(_selectedMonth);
   }
 
   @override
   void dispose() {
     _amountController.dispose();
+    _monthController.dispose();
     super.dispose();
   }
 
@@ -64,7 +79,11 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
       },
     );
     if (picked != null) {
-      setState(() => _selectedMonth = picked);
+      setState(() {
+        _selectedMonth = picked;
+        _monthController.text =
+            DateFormat('MMMM yyyy', 'fr_FR').format(_selectedMonth);
+      });
     }
   }
 
@@ -81,7 +100,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     try {
       final budget = Budget(
         id: widget.budget?.id,
-        category: _selectedCategoryId != null ? Category(id: _selectedCategoryId) : null,
+        category: _selectedCategoryId != null
+            ? Category(id: _selectedCategoryId)
+            : null,
         amount: _amountController.text,
         amountSpent: widget.budget?.amountSpent ?? '0',
       );
@@ -125,21 +146,23 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
   }
 
   Widget _buildBody(ScrollController scrollController) {
-    return SingleChildScrollView(
-      controller: scrollController,
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHandle(),
-          _buildCloseButton(),
-          SizedBox(height: 2.h),
-          _buildAmountInput(),
-          SizedBox(height: 4.h),
-          _buildCategorySection(),
-          SizedBox(height: 3.h),
-          _buildMonthPicker(),
-        ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SingleChildScrollView(
+        controller: scrollController,
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHandle(),
+            SizedBox(height: 2.h),
+            _buildAmountInput(),
+            SizedBox(height: 4.h),
+            _buildCategorySection(),
+            SizedBox(height: 3.h),
+            _buildMonthPicker(),
+          ],
+        ),
       ),
     );
   }
@@ -151,19 +174,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         height: 0.5.h,
         margin: EdgeInsets.only(bottom: 1.h),
         decoration: BoxDecoration(
-          color: Theme.of(context).hintColor.withValues(alpha: 0.3),
+          color: Theme.of(context).hintColor.withAlpha(75),
           borderRadius: BorderRadius.circular(2.w),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCloseButton() {
-    return Align(
-      alignment: Alignment.topRight,
-      child: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () => Navigator.of(context).pop(),
       ),
     );
   }
@@ -175,17 +188,20 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
           controller: _amountController,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
+          inputFormatters: [
+            AmountInputFormatter(),
+          ],
           style: TextStyle(
-            fontSize: 32.sp,
+            fontSize: 28.sp,
             fontWeight: FontWeight.w300,
             color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
           decoration: InputDecoration(
             hintText: '0.00',
             hintStyle: TextStyle(
-              fontSize: 32.sp,
+              fontSize: 28.sp,
               fontWeight: FontWeight.w300,
-              color: Theme.of(context).hintColor.withValues(alpha: 0.5),
+              color: Theme.of(context).hintColor.withAlpha(128),
             ),
             border: InputBorder.none,
             contentPadding: EdgeInsets.zero,
@@ -212,7 +228,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         SizedBox(height: 1.5.h),
         categoriesAsync.when(
           data: (categories) => _buildCategoryChips(categories),
-          loading: () => const CircularProgressIndicator(),
+          loading: () => const CategoryChipsSkeleton(),
           error: (e, _) => Text('Erreur: $e'),
         ),
       ],
@@ -243,9 +259,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
               category.name ?? '',
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected
-                    ? Colors.white
+                    ? Colors.black
                     : Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
@@ -256,47 +272,23 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
   }
 
   Widget _buildMonthPicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Budget pour',
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
+    return CustomTextField(
+      title: Text(
+        'Budget pour',
+        style: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
-        SizedBox(height: 1.h),
-        GestureDetector(
-          onTap: _selectMonth,
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(3.w),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  DateFormat('MMMM yyyy', 'fr_FR').format(_selectedMonth),
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                ),
-                Icon(
-                  Icons.calendar_today,
-                  size: 18.sp,
-                  color: Theme.of(context).hintColor,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
+      controller: _monthController,
+      isReadOnly: true,
+      onTap: _selectMonth,
+      suffixIcon: Icon(
+        Icons.calendar_today,
+        size: 18.sp,
+        color: Theme.of(context).hintColor,
+      ),
     );
   }
 

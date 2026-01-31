@@ -130,9 +130,7 @@ class _MonthYearPickerDialogState extends ConsumerState<MonthYearPickerDialog> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                )
-                    .animate(key: ValueKey('$month-$isSelected'))
-                    .scaleX(
+                ).animate(key: ValueKey('$month-$isSelected')).scaleX(
                       begin: isSelected ? 0.95 : 1.0,
                       end: 1.0,
                       duration: 200.ms,

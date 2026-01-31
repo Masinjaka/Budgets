@@ -42,7 +42,7 @@ class StatsHomeWidget extends StatelessWidget {
               _ => const StatsHomeWidgetSkeleton(),
             },
           ),
-        ], 
+        ],
       ),
     );
   }

@@ -24,7 +24,9 @@ class Budget {
           ? DateTime.parse(map['created_at'] as String)
           : null,
       userId: map['user_id'] as String?,
-      category: map['category'] != null ? Category.fromMap(map['category'] as Map<String, dynamic>) : null,
+      category: map['category'] != null
+          ? Category.fromMap(map['category'] as Map<String, dynamic>)
+          : null,
       amount: map['amount'] as String?,
       amountSpent: map['amount_spent'] as String?,
     );

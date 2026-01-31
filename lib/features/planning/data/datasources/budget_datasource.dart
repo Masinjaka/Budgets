@@ -10,7 +10,8 @@ Future<List<Budget>> getBudgets() {
 
     final response = await supabase
         .from('budgets')
-        .select('id, created_at, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent')
+        .select(
+            'id, created_at, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent')
         .eq('user_id', userId);
 
     if (response.isEmpty) return [];

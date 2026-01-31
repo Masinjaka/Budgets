@@ -2,11 +2,15 @@ import 'package:budgets/core/functions/pick_image_with_permissions.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
+import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'dart:io';
+
+import 'package:budgets/core/utils/amount_input_formatter.dart';
+import 'package:flutter/services.dart';
 
 /// Bottom sheet for adding or editing a goal
 class AddGoalBottomSheet extends ConsumerStatefulWidget {
@@ -21,6 +25,7 @@ class AddGoalBottomSheet extends ConsumerStatefulWidget {
 class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   DateTime? _targetDate;
   String? _imagePath;
   bool _isLoading = false;
@@ -36,12 +41,17 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
       _targetDate = widget.goal!.dateAim;
       _imagePath = widget.goal!.imagePath;
     }
+    if (_targetDate != null) {
+      _dateController.text =
+          DateFormat('MMMM yyyy', 'fr_FR').format(_targetDate!);
+    }
   }
 
   @override
   void dispose() {
     _amountController.dispose();
     _nameController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
@@ -63,7 +73,11 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
       },
     );
     if (picked != null) {
-      setState(() => _targetDate = picked);
+      setState(() {
+        _targetDate = picked;
+        _dateController.text =
+            DateFormat('MMMM yyyy', 'fr_FR').format(_targetDate!);
+      });
     }
   }
 
@@ -138,23 +152,25 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
   }
 
   Widget _buildBody(ScrollController scrollController) {
-    return SingleChildScrollView(
-      controller: scrollController,
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHandle(),
-          _buildCloseButton(),
-          SizedBox(height: 2.h),
-          _buildAmountInput(),
-          SizedBox(height: 4.h),
-          _buildNameField(),
-          SizedBox(height: 3.h),
-          _buildDatePicker(),
-          SizedBox(height: 3.h),
-          _buildImagePicker(),
-        ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SingleChildScrollView(
+        controller: scrollController,
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHandle(),
+            SizedBox(height: 2.h),
+            _buildAmountInput(),
+            SizedBox(height: 4.h),
+            _buildNameField(),
+            SizedBox(height: 3.h),
+            _buildDatePicker(),
+            SizedBox(height: 3.h),
+            _buildImagePicker(),
+          ],
+        ),
       ),
     );
   }
@@ -166,19 +182,9 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
         height: 0.5.h,
         margin: EdgeInsets.only(bottom: 1.h),
         decoration: BoxDecoration(
-          color: Theme.of(context).hintColor.withValues(alpha: 0.3),
+          color: Theme.of(context).hintColor.withAlpha(75),
           borderRadius: BorderRadius.circular(2.w),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCloseButton() {
-    return Align(
-      alignment: Alignment.topRight,
-      child: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () => Navigator.of(context).pop(),
       ),
     );
   }
@@ -190,17 +196,21 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
           controller: _amountController,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            AmountInputFormatter(),
+          ],
           style: TextStyle(
-            fontSize: 32.sp,
+            fontSize: 28.sp,
             fontWeight: FontWeight.w300,
             color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
           decoration: InputDecoration(
             hintText: '0.00',
             hintStyle: TextStyle(
-              fontSize: 32.sp,
+              fontSize: 28.sp,
               fontWeight: FontWeight.w300,
-              color: Theme.of(context).hintColor.withValues(alpha: 0.5),
+              color: Theme.of(context).hintColor.withAlpha(128),
             ),
             border: InputBorder.none,
             contentPadding: EdgeInsets.zero,
@@ -211,93 +221,39 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
   }
 
   Widget _buildNameField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Nom',
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
+    return CustomTextField(
+      title: Text(
+        'Nom',
+        style: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
-        SizedBox(height: 1.h),
-        TextField(
-          controller: _nameController,
-          style: TextStyle(
-            fontSize: 15.sp,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
-          decoration: InputDecoration(
-            hintText: 'Ex: Nouvelle voiture',
-            hintStyle: TextStyle(
-              fontSize: 15.sp,
-              color: Theme.of(context).hintColor,
-            ),
-            filled: false,
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).hintColor.withValues(alpha: 0.3),
-              ),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
+      controller: _nameController,
+      hint: 'Ex: Nouvelle voiture',
     );
   }
 
   Widget _buildDatePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "D'ici",
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
+    return CustomTextField(
+      title: Text(
+        "D'ici",
+        style: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
-        SizedBox(height: 1.h),
-        GestureDetector(
-          onTap: _selectDate,
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(3.w),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _targetDate != null
-                      ? DateFormat('MMMM yyyy', 'fr_FR').format(_targetDate!)
-                      : 'Sélectionner une date',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    color: _targetDate != null
-                        ? Theme.of(context).textTheme.bodyLarge?.color
-                        : Theme.of(context).hintColor,
-                  ),
-                ),
-                Icon(
-                  Icons.calendar_today,
-                  size: 18.sp,
-                  color: Theme.of(context).hintColor,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
+      controller: _dateController,
+      isReadOnly: true,
+      onTap: _selectDate,
+      hint: 'Sélectionner une date',
+      suffixIcon: Icon(
+        Icons.calendar_today,
+        size: 18.sp,
+        color: Theme.of(context).hintColor,
+      ),
     );
   }
 
@@ -323,7 +279,7 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(3.w),
               border: Border.all(
-                color: Theme.of(context).hintColor.withValues(alpha: 0.3),
+                color: Theme.of(context).hintColor.withAlpha(75),
                 style: BorderStyle.solid,
               ),
             ),

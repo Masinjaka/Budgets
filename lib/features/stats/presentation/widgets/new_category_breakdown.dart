@@ -117,9 +117,7 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
                           : textColor,
                     ),
                   ),
-                )
-                    .animate(key: ValueKey('expense-$_showExpenses'))
-                    .scaleX(
+                ).animate(key: ValueKey('expense-$_showExpenses')).scaleX(
                       begin: _showExpenses ? 0.95 : 1.0,
                       end: 1.0,
                       duration: 200.ms,
@@ -152,9 +150,7 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
                           : textColor,
                     ),
                   ),
-                )
-                    .animate(key: ValueKey('income-${!_showExpenses}'))
-                    .scaleX(
+                ).animate(key: ValueKey('income-${!_showExpenses}')).scaleX(
                       begin: !_showExpenses ? 0.95 : 1.0,
                       end: 1.0,
                       duration: 200.ms,
