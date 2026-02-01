@@ -37,7 +37,8 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     super.initState();
     if (widget.budget != null) {
       if (widget.budget!.amount != null) {
-        final cleanAmount = widget.budget!.amount!.replaceAll(RegExp(r'[^\d]'), '');
+        final cleanAmount =
+            widget.budget!.amount!.replaceAll(RegExp(r'[^\d]'), '');
         if (cleanAmount.isNotEmpty) {
           final value = int.parse(cleanAmount);
           final formatter = NumberFormat("#,##0", "en_US");
@@ -103,7 +104,8 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         category: _selectedCategoryId != null
             ? Category(id: _selectedCategoryId)
             : null,
-        amount: _amountController.text,
+        // Sanitize amount: remove non-digits
+        amount: _amountController.text.replaceAll(RegExp(r'[^\d]'), ''),
         amountSpent: widget.budget?.amountSpent ?? '0',
       );
 
@@ -237,8 +239,21 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
 
   Widget _buildCategoryChips(List<Category> categories) {
     // Filter expense categories only for budgets
-    final expenseCategories =
-        categories.where((c) => c.transactionType?.value == 'expense').toList();
+    final budgetsAsync = ref.watch(budgetsProvider);
+    // Use asData?.value to persist data during loading/refreshing if available or handle it safely
+    final existingBudgetCategoryIds = budgetsAsync.asData?.value
+            .where((b) =>
+                b.category?.id != null &&
+                b.id != widget.budget?.id) // Exclude current budget if editing
+            .map((b) => b.category!.id!)
+            .toSet() ??
+        <String>{};
+
+    final expenseCategories = categories.where((c) {
+      final isExpense = c.transactionType?.value == 'expense';
+      final isAlreadyBudgeted = existingBudgetCategoryIds.contains(c.id);
+      return isExpense && !isAlreadyBudgeted;
+    }).toList();
 
     return Wrap(
       spacing: 2.w,

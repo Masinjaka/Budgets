@@ -1,11 +1,13 @@
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'dart:io';
 
@@ -101,25 +103,60 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
       return;
     }
 
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur: Utilisateur non authentifié')),
+        );
+      }
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
       final goal = Goal(
         id: widget.goal?.id,
+        userId: userId,
         name: _nameController.text,
-        goalAmount: _amountController.text,
+        goalAmount: _amountController.text.replaceAll(' ', ''),
         currentAmount: widget.goal?.currentAmount ?? '0',
         dateAim: _targetDate,
         imagePath: _imagePath,
       );
 
       if (_isEditing) {
-        await ref.read(goalsProvider.notifier).updateSomeGoal(goal);
+        await ref.read(goalsProvider.notifier).updateSomeGoal(
+              goal,
+              oldImagePath: widget.goal?.imagePath,
+            );
       } else {
         await ref.read(goalsProvider.notifier).addSomeGoal(goal);
       }
 
       if (mounted) Navigator.of(context).pop();
+    } on SocketException {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Erreur réseau: Vérifiez votre connexion internet')),
+        );
+      }
+    } on StorageException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur de téléchargement: ${e.message}')),
+        );
+      }
+    } on FileSystemException {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Erreur: Impossible d\'accéder au fichier image')),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -286,10 +323,22 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
             child: _imagePath != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(3.w),
-                    child: Image.file(
-                      File(_imagePath!),
-                      fit: BoxFit.cover,
-                    ),
+                    child: _imagePath!.startsWith('http')
+                        ? CachedNetworkImage(
+                            imageUrl: _imagePath!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : Image.file(
+                            File(_imagePath!),
+                            fit: BoxFit.cover,
+                          ),
                   )
                 : Center(
                     child: Icon(

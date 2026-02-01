@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:intl/intl.dart';
 
 /// Budgets tab content widget for the planning page
 class BudgetsTabContent extends ConsumerWidget {
@@ -93,6 +94,7 @@ class _BudgetListItem extends StatelessWidget {
     final amount = double.tryParse(budget.amount ?? '0') ?? 0;
     final spent = double.tryParse(budget.amountSpent ?? '0') ?? 0;
     final progress = amount > 0 ? (spent / amount).clamp(0.0, 1.0) : 0.0;
+    final formatter = NumberFormat("#,##0", "en_US");
 
     return Dismissible(
       key: Key(budget.id?.toString() ?? DateTime.now().toString()),
@@ -152,7 +154,7 @@ class _BudgetListItem extends StatelessWidget {
                     ],
                   ),
                   Text(
-                      '${spent.toStringAsFixed(0)} / ${amount.toStringAsFixed(0)} Ar',
+                      '${formatter.format(spent).replaceAll(',', ' ')} / ${formatter.format(amount).replaceAll(',', ' ')} Ar',
                       style: TextStyle(
                           fontSize: 14.sp,
                           color:

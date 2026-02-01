@@ -3,6 +3,7 @@ import 'package:budgets/features/transactions/domain/model/transaction_model.dar
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
+import 'package:budgets/features/planning/domain/providers/budget_provider.dart'; // Import user budgets provider
 // Keep this import if still needed
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -34,6 +35,8 @@ class Transactions extends _$Transactions {
           transactionType);
       // ignore: unused_result
       // ref.read(paginatedTransactionsProvider.notifier).refresh();
+      ref.invalidate(
+          budgetsProvider); // Refresh budgets to show updated spent amounts
       ref.invalidateSelf();
     } catch (e, s) {
       debugPrint('Error in addUserTransaction: $e, StackTrace: $s');

@@ -4,8 +4,14 @@ import 'package:budgets/features/planning/presentation/widgets/add_goal_bottom_s
 import 'package:budgets/features/planning/presentation/widgets/planning_common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:budgets/features/stats/domain/providers/stats_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 /// Goals tab content widget for the planning page
 class GoalsTabContent extends ConsumerWidget {
@@ -93,9 +99,9 @@ class _GoalListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final goalImage = goal.imagePath != null
-        ? AssetImage(goal.imagePath!)
-        : const AssetImage('assets/images/image-placeholder.png');
+    final hasNetworkImage = goal.imagePath != null &&
+        goal.imagePath!.isNotEmpty &&
+        goal.imagePath!.startsWith('http');
     final goalAmount = double.tryParse(goal.goalAmount ?? '0') ?? 0;
     final currentAmount = double.tryParse(goal.currentAmount ?? '0') ?? 0;
     final progress =
@@ -134,18 +140,42 @@ class _GoalListItem extends StatelessWidget {
             Container(
               height: 15.h,
               margin: EdgeInsets.all(2.w),
-              decoration: BoxDecoration(
-                image: DecorationImage(image: goalImage, fit: BoxFit.cover),
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(2.5.w),
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    top: 1.w,
-                    right: 1.w,
-                    child: Align(
-                      alignment: Alignment.topRight,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (hasNetworkImage)
+                      CachedNetworkImage(
+                        imageUrl: goal.imagePath!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withOpacity(0.4),
+                          highlightColor: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.2),
+                          direction: ShimmerDirection.rtl,
+                          child: Container(
+                            color: Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/images/image-placeholder.png',
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    else
+                      Image.asset(
+                        'assets/images/image-placeholder.png',
+                        fit: BoxFit.cover,
+                      ),
+                    Positioned(
+                      top: 1.w,
+                      right: 1.w,
                       child: GestureDetector(
                         onTap: () => _showEditBottomSheet(context),
                         child: Container(
@@ -161,8 +191,8 @@ class _GoalListItem extends StatelessWidget {
                         ),
                       ),
                     ),
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -206,6 +236,8 @@ class _GoalListItem extends StatelessWidget {
     final currentAmount = double.tryParse(goal.currentAmount ?? '0') ?? 0;
     final goalAmount = double.tryParse(goal.goalAmount ?? '0') ?? 0;
 
+    final formatter = NumberFormat("#,##0", "en_US");
+
     final result = await showDialog<double>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -215,7 +247,7 @@ class _GoalListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Montant actuel: ${currentAmount.toStringAsFixed(0)} Ar',
+              'Montant actuel: ${formatter.format(currentAmount).replaceAll(',', ' ')} Ar',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Theme.of(context).hintColor,
@@ -223,7 +255,7 @@ class _GoalListItem extends StatelessWidget {
             ),
             SizedBox(height: 1.h),
             Text(
-              'Objectif: ${goalAmount.toStringAsFixed(0)} Ar',
+              'Objectif: ${formatter.format(goalAmount).replaceAll(',', ' ')} Ar',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Theme.of(context).hintColor,
@@ -264,11 +296,47 @@ class _GoalListItem extends StatelessWidget {
     );
 
     if (result != null) {
+      final balance = await ref.read(allTimeBalanceProvider.future);
+
+      if (balance < result) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Solde insuffisant pour cette opération')),
+          );
+        }
+        return;
+      }
+
       final newAmount = currentAmount + result;
       final updatedGoal = goal.copyWith(
         currentAmount: newAmount.toStringAsFixed(0),
       );
-      await ref.read(goalsProvider.notifier).updateSomeGoal(updatedGoal);
+
+      try {
+        await ref.read(goalsProvider.notifier).updateSomeGoal(updatedGoal);
+
+        // Add transaction to deduct from user balance
+        await ref.read(transactionsProvider.notifier).addUserTransaction(
+              result.toString(),
+              'Contribution à ${goal.name}',
+              null, // No category
+              null, // No subcategories
+              TransactionType.expense,
+            );
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Montant ajouté et déduit du solde global')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -305,15 +373,16 @@ class _GoalListItem extends StatelessWidget {
 
   Widget _buildAmountRow(
       BuildContext context, double currentAmount, double goalAmount) {
+    final formatter = NumberFormat("#,##0", "en_US");
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('${currentAmount.toStringAsFixed(0)} Ar',
+        Text('${formatter.format(currentAmount).replaceAll(',', ' ')} Ar',
             style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).primaryColor)),
-        Text('${goalAmount.toStringAsFixed(0)} Ar',
+        Text('${formatter.format(goalAmount).replaceAll(',', ' ')} Ar',
             style: TextStyle(
                 fontSize: 14.sp,
                 color: Theme.of(context).textTheme.bodyMedium?.color)),

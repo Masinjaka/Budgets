@@ -12,7 +12,8 @@ Future<List<Budget>> getBudgets() {
         .from('budgets')
         .select(
             'id, created_at, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .order('created_at', ascending: true);
 
     if (response.isEmpty) return [];
 
