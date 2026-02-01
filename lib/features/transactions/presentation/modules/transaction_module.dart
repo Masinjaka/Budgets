@@ -1,5 +1,6 @@
 import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/main.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
@@ -132,6 +133,7 @@ class TransactionModule {
     DateTime? date,
     required GlobalKey<FormState> formKey,
     required WidgetRef ref,
+    TransactionModel? originalTransaction,
   }) async {
     if (formKey.currentState!.validate()) {
       try {
@@ -143,6 +145,7 @@ class TransactionModule {
               subcategoryAmounts,
               transactionType,
               date,
+              originalTransaction: originalTransaction,
             );
 
         return true; // Indicate success
@@ -328,6 +331,7 @@ class TransactionModule {
     required WidgetRef ref,
     String? transactionId, // Optional transaction ID for editing
     DateTime? transactionDate, // Optional date for editing
+    TransactionModel? originalTransaction, // Original transaction for editing
   }) async {
     // Validate form
     if (!formKey.currentState!.validate()) {
@@ -383,6 +387,7 @@ class TransactionModule {
               date: transactionDate,
               formKey: formKey,
               ref: ref,
+              originalTransaction: originalTransaction,
             )
           : await addTransaction(
               amount: totalAmount.toString(),
@@ -427,6 +432,7 @@ class TransactionModule {
               date: transactionDate,
               formKey: formKey,
               ref: ref,
+              originalTransaction: originalTransaction,
             )
           : await addTransaction(
               amount: montantController.text.trim(),

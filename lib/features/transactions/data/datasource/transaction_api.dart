@@ -127,7 +127,7 @@ class TransactionsApi {
       final validDescription = description?.trim() ?? "";
 
       final response = await _supabaseClient.rpc(
-        'add_expenses',
+        'add_expense_with_budget_check',
         params: {
           'amount': amount,
           'description': validDescription,
@@ -140,6 +140,7 @@ class TransactionsApi {
       final result = parseRpcAddExpenseResponse(response);
 
       if (!result.success) {
+        debugPrint('Failed to add transaction: ${result.errorMessage}');
         throw Exception(result.errorMessage ?? 'Failed to add transaction');
       }
 

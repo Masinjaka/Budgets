@@ -59,6 +59,14 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
               },
               isActive: widget.navigationShell.currentIndex == 3,
             ),
+            CustomNavItem(
+              icon: Icons.savings,
+              title: 'Planifier',
+              onTap: () {
+                widget.navigationShell.goBranch(4);
+              },
+              isActive: widget.navigationShell.currentIndex == 4,
+            ),
           ],
         ),
       ),

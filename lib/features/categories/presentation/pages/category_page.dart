@@ -1,6 +1,10 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
+import 'package:budgets/features/categories/data/datasource/category_api.dart'
+    as category_api;
+import 'package:budgets/features/planning/data/datasources/goal_datasource.dart'
+    as goal_datasource;
 import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -238,56 +242,97 @@ class _CategoryTabContent extends ConsumerWidget {
         mainAxisSpacing: 4.w,
         childAspectRatio: 2.0, // This makes the height half of the width
       ),
-      itemBuilder: (context, index) => GestureDetector(
-        onTap: () {
-          context.push('/add-category', extra: categories[index]);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            // color: AppTheme.secondaryDark,
-            color: Color(int.parse(categories[index].color!, radix: 16)),
-            borderRadius: BorderRadius.circular(5.w),
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned.fill(
-                right: -5.w,
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: RotationTransition(
-                    turns: const AlwaysStoppedAnimation(-25 / 360),
+      itemBuilder: (context, index) {
+        final category = categories[index];
+        final isSavingsCategory = category_api.isSavingsCategory(category);
+
+        return GestureDetector(
+          onTap: () async {
+            if (isSavingsCategory) {
+              // Check if user has goals before allowing edit
+              final hasGoals = await goal_datasource.hasAnyGoals();
+              if (hasGoals) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Cette catégorie est utilisée pour vos objectifs d\'épargne et ne peut pas être modifiée.',
+                      ),
+                    ),
+                  );
+                }
+                return;
+              }
+            }
+            if (context.mounted) {
+              context.push('/add-category', extra: category);
+            }
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(int.parse(category.color!, radix: 16)),
+              borderRadius: BorderRadius.circular(5.w),
+            ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Lock icon for savings category with goals
+                if (isSavingsCategory)
+                  Positioned(
+                    top: 2.w,
+                    right: 2.w,
+                    child: FutureBuilder<bool>(
+                      future: goal_datasource.hasAnyGoals(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == true) {
+                          return Icon(
+                            Icons.lock_outline,
+                            color: Colors.white.withOpacity(0.7),
+                            size: 14.sp,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                Positioned.fill(
+                  right: -5.w,
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: RotationTransition(
+                      turns: const AlwaysStoppedAnimation(-25 / 360),
+                      child: Text(
+                        '${category.emoji}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 35.sp,
+                              color: Colors.white,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  left: 5.w,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
                     child: Text(
-                      '${categories[index].emoji}',
+                      '${category.name}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 35.sp,
+                            fontSize: 14.5.sp,
+                            fontWeight: FontWeight.w800,
                             color: Colors.white,
                           ),
                     ),
                   ),
                 ),
-              ),
-              Positioned.fill(
-                left: 5.w,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '${categories[index].name}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 14.5.sp,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         )
             .animate(delay: (50 * index).ms)
             .fade(duration: 200.ms)
-            .slideY(begin: 0.5, duration: 200.ms, curve: Curves.easeOut),
-      ),
+            .slideY(begin: 0.5, duration: 200.ms, curve: Curves.easeOut);
+      },
     );
   }
 }

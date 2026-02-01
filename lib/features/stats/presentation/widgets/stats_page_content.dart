@@ -1,5 +1,6 @@
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/features/stats/domain/providers/stats_provider.dart';
+import 'package:budgets/features/stats/presentation/widgets/budget_history_card.dart';
 import 'package:budgets/features/stats/presentation/widgets/new_balance_card.dart';
 import 'package:budgets/features/stats/presentation/widgets/new_category_breakdown.dart';
 import 'package:budgets/features/stats/presentation/widgets/stats_chart.dart';
@@ -109,6 +110,13 @@ class StatsPageContent extends ConsumerWidget {
                   categoryEmojis: categoryEmojis,
                 ),
               ),
+              // Budget History Card
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                child: BudgetHistoryCard(date: date),
+              ),
+              // Bottom padding for navigation bar
+              SizedBox(height: 10.h),
             ],
           ),
         );

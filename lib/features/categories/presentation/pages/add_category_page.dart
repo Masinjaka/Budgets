@@ -1,5 +1,8 @@
 import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/constants.dart';
+import 'package:budgets/features/planning/data/datasources/goal_datasource.dart'
+    as goal_datasource;
 import 'package:go_router/go_router.dart';
 import 'package:budgets/features/categories/presentation/modules/categori_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -36,11 +39,17 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   bool _isLoading = false;
   bool _isEditing = false;
   bool _isDeleting = false;
+  bool _isSavingsCategoryWithGoals = false;
 
   // Get transaction type from widget
   TransactionType get transactionType =>
       TransactionType.fromValue(widget.transactionType) ??
       TransactionType.expense;
+
+  /// Check if this is the savings category and user has goals
+  bool get _isSavingsCategory =>
+      widget.category != null &&
+      widget.category!.name == SystemCategories.savingsCategoryName;
 
   void _showEmojiPicker(BuildContext context) async {
     FocusScope.of(context).unfocus();
@@ -159,6 +168,20 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
       _categoryNameController.text = widget.category!.name!;
       _selectedEmoji = widget.category!.emoji!;
       _selectedColor = Color(int.parse(widget.category!.color!, radix: 16));
+
+      // Check if this is savings category with goals
+      if (_isSavingsCategory) {
+        _checkForGoals();
+      }
+    }
+  }
+
+  Future<void> _checkForGoals() async {
+    final hasGoals = await goal_datasource.hasAnyGoals();
+    if (mounted) {
+      setState(() {
+        _isSavingsCategoryWithGoals = hasGoals;
+      });
     }
   }
 
@@ -180,7 +203,9 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          _isEditing ? 'Modifier la catégorie' : 'Créer une catégorie',
+          _isSavingsCategoryWithGoals
+              ? 'Catégorie système'
+              : (_isEditing ? 'Modifier la catégorie' : 'Créer une catégorie'),
           style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -188,57 +213,139 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
-      body: _form(context),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(6.w, 0, 6.w, 2.h),
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  text: _isEditing ? 'Modifier' : 'Ajouter',
-                  onPressed: () {
-                    setState(() => _isLoading = true);
-                    if (_isEditing) {
-                      _categoryModule
-                          .editCategory(
-                            ref,
-                            id: widget.category!.id!,
-                            name: _categoryNameController.text.trim(),
-                            emoji: _selectedEmoji,
-                            color: _selectedColor == null
-                                ? Colors.teal.value.toRadixString(16)
-                                : _selectedColor!.value.toRadixString(16),
-                            // transactionType: widget.category?.transactionType ?? transactionType,
-                            context: context,
-                            formKey: _formKey,
-                          )
-                          .whenComplete(
-                              () => setState(() => _isLoading = false));
-                    } else {
-                      _categoryModule
-                          .addCategory(
-                            ref,
-                            name: _categoryNameController.text.trim(),
-                            emoji: _selectedEmoji,
-                            color: _selectedColor == null
-                                ? Colors.teal.value.toRadixString(16)
-                                : _selectedColor!.value.toRadixString(16),
-                            transactionType: transactionType,
-                            context: context,
-                            formKey: _formKey,
-                          )
-                          .whenComplete(
-                              () => setState(() => _isLoading = false));
-                    }
-                  },
-                  isLoading: _isLoading,
+      body: _isSavingsCategoryWithGoals
+          ? _buildSavingsCategoryInfo(context)
+          : _form(context),
+      bottomNavigationBar: _isSavingsCategoryWithGoals
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(6.w, 0, 6.w, 2.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        text: _isEditing ? 'Modifier' : 'Ajouter',
+                        onPressed: () {
+                          setState(() => _isLoading = true);
+                          if (_isEditing) {
+                            _categoryModule
+                                .editCategory(
+                                  ref,
+                                  id: widget.category!.id!,
+                                  name: _categoryNameController.text.trim(),
+                                  emoji: _selectedEmoji,
+                                  color: _selectedColor == null
+                                      ? Colors.teal.value.toRadixString(16)
+                                      : _selectedColor!.value.toRadixString(16),
+                                  // transactionType: widget.category?.transactionType ?? transactionType,
+                                  context: context,
+                                  formKey: _formKey,
+                                )
+                                .whenComplete(
+                                    () => setState(() => _isLoading = false));
+                          } else {
+                            _categoryModule
+                                .addCategory(
+                                  ref,
+                                  name: _categoryNameController.text.trim(),
+                                  emoji: _selectedEmoji,
+                                  color: _selectedColor == null
+                                      ? Colors.teal.value.toRadixString(16)
+                                      : _selectedColor!.value.toRadixString(16),
+                                  transactionType: transactionType,
+                                  context: context,
+                                  formKey: _formKey,
+                                )
+                                .whenComplete(
+                                    () => setState(() => _isLoading = false));
+                          }
+                        },
+                        isLoading: _isLoading,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
+    );
+  }
+
+  /// Build info screen for savings category that cannot be edited
+  Widget _buildSavingsCategoryInfo(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 6.w),
+      child: Column(
+        children: [
+          SizedBox(height: 14.h),
+          Container(
+            padding: EdgeInsets.all(4.w),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(5.w),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(4.w),
+                  decoration: BoxDecoration(
+                    color: Color(int.parse(
+                        widget.category?.color ??
+                            SystemCategories.savingsCategoryColor,
+                        radix: 16)),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    widget.category?.emoji ??
+                        SystemCategories.savingsCategoryEmoji,
+                    style: TextStyle(fontSize: 30.sp),
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  widget.category?.name ?? SystemCategories.savingsCategoryName,
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Container(
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primaryContainer
+                        .withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(3.w),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).primaryColor,
+                        size: 18.sp,
+                      ),
+                      SizedBox(width: 2.w),
+                      Expanded(
+                        child: Text(
+                          'Cette catégorie est utilisée automatiquement pour vos contributions aux objectifs d\'épargne. Elle ne peut pas être modifiée ou supprimée tant que vous avez des objectifs.',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

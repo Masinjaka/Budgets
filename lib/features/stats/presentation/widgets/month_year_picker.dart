@@ -1,6 +1,7 @@
 import 'package:budgets/features/stats/domain/providers/selected_date_provider.dart';
 import 'package:budgets/features/stats/presentation/widgets/month_year_picker_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:intl/intl.dart';
@@ -68,15 +69,29 @@ class MonthYearPicker extends ConsumerWidget {
               color: primaryColor,
               borderRadius: BorderRadius.circular(100),
             ),
-            child: Text(
-              formattedMonthYear,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(
+                    scale: animation,
+                    child: child,
+                  ),
+                );
+              },
+              child: Text(
+                formattedMonthYear,
+                key: ValueKey(formattedMonthYear),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
+          ).animate(key: ValueKey(formattedMonthYear)).scaleX(
+              begin: 0.95, end: 1.0, duration: 200.ms, curve: Curves.easeOut),
         ),
         const Spacer(),
         IconButton(

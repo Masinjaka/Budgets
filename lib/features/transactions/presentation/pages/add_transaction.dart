@@ -1,5 +1,6 @@
 import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/constants.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction/detailed_transaction_switch.dart';
@@ -239,26 +240,28 @@ class _TransactionCreationPageState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 10.h), // Top padding for glass effect
-                  // Switch for multiple amounts
-                  DetailedTransactionSwitch(
-                    value: _isMultipleAmounts,
-                    onChanged: (value) {
-                      setState(() {
-                        _isMultipleAmounts = value;
-                        if (!value) {
-                          // Clear all items with animation
-                          _module.clearAllSubcategoryAmounts(
-                            subcategoryAmounts: _subcategoryAmounts,
-                            listKey: _listKey,
-                            buildRemovedItem: (item, index, animation) =>
-                                _buildRemovedSubcategoryItem(item, animation),
-                            onStateChanged: () => setState(() {}),
-                          );
-                        }
-                      });
-                    },
-                  ),
-                  SizedBox(height: 5.h),
+                  // Switch for multiple amounts - hidden for savings category
+                  if (_selectedCategory?.name != SystemCategories.savingsCategoryName)
+                    DetailedTransactionSwitch(
+                      value: _isMultipleAmounts,
+                      onChanged: (value) {
+                        setState(() {
+                          _isMultipleAmounts = value;
+                          if (!value) {
+                            // Clear all items with animation
+                            _module.clearAllSubcategoryAmounts(
+                              subcategoryAmounts: _subcategoryAmounts,
+                              listKey: _listKey,
+                              buildRemovedItem: (item, index, animation) =>
+                                  _buildRemovedSubcategoryItem(item, animation),
+                              onStateChanged: () => setState(() {}),
+                            );
+                          }
+                        });
+                      },
+                    ),
+                  if (_selectedCategory?.name != SystemCategories.savingsCategoryName)
+                    SizedBox(height: 5.h),
                   CustomDropdown(
                     title: Text(
                       'Catégorie',
@@ -271,6 +274,7 @@ class _TransactionCreationPageState
                     hint: 'Choisissez une catégorie',
                     items: _categories,
                     selectedValue: _selectedCategory,
+                    enabled: _selectedCategory?.name != SystemCategories.savingsCategoryName,
                     onChanged: (Category? category) async {
                       setState(() {
                         _selectedCategory = category;
@@ -330,11 +334,14 @@ class _TransactionCreationPageState
                     _buildMultipleAmountsSection(),
                   CustomTextField(
                     title: const SizedBox.shrink(),
-                    hint: 'Ajouter une description (optionnel)',
+                    hint: _selectedCategory?.name == SystemCategories.savingsCategoryName
+                        ? _descriptionController.text
+                        : 'Ajouter une description (optionnel)',
                     controller: _descriptionController,
                     keyboardType: TextInputType.text,
                     textAlign: TextAlign.center,
                     maxLines: null,
+                    isReadOnly: _selectedCategory?.name == SystemCategories.savingsCategoryName,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5.w),
                       topRight: Radius.circular(5.w),
@@ -543,6 +550,7 @@ class _TransactionCreationPageState
             ref: ref,
             transactionId: widget.transaction?.id,
             transactionDate: isEditMode ? _selectedDate : null,
+            originalTransaction: widget.transaction,
           );
 
           if (!mounted) {
