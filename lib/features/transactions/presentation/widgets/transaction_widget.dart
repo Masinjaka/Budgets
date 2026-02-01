@@ -38,7 +38,8 @@ class TransactionListItem extends ConsumerWidget {
                         .deleteTransaction(
                             transaction.id!,
                             transaction.transactionType ??
-                                TransactionType.expense);
+                                TransactionType.expense,
+                            transaction: transaction);
                   } catch (e) {
                     // Handle error if needed
                     debugPrint("Error deleting transaction: $e");

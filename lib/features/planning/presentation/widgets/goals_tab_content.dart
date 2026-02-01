@@ -2,6 +2,11 @@ import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
 import 'package:budgets/features/planning/presentation/widgets/add_goal_bottom_sheet.dart';
 import 'package:budgets/features/planning/presentation/widgets/planning_common_widgets.dart';
+import 'package:budgets/features/categories/data/datasource/category_api.dart'
+    as category_api;
+import 'package:budgets/core/constants.dart';
+import 'package:budgets/widgets/custom_button.dart';
+import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgets/features/stats/domain/providers/stats_provider.dart';
@@ -102,8 +107,14 @@ class _GoalListItem extends StatelessWidget {
     final hasNetworkImage = goal.imagePath != null &&
         goal.imagePath!.isNotEmpty &&
         goal.imagePath!.startsWith('http');
-    final goalAmount = double.tryParse(goal.goalAmount ?? '0') ?? 0;
-    final currentAmount = double.tryParse(goal.currentAmount ?? '0') ?? 0;
+    // Remove commas and spaces that may be used as thousand separators
+    final goalAmount = double.tryParse(
+            (goal.goalAmount ?? '0').replaceAll(',', '').replaceAll(' ', '')) ??
+        0;
+    final currentAmount = double.tryParse((goal.currentAmount ?? '0')
+            .replaceAll(',', '')
+            .replaceAll(' ', '')) ??
+        0;
     final progress =
         goalAmount > 0 ? (currentAmount / goalAmount).clamp(0.0, 1.0) : 0.0;
 
@@ -150,15 +161,13 @@ class _GoalListItem extends StatelessWidget {
                         imageUrl: goal.imagePath!,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest
-                              .withOpacity(0.4),
+                          baseColor: Theme.of(context).colorScheme.surfaceDim,
                           highlightColor: Theme.of(context)
                               .colorScheme
                               .surface
-                              .withOpacity(0.2),
-                          direction: ShimmerDirection.rtl,
+                              .withValues(alpha: 0.9),
+                          direction: ShimmerDirection.ltr,
+                          period: 1000.ms,
                           child: Container(
                             color: Theme.of(context).colorScheme.surface,
                           ),
@@ -233,65 +242,148 @@ class _GoalListItem extends StatelessWidget {
 
   Future<void> _showAddAmountDialog(BuildContext context) async {
     final amountController = TextEditingController();
-    final currentAmount = double.tryParse(goal.currentAmount ?? '0') ?? 0;
-    final goalAmount = double.tryParse(goal.goalAmount ?? '0') ?? 0;
+    // Remove commas and spaces that may be used as thousand separators
+    final currentAmount = double.tryParse((goal.currentAmount ?? '0')
+            .replaceAll(',', '')
+            .replaceAll(' ', '')) ??
+        0;
+    final goalAmount = double.tryParse(
+            (goal.goalAmount ?? '0').replaceAll(',', '').replaceAll(' ', '')) ??
+        0;
 
     final formatter = NumberFormat("#,##0", "en_US");
+    final remaining = goalAmount - currentAmount;
 
     final result = await showDialog<double>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Ajouter à ${goal.name ?? 'l\'objectif'}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Montant actuel: ${formatter.format(currentAmount).replaceAll(',', ' ')} Ar',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Theme.of(context).hintColor,
-              ),
-            ),
-            SizedBox(height: 1.h),
-            Text(
-              'Objectif: ${formatter.format(goalAmount).replaceAll(',', ' ')} Ar',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Theme.of(context).hintColor,
-              ),
-            ),
-            SizedBox(height: 2.h),
-            TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Montant à ajouter',
-                hintText: '0',
-                suffixText: 'Ar',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.w),
+      builder: (ctx) => Dialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
+        backgroundColor: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4.w),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(5.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Ajouter à ${goal.name ?? 'l\'objectif'}',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
-            ),
-          ],
+              SizedBox(height: 2.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Montant actuel',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                  Text(
+                    '${formatter.format(currentAmount).replaceAll(',', ' ')} Ar',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 1.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Objectif',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                  Text(
+                    '${formatter.format(goalAmount).replaceAll(',', ' ')} Ar',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 1.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Restant',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                  Text(
+                    '${formatter.format(remaining).replaceAll(',', ' ')} Ar',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 3.h),
+              CustomTextField(
+                title: Text(
+                  'Montant à ajouter',
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
+                controller: amountController,
+                hint: '0 Ar',
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 3.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CustomButton(
+                    text: 'Annuler',
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    backgroundColor: Theme.of(context).cardColor,
+                    width: 15.h,
+                    foregroundColor:
+                        Theme.of(context).textTheme.bodyLarge?.color,
+                    borderColor: Colors.transparent,
+                  ),
+                  SizedBox(width: 2.w),
+                  CustomButton(
+                    text: 'Ajouter',
+                    onPressed: () {
+                      final amount = double.tryParse(
+                          amountController.text.replaceAll(' ', ''));
+                      if (amount != null && amount > 0) {
+                        Navigator.of(ctx).pop(amount);
+                      }
+                    },
+                    backgroundColor: Theme.of(context).primaryColor,
+                    width: 15.h,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () {
-              final amount = double.tryParse(amountController.text);
-              if (amount != null && amount > 0) {
-                Navigator.of(ctx).pop(amount);
-              }
-            },
-            child: const Text('Ajouter'),
-          ),
-        ],
       ),
     );
 
@@ -314,13 +406,16 @@ class _GoalListItem extends StatelessWidget {
       );
 
       try {
+        // Ensure the savings category exists before adding transaction
+        await category_api.ensureSavingsCategoryExists();
+
         await ref.read(goalsProvider.notifier).updateSomeGoal(updatedGoal);
 
         // Add transaction to deduct from user balance
         await ref.read(transactionsProvider.notifier).addUserTransaction(
               result.toString(),
               'Contribution à ${goal.name}',
-              null, // No category
+              SystemCategories.savingsCategoryName,
               null, // No subcategories
               TransactionType.expense,
             );

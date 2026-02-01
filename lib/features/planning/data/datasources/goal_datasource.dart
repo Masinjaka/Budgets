@@ -114,3 +114,65 @@ Future<void> deleteGoal(String id) {
     await supabase.from('goals').delete().eq('id', id);
   });
 }
+
+/// Check if the user has any goals
+Future<bool> hasAnyGoals() async {
+  try {
+    final goals = await getGoals();
+    return goals.isNotEmpty;
+  } catch (e) {
+    debugPrint('Error checking for goals: $e');
+    return false;
+  }
+}
+
+/// Extract goal name from a transaction description
+/// Returns null if the description doesn't match the expected pattern
+String? extractGoalNameFromDescription(String? description) {
+  if (description == null || description.isEmpty) return null;
+  const prefix = 'Contribution à ';
+  if (description.startsWith(prefix)) {
+    return description.substring(prefix.length);
+  }
+  return null;
+}
+
+/// Find a goal by its name
+Future<Goal?> findGoalByName(String name) async {
+  try {
+    final goals = await getGoals();
+    return goals.where((g) => g.name == name).firstOrNull;
+  } catch (e) {
+    debugPrint('Error finding goal by name: $e');
+    return null;
+  }
+}
+
+/// Update a goal's current amount by adding or subtracting a value
+/// [goalName] - The name of the goal to update
+/// [amountDelta] - The amount to add (positive) or subtract (negative)
+/// Returns true if successful, false otherwise
+Future<bool> updateGoalAmountByDelta(String goalName, double amountDelta) async {
+  try {
+    final goal = await findGoalByName(goalName);
+    if (goal == null) {
+      debugPrint('Goal not found: $goalName');
+      return false;
+    }
+
+    final currentAmount =
+        double.tryParse(goal.currentAmount?.replaceAll(',', '').replaceAll(' ', '') ?? '0') ?? 0;
+    final newAmount = (currentAmount + amountDelta).clamp(0, double.infinity);
+
+    final updatedGoal = goal.copyWith(
+      currentAmount: newAmount.toStringAsFixed(0),
+    );
+
+    await updateGoal(updatedGoal);
+    debugPrint('Updated goal "$goalName" amount: $currentAmount -> $newAmount (delta: $amountDelta)');
+    return true;
+  } catch (e) {
+    debugPrint('Error updating goal amount: $e');
+    return false;
+  }
+}
