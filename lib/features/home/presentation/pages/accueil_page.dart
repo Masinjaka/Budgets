@@ -39,7 +39,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         child: SizedBox(
           height: double.infinity,
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            // physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 SizedBox(
