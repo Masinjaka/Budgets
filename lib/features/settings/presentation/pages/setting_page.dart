@@ -113,12 +113,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       SettingCard(
                         title: 'Activer la notification',
                         iconData: Icons.notifications_outlined,
-                        useSwitch: true,
-                        onSwitchChanged: (value) {
-                          // Handle switch change
-                        },
                         onTap: () {
-                          // Toggle push notification settings
+                          context.push('/notification-settings');
                         },
                       ),
                       SizedBox(height: 1.h),
@@ -233,4 +229,5 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       isLoading: _isLoading,
     );
   }
+
 }

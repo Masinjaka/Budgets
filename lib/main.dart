@@ -1,8 +1,10 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/auth/presentation/pages/upload_profile_photo_page.dart';
 import 'package:budgets/features/onboarding/presentation/pages/getting_started_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_password_page.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_profile_page.dart';
+import 'package:budgets/features/notifications/presentation/pages/notification_settings_page.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:budgets/features/auth/presentation/pages/login_page.dart';
@@ -29,15 +31,31 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/core/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'package:gleap_sdk/gleap_sdk.dart';
 import 'package:shake/shake.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:budgets/features/notifications/presentation/services/foreground_notification_service.dart';
 
 final supabase = Supabase.instance.client;
 
 Box<dynamic> get storageBox => Hive.box(LocalAppStorage.storageBox);
+
+/// Top-level function for handling background FCM messages.
+/// Must be a top-level function (not a class method).
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Background message received - system will display notification automatically
+  // if it contains a 'notification' payload
+  print('🔔 [Background] FCM message received:');
+  print('   Message ID: ${message.messageId}');
+  print('   Title: ${message.notification?.title}');
+  print('   Body: ${message.notification?.body}');
+  print('   Data: ${message.data}');
+}
 
 void main() async {
   SentryWidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +64,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Register background message handler - must be before runApp()
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await ForegroundNotificationService(
+    FlutterLocalNotificationsPlugin(),
+  ).init();
 
   // Initialize French locale for date formatting
   await initializeDateFormatting('fr_FR', null);
@@ -134,6 +159,9 @@ class _MyAppState extends ConsumerState<MyApp> {
           builder: (context, state) => const ResetPasswordPage()),
       GoRoute(
           path: '/settings', builder: (context, state) => const SettingPage()),
+      GoRoute(
+          path: '/notification-settings',
+          builder: (context, state) => const NotificationSettingsPage()),
       // Shell with IndexedStack to preserve state across tabs
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
