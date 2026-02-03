@@ -1,8 +1,8 @@
 import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 
 class BalanceCard extends StatelessWidget {
   final String title;
@@ -33,12 +33,7 @@ class BalanceCard extends StatelessWidget {
   });
 
   String _formatAmount(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: 'MGA',
-      decimalDigits: 0,
-    );
-    return formatter.format(amount.abs());
+    return formatAmountValue(amount.abs(), includeCurrency: true);
   }
 
   @override

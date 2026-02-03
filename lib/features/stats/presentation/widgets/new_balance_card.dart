@@ -1,7 +1,7 @@
 import 'package:budgets/features/stats/presentation/modules/authentication_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 
 enum BalanceCardType { expense, income }
 
@@ -23,12 +23,7 @@ class _NewBalanceCardState extends State<NewBalanceCard> {
   bool _isHidden = true;
 
   String _formatAmount(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: 'MGA',
-      decimalDigits: 0,
-    );
-    return formatter.format(amount.abs());
+    return formatAmountValue(amount.abs(), includeCurrency: true);
   }
 
   void _toggleVisibility() {

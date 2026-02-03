@@ -1,4 +1,5 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,7 +7,6 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 Widget buildLineChart(
     List<FlSpot> spots, String periodType, List<TransactionModel> expenses) {
-  final NumberFormat formatter = NumberFormat.compact();
   return Expanded(
     child: LineChart(
       LineChartData(
@@ -66,7 +66,7 @@ Widget buildLineChart(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   // Display dollar amounts on the left Y-axis.
-                  return Text(formatter.format(value.toInt()),
+                  return Text(formatAmountValue(value),
                       style: const TextStyle(fontSize: 10));
                 },
                 reservedSize: 4.h,

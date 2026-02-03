@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 
 class NewCategoryBreakdown extends StatefulWidget {
   final Map<String, double> expensesByCategory;
@@ -25,12 +25,7 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
   final GlobalKey _cardKey = GlobalKey();
 
   String _formatAmount(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: 'MGA',
-      decimalDigits: 0,
-    );
-    return formatter.format(amount);
+    return formatAmountValue(amount, includeCurrency: true);
   }
 
   void _switchTab(bool showExpenses) {

@@ -1,8 +1,8 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/functions/chart_data.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [BarChart] widget for daily expenses and income.
@@ -17,8 +17,6 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
             group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))
         .reduce((a, b) => a > b ? a : b);
   }
-
-  final NumberFormat formatter = NumberFormat.compact();
 
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
@@ -75,7 +73,7 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -99,7 +97,7 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
                 // However, since tooltip is interactive, user likely won't touch during the 1s animation.
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -127,8 +125,6 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
             group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))
         .reduce((a, b) => a > b ? a : b);
   }
-
-  final NumberFormat formatter = NumberFormat.compact();
 
   return BarChart(
     BarChartData(
@@ -179,7 +175,7 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
             showTitles: true,
             getTitlesWidget: (value, meta) {
               // Display dollar amounts on the left Y-axis.
-              return Text(formatter.format(value.toInt()),
+              return Text(formatAmountValue(value),
                   style: const TextStyle(fontSize: 10));
             },
             reservedSize: 4.h,

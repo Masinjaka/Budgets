@@ -1,5 +1,6 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/functions/chart_data.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -16,8 +17,6 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
             group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))
         .reduce((a, b) => a > b ? a : b);
   }
-
-  final NumberFormat formatter = NumberFormat.compact();
 
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
@@ -74,7 +73,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -94,7 +93,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -123,7 +122,6 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  final NumberFormat formatter = NumberFormat.compact();
   final now = DateTime.now();
 
   return TweenAnimationBuilder<double>(
@@ -188,7 +186,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -208,7 +206,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -237,7 +235,6 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  final NumberFormat formatter = NumberFormat.compact();
   final now = DateTime.now();
 
   return TweenAnimationBuilder<double>(
@@ -296,7 +293,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -316,7 +313,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

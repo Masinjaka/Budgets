@@ -2,10 +2,10 @@ import 'package:budgets/features/transactions/domain/model/transaction_model.dar
 import 'package:budgets/features/transactions/presentation/widgets/transaction_detail_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 
 // Widget for displaying a single transaction item in the list
 class TransactionListItem extends ConsumerWidget {
@@ -61,9 +61,6 @@ class TransactionListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Formatting the number to include commas for thousands
-    final NumberFormat currencyFormatter = NumberFormat.decimalPattern('en_US');
-
     return Dismissible(
       key: Key(transaction.id ?? DateTime.now().toString()),
       direction: DismissDirection.endToStart,
@@ -180,7 +177,7 @@ class TransactionListItem extends ConsumerWidget {
                     ),
                     SizedBox(height: 0.5.h),
                     Text(
-                      currencyFormatter.format(transaction.amount),
+                      formatAmountValue(transaction.amount),
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: Theme.of(context).colorScheme.tertiary,
                             fontSize: 14.sp,
