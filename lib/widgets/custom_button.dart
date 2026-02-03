@@ -1,6 +1,5 @@
 import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:vibration/vibration.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CustomButton extends StatefulWidget {
@@ -35,12 +34,7 @@ class _CustomButtonState extends State<CustomButton> {
       width: widget.width ?? double.infinity,
       height: widget.height ?? 5.5.h,
       child: ElevatedButton(
-        onPressed: widget.onPressed != null
-            ? () {
-                Vibration.vibrate(duration: 30);
-                widget.onPressed!();
-              }
-            : null,
+        onPressed: widget.onPressed,
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(
             widget.backgroundColor ?? AppTheme.primaryGreen,

@@ -1,6 +1,6 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/widgets/skeleton/home_skeletons.dart';
 import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
 import 'package:budgets/widgets/custom_transaction_card.dart';
 import 'package:budgets/features/home/presentation/widgets/custom_greeting_app_bar.dart';
@@ -39,7 +39,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         child: SizedBox(
           height: double.infinity,
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            // physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 SizedBox(
@@ -56,11 +56,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 switch (asyncTransactions) {
                   AsyncData(:final value) => _buildTransactionList(value),
                   AsyncError(:final error) => Text('error: $error'),
-                  _ => const Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.primaryGreen,
-                      ),
-                    ),
+                  _ => const TransactionListSkeleton(),
                 },
                 SizedBox(height: 3.h),
                 SectionTitle(

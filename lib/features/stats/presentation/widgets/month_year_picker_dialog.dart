@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:intl/intl.dart';
@@ -114,7 +115,7 @@ class _MonthYearPickerDialogState extends ConsumerState<MonthYearPickerDialog> {
                     color: isSelected && !isDisabled
                         ? primaryColor
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(100),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -129,7 +130,12 @@ class _MonthYearPickerDialogState extends ConsumerState<MonthYearPickerDialog> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
+                ).animate(key: ValueKey('$month-$isSelected')).scaleX(
+                      begin: isSelected ? 0.95 : 1.0,
+                      end: 1.0,
+                      duration: 200.ms,
+                      curve: Curves.easeOut,
+                    ),
               );
             }),
           ),

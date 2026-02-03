@@ -10,7 +10,9 @@ class SettingCard extends StatefulWidget {
       this.showSuffixSettingChoice = false,
       this.settingChoice,
       this.useSwitch = false,
-      this.onSwitchChanged});
+      this.onSwitchChanged,
+      this.switchValue,
+      this.switchDisabled = false});
   final String title;
   final IconData iconData;
   final VoidCallback onTap;
@@ -18,6 +20,8 @@ class SettingCard extends StatefulWidget {
   final String? settingChoice;
   final bool useSwitch;
   final void Function(bool)? onSwitchChanged;
+  final bool? switchValue;
+  final bool switchDisabled;
 
   @override
   State<SettingCard> createState() => _SettingCardState();
@@ -27,12 +31,18 @@ class _SettingCardState extends State<SettingCard> {
   bool _switchValue = false;
 
   void _toggleSwitch() {
-    setState(() => _switchValue = !_switchValue);
-    widget.onSwitchChanged?.call(_switchValue);
+    if (widget.onSwitchChanged == null || widget.switchDisabled) return;
+    final next = !(widget.switchValue ?? _switchValue);
+    if (widget.switchValue == null) {
+      setState(() => _switchValue = next);
+    }
+    widget.onSwitchChanged?.call(next);
   }
 
   @override
   Widget build(BuildContext context) {
+    final resolvedSwitchValue = widget.switchValue ?? _switchValue;
+
     return GestureDetector(
       onTap: () {
         if (widget.useSwitch) {
@@ -89,13 +99,21 @@ class _SettingCardState extends State<SettingCard> {
                     ),
                   ),
                 widget.useSwitch
-                    ? Switch(
-                        value: _switchValue,
-                        onChanged: (val) {
-                          setState(() => _switchValue = val);
-                          widget.onSwitchChanged?.call(val);
-                        },
-                        // activeThumbColor: AppTheme.primaryGreen,
+                    ? Opacity(
+                        opacity: widget.switchDisabled ? 0.5 : 1,
+                        child: IgnorePointer(
+                          ignoring: widget.switchDisabled,
+                          child: Switch(
+                            value: resolvedSwitchValue,
+                            onChanged: (val) {
+                              if (widget.switchValue == null) {
+                                setState(() => _switchValue = val);
+                              }
+                              widget.onSwitchChanged?.call(val);
+                            },
+                            // activeThumbColor: AppTheme.primaryGreen,
+                          ),
+                        ),
                       )
                     : Icon(
                         Icons.arrow_forward_ios,
