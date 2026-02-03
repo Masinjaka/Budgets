@@ -3,6 +3,7 @@ import 'package:budgets/core/functions/chart_data.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [BarChart] widget for daily expenses and income.
