@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../data/datasources/notification_datasource.dart';
 
@@ -27,9 +28,9 @@ class NotificationService {
   }
 
   Future<bool> registerDevice() async {
-    final permission = await FirebaseMessaging.instance.requestPermission();
-    print('🔔 [FCM] Permission status: ${permission.authorizationStatus}');
-    if (!_isAuthorized(permission.authorizationStatus)) {
+    final permissionStatus = await Permission.notification.status;
+    print('🔔 [FCM] Permission status: $permissionStatus');
+    if (!permissionStatus.isGranted) {
       print('🔔 [FCM] Permission NOT granted - cannot register device');
       return false;
     }
@@ -87,8 +88,4 @@ class NotificationService {
     }
   }
 
-  bool _isAuthorized(AuthorizationStatus status) {
-    return status == AuthorizationStatus.authorized ||
-        status == AuthorizationStatus.provisional;
-  }
 }

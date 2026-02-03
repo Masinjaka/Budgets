@@ -7,29 +7,35 @@ import 'package:budgets/features/home/presentation/widgets/custom_greeting_app_b
 import 'package:budgets/features/home/presentation/widgets/jumbotron.dart';
 import 'package:budgets/features/home/presentation/widgets/section_title.dart';
 import 'package:budgets/features/home/presentation/widgets/stats_home_widget.dart';
+import 'package:budgets/features/notifications/presentation/controllers/notification_controller.dart';
+import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class HomePage extends ConsumerStatefulWidget {
+final _notificationPermissionPromptedProvider =
+    StateProvider<bool>((ref) => false);
+
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomePageState();
-}
-
-class _HomePageState extends ConsumerState<HomePage> {
-  List<String?> _selectedCategories = [];
-  DateTimeRange? dateRange;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final asyncTransactions = ref.watch(transactionsProvider);
-
-    _selectedCategories = ref.watch(selectedCategoriesProvider);
-
-    dateRange = ref.watch(dateRangeProvider);
+    final selectedCategories = ref.watch(selectedCategoriesProvider);
+    final dateRange = ref.watch(dateRangeProvider);
+    final prompted = ref.watch(_notificationPermissionPromptedProvider);
+    if (!prompted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final alreadyPrompted =
+            ref.read(_notificationPermissionPromptedProvider);
+        if (alreadyPrompted) return;
+        ref.read(_notificationPermissionPromptedProvider.notifier).state = true;
+        await _maybeRequestNotificationPermission(context, ref);
+      });
+    }
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -54,7 +60,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 SizedBox(height: 2.h),
                 switch (asyncTransactions) {
-                  AsyncData(:final value) => _buildTransactionList(value),
+                  AsyncData(:final value) => _buildTransactionList(
+                      context, value, selectedCategories, dateRange),
                   AsyncError(:final error) => Text('error: $error'),
                   _ => const TransactionListSkeleton(),
                 },
@@ -76,17 +83,21 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   RenderObjectWidget _buildTransactionList(
-      List<TransactionModel> transactions) {
+    BuildContext context,
+    List<TransactionModel> transactions,
+    List<String?> selectedCategories,
+    DateTimeRange? dateRange,
+  ) {
     if (transactions.isEmpty) {
       return const Center(
         child: Text('Vous n\' avez pas encore de depense'),
       );
     }
 
-    if (_selectedCategories.isNotEmpty) {
+    if (selectedCategories.isNotEmpty) {
       transactions = transactions
           .where((transaction) =>
-              _selectedCategories.contains(transaction.category?.name))
+              selectedCategories.contains(transaction.category?.name))
           .toList();
     }
 
@@ -124,4 +135,66 @@ class _HomePageState extends ConsumerState<HomePage> {
           .toList(),
     );
   }
+}
+
+Future<void> _maybeRequestNotificationPermission(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  final status = await Permission.notification.status;
+  if (status.isGranted) {
+    await ref.read(notificationControllerProvider.notifier).registerIfEnabled();
+    return;
+  }
+
+  if (status.isPermanentlyDenied || status.isRestricted) {
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return PermissionRequestDialog(
+          title: 'Activer les notifications',
+          message:
+              'Vous avez bloqué les notifications. Ouvrez les réglages pour '
+              'les autoriser.',
+          allowText: 'Ouvrir les réglages',
+          denyText: 'Annuler',
+          onAllow: () {
+            openAppSettings();
+            Navigator.of(context).pop();
+          },
+          onDeny: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+    return;
+  }
+
+  if (!context.mounted) return;
+  final allow = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return PermissionRequestDialog(
+        title: 'Activer les notifications',
+        message:
+            'Autorisez les notifications pour recevoir vos rappels quotidiens '
+            'et les alertes de budget.',
+        allowText: 'Autoriser',
+        denyText: 'Refuser',
+        onAllow: () => Navigator.of(context).pop(true),
+        onDeny: () => Navigator.of(context).pop(false),
+      );
+    },
+  );
+
+  if (allow != true || !context.mounted) {
+    return;
+  }
+
+  final result = await Permission.notification.request();
+  if (!result.isGranted) {
+    return;
+  }
+
+  await ref.read(notificationControllerProvider.notifier).registerIfEnabled();
 }

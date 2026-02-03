@@ -7,25 +7,17 @@ import 'package:budgets/features/notifications/domain/models/notification_settin
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_messaging/firebase_messaging.dart'
-    hide NotificationSettings;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class NotificationSettingsPage extends ConsumerStatefulWidget {
+final _pendingTargetProvider =
+    StateProvider<_ToggleTarget?>((ref) => null);
+
+class NotificationSettingsPage extends ConsumerWidget {
   const NotificationSettingsPage({super.key});
 
   @override
-  ConsumerState<NotificationSettingsPage> createState() =>
-      _NotificationSettingsPageState();
-}
-
-class _NotificationSettingsPageState
-    extends ConsumerState<NotificationSettingsPage> {
-  _ToggleTarget? _pendingTarget;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final notificationsState = ref.watch(notificationControllerProvider);
     final settings = notificationsState.asData?.value ??
         NotificationSettings.defaults(
@@ -75,10 +67,11 @@ class _NotificationSettingsPageState
     WidgetRef ref,
     NotificationSettings settings,
   ) {
+    final pendingTarget = ref.watch(_pendingTargetProvider);
     final enabled = settings.notificationsEnabled;
-    final masterBusy = _pendingTarget == _ToggleTarget.master;
-    final reminderBusy = _pendingTarget == _ToggleTarget.reminders;
-    final warningBusy = _pendingTarget == _ToggleTarget.warnings;
+    final masterBusy = pendingTarget == _ToggleTarget.master;
+    final reminderBusy = pendingTarget == _ToggleTarget.reminders;
+    final warningBusy = pendingTarget == _ToggleTarget.warnings;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -152,30 +145,24 @@ class _NotificationSettingsPageState
     WidgetRef ref,
     bool enabled,
   ) async {
-    if (_pendingTarget != null) return;
-    setState(() => _pendingTarget = _ToggleTarget.master);
+    if (ref.read(_pendingTargetProvider) != null) return;
+    ref.read(_pendingTargetProvider.notifier).state = _ToggleTarget.master;
     if (!enabled) {
       await ref
           .read(notificationControllerProvider.notifier)
           .setAllEnabled(false);
-      if (mounted) {
-        setState(() => _pendingTarget = null);
-      }
+      ref.read(_pendingTargetProvider.notifier).state = null;
       return;
     }
 
     final allowed = await _ensurePermission(context);
     if (!allowed) {
-      if (mounted) {
-        setState(() => _pendingTarget = null);
-      }
+      ref.read(_pendingTargetProvider.notifier).state = null;
       return;
     }
 
     await ref.read(notificationControllerProvider.notifier).setAllEnabled(true);
-    if (mounted) {
-      setState(() => _pendingTarget = null);
-    }
+    ref.read(_pendingTargetProvider.notifier).state = null;
   }
 
   Future<void> _handleReminderToggle(
@@ -183,32 +170,26 @@ class _NotificationSettingsPageState
     WidgetRef ref,
     bool enabled,
   ) async {
-    if (_pendingTarget != null) return;
-    setState(() => _pendingTarget = _ToggleTarget.reminders);
+    if (ref.read(_pendingTargetProvider) != null) return;
+    ref.read(_pendingTargetProvider.notifier).state = _ToggleTarget.reminders;
     if (!enabled) {
       await ref
           .read(notificationControllerProvider.notifier)
           .setRemindersEnabled(false);
-      if (mounted) {
-        setState(() => _pendingTarget = null);
-      }
+      ref.read(_pendingTargetProvider.notifier).state = null;
       return;
     }
 
     final allowed = await _ensurePermission(context);
     if (!allowed) {
-      if (mounted) {
-        setState(() => _pendingTarget = null);
-      }
+      ref.read(_pendingTargetProvider.notifier).state = null;
       return;
     }
 
     await ref
         .read(notificationControllerProvider.notifier)
         .setRemindersEnabled(true);
-    if (mounted) {
-      setState(() => _pendingTarget = null);
-    }
+    ref.read(_pendingTargetProvider.notifier).state = null;
   }
 
   Future<void> _handleWarningToggle(
@@ -216,32 +197,26 @@ class _NotificationSettingsPageState
     WidgetRef ref,
     bool enabled,
   ) async {
-    if (_pendingTarget != null) return;
-    setState(() => _pendingTarget = _ToggleTarget.warnings);
+    if (ref.read(_pendingTargetProvider) != null) return;
+    ref.read(_pendingTargetProvider.notifier).state = _ToggleTarget.warnings;
     if (!enabled) {
       await ref
           .read(notificationControllerProvider.notifier)
           .setWarningsEnabled(false);
-      if (mounted) {
-        setState(() => _pendingTarget = null);
-      }
+      ref.read(_pendingTargetProvider.notifier).state = null;
       return;
     }
 
     final allowed = await _ensurePermission(context);
     if (!allowed) {
-      if (mounted) {
-        setState(() => _pendingTarget = null);
-      }
+      ref.read(_pendingTargetProvider.notifier).state = null;
       return;
     }
 
     await ref
         .read(notificationControllerProvider.notifier)
         .setWarningsEnabled(true);
-    if (mounted) {
-      setState(() => _pendingTarget = null);
-    }
+    ref.read(_pendingTargetProvider.notifier).state = null;
   }
 
   Future<bool> _ensurePermission(BuildContext context) async {
@@ -270,8 +245,7 @@ class _NotificationSettingsPageState
       return false;
     }
 
-    final settings = await FirebaseMessaging.instance.getNotificationSettings();
-    if (_isAuthorized(settings.authorizationStatus)) {
+    if (permissionStatus.isGranted) {
       return true;
     }
 
@@ -292,12 +266,12 @@ class _NotificationSettingsPageState
       },
     );
 
-    return allow == true;
-  }
+    if (allow != true || !context.mounted) {
+      return false;
+    }
 
-  bool _isAuthorized(AuthorizationStatus status) {
-    return status == AuthorizationStatus.authorized ||
-        status == AuthorizationStatus.provisional;
+    final result = await Permission.notification.request();
+    return result.isGranted;
   }
 }
 

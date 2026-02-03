@@ -37,6 +37,14 @@ class NotificationController extends AsyncNotifier<NotificationSettings> {
     state = AsyncData(await _dataSource.fetchSettings());
   }
 
+  Future<void> registerIfEnabled() async {
+    final current = state.asData?.value ?? await _dataSource.fetchSettings();
+    if (!current.anyEnabled) {
+      return;
+    }
+    await _service?.registerDevice();
+  }
+
   Future<void> _applySettings({
     bool? notificationsEnabled,
     bool? remindersEnabled,
