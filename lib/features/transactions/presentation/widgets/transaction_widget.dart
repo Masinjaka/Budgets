@@ -6,6 +6,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
 
 // Widget for displaying a single transaction item in the list
 class TransactionListItem extends ConsumerWidget {
@@ -62,6 +63,11 @@ class TransactionListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final displayAmount = convertFromMga(transaction.amount, rate);
+
     return Dismissible(
       key: Key(transaction.id ?? DateTime.now().toString()),
       direction: DismissDirection.endToStart,
@@ -168,7 +174,7 @@ class TransactionListItem extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8.w),
                       ),
                       child: Text(
-                        "MGA",
+                        currencyCode,
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                           // fontSize: 15.sp,
@@ -178,7 +184,7 @@ class TransactionListItem extends ConsumerWidget {
                     ),
                     SizedBox(height: 0.5.h),
                     Text(
-                      formatAmountValue(transaction.amount),
+                      formatAmountValue(displayAmount),
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: Theme.of(context).colorScheme.tertiary,
                             fontSize: 14.sp,

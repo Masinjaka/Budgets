@@ -16,4 +16,9 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateUsername(String username) {
     return dataSource.updateUsername(username);
   }
+
+  @override
+  Future<void> updateCurrencyCode(String currencyCode) {
+    return dataSource.updateCurrencyCode(currencyCode);
+  }
 }

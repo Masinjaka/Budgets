@@ -4,6 +4,7 @@ import 'package:budgets/features/onboarding/presentation/pages/getting_started_p
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_password_page.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_profile_page.dart';
+import 'package:budgets/features/settings/presentation/pages/currency_selection_page.dart';
 import 'package:budgets/features/notifications/presentation/pages/notification_settings_page.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
@@ -159,6 +160,9 @@ class _MyAppState extends ConsumerState<MyApp> {
           builder: (context, state) => const ResetPasswordPage()),
       GoRoute(
           path: '/settings', builder: (context, state) => const SettingPage()),
+      GoRoute(
+          path: '/currency-selection',
+          builder: (context, state) => const CurrencySelectionPage()),
       GoRoute(
           path: '/notification-settings',
           builder: (context, state) => const NotificationSettingsPage()),

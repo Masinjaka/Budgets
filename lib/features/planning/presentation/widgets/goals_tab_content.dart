@@ -1,3 +1,5 @@
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
 import 'package:budgets/features/planning/presentation/widgets/add_goal_bottom_sheet.dart';
@@ -14,7 +16,6 @@ import 'package:budgets/features/transactions/domain/providers/transaction_provi
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -60,21 +61,19 @@ class GoalsTabContent extends ConsumerWidget {
       padding: EdgeInsets.only(top: 2.h),
       itemCount: goals.length,
       itemBuilder: (context, index) =>
-          _GoalListItem(goal: goals[index], index: index, ref: ref),
+          _GoalListItem(goal: goals[index], index: index),
     );
   }
 }
 
 /// Individual goal list item with swipe-to-delete
-class _GoalListItem extends StatelessWidget {
+class _GoalListItem extends ConsumerWidget {
   final Goal goal;
   final int index;
-  final WidgetRef ref;
 
   const _GoalListItem({
     required this.goal,
     required this.index,
-    required this.ref,
   });
 
   String _formatDate(DateTime date) {
@@ -103,20 +102,19 @@ class _GoalListItem extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final hasNetworkImage = goal.imagePath != null &&
         goal.imagePath!.isNotEmpty &&
         goal.imagePath!.startsWith('http');
-    // Remove commas and spaces that may be used as thousand separators
-    final goalAmount = double.tryParse(
-            (goal.goalAmount ?? '0').replaceAll(',', '').replaceAll(' ', '')) ??
-        0;
-    final currentAmount = double.tryParse((goal.currentAmount ?? '0')
-            .replaceAll(',', '')
-            .replaceAll(' ', '')) ??
-        0;
+    final goalAmountMga = parseAmountInput(goal.goalAmount ?? '0');
+    final currentAmountMga = parseAmountInput(goal.currentAmount ?? '0');
+    final goalAmount = convertFromMga(goalAmountMga, rate);
+    final currentAmount = convertFromMga(currentAmountMga, rate);
     final progress =
-        goalAmount > 0 ? (currentAmount / goalAmount).clamp(0.0, 1.0) : 0.0;
+        goalAmountMga > 0 ? (currentAmountMga / goalAmountMga).clamp(0.0, 1.0) : 0.0;
 
     return Dismissible(
       key: Key(goal.id ?? DateTime.now().toString()),
@@ -210,9 +208,14 @@ class _GoalListItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeader(context),
+                  _buildHeader(context, ref, rate, currencyCode),
                   SizedBox(height: 1.h),
-                  _buildAmountRow(context, currentAmount, goalAmount),
+                  _buildAmountRow(
+                    context,
+                    currentAmount,
+                    goalAmount,
+                    currencyCode,
+                  ),
                   SizedBox(height: 1.h),
                   PlanningProgressBar(progress: progress),
                   SizedBox(height: 0.5.h),
@@ -240,18 +243,16 @@ class _GoalListItem extends StatelessWidget {
     );
   }
 
-  Future<void> _showAddAmountDialog(BuildContext context) async {
+  Future<void> _showAddAmountDialog(
+      BuildContext context,
+      WidgetRef ref,
+      double rate,
+      String currencyCode) async {
     final amountController = TextEditingController();
-    // Remove commas and spaces that may be used as thousand separators
-    final currentAmount = double.tryParse((goal.currentAmount ?? '0')
-            .replaceAll(',', '')
-            .replaceAll(' ', '')) ??
-        0;
-    final goalAmount = double.tryParse(
-            (goal.goalAmount ?? '0').replaceAll(',', '').replaceAll(' ', '')) ??
-        0;
-
-    final formatter = NumberFormat("#,##0", "en_US");
+    final currentAmountMga = parseAmountInput(goal.currentAmount ?? '0');
+    final goalAmountMga = parseAmountInput(goal.goalAmount ?? '0');
+    final currentAmount = convertFromMga(currentAmountMga, rate);
+    final goalAmount = convertFromMga(goalAmountMga, rate);
     final remaining = goalAmount - currentAmount;
 
     final result = await showDialog<double>(
@@ -287,12 +288,26 @@ class _GoalListItem extends StatelessWidget {
                       color: Theme.of(context).hintColor,
                     ),
                   ),
-                  Text(
-                    '${formatter.format(currentAmount).replaceAll(',', ' ')} Ar',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryColor,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formatAmountValue(currentAmount),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' $currencyCode',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -308,12 +323,26 @@ class _GoalListItem extends StatelessWidget {
                       color: Theme.of(context).hintColor,
                     ),
                   ),
-                  Text(
-                    '${formatter.format(goalAmount).replaceAll(',', ' ')} Ar',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formatAmountValue(goalAmount),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' $currencyCode',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -329,12 +358,26 @@ class _GoalListItem extends StatelessWidget {
                       color: Theme.of(context).hintColor,
                     ),
                   ),
-                  Text(
-                    '${formatter.format(remaining).replaceAll(',', ' ')} Ar',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).hintColor,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formatAmountValue(remaining),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' $currencyCode',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -350,7 +393,7 @@ class _GoalListItem extends StatelessWidget {
                   ),
                 ),
                 controller: amountController,
-                hint: '0 Ar',
+                hint: '0 $currencyCode',
                 keyboardType: TextInputType.number,
               ),
               SizedBox(height: 3.h),
@@ -370,9 +413,8 @@ class _GoalListItem extends StatelessWidget {
                   CustomButton(
                     text: 'Ajouter',
                     onPressed: () {
-                      final amount = double.tryParse(
-                          amountController.text.replaceAll(' ', ''));
-                      if (amount != null && amount > 0) {
+                      final amount = parseAmountInput(amountController.text);
+                      if (amount > 0) {
                         Navigator.of(ctx).pop(amount);
                       }
                     },
@@ -389,8 +431,9 @@ class _GoalListItem extends StatelessWidget {
 
     if (result != null) {
       final balance = await ref.read(allTimeBalanceProvider.future);
+      final resultMga = convertToMga(result, rate);
 
-      if (balance < result) {
+      if (balance < resultMga) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -400,7 +443,8 @@ class _GoalListItem extends StatelessWidget {
         return;
       }
 
-      final newAmount = currentAmount + result;
+      final currentAmountMga = parseAmountInput(goal.currentAmount ?? '0');
+      final newAmount = currentAmountMga + resultMga;
       final updatedGoal = goal.copyWith(
         currentAmount: newAmount.toStringAsFixed(0),
       );
@@ -413,7 +457,7 @@ class _GoalListItem extends StatelessWidget {
 
         // Add transaction to deduct from user balance
         await ref.read(transactionsProvider.notifier).addUserTransaction(
-              result.toString(),
+              resultMga.toStringAsFixed(0),
               'Contribution à ${goal.name}',
               SystemCategories.savingsCategoryName,
               null, // No subcategories
@@ -435,7 +479,7 @@ class _GoalListItem extends StatelessWidget {
     }
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref, double rate, String currencyCode) {
     return Row(
       children: [
         Expanded(
@@ -455,7 +499,12 @@ class _GoalListItem extends StatelessWidget {
           ),
         ),
         InkWell(
-          onTap: () => _showAddAmountDialog(context),
+          onTap: () => _showAddAmountDialog(
+            context,
+            ref,
+            rate,
+            currencyCode,
+          ),
           child: Icon(
             Icons.add_circle_outline_rounded,
             color: Theme.of(context).textTheme.bodyMedium?.color,
@@ -466,21 +515,53 @@ class _GoalListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildAmountRow(
-      BuildContext context, double currentAmount, double goalAmount) {
-    final formatter = NumberFormat("#,##0", "en_US");
+  Widget _buildAmountRow(BuildContext context, double currentAmount,
+      double goalAmount, String currencyCode) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('${formatter.format(currentAmount).replaceAll(',', ' ')} Ar',
-            style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).primaryColor)),
-        Text('${formatter.format(goalAmount).replaceAll(',', ' ')} Ar',
-            style: TextStyle(
-                fontSize: 14.sp,
-                color: Theme.of(context).textTheme.bodyMedium?.color)),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: formatAmountValue(currentAmount),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              TextSpan(
+                text: ' $currencyCode',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: formatAmountValue(goalAmount),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+              ),
+              TextSpan(
+                text: ' $currencyCode',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -10,7 +10,9 @@ Widget categoryPieChart(
     Map<String, String> categoryColors,
     Map<String, String> categoryEmojis,
     TransactionType type,
-    Color backgroundColor) {
+    Color backgroundColor,
+    {required double currencyRate,
+    required String currencyCode}) {
   if (categoryTotals.isEmpty) {
     return Center(
       child: Text(
@@ -111,7 +113,8 @@ Widget categoryPieChart(
                     ],
                   ),
                   Text(
-                    '${formatAmountValue(entry.value)} (${percentage.toStringAsFixed(1)}%)',
+                    '${formatAmountWithCurrency(entry.value * currencyRate, currencyCode)} '
+                    '(${percentage.toStringAsFixed(1)}%)',
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.bold,

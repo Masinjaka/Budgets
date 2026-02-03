@@ -1,10 +1,12 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BalanceCard extends StatelessWidget {
+class BalanceCard extends ConsumerWidget {
   final String title;
   final double amount;
   final String? subtitle;
@@ -32,18 +34,20 @@ class BalanceCard extends StatelessWidget {
     this.showVisibilityToggle = false,
   });
 
-  String _formatAmount(double amount) {
-    return formatAmountValue(amount.abs(), includeCurrency: true);
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final surfaceDim = backgroundColor ?? Theme.of(context).colorScheme.surface;
 
     final isNegative = amount < 0;
     final displayColor =
         isNegative ? Colors.red : Theme.of(context).textTheme.bodyMedium?.color;
+    final convertedAmount = convertFromMga(amount.abs(), rate);
+    final formattedAmount =
+        formatAmountWithCurrency(convertedAmount, currencyCode);
 
     return Stack(
       children: [
@@ -75,7 +79,7 @@ class BalanceCard extends StatelessWidget {
                       child: Text(
                         isHidden
                             ? '••••••••'
-                            : '${isNegative ? '-' : ''}${_formatAmount(amount)}',
+                            : '${isNegative ? '-' : ''}$formattedAmount',
                         key: ValueKey<bool>(isHidden),
                         style: TextStyle(
                           fontSize: isLarge ? 19.sp : 16.sp,

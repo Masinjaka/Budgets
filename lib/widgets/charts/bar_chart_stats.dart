@@ -7,7 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds bar chart for daily hourly view (24 hours)
-Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
+Widget dailyHourlyBarChart(List<TransactionModel> transactions,
+    {required double currencyRate}) {
   final hourlyData = AppChartData.getDailyHourlyData(transactions);
   double maxAmount = 0;
 
@@ -18,12 +19,22 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
         .reduce((a, b) => a > b ? a : b);
   }
 
+  final convertedData = hourlyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
+
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
     duration: const Duration(seconds: 1),
     curve: Curves.easeOutQuart,
     builder: (context, value, child) {
-      final animatedData = hourlyData.map((group) {
+      final animatedData = convertedData.map((group) {
         final animatedRods = group.barRods.map((rod) {
           return rod.copyWith(toY: rod.toY * value);
         }).toList();
@@ -102,7 +113,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
               },
             ),
           ),
-          maxY: maxAmount * 1.2,
+          maxY: maxAmount * currencyRate * 1.2,
         ),
         duration: Duration.zero,
       );
@@ -111,7 +122,8 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
 }
 
 /// Builds bar chart for monthly weekly view (4 weeks)
-Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
+Widget monthlyWeeklyBarChart(List<TransactionModel> transactions,
+    {required double currencyRate}) {
   final weeklyData = AppChartData.getMonthlyWeeklyData(transactions);
   double maxAmount = 0;
 
@@ -124,12 +136,22 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
 
   final now = DateTime.now();
 
+  final convertedData = weeklyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
+
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
     duration: const Duration(seconds: 1),
     curve: Curves.easeOutQuart,
     builder: (context, value, child) {
-      final animatedData = weeklyData.map((group) {
+      final animatedData = convertedData.map((group) {
         final animatedRods = group.barRods.map((rod) {
           return rod.copyWith(toY: rod.toY * value);
         }).toList();
@@ -215,7 +237,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
               },
             ),
           ),
-          maxY: maxAmount * 1.2,
+          maxY: maxAmount * currencyRate * 1.2,
         ),
         duration: Duration.zero,
       );
@@ -224,7 +246,8 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
 }
 
 /// Builds bar chart for yearly monthly view (12 months)
-Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
+Widget yearlyMonthlyBarChart(List<TransactionModel> transactions,
+    {required double currencyRate}) {
   final monthlyData = AppChartData.getYearlyMonthlyData(transactions);
   double maxAmount = 0;
 
@@ -237,12 +260,22 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
 
   final now = DateTime.now();
 
+  final convertedData = monthlyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
+
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
     duration: const Duration(seconds: 1),
     curve: Curves.easeOutQuart,
     builder: (context, value, child) {
-      final animatedData = monthlyData.map((group) {
+      final animatedData = convertedData.map((group) {
         final animatedRods = group.barRods.map((rod) {
           return rod.copyWith(toY: rod.toY * value);
         }).toList();
@@ -322,7 +355,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
               },
             ),
           ),
-          maxY: maxAmount * 1.2,
+          maxY: maxAmount * currencyRate * 1.2,
         ),
         duration: Duration.zero,
       );

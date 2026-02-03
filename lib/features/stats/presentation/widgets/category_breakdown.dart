@@ -1,9 +1,11 @@
+import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CategoryBreakdown extends StatelessWidget {
+class CategoryBreakdown extends ConsumerWidget {
   final Map<String, double> expensesByCategory;
   final Map<String, double> incomeByCategory;
   final Map<String, String> categoryColors;
@@ -17,8 +19,9 @@ class CategoryBreakdown extends StatelessWidget {
     required this.categoryEmojis,
   });
 
-  String _formatAmount(double amount) {
-    return formatAmountValue(amount, includeCurrency: true);
+  String _formatAmount(double amount, double rate, String currencyCode) {
+    final converted = convertFromMga(amount, rate);
+    return formatAmountWithCurrency(converted, currencyCode);
   }
 
   Color _parseColor(String hexColor) {
@@ -31,7 +34,10 @@ class CategoryBreakdown extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final surfaceDim = Theme.of(context).colorScheme.surface;
 
@@ -75,7 +81,7 @@ class CategoryBreakdown extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    _formatAmount(totalExpenses),
+                    _formatAmount(totalExpenses, rate, currencyCode),
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
@@ -101,6 +107,8 @@ class CategoryBreakdown extends StatelessWidget {
                     color: color,
                     textColor: textColor,
                     surfaceDim: Theme.of(context).colorScheme.surfaceDim,
+                    rate: rate,
+                    currencyCode: currencyCode,
                   ),
                 );
               }),
@@ -132,7 +140,7 @@ class CategoryBreakdown extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    _formatAmount(totalIncome),
+                    _formatAmount(totalIncome, rate, currencyCode),
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
@@ -158,6 +166,8 @@ class CategoryBreakdown extends StatelessWidget {
                     color: color,
                     textColor: textColor,
                     surfaceDim: Theme.of(context).colorScheme.surfaceDim,
+                    rate: rate,
+                    currencyCode: currencyCode,
                   ),
                 );
               }),
@@ -213,6 +223,8 @@ class CategoryBreakdown extends StatelessWidget {
     required Color color,
     required Color? textColor,
     required Color surfaceDim,
+    required double rate,
+    required String currencyCode,
   }) {
     return Column(
       children: [
@@ -256,7 +268,7 @@ class CategoryBreakdown extends StatelessWidget {
                       Expanded(
                         child: Text(
                           textAlign: TextAlign.end,
-                          _formatAmount(amount),
+                          _formatAmount(amount, rate, currencyCode),
                           style: TextStyle(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.bold,

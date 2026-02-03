@@ -9,6 +9,8 @@ import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/widgets/custom_dropdown.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:budgets/features/categories/domain/providers/subcategory_expenses_providers.dart';
@@ -75,6 +77,16 @@ class _TransactionCreationPageState
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
+        final currencyState =
+            await ref.read(currencyControllerProvider.future);
+        final currencyCode = currencyState.code;
+        final rate = currencyState.rateFor(currencyCode);
+        final decimals = currencyCode == 'MGA' ? 0 : 2;
+        String formatInputAmount(double value) {
+          final fixed = value.toStringAsFixed(decimals);
+          return fixed.replaceAll(RegExp(r'\.?0+$'), '');
+        }
+
         final allCategories = await _module.fetchCategories(ref);
         // Filter categories by transaction type
         final filteredCategories = allCategories
@@ -123,8 +135,10 @@ class _TransactionCreationPageState
                 final subcategoryController = TextEditingController(
                   text: subExpense.subcategory?.name ?? '',
                 );
+                final displayAmount =
+                    convertFromMga(subExpense.amount, rate);
                 final amountController = TextEditingController(
-                  text: subExpense.amount?.toString() ?? '',
+                  text: formatInputAmount(displayAmount),
                 );
 
                 // Find matching subcategory instance from the fetched list
@@ -160,20 +174,26 @@ class _TransactionCreationPageState
             } else {
               // No subcategories, use regular amount field
               _montantController.text =
-                  widget.transaction!.amount?.toString() ?? '';
+                  formatInputAmount(
+                    convertFromMga(widget.transaction!.amount, rate),
+                  );
             }
           } catch (e) {
             debugPrint("❌ Error fetching subcategory expenses: $e");
             // Fallback to regular amount field
             _montantController.text =
-                widget.transaction!.amount?.toString() ?? '';
+                formatInputAmount(
+                  convertFromMga(widget.transaction!.amount, rate),
+                );
           }
         } else if (!isEditMode) {
           // Not in edit mode, keep amount field empty for new transactions
         } else {
           // Edit mode but no transaction ID, use the total amount
           _montantController.text =
-              widget.transaction!.amount?.toString() ?? '';
+              formatInputAmount(
+                convertFromMga(widget.transaction!.amount, rate),
+              );
         }
 
         // Apply all changes

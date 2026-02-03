@@ -11,6 +11,8 @@ import 'package:budgets/features/categories/domain/providers/filter_provider.dar
 import 'package:budgets/features/categories/domain/providers/subcategories_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -188,7 +190,7 @@ class TransactionModule {
           item['amountController'] as TextEditingController?;
       if (amountController != null && amountController.text.trim().isNotEmpty) {
         try {
-          total += double.parse(amountController.text.trim());
+          total += parseAmountInput(amountController.text.trim());
         } catch (e) {
           debugPrint("Error parsing amount: ${amountController.text}");
         }
@@ -219,7 +221,7 @@ class TransactionModule {
 
       // Validate amount is a valid number
       try {
-        double.parse(amountController.text.trim());
+        parseAmountInput(amountController.text.trim());
       } catch (e) {
         return false;
       }
@@ -349,6 +351,14 @@ class TransactionModule {
       );
     }
 
+    final currencyState = await ref.read(currencyControllerProvider.future);
+    final rate = currencyState.rateFor(currencyState.code);
+    String toMgaString(String raw) {
+      final displayAmount = parseAmountInput(raw);
+      final mgaAmount = convertToMga(displayAmount, rate).round();
+      return mgaAmount.toString();
+    }
+
     // Handle multiple amounts mode
     if (isMultipleAmounts) {
       // Validate subcategory amounts
@@ -360,18 +370,25 @@ class TransactionModule {
       }
 
       // Build subcategory amounts map
-      final subcategoryMap = buildSubcategoryAmountsMap(subcategoryAmounts);
-      final totalAmount = calculateTotalAmount(subcategoryAmounts);
+      final subcategoryMapDisplay =
+          buildSubcategoryAmountsMap(subcategoryAmounts);
+      final totalAmountDisplay = calculateTotalAmount(subcategoryAmounts);
+      final totalAmountMga =
+          convertToMga(totalAmountDisplay, rate).round().toDouble();
+      final subcategoryMap = <String, String>{};
+      subcategoryMapDisplay.forEach((key, value) {
+        subcategoryMap[key] = toMgaString(value);
+      });
 
       debugPrint("🗺️ FINAL SUBCATEGORY MAP: $subcategoryMap");
-      debugPrint("💰 TOTAL AMOUNT: $totalAmount");
+      debugPrint("💰 TOTAL AMOUNT: $totalAmountMga");
 
       final description = descriptionController.text.trim().isEmpty
           ? ""
           : descriptionController.text.trim();
 
       debugPrint("Calling Supabase RPC with:");
-      debugPrint("Total Amount: $totalAmount");
+      // debugPrint("Total Amount: $totalAmount");
       debugPrint("Description: $description");
       debugPrint("Category: ${selectedCategory.name ?? ''}");
       debugPrint("Subcategory Map: $subcategoryMap");
@@ -379,7 +396,7 @@ class TransactionModule {
       final transactionSuccess = transactionId != null
           ? await editTransaction(
               transactionId: transactionId,
-              amount: totalAmount.toString(),
+              amount: totalAmountMga.toString(),
               description: description,
               categoryName: selectedCategory.name ?? '',
               subcategoryAmounts: subcategoryMap,
@@ -390,7 +407,7 @@ class TransactionModule {
               originalTransaction: originalTransaction,
             )
           : await addTransaction(
-              amount: totalAmount.toString(),
+              amount: totalAmountMga.toString(),
               description: description,
               categoryName: selectedCategory.name ?? '',
               subcategoryAmounts: subcategoryMap,
@@ -404,8 +421,8 @@ class TransactionModule {
           success: true,
           message: transactionId != null
               ? '${transactionType.displayName} modifiée avec succès'
-              : '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmount.toStringAsFixed(2)}',
-          totalAmount: totalAmount,
+              : '${transactionType.displayName} avec sous-catégories ajoutée: ${totalAmountDisplay.toStringAsFixed(2)}',
+          totalAmount: totalAmountDisplay,
         );
       } else {
         return TransactionSubmissionResult(
@@ -424,7 +441,7 @@ class TransactionModule {
       final transactionSuccess = transactionId != null
           ? await editTransaction(
               transactionId: transactionId,
-              amount: montantController.text.trim(),
+              amount: toMgaString(montantController.text.trim()),
               description: description,
               categoryName: selectedCategory.name ?? '',
               subcategoryAmounts: null,
@@ -435,7 +452,7 @@ class TransactionModule {
               originalTransaction: originalTransaction,
             )
           : await addTransaction(
-              amount: montantController.text.trim(),
+              amount: toMgaString(montantController.text.trim()),
               description: description,
               categoryName: selectedCategory.name ?? '',
               subcategoryAmounts: null,

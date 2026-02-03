@@ -5,6 +5,7 @@ import 'package:budgets/features/settings/presentation/widgets/setting_card.dart
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
 import 'package:budgets/features/settings/presentation/widgets/theme_selection_dialog.dart';
 import 'package:budgets/features/settings/presentation/widgets/user_card.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +54,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -122,10 +126,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         title: 'Devise',
                         iconData: Icons.attach_money_outlined,
                         onTap: () {
-                          // Open currency selection dialog
+                          context.push('/currency-selection');
                         },
                         showSuffixSettingChoice: true,
-                        settingChoice: 'MGA',
+                        settingChoice: currencyCode,
                       ),
                       SizedBox(height: 1.h),
                       SettingCard(

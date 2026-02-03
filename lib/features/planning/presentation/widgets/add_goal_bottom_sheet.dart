@@ -1,4 +1,6 @@
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -38,7 +40,6 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
   void initState() {
     super.initState();
     if (widget.goal != null) {
-      _amountController.text = widget.goal!.goalAmount ?? '';
       _nameController.text = widget.goal!.name ?? '';
       _targetDate = widget.goal!.dateAim;
       _imagePath = widget.goal!.imagePath;
@@ -47,6 +48,16 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
       _dateController.text =
           DateFormat('MMMM yyyy', 'fr_FR').format(_targetDate!);
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.goal?.goalAmount == null) return;
+      final currencyState =
+          await ref.read(currencyControllerProvider.future);
+      final rate = currencyState.rateFor(currencyState.code);
+      final amountMga = parseAmountInput(widget.goal!.goalAmount!);
+      final displayAmount = convertFromMga(amountMga, rate);
+      _amountController.text = formatAmountValue(displayAmount);
+    });
   }
 
   @override
@@ -116,11 +127,17 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
     setState(() => _isLoading = true);
 
     try {
+      final currencyState =
+          await ref.read(currencyControllerProvider.future);
+      final rate = currencyState.rateFor(currencyState.code);
+      final displayAmount = parseAmountInput(_amountController.text);
+      final goalAmountMga = convertToMga(displayAmount, rate).round();
+
       final goal = Goal(
         id: widget.goal?.id,
         userId: userId,
         name: _nameController.text,
-        goalAmount: _amountController.text.replaceAll(' ', ''),
+        goalAmount: goalAmountMga.toString(),
         currentAmount: widget.goal?.currentAmount ?? '0',
         dateAim: _targetDate,
         imagePath: _imagePath,
