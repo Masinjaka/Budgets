@@ -1,5 +1,5 @@
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
+import 'package:budgets/features/settings/domain/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 

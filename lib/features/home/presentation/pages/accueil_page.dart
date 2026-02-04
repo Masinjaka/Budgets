@@ -8,15 +8,13 @@ import 'package:budgets/features/home/presentation/widgets/jumbotron.dart';
 import 'package:budgets/features/home/presentation/widgets/section_title.dart';
 import 'package:budgets/features/home/presentation/widgets/stats_home_widget.dart';
 import 'package:budgets/features/notifications/presentation/controllers/notification_controller.dart';
+import 'package:budgets/features/home/domain/providers/notification_permission_provider.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-
-final _notificationPermissionPromptedProvider =
-    StateProvider<bool>((ref) => false);
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -26,13 +24,15 @@ class HomePage extends ConsumerWidget {
     final asyncTransactions = ref.watch(transactionsProvider);
     final selectedCategories = ref.watch(selectedCategoriesProvider);
     final dateRange = ref.watch(dateRangeProvider);
-    final prompted = ref.watch(_notificationPermissionPromptedProvider);
+    final prompted = ref.watch(notificationPermissionPromptedProvider);
     if (!prompted) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final alreadyPrompted =
-            ref.read(_notificationPermissionPromptedProvider);
+            ref.read(notificationPermissionPromptedProvider);
         if (alreadyPrompted) return;
-        ref.read(_notificationPermissionPromptedProvider.notifier).state = true;
+        ref
+            .read(notificationPermissionPromptedProvider.notifier)
+            .setPrompted();
         await _maybeRequestNotificationPermission(context, ref);
       });
     }
@@ -104,9 +104,9 @@ class HomePage extends ConsumerWidget {
     if (dateRange != null) {
       transactions = transactions.where((transaction) {
         final transactionDate = transaction.date!;
-        return transactionDate.isAfter(dateRange!.start) &&
+        return transactionDate.isAfter(dateRange.start) &&
             transactionDate
-                .isBefore(dateRange!.end.add(const Duration(days: 1)));
+                .isBefore(dateRange.end.add(const Duration(days: 1)));
       }).toList();
     }
 
@@ -149,24 +149,36 @@ Future<void> _maybeRequestNotificationPermission(
 
   if (status.isPermanentlyDenied || status.isRestricted) {
     if (!context.mounted) return;
-    await showDialog<void>(
+    final openedSettings = await showDialog<bool>(
       context: context,
       builder: (context) {
         return PermissionRequestDialog(
-          title: 'Activer les notifications',
+          title: 'Notifications bloquées',
           message:
-              'Vous avez bloqué les notifications. Ouvrez les réglages pour '
-              'les autoriser.',
-          allowText: 'Ouvrir les réglages',
+              'Les notifications ont été bloquées pour cette application. '
+              'Pour les réactiver, veuillez accéder aux paramètres de votre '
+              'appareil et autoriser les notifications.',
+          allowText: 'Ouvrir les paramètres',
           denyText: 'Annuler',
-          onAllow: () {
-            openAppSettings();
-            Navigator.of(context).pop();
+          onAllow: () async {
+            await openAppSettings();
+            if (context.mounted) {
+              Navigator.of(context).pop(true);
+            }
           },
-          onDeny: () => Navigator.of(context).pop(),
+          onDeny: () => Navigator.of(context).pop(false),
         );
       },
     );
+    // Re-check permission after returning from settings
+    if (openedSettings == true && context.mounted) {
+      final newStatus = await Permission.notification.status;
+      if (newStatus.isGranted) {
+        await ref
+            .read(notificationControllerProvider.notifier)
+            .registerIfEnabled();
+      }
+    }
     return;
   }
 

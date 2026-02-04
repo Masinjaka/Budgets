@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../domain/usecases/update_username.dart';
+import '../../domain/provider/user_providers.dart';
 
 part 'username_controller.g.dart';
 

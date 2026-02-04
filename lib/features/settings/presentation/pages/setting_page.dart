@@ -1,6 +1,6 @@
 import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
+import 'package:budgets/features/settings/domain/providers/theme_provider.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
 import 'package:budgets/features/settings/presentation/widgets/theme_selection_dialog.dart';

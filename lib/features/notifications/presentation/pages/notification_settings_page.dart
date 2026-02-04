@@ -1,5 +1,6 @@
 import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/features/notifications/presentation/controllers/notification_controller.dart';
+import 'package:budgets/features/notifications/domain/providers/pending_target_provider.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
@@ -9,9 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-
-final _pendingTargetProvider =
-    StateProvider<_ToggleTarget?>((ref) => null);
 
 class NotificationSettingsPage extends ConsumerWidget {
   const NotificationSettingsPage({super.key});
@@ -67,11 +65,11 @@ class NotificationSettingsPage extends ConsumerWidget {
     WidgetRef ref,
     NotificationSettings settings,
   ) {
-    final pendingTarget = ref.watch(_pendingTargetProvider);
+    final pendingTarget = ref.watch(pendingTargetProvider);
     final enabled = settings.notificationsEnabled;
-    final masterBusy = pendingTarget == _ToggleTarget.master;
-    final reminderBusy = pendingTarget == _ToggleTarget.reminders;
-    final warningBusy = pendingTarget == _ToggleTarget.warnings;
+    final masterBusy = pendingTarget == ToggleTarget.master;
+    final reminderBusy = pendingTarget == ToggleTarget.reminders;
+    final warningBusy = pendingTarget == ToggleTarget.warnings;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -145,24 +143,24 @@ class NotificationSettingsPage extends ConsumerWidget {
     WidgetRef ref,
     bool enabled,
   ) async {
-    if (ref.read(_pendingTargetProvider) != null) return;
-    ref.read(_pendingTargetProvider.notifier).state = _ToggleTarget.master;
+    if (ref.read(pendingTargetProvider) != null) return;
+    ref.read(pendingTargetProvider.notifier).set(ToggleTarget.master);
     if (!enabled) {
       await ref
           .read(notificationControllerProvider.notifier)
           .setAllEnabled(false);
-      ref.read(_pendingTargetProvider.notifier).state = null;
+      ref.read(pendingTargetProvider.notifier).set(null);
       return;
     }
 
     final allowed = await _ensurePermission(context);
     if (!allowed) {
-      ref.read(_pendingTargetProvider.notifier).state = null;
+      ref.read(pendingTargetProvider.notifier).set(null);
       return;
     }
 
     await ref.read(notificationControllerProvider.notifier).setAllEnabled(true);
-    ref.read(_pendingTargetProvider.notifier).state = null;
+    ref.read(pendingTargetProvider.notifier).set(null);
   }
 
   Future<void> _handleReminderToggle(
@@ -170,26 +168,26 @@ class NotificationSettingsPage extends ConsumerWidget {
     WidgetRef ref,
     bool enabled,
   ) async {
-    if (ref.read(_pendingTargetProvider) != null) return;
-    ref.read(_pendingTargetProvider.notifier).state = _ToggleTarget.reminders;
+    if (ref.read(pendingTargetProvider) != null) return;
+    ref.read(pendingTargetProvider.notifier).set(ToggleTarget.reminders);
     if (!enabled) {
       await ref
           .read(notificationControllerProvider.notifier)
           .setRemindersEnabled(false);
-      ref.read(_pendingTargetProvider.notifier).state = null;
+      ref.read(pendingTargetProvider.notifier).set(null);
       return;
     }
 
     final allowed = await _ensurePermission(context);
     if (!allowed) {
-      ref.read(_pendingTargetProvider.notifier).state = null;
+      ref.read(pendingTargetProvider.notifier).set(null);
       return;
     }
 
     await ref
         .read(notificationControllerProvider.notifier)
         .setRemindersEnabled(true);
-    ref.read(_pendingTargetProvider.notifier).state = null;
+    ref.read(pendingTargetProvider.notifier).set(null);
   }
 
   Future<void> _handleWarningToggle(
@@ -197,51 +195,58 @@ class NotificationSettingsPage extends ConsumerWidget {
     WidgetRef ref,
     bool enabled,
   ) async {
-    if (ref.read(_pendingTargetProvider) != null) return;
-    ref.read(_pendingTargetProvider.notifier).state = _ToggleTarget.warnings;
+    if (ref.read(pendingTargetProvider) != null) return;
+    ref.read(pendingTargetProvider.notifier).set(ToggleTarget.warnings);
     if (!enabled) {
       await ref
           .read(notificationControllerProvider.notifier)
           .setWarningsEnabled(false);
-      ref.read(_pendingTargetProvider.notifier).state = null;
+      ref.read(pendingTargetProvider.notifier).set(null);
       return;
     }
 
     final allowed = await _ensurePermission(context);
     if (!allowed) {
-      ref.read(_pendingTargetProvider.notifier).state = null;
+      ref.read(pendingTargetProvider.notifier).set(null);
       return;
     }
 
     await ref
         .read(notificationControllerProvider.notifier)
         .setWarningsEnabled(true);
-    ref.read(_pendingTargetProvider.notifier).state = null;
+    ref.read(pendingTargetProvider.notifier).set(null);
   }
 
   Future<bool> _ensurePermission(BuildContext context) async {
     final permissionStatus = await Permission.notification.status;
-    if (permissionStatus.isPermanentlyDenied ||
-        permissionStatus.isRestricted) {
+    if (permissionStatus.isPermanentlyDenied || permissionStatus.isRestricted) {
       if (!context.mounted) return false;
-      await showDialog<void>(
+      final openedSettings = await showDialog<bool>(
         context: context,
         builder: (context) {
           return PermissionRequestDialog(
-            title: 'Activer les notifications',
+            title: 'Notifications bloquées',
             message:
-                'Vous avez bloqué les notifications. Ouvrez les réglages pour '
-                'les autoriser.',
-            allowText: 'Ouvrir les réglages',
+                'Les notifications ont été bloquées pour cette application. '
+                'Pour les réactiver, veuillez accéder aux paramètres de votre '
+                'appareil et autoriser les notifications.',
+            allowText: 'Ouvrir les paramètres',
             denyText: 'Annuler',
-            onAllow: () {
-              openAppSettings();
-              Navigator.of(context).pop();
+            onAllow: () async {
+              await openAppSettings();
+              if (context.mounted) {
+                Navigator.of(context).pop(true);
+              }
             },
-            onDeny: () => Navigator.of(context).pop(),
+            onDeny: () => Navigator.of(context).pop(false),
           );
         },
       );
+      // Re-check permission after returning from settings
+      if (openedSettings == true) {
+        final newStatus = await Permission.notification.status;
+        return newStatus.isGranted;
+      }
       return false;
     }
 
@@ -274,5 +279,3 @@ class NotificationSettingsPage extends ConsumerWidget {
     return result.isGranted;
   }
 }
-
-enum _ToggleTarget { master, reminders, warnings }

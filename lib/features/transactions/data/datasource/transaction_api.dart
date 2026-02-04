@@ -1,13 +1,9 @@
 import 'package:budgets/core/utils/response_parser.dart';
 import 'package:budgets/core/utils/wrapper.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/main.dart'; // For supabase instance
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:flutter/foundation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // For SupabaseClient
-
-part 'transaction_api.g.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Paginated response model for transactions
 class PaginatedTransactions {
@@ -207,9 +203,4 @@ class TransactionsApi {
       debugPrint("Transaction edited: $response");
     });
   }
-}
-
-@riverpod
-TransactionsApi transactionsApi(Ref ref) {
-  return TransactionsApi(supabase);
 }

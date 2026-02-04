@@ -50,7 +50,7 @@ class NotificationController extends AsyncNotifier<NotificationSettings> {
     bool? remindersEnabled,
     bool? warningsEnabled,
   }) async {
-    state = const AsyncLoading<NotificationSettings>().copyWithPrevious(state);
+    state = const AsyncLoading<NotificationSettings>();
     final current = await _dataSource.fetchSettings();
     final next = current.copyWith(
       notificationsEnabled:

@@ -1,5 +1,5 @@
-import 'package:budgets/features/transactions/data/datasource/transaction_api.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/features/transactions/domain/providers/transaction_api_provider.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/constants.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';

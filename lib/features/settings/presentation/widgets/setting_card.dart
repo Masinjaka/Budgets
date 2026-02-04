@@ -12,7 +12,9 @@ class SettingCard extends StatefulWidget {
       this.useSwitch = false,
       this.onSwitchChanged,
       this.switchValue,
-      this.switchDisabled = false});
+      this.switchDisabled = false,
+      this.showTrailingArrow = true,
+      this.trailingWidget});
   final String title;
   final IconData iconData;
   final VoidCallback onTap;
@@ -22,6 +24,8 @@ class SettingCard extends StatefulWidget {
   final void Function(bool)? onSwitchChanged;
   final bool? switchValue;
   final bool switchDisabled;
+  final bool showTrailingArrow;
+  final Widget? trailingWidget;
 
   @override
   State<SettingCard> createState() => _SettingCardState();
@@ -98,28 +102,31 @@ class _SettingCardState extends State<SettingCard> {
                       color: Colors.grey,
                     ),
                   ),
-                widget.useSwitch
-                    ? Opacity(
-                        opacity: widget.switchDisabled ? 0.5 : 1,
-                        child: IgnorePointer(
-                          ignoring: widget.switchDisabled,
-                          child: Switch(
-                            value: resolvedSwitchValue,
-                            onChanged: (val) {
-                              if (widget.switchValue == null) {
-                                setState(() => _switchValue = val);
-                              }
-                              widget.onSwitchChanged?.call(val);
-                            },
-                            // activeThumbColor: AppTheme.primaryGreen,
-                          ),
-                        ),
-                      )
-                    : Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16.sp,
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                if (widget.trailingWidget != null)
+                  widget.trailingWidget!
+                else if (widget.useSwitch)
+                  Opacity(
+                    opacity: widget.switchDisabled ? 0.5 : 1,
+                    child: IgnorePointer(
+                      ignoring: widget.switchDisabled,
+                      child: Switch(
+                        value: resolvedSwitchValue,
+                        onChanged: (val) {
+                          if (widget.switchValue == null) {
+                            setState(() => _switchValue = val);
+                          }
+                          widget.onSwitchChanged?.call(val);
+                        },
+                        // activeThumbColor: AppTheme.primaryGreen,
                       ),
+                    ),
+                  )
+                else if (widget.showTrailingArrow)
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16.sp,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
               ],
             ),
           ],

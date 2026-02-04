@@ -22,7 +22,7 @@ import 'package:budgets/features/settings/presentation/pages/setting_page.dart';
 import 'package:budgets/features/categories/presentation/pages/category_page.dart';
 import 'package:budgets/features/stats/presentation/pages/stats_page.dart';
 import 'package:budgets/features/planning/presentation/pages/planning_page.dart';
-import 'package:budgets/features/settings/presentation/providers/theme_provider.dart';
+import 'package:budgets/features/settings/domain/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
