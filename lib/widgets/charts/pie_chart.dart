@@ -1,7 +1,7 @@
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [PieChart] widget for category breakdown
@@ -10,7 +10,9 @@ Widget categoryPieChart(
     Map<String, String> categoryColors,
     Map<String, String> categoryEmojis,
     TransactionType type,
-    Color backgroundColor) {
+    Color backgroundColor,
+    {required double currencyRate,
+    required String currencyCode}) {
   if (categoryTotals.isEmpty) {
     return Center(
       child: Text(
@@ -21,8 +23,6 @@ Widget categoryPieChart(
   }
 
   final total = categoryTotals.values.fold(0.0, (sum, value) => sum + value);
-  final NumberFormat formatter = NumberFormat.compact();
-
   List<PieChartSectionData> sections = [];
 
   categoryTotals.forEach((category, amount) {
@@ -113,7 +113,8 @@ Widget categoryPieChart(
                     ],
                   ),
                   Text(
-                    '${formatter.format(entry.value)} (${percentage.toStringAsFixed(1)}%)',
+                    '${formatAmountWithCurrency(entry.value * currencyRate, currencyCode)} '
+                    '(${percentage.toStringAsFixed(1)}%)',
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.bold,

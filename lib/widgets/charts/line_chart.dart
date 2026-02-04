@@ -1,12 +1,16 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-Widget buildLineChart(
-    List<FlSpot> spots, String periodType, List<TransactionModel> expenses) {
-  final NumberFormat formatter = NumberFormat.compact();
+Widget buildLineChart(List<FlSpot> spots, String periodType,
+    List<TransactionModel> expenses,
+    {required double currencyRate}) {
+  final convertedSpots = spots
+      .map((spot) => FlSpot(spot.x, spot.y * currencyRate))
+      .toList();
   return Expanded(
     child: LineChart(
       LineChartData(
@@ -66,7 +70,7 @@ Widget buildLineChart(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   // Display dollar amounts on the left Y-axis.
-                  return Text(formatter.format(value.toInt()),
+                  return Text(formatAmountValue(value),
                       style: const TextStyle(fontSize: 10));
                 },
                 reservedSize: 4.h,
@@ -82,16 +86,17 @@ Widget buildLineChart(
           border: Border.all(color: const Color(0xff37434d), width: 1),
         ),
         minX: 0,
-        maxX: spots.isNotEmpty
-            ? spots.last.x
+        maxX: convertedSpots.isNotEmpty
+            ? convertedSpots.last.x
             : 0, // Max X based on the last data point.
         minY: 0,
-        maxY: spots.isNotEmpty
-            ? spots.map((e) => e.y).reduce((a, b) => a > b ? a : b) * 1.2
+        maxY: convertedSpots.isNotEmpty
+            ? convertedSpots.map((e) => e.y).reduce((a, b) => a > b ? a : b) *
+                1.2
             : 100, // Max Y with 20% buffer.
         lineBarsData: [
           LineChartBarData(
-            spots: spots,
+            spots: convertedSpots,
             isCurved: true, // Smooth curve for the line.
             curveSmoothness: 0.2,
             color: Colors.greenAccent,

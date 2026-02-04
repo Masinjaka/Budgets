@@ -11,7 +11,7 @@ class SupabaseUserDataSource {
     // Assuming table name is 'user'
     final data = await _client
         .from('user')
-        .select('username, profile_photo')
+        .select('username, profile_photo, currency_code')
         .eq('user_id', uid)
         .single();
 
@@ -24,5 +24,13 @@ class SupabaseUserDataSource {
     await _client
         .from('user')
         .update({'username': username}).eq('user_id', uid);
+  }
+
+  Future<void> updateCurrencyCode(String currencyCode) async {
+    final uid = _client.auth.currentUser?.id;
+    if (uid == null) throw StateError('No authenticated user');
+    await _client
+        .from('user')
+        .update({'currency_code': currencyCode}).eq('user_id', uid);
   }
 }

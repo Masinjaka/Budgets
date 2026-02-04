@@ -1,9 +1,11 @@
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NewCategoryBreakdown extends StatefulWidget {
+class NewCategoryBreakdown extends ConsumerStatefulWidget {
   final Map<String, double> expensesByCategory;
   final Map<String, double> incomeByCategory;
   final Map<String, String> categoryColors;
@@ -18,21 +20,13 @@ class NewCategoryBreakdown extends StatefulWidget {
   });
 
   @override
-  State<NewCategoryBreakdown> createState() => _NewCategoryBreakdownState();
+  ConsumerState<NewCategoryBreakdown> createState() =>
+      _NewCategoryBreakdownState();
 }
 
-class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
+class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
   bool _showExpenses = true;
   final GlobalKey _cardKey = GlobalKey();
-
-  String _formatAmount(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: 'MGA',
-      decimalDigits: 0,
-    );
-    return formatter.format(amount);
-  }
 
   void _switchTab(bool showExpenses) {
     if (_showExpenses == showExpenses) return;
@@ -52,6 +46,9 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
 
   @override
   Widget build(BuildContext context) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final surfaceColor = Theme.of(context).colorScheme.surface;
@@ -190,6 +187,8 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
                   percentage: percentage,
                   progressColor: progressColor,
                   textColor: textColor,
+                  rate: rate,
+                  currencyCode: currencyCode,
                 ),
               );
             }),
@@ -204,6 +203,8 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
     required double amount,
     required double percentage,
     required Color progressColor,
+    required double rate,
+    required String currencyCode,
     Color? textColor,
   }) {
     return Row(
@@ -245,12 +246,25 @@ class _NewCategoryBreakdownState extends State<NewCategoryBreakdown> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    _formatAmount(amount),
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formatAmountValue(convertFromMga(amount, rate)),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: textColor,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '  $currencyCode',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

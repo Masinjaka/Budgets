@@ -1,3 +1,4 @@
+import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +37,12 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 
   @override
   Widget build(BuildContext context) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final amountMga = parseAmountInput(widget.amount);
+    final displayAmount = convertFromMga(amountMga, rate);
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 0.5.h),
       padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
@@ -112,7 +119,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'MGA',
+                    currencyCode,
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
@@ -125,7 +132,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                   ),
                   SizedBox(height: 1.h),
                   Text(
-                    formatAmount(widget.amount),
+                    formatAmountValue(displayAmount),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w900,

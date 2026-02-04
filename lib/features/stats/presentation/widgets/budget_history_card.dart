@@ -1,9 +1,10 @@
 import 'package:budgets/features/planning/data/datasources/budget_history_datasource.dart';
 import 'package:budgets/features/planning/domain/models/budget_history_model.dart';
 import 'package:budgets/features/planning/domain/providers/budget_history_provider.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -16,6 +17,9 @@ class BudgetHistoryCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final periodMonth = getPeriodMonthString(date);
     final historyAsync = ref.watch(budgetHistoryForMonthProvider(periodMonth));
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
 
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final surfaceColor = Theme.of(context).colorScheme.surface;
@@ -46,7 +50,14 @@ class BudgetHistoryCard extends ConsumerWidget {
               if (history.isEmpty) {
                 return _buildEmptyState(context, textColor);
               }
-              return _buildHistoryList(context, history, textColor, isDarkMode);
+              return _buildHistoryList(
+                context,
+                history,
+                textColor,
+                isDarkMode,
+                rate,
+                currencyCode,
+              );
             },
             loading: () => _buildLoadingSkeleton(context, isDarkMode),
             error: (error, stack) => _buildErrorState(context, textColor),
@@ -157,10 +168,19 @@ class BudgetHistoryCard extends ConsumerWidget {
     List<BudgetHistory> history,
     Color? textColor,
     bool isDarkMode,
+    double rate,
+    String currencyCode,
   ) {
     return Column(
       children: history.map((item) {
-        return _buildBudgetItem(context, item, textColor, isDarkMode);
+        return _buildBudgetItem(
+          context,
+          item,
+          textColor,
+          isDarkMode,
+          rate,
+          currencyCode,
+        );
       }).toList(),
     );
   }
@@ -170,11 +190,12 @@ class BudgetHistoryCard extends ConsumerWidget {
     BudgetHistory item,
     Color? textColor,
     bool isDarkMode,
+    double rate,
+    String currencyCode,
   ) {
     final progress = (item.percentageUsed.clamp(0.0, 100.0) / 100.0);
-    final formatter = NumberFormat("#,##0", "en_US");
-    final spent = item.spentAsDouble;
-    final amount = item.amountAsDouble;
+    final spent = convertFromMga(item.spentAsDouble, rate);
+    final amount = convertFromMga(item.amountAsDouble, rate);
 
     return Container(
       margin: EdgeInsets.only(bottom: 1.h),
@@ -217,7 +238,7 @@ class BudgetHistoryCard extends ConsumerWidget {
                 ],
               ),
               Text(
-                '${formatter.format(spent).replaceAll(',', ' ')} / ${formatter.format(amount).replaceAll(',', ' ')} Ar',
+                '${formatAmountValue(spent)} / ${formatAmountValue(amount)} $currencyCode',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: Theme.of(context).textTheme.bodyMedium?.color,

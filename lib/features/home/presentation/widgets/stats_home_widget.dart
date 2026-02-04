@@ -1,11 +1,12 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/widgets/charts/bar_chart.dart';
 import 'package:budgets/widgets/skeleton/home_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class StatsHomeWidget extends StatelessWidget {
+class StatsHomeWidget extends ConsumerWidget {
   const StatsHomeWidget({
     super.key,
     required this.asyncExpenses,
@@ -14,7 +15,11 @@ class StatsHomeWidget extends StatelessWidget {
   final AsyncValue<List<TransactionModel>> asyncExpenses;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+
     return Container(
       height: 35.h,
       padding: EdgeInsets.only(bottom: 2.h, left: 5.w, right: 5.w),
@@ -37,7 +42,8 @@ class StatsHomeWidget extends StatelessWidget {
           SizedBox(height: 2.h),
           Expanded(
             child: switch (asyncExpenses) {
-              AsyncData(:final value) => dailyBarChart(value),
+              AsyncData(:final value) =>
+                dailyBarChart(value, currencyRate: rate),
               AsyncError(:final error) => Text('error: $error'),
               _ => const StatsHomeWidgetSkeleton(),
             },

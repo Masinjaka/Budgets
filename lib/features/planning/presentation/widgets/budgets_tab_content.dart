@@ -1,3 +1,5 @@
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
 import 'package:budgets/features/planning/domain/providers/budget_provider.dart';
 import 'package:budgets/features/planning/presentation/widgets/add_budget_bottom_sheet.dart';
@@ -6,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:intl/intl.dart';
 
 /// Budgets tab content widget for the planning page
 class BudgetsTabContent extends ConsumerWidget {
@@ -51,21 +52,19 @@ class BudgetsTabContent extends ConsumerWidget {
       padding: EdgeInsets.only(top: 2.h),
       itemCount: budgets.length,
       itemBuilder: (context, index) =>
-          _BudgetListItem(budget: budgets[index], index: index, ref: ref),
+          _BudgetListItem(budget: budgets[index], index: index),
     );
   }
 }
 
 /// Individual budget list item with swipe-to-delete
-class _BudgetListItem extends StatelessWidget {
+class _BudgetListItem extends ConsumerWidget {
   final Budget budget;
   final int index;
-  final WidgetRef ref;
 
   const _BudgetListItem({
     required this.budget,
     required this.index,
-    required this.ref,
   });
 
   Future<bool?> _showDeleteDialog(BuildContext context) async {
@@ -89,12 +88,16 @@ class _BudgetListItem extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final category = budget.category;
-    final amount = double.tryParse(budget.amount ?? '0') ?? 0;
-    final spent = double.tryParse(budget.amountSpent ?? '0') ?? 0;
+    final amountMga = double.tryParse(budget.amount ?? '0') ?? 0;
+    final spentMga = double.tryParse(budget.amountSpent ?? '0') ?? 0;
+    final amount = convertFromMga(amountMga, rate);
+    final spent = convertFromMga(spentMga, rate);
     final progress = amount > 0 ? (spent / amount).clamp(0.0, 1.0) : 0.0;
-    final formatter = NumberFormat("#,##0", "en_US");
 
     return Dismissible(
       key: Key(budget.id?.toString() ?? DateTime.now().toString()),
@@ -153,12 +156,26 @@ class _BudgetListItem extends StatelessWidget {
                                   ?.color)),
                     ],
                   ),
-                  Text(
-                      '${formatter.format(spent).replaceAll(',', ' ')} / ${formatter.format(amount).replaceAll(',', ' ')} Ar',
-                      style: TextStyle(
-                          fontSize: 14.sp,
-                          color:
-                              Theme.of(context).textTheme.bodyMedium?.color)),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${formatAmountValue(spent)} / ${formatAmountValue(amount)}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' $currencyCode',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 1.5.h),

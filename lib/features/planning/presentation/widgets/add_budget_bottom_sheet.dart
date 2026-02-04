@@ -2,6 +2,8 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
 import 'package:budgets/features/planning/domain/providers/budget_provider.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/widgets/skeleton/planning_skeletons.dart';
@@ -36,15 +38,6 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
   void initState() {
     super.initState();
     if (widget.budget != null) {
-      if (widget.budget!.amount != null) {
-        final cleanAmount =
-            widget.budget!.amount!.replaceAll(RegExp(r'[^\d]'), '');
-        if (cleanAmount.isNotEmpty) {
-          final value = int.parse(cleanAmount);
-          final formatter = NumberFormat("#,##0", "en_US");
-          _amountController.text = formatter.format(value);
-        }
-      }
       _selectedCategoryId = widget.budget!.category?.id;
       if (widget.budget!.createdAt != null) {
         _selectedMonth = widget.budget!.createdAt!;
@@ -52,6 +45,18 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     }
     _monthController.text =
         DateFormat('MMMM yyyy', 'fr_FR').format(_selectedMonth);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.budget?.amount == null) return;
+      final currencyState =
+          await ref.read(currencyControllerProvider.future);
+      final rate = currencyState.rateFor(currencyState.code);
+      final cleanAmount =
+          widget.budget!.amount!.replaceAll(RegExp(r'[^\d]'), '');
+      final amountMga = double.tryParse(cleanAmount) ?? 0;
+      final displayAmount = convertFromMga(amountMga, rate);
+      _amountController.text = formatAmountValue(displayAmount);
+    });
   }
 
   @override
@@ -99,13 +104,19 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     setState(() => _isLoading = true);
 
     try {
+      final currencyState =
+          await ref.read(currencyControllerProvider.future);
+      final rate = currencyState.rateFor(currencyState.code);
+      final displayAmount = parseAmountInput(_amountController.text);
+      final mgaAmount = convertToMga(displayAmount, rate).round();
+
       final budget = Budget(
         id: widget.budget?.id,
         category: _selectedCategoryId != null
             ? Category(id: _selectedCategoryId)
             : null,
         // Sanitize amount: remove non-digits
-        amount: _amountController.text.replaceAll(RegExp(r'[^\d]'), ''),
+        amount: mgaAmount.toString(),
         amountSpent: widget.budget?.amountSpent ?? '0',
       );
 

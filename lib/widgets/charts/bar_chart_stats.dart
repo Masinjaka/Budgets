@@ -1,12 +1,14 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/functions/chart_data.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds bar chart for daily hourly view (24 hours)
-Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
+Widget dailyHourlyBarChart(List<TransactionModel> transactions,
+    {required double currencyRate}) {
   final hourlyData = AppChartData.getDailyHourlyData(transactions);
   double maxAmount = 0;
 
@@ -17,14 +19,22 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  final NumberFormat formatter = NumberFormat.compact();
+  final convertedData = hourlyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
 
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
     duration: const Duration(seconds: 1),
     curve: Curves.easeOutQuart,
     builder: (context, value, child) {
-      final animatedData = hourlyData.map((group) {
+      final animatedData = convertedData.map((group) {
         final animatedRods = group.barRods.map((rod) {
           return rod.copyWith(toY: rod.toY * value);
         }).toList();
@@ -74,7 +84,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -94,7 +104,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -103,7 +113,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
               },
             ),
           ),
-          maxY: maxAmount * 1.2,
+          maxY: maxAmount * currencyRate * 1.2,
         ),
         duration: Duration.zero,
       );
@@ -112,7 +122,8 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions) {
 }
 
 /// Builds bar chart for monthly weekly view (4 weeks)
-Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
+Widget monthlyWeeklyBarChart(List<TransactionModel> transactions,
+    {required double currencyRate}) {
   final weeklyData = AppChartData.getMonthlyWeeklyData(transactions);
   double maxAmount = 0;
 
@@ -123,15 +134,24 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  final NumberFormat formatter = NumberFormat.compact();
   final now = DateTime.now();
+
+  final convertedData = weeklyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
 
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
     duration: const Duration(seconds: 1),
     curve: Curves.easeOutQuart,
     builder: (context, value, child) {
-      final animatedData = weeklyData.map((group) {
+      final animatedData = convertedData.map((group) {
         final animatedRods = group.barRods.map((rod) {
           return rod.copyWith(toY: rod.toY * value);
         }).toList();
@@ -188,7 +208,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -208,7 +228,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -217,7 +237,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
               },
             ),
           ),
-          maxY: maxAmount * 1.2,
+          maxY: maxAmount * currencyRate * 1.2,
         ),
         duration: Duration.zero,
       );
@@ -226,7 +246,8 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions) {
 }
 
 /// Builds bar chart for yearly monthly view (12 months)
-Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
+Widget yearlyMonthlyBarChart(List<TransactionModel> transactions,
+    {required double currencyRate}) {
   final monthlyData = AppChartData.getYearlyMonthlyData(transactions);
   double maxAmount = 0;
 
@@ -237,15 +258,24 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  final NumberFormat formatter = NumberFormat.compact();
   final now = DateTime.now();
+
+  final convertedData = monthlyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
 
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
     duration: const Duration(seconds: 1),
     curve: Curves.easeOutQuart,
     builder: (context, value, child) {
-      final animatedData = monthlyData.map((group) {
+      final animatedData = convertedData.map((group) {
         final animatedRods = group.barRods.map((rod) {
           return rod.copyWith(toY: rod.toY * value);
         }).toList();
@@ -296,7 +326,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -316,7 +346,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -325,7 +355,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions) {
               },
             ),
           ),
-          maxY: maxAmount * 1.2,
+          maxY: maxAmount * currencyRate * 1.2,
         ),
         duration: Duration.zero,
       );

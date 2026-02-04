@@ -1,4 +1,5 @@
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/functions/chart_data.dart';
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
@@ -36,6 +37,9 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   @override
   Widget build(BuildContext context) {
     final asyncTransactions = ref.watch(transactionsProvider);
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final surfaceDim = Theme.of(context).colorScheme.surface;
 
@@ -106,10 +110,10 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
               data: (transactions) => TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildDailyView(transactions, surfaceDim, textColor),
-                  _buildWeeklyView(transactions, surfaceDim, textColor),
-                  _buildMonthlyView(transactions, surfaceDim, textColor),
-                  _buildYearlyView(transactions, surfaceDim, textColor),
+                  _buildDailyView(transactions, surfaceDim, textColor, rate, currencyCode),
+                  _buildWeeklyView(transactions, surfaceDim, textColor, rate, currencyCode),
+                  _buildMonthlyView(transactions, surfaceDim, textColor, rate, currencyCode),
+                  _buildYearlyView(transactions, surfaceDim, textColor, rate, currencyCode),
                 ],
               ),
               loading: () => const Center(
@@ -187,7 +191,7 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   }
 
   Widget _buildDailyView(
-      List<TransactionModel> transactions, Color surfaceDim, Color? textColor) {
+      List<TransactionModel> transactions, Color surfaceDim, Color? textColor, double rate, String currencyCode) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -206,19 +210,29 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
               child: Container(
                 height: 35.h,
                 padding: EdgeInsets.all(4.w),
-                child: dailyHourlyBarChart(transactions),
+                child: dailyHourlyBarChart(transactions, currencyRate: rate),
               ),
             ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Dépenses par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterDailyTransactions(transactions),
-                TransactionType.expense, surfaceDim),
+            _buildCategoryPieSection(
+              _filterDailyTransactions(transactions),
+              TransactionType.expense,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Revenus par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterDailyTransactions(transactions),
-                TransactionType.income, surfaceDim),
+            _buildCategoryPieSection(
+              _filterDailyTransactions(transactions),
+              TransactionType.income,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 2.h),
           ],
         ),
@@ -227,7 +241,7 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   }
 
   Widget _buildWeeklyView(
-      List<TransactionModel> transactions, Color surfaceDim, Color? textColor) {
+      List<TransactionModel> transactions, Color surfaceDim, Color? textColor, double rate, String currencyCode) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -246,19 +260,29 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
               child: Container(
                 height: 35.h,
                 padding: EdgeInsets.all(4.w),
-                child: dailyBarChart(transactions),
+                child: dailyBarChart(transactions, currencyRate: rate),
               ),
             ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Dépenses par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterWeeklyTransactions(transactions),
-                TransactionType.expense, surfaceDim),
+            _buildCategoryPieSection(
+              _filterWeeklyTransactions(transactions),
+              TransactionType.expense,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Revenus par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterWeeklyTransactions(transactions),
-                TransactionType.income, surfaceDim),
+            _buildCategoryPieSection(
+              _filterWeeklyTransactions(transactions),
+              TransactionType.income,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 2.h),
           ],
         ),
@@ -267,7 +291,7 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   }
 
   Widget _buildMonthlyView(
-      List<TransactionModel> transactions, Color surfaceDim, Color? textColor) {
+      List<TransactionModel> transactions, Color surfaceDim, Color? textColor, double rate, String currencyCode) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -286,19 +310,29 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
               child: Container(
                 height: 35.h,
                 padding: EdgeInsets.all(4.w),
-                child: monthlyWeeklyBarChart(transactions),
+                child: monthlyWeeklyBarChart(transactions, currencyRate: rate),
               ),
             ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Dépenses par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterMonthlyTransactions(transactions),
-                TransactionType.expense, surfaceDim),
+            _buildCategoryPieSection(
+              _filterMonthlyTransactions(transactions),
+              TransactionType.expense,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Revenus par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterMonthlyTransactions(transactions),
-                TransactionType.income, surfaceDim),
+            _buildCategoryPieSection(
+              _filterMonthlyTransactions(transactions),
+              TransactionType.income,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 2.h),
           ],
         ),
@@ -307,7 +341,7 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   }
 
   Widget _buildYearlyView(
-      List<TransactionModel> transactions, Color surfaceDim, Color? textColor) {
+      List<TransactionModel> transactions, Color surfaceDim, Color? textColor, double rate, String currencyCode) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -326,19 +360,29 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
               child: Container(
                 height: 35.h,
                 padding: EdgeInsets.all(4.w),
-                child: yearlyMonthlyBarChart(transactions),
+                child: yearlyMonthlyBarChart(transactions, currencyRate: rate),
               ),
             ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Dépenses par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterYearlyTransactions(transactions),
-                TransactionType.expense, surfaceDim),
+            _buildCategoryPieSection(
+              _filterYearlyTransactions(transactions),
+              TransactionType.expense,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 3.h),
             _buildSectionTitle('Revenus par catégorie', textColor),
             SizedBox(height: 2.h),
-            _buildCategoryPieSection(_filterYearlyTransactions(transactions),
-                TransactionType.income, surfaceDim),
+            _buildCategoryPieSection(
+              _filterYearlyTransactions(transactions),
+              TransactionType.income,
+              surfaceDim,
+              currencyRate: rate,
+              currencyCode: currencyCode,
+            ),
             SizedBox(height: 2.h),
           ],
         ),
@@ -358,7 +402,8 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
   }
 
   Widget _buildCategoryPieSection(List<TransactionModel> transactions,
-      TransactionType type, Color surfaceDim) {
+      TransactionType type, Color surfaceDim,
+      {required double currencyRate, required String currencyCode}) {
     final categoryData = AppChartData.getCategoryPieData(transactions, type);
     final categoryTotals = categoryData['totals'] as Map<String, double>;
     final categoryColors = categoryData['colors'] as Map<String, String>;
@@ -373,7 +418,14 @@ class _TrendsPageState extends ConsumerState<TrendsPage>
       child: Padding(
         padding: EdgeInsets.all(6.w),
         child: categoryPieChart(
-            categoryTotals, categoryColors, categoryEmojis, type, surfaceDim),
+          categoryTotals,
+          categoryColors,
+          categoryEmojis,
+          type,
+          surfaceDim,
+          currencyRate: currencyRate,
+          currencyCode: currencyCode,
+        ),
       ),
     );
   }

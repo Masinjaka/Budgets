@@ -1,11 +1,13 @@
 import 'package:budgets/features/stats/presentation/modules/authentication_utils.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum BalanceCardType { expense, income }
 
-class NewBalanceCard extends StatefulWidget {
+class NewBalanceCard extends ConsumerStatefulWidget {
   final BalanceCardType type;
   final double amount;
 
@@ -16,20 +18,11 @@ class NewBalanceCard extends StatefulWidget {
   });
 
   @override
-  State<NewBalanceCard> createState() => _NewBalanceCardState();
+  ConsumerState<NewBalanceCard> createState() => _NewBalanceCardState();
 }
 
-class _NewBalanceCardState extends State<NewBalanceCard> {
+class _NewBalanceCardState extends ConsumerState<NewBalanceCard> {
   bool _isHidden = true;
-
-  String _formatAmount(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: 'MGA',
-      decimalDigits: 0,
-    );
-    return formatter.format(amount.abs());
-  }
 
   void _toggleVisibility() {
     if (_isHidden) {
@@ -51,6 +44,12 @@ class _NewBalanceCardState extends State<NewBalanceCard> {
 
   @override
   Widget build(BuildContext context) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final convertedAmount = convertFromMga(widget.amount.abs(), rate);
+    final formattedAmount =
+        formatAmountWithCurrency(convertedAmount, currencyCode);
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final cardColor = Theme.of(context).cardColor;
     final isExpense = widget.type == BalanceCardType.expense;
@@ -91,7 +90,7 @@ class _NewBalanceCardState extends State<NewBalanceCard> {
           ),
           SizedBox(height: 2.h),
           Text(
-            _isHidden ? '••••••••' : _formatAmount(widget.amount),
+            _isHidden ? '••••••••' : formattedAmount,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,

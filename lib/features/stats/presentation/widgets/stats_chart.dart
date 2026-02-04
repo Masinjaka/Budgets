@@ -1,8 +1,11 @@
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StatsChart extends StatelessWidget {
+class StatsChart extends ConsumerWidget {
   final List<double> expenseData;
   final List<double> incomeData;
   final int daysInMonth;
@@ -15,7 +18,14 @@ class StatsChart extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final convertedExpenseData =
+        expenseData.map((value) => value * rate).toList();
+    final convertedIncomeData =
+        incomeData.map((value) => value * rate).toList();
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
 
     // Softer accent colors for the chart lines
@@ -24,10 +34,10 @@ class StatsChart extends StatelessWidget {
 
     // Calculate max value for y-axis
     double maxValue = 0;
-    for (final value in expenseData) {
+    for (final value in convertedExpenseData) {
       if (value > maxValue) maxValue = value;
     }
-    for (final value in incomeData) {
+    for (final value in convertedIncomeData) {
       if (value > maxValue) maxValue = value;
     }
     // Add some padding to max value
@@ -107,7 +117,7 @@ class StatsChart extends StatelessWidget {
                 lineBarsData: [
                   // Expense line
                   LineChartBarData(
-                    spots: _createSpots(expenseData),
+                    spots: _createSpots(convertedExpenseData),
                     isCurved: true,
                     color: expenseColor,
                     barWidth: 2,
@@ -120,7 +130,7 @@ class StatsChart extends StatelessWidget {
                   ),
                   // Income line
                   LineChartBarData(
-                    spots: _createSpots(incomeData),
+                    spots: _createSpots(convertedIncomeData),
                     isCurved: true,
                     color: incomeColor,
                     barWidth: 2,
@@ -140,7 +150,7 @@ class StatsChart extends StatelessWidget {
                       return touchedSpots.map((spot) {
                         final isExpense = spot.barIndex == 0;
                         return LineTooltipItem(
-                          '${spot.y.toInt()} MGA',
+                          formatAmountWithCurrency(spot.y, currencyCode),
                           TextStyle(
                             color: isExpense ? expenseColor : incomeColor,
                             fontWeight: FontWeight.bold,

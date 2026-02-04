@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/features/categories/domain/providers/subcategory_expenses_providers.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
 
 /// Bottom sheet to display details of an expense or income
 class TransactionDetailBottomSheet extends ConsumerWidget {
@@ -17,7 +19,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final NumberFormat currencyFormatter = NumberFormat.decimalPattern('en_US');
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     // Fix: Ensure color string starts with 0xff
     String? rawColor = transaction.category?.color;
     Color categoryColor;
@@ -168,7 +172,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(8.w),
                               ),
                               child: Text(
-                                "MGA",
+                                currencyCode,
                                 style: TextStyle(
                                   color: Theme.of(context)
                                       .textTheme
@@ -181,7 +185,8 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                             ),
                             SizedBox(height: 0.5.h),
                             Text(
-                              currencyFormatter.format(transaction.amount),
+                              formatAmountValue(
+                                  convertFromMga(transaction.amount, rate)),
                               style: TextStyle(
                                 color: Theme.of(context)
                                     .textTheme
@@ -278,7 +283,8 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                                               fontSize: 14.sp),
                                         ),
                                         Text(
-                                          currencyFormatter.format(sub.amount),
+                                          formatAmountValue(
+                                              convertFromMga(sub.amount, rate)),
                                           style: TextStyle(
                                               color: Theme.of(context)
                                                   .textTheme

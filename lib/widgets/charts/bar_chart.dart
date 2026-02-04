@@ -1,12 +1,14 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/core/functions/chart_data.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [BarChart] widget for daily expenses and income.
-Widget dailyBarChart(List<TransactionModel> transactions) {
+Widget dailyBarChart(List<TransactionModel> transactions,
+    {required double currencyRate}) {
   final dailyData = AppChartData.getWeeklyExpenseIncomeData(transactions);
   double maxAmount = 0;
 
@@ -18,14 +20,22 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  final NumberFormat formatter = NumberFormat.compact();
+  final convertedData = dailyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
 
   return TweenAnimationBuilder<double>(
     tween: Tween<double>(begin: 0, end: 1),
     duration: const Duration(seconds: 1),
     curve: Curves.easeOutQuart,
     builder: (context, value, child) {
-      final animatedData = dailyData.map((group) {
+      final animatedData = convertedData.map((group) {
         final animatedRods = group.barRods.map((rod) {
           return rod.copyWith(toY: rod.toY * value);
         }).toList();
@@ -75,7 +85,7 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    formatter.format(value.toInt()),
+                    formatAmountValue(value),
                     style: const TextStyle(fontSize: 10),
                   );
                 },
@@ -99,7 +109,7 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
                 // However, since tooltip is interactive, user likely won't touch during the 1s animation.
                 String type = rodIndex == 0 ? 'Dépenses' : 'Revenus';
                 return BarTooltipItem(
-                  '$type\n${formatter.format(rod.toY)}',
+                  '$type\n${formatAmountValue(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -108,7 +118,7 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
               },
             ),
           ),
-          maxY: maxAmount * 1.2,
+          maxY: maxAmount * currencyRate * 1.2,
         ),
         duration: Duration.zero, // Disable internal animation
       );
@@ -117,7 +127,8 @@ Widget dailyBarChart(List<TransactionModel> transactions) {
 }
 
 /// Builds and returns a [BarChart] widget for daily expenses only - legacy function.
-Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
+Widget dailyExpensesBarChart(List<TransactionModel> expenses,
+    {required double currencyRate}) {
   final dailyData = AppChartData.getWeeklyData(expenses);
   double maxDailyAmount = 0;
   // Determine the maximum Y-axis value for proper scaling.
@@ -128,7 +139,15 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  final NumberFormat formatter = NumberFormat.compact();
+  final convertedData = dailyData
+      .map(
+        (group) => group.copyWith(
+          barRods: group.barRods
+              .map((rod) => rod.copyWith(toY: rod.toY * currencyRate))
+              .toList(),
+        ),
+      )
+      .toList();
 
   return BarChart(
     BarChartData(
@@ -153,7 +172,7 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
         show: false,
         border: Border.all(color: const Color(0xff37434d), width: 1),
       ),
-      barGroups: dailyData, // No border around the chart.
+      barGroups: convertedData, // No border around the chart.
       titlesData: FlTitlesData(
         show: true,
         bottomTitles: AxisTitles(
@@ -179,7 +198,7 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
             showTitles: true,
             getTitlesWidget: (value, meta) {
               // Display dollar amounts on the left Y-axis.
-              return Text(formatter.format(value.toInt()),
+              return Text(formatAmountValue(value),
                   style: const TextStyle(fontSize: 10));
             },
             reservedSize: 4.h,
@@ -192,7 +211,7 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses) {
       ), // Hide grid lines.
       barTouchData: const BarTouchData(
           enabled: true), // Enable touch interactions for bars.
-      maxY: maxDailyAmount * 1.2, // Set max Y-axis with a 20% buffer.
+      maxY: maxDailyAmount * currencyRate * 1.2,
     ),
     duration: const Duration(milliseconds: 300), // Optional
     curve: Curves.linear,

@@ -2,10 +2,11 @@ import 'package:budgets/features/transactions/domain/model/transaction_model.dar
 import 'package:budgets/features/transactions/presentation/widgets/transaction_detail_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
 
 // Widget for displaying a single transaction item in the list
 class TransactionListItem extends ConsumerWidget {
@@ -62,8 +63,10 @@ class TransactionListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Formatting the number to include commas for thousands
-    final NumberFormat currencyFormatter = NumberFormat.decimalPattern('en_US');
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final displayAmount = convertFromMga(transaction.amount, rate);
 
     return Dismissible(
       key: Key(transaction.id ?? DateTime.now().toString()),
@@ -171,7 +174,7 @@ class TransactionListItem extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8.w),
                       ),
                       child: Text(
-                        "MGA",
+                        currencyCode,
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                           // fontSize: 15.sp,
@@ -181,7 +184,7 @@ class TransactionListItem extends ConsumerWidget {
                     ),
                     SizedBox(height: 0.5.h),
                     Text(
-                      currencyFormatter.format(transaction.amount),
+                      formatAmountValue(displayAmount),
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: Theme.of(context).colorScheme.tertiary,
                             fontSize: 14.sp,

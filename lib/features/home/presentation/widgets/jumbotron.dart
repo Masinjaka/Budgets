@@ -1,46 +1,51 @@
-import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
-import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
-import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/features/stats/domain/providers/stats_provider.dart';
+import 'package:budgets/features/stats/presentation/modules/authentication_utils.dart';
 import 'package:budgets/widgets/skeleton/home_skeletons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class Jumbotron extends ConsumerWidget {
+class Jumbotron extends ConsumerStatefulWidget {
   const Jumbotron({
     super.key,
   });
 
-  /// Calculates the balance for the current month (income - expenses)
-  double _calculateCurrentMonthBalance(List<TransactionModel> transactions) {
-    final now = DateTime.now();
-    final currentYear = now.year;
-    final currentMonth = now.month;
+  @override
+  ConsumerState<Jumbotron> createState() => _JumbotronState();
+}
 
-    double totalIncome = 0.0;
-    double totalExpenses = 0.0;
+class _JumbotronState extends ConsumerState<Jumbotron> {
+  bool _isHidden = true;
 
-    for (final transaction in transactions) {
-      if (transaction.date != null &&
-          transaction.date!.year == currentYear &&
-          transaction.date!.month == currentMonth) {
-        final amount = transaction.amount ?? 0.0;
-
-        if (transaction.transactionType == TransactionType.income) {
-          totalIncome += amount;
-        } else if (transaction.transactionType == TransactionType.expense) {
-          totalExpenses += amount;
-        }
-      }
+  void _toggleVisibility() {
+    if (_isHidden) {
+      AuthenticationUtils.authenticateAndShow(
+        context,
+        'Veuillez vous authentifier pour afficher le solde',
+        () {
+          setState(() {
+            _isHidden = false;
+          });
+        },
+      );
+    } else {
+      setState(() {
+        _isHidden = true;
+      });
     }
-
-    return totalIncome - totalExpenses;
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asyncTransactions = ref.watch(transactionsProvider);
+  Widget build(BuildContext context) {
+    final asyncBalance = ref.watch(allTimeBalanceProvider);
+    final currencyState = ref.watch(currencyControllerProvider).value;
+    final currencyCode = currencyState?.code ?? 'MGA';
+    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
 
     return Container(
       height: 16.h,
@@ -57,7 +62,7 @@ class Jumbotron extends ConsumerWidget {
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
-                'Reste à dépenser',
+                'Solde total',
                 style: TextStyle(
                   fontSize: 15.5.sp,
                   color: Theme.of(context).textTheme.bodyLarge?.color,
@@ -68,26 +73,50 @@ class Jumbotron extends ConsumerWidget {
           Positioned(
             top: 2.h,
             right: 2.h,
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 3.w,
-                  vertical: 0.5.h,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5.w),
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                ),
-                child: Text(
-                  'MGA',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: _toggleVisibility,
+                  child: AnimatedSwitcher(
+                    duration: 200.ms,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: ScaleTransition(
+                          scale: animation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      _isHidden ? Ionicons.eye_off : Ionicons.eye,
+                      key: ValueKey(_isHidden),
+                      size: 18.sp,
+                      color: textColor?.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
-              ),
+                SizedBox(width: 2.w),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 3.w,
+                    vertical: 0.5.h,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5.w),
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                  ),
+                  child: Text(
+                    currencyCode,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Positioned(
@@ -96,20 +125,39 @@ class Jumbotron extends ConsumerWidget {
             left: 2.h,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: asyncTransactions.when(
-                data: (transactions) {
-                  final balance = _calculateCurrentMonthBalance(transactions);
+              child: asyncBalance.when(
+                data: (balance) {
                   final isNegative = balance < 0;
+                  final displayAmount = convertFromMga(balance.abs(), rate);
 
-                  return Text(
-                    '${isNegative ? '-' : ''}${formatAmount(balance.abs().toString())}',
-                    style: TextStyle(
-                      fontSize: 22.sp,
-                      color: isNegative
-                          ? Colors.red
-                          : Theme.of(context).textTheme.bodyLarge?.color,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  return AnimatedSwitcher(
+                    duration: 300.ms,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    child: _isHidden
+                        ? Text(
+                            '••••••••',
+                            key: const ValueKey('hidden'),
+                            style: TextStyle(
+                              fontSize: 22.sp,
+                              color: textColor,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 2.0,
+                            ),
+                          )
+                        : Text(
+                            '${isNegative ? '-' : ''}${formatAmountValue(displayAmount)}',
+                            key: const ValueKey('visible'),
+                            style: TextStyle(
+                              fontSize: 22.sp,
+                              color: isNegative ? Colors.red : textColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   );
                 },
                 loading: () => const JumbotronAmountSkeleton(),
