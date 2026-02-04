@@ -3,6 +3,7 @@ import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
 import 'package:budgets/widgets/custom_search_bar.dart';
+import 'package:budgets/widgets/skeleton/currency_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -197,10 +198,7 @@ class _CurrencySelectionPageState
                     ],
                   );
                 },
-                loading: () => Padding(
-                  padding: EdgeInsets.only(top: 20.h),
-                  child: const Center(child: CircularProgressIndicator()),
-                ),
+                loading: () => const CurrencyPageSkeleton(),
                 error: (error, stack) => Padding(
                   padding: EdgeInsets.only(top: 20.h),
                   child: Center(child: Text('Erreur: $error')),

@@ -3,17 +3,21 @@ import 'package:budgets/core/currency/exchange_rates.dart';
 import 'package:budgets/core/currency/exchange_rates_datasource.dart';
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final exchangeRatesProvider = FutureProvider<ExchangeRates?>((ref) async {
+part 'currency_provider.g.dart';
+
+@riverpod
+Future<ExchangeRates?> exchangeRates(Ref ref) async {
   final client = Supabase.instance.client;
   final datasource = ExchangeRatesDataSource(client);
   return datasource.fetchLatest();
-});
+}
 
-class CurrencyController extends AsyncNotifier<CurrencyState> {
+@Riverpod(keepAlive: true)
+class CurrencyController extends _$CurrencyController {
   @override
   Future<CurrencyState> build() async {
     final rates = await ref.watch(exchangeRatesProvider.future);
@@ -54,8 +58,3 @@ class CurrencyController extends AsyncNotifier<CurrencyState> {
     return currencyName;
   }
 }
-
-final currencyControllerProvider =
-    AsyncNotifierProvider<CurrencyController, CurrencyState>(
-  CurrencyController.new,
-);
