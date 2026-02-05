@@ -1,4 +1,5 @@
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -21,7 +22,7 @@ class AddCategoryDialog extends ConsumerStatefulWidget {
     BuildContext context, {
     required TransactionType transactionType,
   }) {
-    return showDialog<Category?>(
+    return showAnimatedDialog<Category?>(
       context: context,
       barrierDismissible: true,
       builder: (context) => AddCategoryDialog(
@@ -147,46 +148,38 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                   ],
                 ),
                 SizedBox(height: 3.h),
-
+                Center(
+                  child: GestureDetector(
+                    onTap: _showEmojiPicker,
+                    child: Container(
+                      width: 14.w,
+                      height: 14.w,
+                      decoration: BoxDecoration(
+                        color: _selectedColor,
+                        borderRadius: BorderRadius.circular(50.w),
+                        border: Border.all(
+                          color: _selectedColor,
+                          width: 2,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _selectedEmoji,
+                          style: TextStyle(fontSize: 22.sp),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 3.h),
                 // Emoji and Name row
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Emoji selector
-                    GestureDetector(
-                      onTap: _showEmojiPicker,
-                      child: Container(
-                        width: 14.w,
-                        height: 14.w,
-                        decoration: BoxDecoration(
-                          color: _selectedColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(3.w),
-                          border: Border.all(
-                            color: _selectedColor,
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            _selectedEmoji,
-                            style: TextStyle(fontSize: 22.sp),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 3.w),
-                    // Name field
-                    Expanded(
-                      child: CustomTextField(
-                        title: const SizedBox.shrink(),
-                        hint: 'Nom de la catégorie',
-                        controller: _nameController,
-                        keyboardType: TextInputType.text,
-                        borderRadius: BorderRadius.circular(3.w),
-                        validator: const <String, String>{"type": "required"},
-                      ),
-                    ),
-                  ],
+                CustomTextField(
+                  title: const SizedBox.shrink(),
+                  hint: 'Nom de la catégorie',
+                  controller: _nameController,
+                  keyboardType: TextInputType.text,
+                  // borderRadius: BorderRadius.circular(3.w),
+                  validator: const <String, String>{"type": "required"},
                 ),
                 SizedBox(height: 2.5.h),
 
@@ -267,7 +260,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
   }
 
   void _showEmojiPicker() {
-    showDialog(
+    showAnimatedDialog(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,

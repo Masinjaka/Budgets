@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -94,7 +95,7 @@ class CategoryModule {
 
   Future<void> deleteCategory(
       WidgetRef ref, Category category, BuildContext context) async {
-    final String? result = await showDialog(
+    final String? result = await showAnimatedDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {

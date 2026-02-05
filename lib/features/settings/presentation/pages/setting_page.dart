@@ -1,4 +1,5 @@
 import 'package:budgets/core/ui/glass_flexible_space.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/features/settings/domain/providers/theme_provider.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
@@ -205,7 +206,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   }
 
   void _showThemeDialog(BuildContext context, ThemeNotifier themeNotifier) {
-    showDialog(
+    showAnimatedDialog(
       context: context,
       builder: (BuildContext context) {
         return ThemeSelectionDialog(

@@ -1,5 +1,6 @@
 import 'package:budgets/features/stats/domain/providers/selected_date_provider.dart';
 import 'package:budgets/features/stats/presentation/widgets/month_year_picker_dialog.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,7 +50,7 @@ class MonthYearPicker extends ConsumerWidget {
         const Spacer(),
         GestureDetector(
           onTap: () async {
-            final newDate = await showDialog<DateTime>(
+            final newDate = await showAnimatedDialog<DateTime>(
               context: context,
               builder: (BuildContext context) {
                 return MonthYearPickerDialog(initialDate: selectedDate);

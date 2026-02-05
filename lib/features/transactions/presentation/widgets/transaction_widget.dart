@@ -1,3 +1,4 @@
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_detail_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class TransactionListItem extends ConsumerWidget {
 
   Future<bool?> _showDeleteConfirmationDialog(
       BuildContext context, WidgetRef ref) async {
-    return showDialog<bool>(
+    return showAnimatedDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(

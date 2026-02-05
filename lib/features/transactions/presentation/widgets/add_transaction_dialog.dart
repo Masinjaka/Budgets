@@ -1,9 +1,11 @@
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:budgets/features/categories/presentation/widgets/add_category_dialog.dart';
 import 'package:budgets/features/categories/presentation/widgets/subcategory_selection_dialog.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
+import 'package:budgets/widgets/animated_amount_field.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +28,7 @@ class AddTransactionDialog extends ConsumerStatefulWidget {
     BuildContext context, {
     required TransactionType transactionType,
   }) {
-    return showDialog<bool>(
+    return showAnimatedDialog<bool>(
       context: context,
       barrierDismissible: true,
       builder: (context) => AddTransactionDialog(
@@ -290,38 +292,77 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                         ),
                         SizedBox(height: 1.h),
 
-                        // Amount field (first)
-                        _isPerSubcategory
-                            ? const SizedBox.shrink()
-                            : CustomTextField(
-                                title: const SizedBox.shrink(),
-                                hint: '0.00',
-                                controller: _montantController,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                fontSize: 28.sp,
-                                fillColor:
-                                    Theme.of(context).colorScheme.surfaceDim,
-                                height: 15.h,
-                                width: double.infinity,
-                                borderRadius: BorderRadius.circular(3.w),
-                                validator: const <String, String>{
-                                  "type": "required"
-                                },
+                        // Amount field with scale animation
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          transitionBuilder: (child, animation) {
+                            return ScaleTransition(
+                              scale: animation,
+                              child: SizeTransition(
+                                sizeFactor: animation,
+                                axisAlignment: -1.0,
+                                child: child,
                               ),
+                            );
+                          },
+                          child: _isPerSubcategory
+                              ? const SizedBox.shrink(key: ValueKey('empty'))
+                              : AnimatedAmountField(
+                                  key: const ValueKey('amountField'),
+                                  controller: _montantController,
+                                  hint: '0.00',
+                                  fontSize: 28.sp,
+                                  fillColor:
+                                      Theme.of(context).colorScheme.surfaceDim,
+                                  height: 15.h,
+                                  width: double.infinity,
+                                  borderRadius: BorderRadius.circular(3.w),
+                                ),
+                        ),
                         SizedBox(height: 2.h),
 
-                        // Category pills (second)
-                        _buildCategoryPills(),
+                        // Category pills with slide animation
+                        AnimatedSlide(
+                          duration: const Duration(milliseconds: 350),
+                          curve: Curves.easeOutCubic,
+                          offset: Offset.zero,
+                          child: _buildCategoryPills(),
+                        ),
                         SizedBox(height: 2.h),
-                        if (_isPerSubcategory)
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildSubcategoryAmountFields(),
-                              SizedBox(height: 2.h),
-                            ],
-                          ),
+
+                        // Subcategory fields with scale up animation
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 350),
+                          switchInCurve: Curves.easeOutBack,
+                          switchOutCurve: Curves.easeInCubic,
+                          transitionBuilder: (child, animation) {
+                            return ScaleTransition(
+                              scale: animation,
+                              alignment: Alignment.topCenter,
+                              child: SizeTransition(
+                                sizeFactor: animation,
+                                axisAlignment: -1.0,
+                                child: FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                              ),
+                            );
+                          },
+                          child: _isPerSubcategory
+                              ? Column(
+                                  key: const ValueKey('subcategoryFields'),
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _buildSubcategoryAmountFields(),
+                                    SizedBox(height: 2.h),
+                                  ],
+                                )
+                              : const SizedBox.shrink(
+                                  key: ValueKey('emptySubcategory')),
+                        ),
                         // Description field
 
                         CustomTextField(
@@ -666,16 +707,12 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Amount field
-                  CustomTextField(
-                    title: const SizedBox.shrink(),
-                    hint: '0.00',
+                  // Amount field with animated digits
+                  AnimatedSubcategoryAmountField(
                     controller: amountController,
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
+                    hint: '0.00',
                     fontSize: 25.sp,
                     fillColor: Theme.of(context).colorScheme.surface,
-                    width: double.infinity,
                     borderRadius: BorderRadius.circular(3.w),
                   ),
                   SizedBox(height: 1.h),

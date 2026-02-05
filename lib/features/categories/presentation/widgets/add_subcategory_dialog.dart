@@ -1,3 +1,4 @@
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -21,7 +22,7 @@ class AddSubcategoryDialog extends StatefulWidget {
     BuildContext context, {
     String? categoryId,
   }) {
-    return showDialog<Subcategory?>(
+    return showAnimatedDialog<Subcategory?>(
       context: context,
       barrierDismissible: true,
       builder: (context) => AddSubcategoryDialog(

@@ -1,3 +1,4 @@
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
@@ -81,7 +82,7 @@ class _GoalListItem extends ConsumerWidget {
   }
 
   Future<bool?> _showDeleteDialog(BuildContext context) async {
-    return showDialog<bool>(
+    return showAnimatedDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Supprimer l\'objectif'),
@@ -255,7 +256,7 @@ class _GoalListItem extends ConsumerWidget {
     final goalAmount = convertFromMga(goalAmountMga, rate);
     final remaining = goalAmount - currentAmount;
 
-    final result = await showDialog<double>(
+    final result = await showAnimatedDialog<double>(
       context: context,
       builder: (ctx) => Dialog(
         insetPadding: EdgeInsets.symmetric(horizontal: 8.w),

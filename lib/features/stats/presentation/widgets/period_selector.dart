@@ -1,4 +1,5 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -117,7 +118,7 @@ class _PeriodSelectorState extends State<PeriodSelector> {
   }
 
   void _showCustomDatePicker() {
-    showDialog(
+    showAnimatedDialog(
       context: context,
       builder: (context) => _CustomDateRangeDialog(
         initialStartDate: _customStartDate ?? widget.selectedStartDate,

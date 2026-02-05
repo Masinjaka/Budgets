@@ -1,6 +1,7 @@
 import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/features/notifications/presentation/controllers/notification_controller.dart';
 import 'package:budgets/features/notifications/domain/providers/pending_target_provider.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
@@ -221,7 +222,7 @@ class NotificationSettingsPage extends ConsumerWidget {
     final permissionStatus = await Permission.notification.status;
     if (permissionStatus.isPermanentlyDenied || permissionStatus.isRestricted) {
       if (!context.mounted) return false;
-      final openedSettings = await showDialog<bool>(
+      final openedSettings = await showAnimatedDialog<bool>(
         context: context,
         builder: (context) {
           return PermissionRequestDialog(
@@ -255,7 +256,7 @@ class NotificationSettingsPage extends ConsumerWidget {
     }
 
     if (!context.mounted) return false;
-    final allow = await showDialog<bool>(
+    final allow = await showAnimatedDialog<bool>(
       context: context,
       builder: (context) {
         return PermissionRequestDialog(

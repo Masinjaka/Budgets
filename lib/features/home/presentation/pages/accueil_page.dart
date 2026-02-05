@@ -9,6 +9,7 @@ import 'package:budgets/features/home/presentation/widgets/section_title.dart';
 import 'package:budgets/features/home/presentation/widgets/stats_home_widget.dart';
 import 'package:budgets/features/notifications/presentation/controllers/notification_controller.dart';
 import 'package:budgets/features/home/domain/providers/notification_permission_provider.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -149,7 +150,7 @@ Future<void> _maybeRequestNotificationPermission(
 
   if (status.isPermanentlyDenied || status.isRestricted) {
     if (!context.mounted) return;
-    final openedSettings = await showDialog<bool>(
+    final openedSettings = await showAnimatedDialog<bool>(
       context: context,
       builder: (context) {
         return PermissionRequestDialog(
@@ -183,7 +184,7 @@ Future<void> _maybeRequestNotificationPermission(
   }
 
   if (!context.mounted) return;
-  final allow = await showDialog<bool>(
+  final allow = await showAnimatedDialog<bool>(
     context: context,
     builder: (context) {
       return PermissionRequestDialog(

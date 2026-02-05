@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:budgets/features/auth/presentation/widgets/file_picker_option.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,7 +31,7 @@ Future<File?> pickImageWithPermissions(
   if (!cameraStatus.isGranted || !mediaStatus.isGranted) {
     if (!context.mounted) return null;
 
-    final granted = await showDialog<bool>(
+    final granted = await showAnimatedDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => PermissionRequestDialog(

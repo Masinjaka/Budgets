@@ -10,6 +10,7 @@ import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:go_router/go_router.dart';
 import '../../../profile/presentation/controllers/profile_photo_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
 
 class UploadProfilePhotoPage extends ConsumerStatefulWidget {
@@ -119,7 +120,7 @@ class _UploadProfilePhotoPageState
                 _isLoading = true;
               });
               if (_selectedImage == null) {
-                final proceed = await showDialog<bool>(
+                final proceed = await showAnimatedDialog<bool>(
                   context: context,
                   builder: (_) => PermissionRequestDialog(
                     title: 'Continuer sans avatar ?',

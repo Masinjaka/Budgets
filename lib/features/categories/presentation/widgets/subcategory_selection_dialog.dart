@@ -1,3 +1,4 @@
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:budgets/features/categories/presentation/widgets/add_subcategory_dialog.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class SubcategorySelectionDialog extends StatelessWidget {
     String? categoryId,
     Subcategory? selectedSubcategory,
   }) {
-    return showDialog<Subcategory?>(
+    return showAnimatedDialog<Subcategory?>(
       context: context,
       barrierDismissible: true,
       builder: (context) => SubcategorySelectionDialog(

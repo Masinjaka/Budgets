@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/auth/domain/providers/auth_providers.dart';
 import 'package:budgets/features/profile/domain/provider/profile_providers.dart';
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
@@ -16,7 +17,7 @@ class EditProfileModule {
 
   Future<void> deleteCurrentUserAccount(
       BuildContext context, WidgetRef ref) async {
-    final dialogConfirmed = await showDialog<bool>(
+    final dialogConfirmed = await showAnimatedDialog<bool>(
       context: context,
       builder: (ctx) => PermissionRequestDialog(
         title: "Suppression du compte",
