@@ -84,7 +84,11 @@ class _TransactionCreationPageState
         final decimals = currencyCode == 'MGA' ? 0 : 2;
         String formatInputAmount(double value) {
           final fixed = value.toStringAsFixed(decimals);
-          return fixed.replaceAll(RegExp(r'\.?0+$'), '');
+          // Only remove trailing zeros after decimal point, not integer zeros
+          if (fixed.contains('.')) {
+            return fixed.replaceAll(RegExp(r'\.?0+$'), '');
+          }
+          return fixed;
         }
 
         final allCategories = await _module.fetchCategories(ref);
@@ -369,23 +373,25 @@ class _TransactionCreationPageState
                       bottomRight: Radius.circular(5.w),
                     ),
                   ),
-                  // Date picker field - only visible in edit mode
+                  // Date picker field - only visible in edit mode (read-only for savings)
                   if (isEditMode) ...[
                     SizedBox(height: 2.h),
                     GestureDetector(
-                      onTap: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDate ?? DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            _selectedDate = picked;
-                          });
-                        }
-                      },
+                      onTap: _selectedCategory?.name == SystemCategories.savingsCategoryName
+                          ? null
+                          : () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: _selectedDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  _selectedDate = picked;
+                                });
+                              }
+                            },
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 5.w,

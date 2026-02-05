@@ -59,8 +59,9 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
   List<Subcategory> _subcategories = [];
   final List<Map<String, dynamic>> _subcategoryAmounts = [];
   final Set<int> _removingIndices = {}; // Track items being animated out
+  int? _newlyAddedIndex; // Track the newly added card for slide-in animation
   final PageController _subcategoryPageController = PageController(
-    viewportFraction: 0.85,
+    viewportFraction: 0.80,
   );
 
   @override
@@ -105,18 +106,18 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
       return;
     }
 
+    final newCardIndex = _subcategoryAmounts.length;
     final newItem = _module.createSubcategoryAmountItem();
     _subcategoryAmounts.add(newItem);
+    _newlyAddedIndex = newCardIndex; // Mark this card for slide-in animation
     setState(() {});
 
-    // Animate to the newly added card (before the add button)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_subcategoryPageController.hasClients) {
-        _subcategoryPageController.animateToPage(
-          _subcategoryAmounts.length - 1,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
-        );
+    // Clear the newly added flag after animation completes
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) {
+        setState(() {
+          _newlyAddedIndex = null;
+        });
       }
     });
   }
@@ -653,7 +654,7 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
       height: 20.h,
       child: PageView.builder(
         controller: _subcategoryPageController,
-        padEnds: false,
+        padEnds: true,
         // +1 for the add button at the end
         itemCount: _subcategoryAmounts.length + 1,
         itemBuilder: (context, index) {
@@ -663,18 +664,40 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
           }
 
           final isRemoving = _removingIndices.contains(index);
+          final isNewlyAdded = _newlyAddedIndex == index;
+
+          Widget card = _buildSubcategoryAmountCard(
+            _subcategoryAmounts[index],
+            index,
+          );
+
+          // Wrap with slide animation for newly added cards
+          if (isNewlyAdded) {
+            card = TweenAnimationBuilder<Offset>(
+              tween: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ),
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOutCubic,
+              builder: (context, offset, child) {
+                return FractionalTranslation(
+                  translation: offset,
+                  child: child,
+                );
+              },
+              child: card,
+            );
+          }
 
           return AnimatedScale(
             scale: isRemoving ? 0.0 : 1.0,
             duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInBack,
+            curve: Curves.easeOut,
             child: AnimatedOpacity(
               opacity: isRemoving ? 0.0 : 1.0,
               duration: const Duration(milliseconds: 200),
-              child: _buildSubcategoryAmountCard(
-                _subcategoryAmounts[index],
-                index,
-              ),
+              child: card,
             ),
           );
         },
