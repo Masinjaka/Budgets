@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'category_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Categories extends _$Categories {
   @override
   Future<List<Category>> build() {

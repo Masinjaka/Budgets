@@ -1,9 +1,10 @@
-import 'package:budgets/widgets/custom_action_button.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/widgets/expandable_fab.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction_dialog.dart';
 import 'package:budgets/features/transactions/presentation/pages/expense_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionPage extends ConsumerStatefulWidget {
@@ -55,6 +56,31 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
       },
       child: Scaffold(
         extendBodyBehindAppBar: false,
+        floatingActionButton: ExpandableFab(
+          icon: Icons.add,
+          closeIcon: Icons.close,
+          children: [
+            FabChildButton(
+              icon: Icons.fullscreen,
+              onPressed: () {
+                // TODO: Implement scan functionality
+              },
+            ),
+            FabChildButton(
+              icon: Icons.add,
+              onPressed: () {
+                final isExpenseTab = _tabController.index == 0;
+                final transactionType = isExpenseTab
+                    ? TransactionType.expense
+                    : TransactionType.income;
+                AddTransactionDialog.show(
+                  context,
+                  transactionType: transactionType,
+                );
+              },
+            ),
+          ],
+        ),
         body: NestedScrollView(
           floatHeaderSlivers: true,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -96,48 +122,6 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                           )
                         : null,
                     centerTitle: false,
-                    actions: _appBarAnimation.value > 0.1
-                        ? [
-                            Opacity(
-                              opacity: _appBarAnimation.value,
-                              child: Transform.translate(
-                                offset: Offset(
-                                    0, (1 - _appBarAnimation.value) * -20),
-                                child: ActionButton(
-                                    icon: Icons.fullscreen,
-                                    iconColor:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    onPressed: () {}),
-                              ),
-                            ),
-                            SizedBox(width: 2.w),
-                            Opacity(
-                              opacity: _appBarAnimation.value,
-                              child: Transform.translate(
-                                offset: Offset(
-                                    0, (1 - _appBarAnimation.value) * -20),
-                                child: ActionButton(
-                                    icon: Icons.add,
-                                    iconColor:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    onPressed: () {
-                                      // Get the current active tab to determine transaction type
-                                      final isExpenseTab =
-                                          _tabController.index == 0;
-                                      final transactionType =
-                                          isExpenseTab ? 'expense' : 'income';
-                                      context.push(
-                                          "/add-transaction?type=$transactionType");
-                                    }),
-                              ),
-                            ),
-                            SizedBox(width: 6.w),
-                          ]
-                        : [],
                   );
                 },
               ),

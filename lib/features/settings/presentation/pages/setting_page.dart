@@ -64,16 +64,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         backgroundColor: Colors.transparent,
         flexibleSpace: const GlassFlexibleSpace(),
         surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
         title: Text(
           'Paramètres',
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
         ),
       ),
       body: Padding(
@@ -105,6 +102,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         iconData: Icons.lock_outline,
                         onTap: () {
                           context.push('/edit-password');
+                        },
+                      ),
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Mes catégories',
+                        iconData: Icons.category_outlined,
+                        onTap: () {
+                          context.push('/categories');
                         },
                       ),
                     ],
@@ -233,5 +238,4 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       isLoading: _isLoading,
     );
   }
-
 }

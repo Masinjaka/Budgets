@@ -316,7 +316,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                   onPressed: () {
                     Navigator.of(context).pop();
                     context.push(
-                      '/add-transaction?type=${transaction.transactionType?.value ?? 'expense'}',
+                      '/edit-transaction?type=${transaction.transactionType?.value ?? 'expense'}',
                       extra: transaction,
                     );
                   },

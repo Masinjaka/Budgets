@@ -22,6 +22,7 @@ class CustomTextField extends ConsumerStatefulWidget {
     this.contentPadding,
     this.maxLines = 1,
     this.minLines,
+    this.fillColor,
   });
   final Widget title;
   final String? hint;
@@ -40,6 +41,7 @@ class CustomTextField extends ConsumerStatefulWidget {
   final EdgeInsetsGeometry? contentPadding;
   final int? maxLines;
   final int? minLines;
+  final Color? fillColor;
 
   @override
   ConsumerState<CustomTextField> createState() => _CustomTextFieldState();
@@ -165,7 +167,7 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
             cursorColor: Theme.of(context).textTheme.bodyLarge?.color,
             decoration: InputDecoration(
               filled: true,
-              fillColor: Theme.of(context).cardColor,
+              fillColor: widget.fillColor ?? Theme.of(context).cardColor,
               contentPadding: effectivePadding,
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(

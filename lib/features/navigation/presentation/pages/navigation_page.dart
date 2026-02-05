@@ -36,32 +36,32 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
               isActive: widget.navigationShell.currentIndex == 0,
             ),
             CustomNavItem(
-              icon: Icons.category,
-              title: 'Categories',
+              icon: Icons.list_outlined,
+              title: 'Transactions',
               onTap: () {
                 widget.navigationShell.goBranch(1);
               },
               isActive: widget.navigationShell.currentIndex == 1,
             ),
             CustomNavItem(
-              icon: Icons.list_outlined,
-              title: 'Transactions',
+              icon: Icons.query_stats,
+              title: 'Rapports',
               onTap: () {
                 widget.navigationShell.goBranch(2);
               },
               isActive: widget.navigationShell.currentIndex == 2,
             ),
             CustomNavItem(
-              icon: Icons.query_stats,
-              title: 'Rapports',
+              icon: Icons.savings,
+              title: 'Planifier',
               onTap: () {
                 widget.navigationShell.goBranch(3);
               },
               isActive: widget.navigationShell.currentIndex == 3,
             ),
             CustomNavItem(
-              icon: Icons.savings,
-              title: 'Planifier',
+              icon: Icons.settings_outlined,
+              title: 'Paramètres',
               onTap: () {
                 widget.navigationShell.goBranch(4);
               },

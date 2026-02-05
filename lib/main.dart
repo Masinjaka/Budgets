@@ -159,8 +159,6 @@ class _MyAppState extends ConsumerState<MyApp> {
           path: '/reset-password',
           builder: (context, state) => const ResetPasswordPage()),
       GoRoute(
-          path: '/settings', builder: (context, state) => const SettingPage()),
-      GoRoute(
           path: '/currency-selection',
           builder: (context, state) => const CurrencySelectionPage()),
       GoRoute(
@@ -176,14 +174,6 @@ class _MyAppState extends ConsumerState<MyApp> {
               GoRoute(
                 path: '/home',
                 builder: (context, state) => const accueil.HomePage(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/categories',
-                builder: (context, state) => const CategoryPage(),
               ),
             ],
           ),
@@ -211,10 +201,18 @@ class _MyAppState extends ConsumerState<MyApp> {
               ),
             ],
           ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/settings',
+                builder: (context, state) => const SettingPage(),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
-        path: '/add-transaction',
+        path: '/edit-transaction',
         builder: (context, state) {
           final type = state.uri.queryParameters['type'] ?? 'expense';
           final transaction = state.extra as TransactionModel?;
@@ -227,6 +225,9 @@ class _MyAppState extends ConsumerState<MyApp> {
       GoRoute(
           path: '/filter-transaction',
           builder: (context, state) => const TransactionFilterPage()),
+      GoRoute(
+          path: '/categories',
+          builder: (context, state) => const CategoryPage()),
       GoRoute(
         path: '/add-category',
         builder: (context, state) {
