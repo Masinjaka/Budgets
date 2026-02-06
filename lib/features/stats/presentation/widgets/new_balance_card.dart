@@ -10,11 +10,13 @@ enum BalanceCardType { expense, income }
 class NewBalanceCard extends ConsumerStatefulWidget {
   final BalanceCardType type;
   final double amount;
+  final IconData iconData;
 
   const NewBalanceCard({
     super.key,
     required this.type,
     required this.amount,
+    required this.iconData,
   });
 
   @override
@@ -56,10 +58,10 @@ class _NewBalanceCardState extends ConsumerState<NewBalanceCard> {
     final title = isExpense ? 'Dépense' : 'Revenue';
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.5.h),
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(6.w),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,13 +70,14 @@ class _NewBalanceCardState extends ConsumerState<NewBalanceCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w500,
-                  color: textColor?.withValues(alpha: 0.7),
+              Container(
+                padding: EdgeInsets.all(2.w),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceDim,
+                  borderRadius: BorderRadius.circular(2.w),
                 ),
+                child: Icon(widget.iconData,
+                    color: textColor?.withValues(alpha: 0.7)),
               ),
               GestureDetector(
                 onTap: _toggleVisibility,
@@ -98,6 +101,19 @@ class _NewBalanceCardState extends ConsumerState<NewBalanceCard> {
               letterSpacing: _isHidden ? 2.0 : 0.0,
             ),
             overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 1.h),
+          Row(
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500,
+                  color: textColor?.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
           ),
         ],
       ),

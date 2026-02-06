@@ -12,8 +12,11 @@ class StatsPage extends ConsumerStatefulWidget {
   ConsumerState<StatsPage> createState() => _StatsPageState();
 }
 
-class _StatsPageState extends ConsumerState<StatsPage> {
+class _StatsPageState extends ConsumerState<StatsPage>
+    with TickerProviderStateMixin {
   late PageController _pageController;
+  late AnimationController _appBarAnimationController;
+  late Animation<double> _appBarAnimation;
   static const int _initialPage = 1; // Start at middle page (current month)
   bool _isAnimating = false;
 
@@ -21,11 +24,21 @@ class _StatsPageState extends ConsumerState<StatsPage> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _initialPage);
+    _appBarAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _appBarAnimation = CurvedAnimation(
+      parent: _appBarAnimationController,
+      curve: Curves.easeInOut,
+    );
+    _appBarAnimationController.value = 1.0;
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _appBarAnimationController.dispose();
     super.dispose();
   }
 
@@ -87,52 +100,115 @@ class _StatsPageState extends ConsumerState<StatsPage> {
     final selectedDate = ref.watch(selectedDateProvider);
 
     return Scaffold(
-      body: Column(
-        children: [
-          // App bar section
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: EdgeInsets.only(left: 6.w, right: 6.w, top: 1.h),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Rapports',
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Month picker
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-            child: MonthYearPicker(
-              onPreviousMonth: _goToPreviousMonth,
-              onNextMonth: _goToNextMonth,
-              onDateSelected: _onDateSelected,
-            ),
-          ),
-          // PageView for stats content
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 3,
-              itemBuilder: (context, index) {
-                final monthDate = _getMonthForPage(selectedDate, index);
-                return StatsPageContent(
-                  key: ValueKey('${monthDate.year}-${monthDate.month}'),
-                  date: monthDate,
+      extendBodyBehindAppBar: false,
+      body: NestedScrollView(
+        floatHeaderSlivers: true,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return [
+            AnimatedBuilder(
+              animation: _appBarAnimation,
+              builder: (context, child) {
+                return SliverAppBar(
+                  surfaceTintColor: Colors.transparent,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  pinned: true,
+                  floating: true,
+                  expandedHeight: _appBarAnimation.value * kToolbarHeight,
+                  toolbarHeight: _appBarAnimation.value * kToolbarHeight,
+                  elevation: _appBarAnimation.value * 4,
+                  titleSpacing: 6.w,
+                  title: _appBarAnimation.value > 0.1
+                      ? Opacity(
+                          opacity: _appBarAnimation.value,
+                          child: Transform.translate(
+                            offset:
+                                Offset(0, (1 - _appBarAnimation.value) * -20),
+                            child: Text(
+                              'Rapports',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.sp,
+                                color: textColor?.withValues(
+                                    alpha:
+                                        _appBarAnimation.value > 0.1 ? 1 : 0),
+                              ),
+                            ),
+                          ),
+                        )
+                      : null,
+                  centerTitle: false,
                 );
               },
             ),
-          ),
-        ],
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _DatePickerHeaderDelegate(
+                height: 5.h + 4.h,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                child: MonthYearPicker(
+                  onPreviousMonth: _goToPreviousMonth,
+                  onNextMonth: _goToNextMonth,
+                  onDateSelected: _onDateSelected,
+                ),
+              ),
+            ),
+          ];
+        },
+        body: PageView.builder(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            final monthDate = _getMonthForPage(selectedDate, index);
+            return StatsPageContent(
+              key: ValueKey('${monthDate.year}-${monthDate.month}'),
+              date: monthDate,
+            );
+          },
+        ),
       ),
     );
+  }
+}
+
+class _DatePickerHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _DatePickerHeaderDelegate({
+    required this.height,
+    required this.backgroundColor,
+    required this.child,
+  });
+
+  final double height;
+  final Color backgroundColor;
+  final Widget child;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: backgroundColor,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
+        child: Center(
+          child: SizedBox(
+            width: 90.w,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _DatePickerHeaderDelegate oldDelegate) {
+    return oldDelegate.height != height ||
+        oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.child != child;
   }
 }

@@ -39,7 +39,7 @@ class HomePage extends ConsumerWidget {
     }
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: const CustomGreetingAppBar(),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 6.w),
@@ -49,8 +49,7 @@ class HomePage extends ConsumerWidget {
             // physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                SizedBox(
-                    height: 15.h), // Adjusted for AppBar height + Safe Area
+                SizedBox(height: 2.h),
                 const Jumbotron(),
                 SizedBox(height: 3.h),
                 SectionTitle(

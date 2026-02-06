@@ -29,7 +29,7 @@ class BudgetHistoryCard extends ConsumerWidget {
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
         color: surfaceColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(6.w),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

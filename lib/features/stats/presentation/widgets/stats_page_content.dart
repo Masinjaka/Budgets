@@ -74,26 +74,6 @@ class StatsPageContent extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: NewBalanceCard(
-                        type: BalanceCardType.expense,
-                        amount: stats.totalExpenses,
-                      ),
-                    ),
-                    SizedBox(width: 4.w),
-                    Expanded(
-                      child: NewBalanceCard(
-                        type: BalanceCardType.income,
-                        amount: stats.totalIncome,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                 child: StatsChart(
                   expenseData: expenseData,
@@ -101,6 +81,29 @@ class StatsPageContent extends ConsumerWidget {
                   daysInMonth: daysInMonth,
                 ),
               ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6.w),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: NewBalanceCard(
+                        type: BalanceCardType.expense,
+                        amount: stats.totalExpenses,
+                        iconData: Icons.arrow_upward,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Expanded(
+                      child: NewBalanceCard(
+                        type: BalanceCardType.income,
+                        amount: stats.totalIncome,
+                        iconData: Icons.arrow_downward,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                 child: NewCategoryBreakdown(
@@ -112,7 +115,7 @@ class StatsPageContent extends ConsumerWidget {
               ),
               // Budget History Card
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
                 child: BudgetHistoryCard(date: date),
               ),
               // Bottom padding for navigation bar

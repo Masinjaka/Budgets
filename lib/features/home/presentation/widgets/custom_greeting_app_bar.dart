@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
@@ -22,18 +21,13 @@ class CustomGreetingAppBar extends ConsumerWidget
 
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
-      flexibleSpace: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-          child: Container(
-            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7),
-          ),
-        ),
-      ),
-      toolbarHeight: 10.h,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      surfaceTintColor: Colors.transparent,
+      elevation: 4,
+      toolbarHeight: 7.h,
+      titleSpacing: 6.w,
       title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 2.w),
+        padding: EdgeInsets.symmetric(horizontal: 0.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -55,8 +49,8 @@ class CustomGreetingAppBar extends ConsumerWidget
                       child: Text(
                         'Salut, $username',
                         style: TextStyle(
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
                           color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
@@ -97,5 +91,5 @@ class CustomGreetingAppBar extends ConsumerWidget
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(10.h);
+  Size get preferredSize => Size.fromHeight(7.h);
 }

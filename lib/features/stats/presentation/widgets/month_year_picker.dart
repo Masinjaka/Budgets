@@ -22,6 +22,7 @@ class MonthYearPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final selectedDate = ref.watch(selectedDateProvider);
     final now = DateTime.now();
@@ -34,84 +35,97 @@ class MonthYearPicker extends ConsumerWidget {
     final canGoToNextMonth = selectedDate.year < now.year ||
         (selectedDate.year == now.year && selectedDate.month < now.month);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          icon: Icon(Icons.arrow_back_ios, size: 18.sp, color: textColor),
-          onPressed: () {
-            if (onPreviousMonth != null) {
-              onPreviousMonth!();
-            } else {
-              ref.read(selectedDateProvider.notifier).previousMonth();
-            }
-          },
-        ),
-        const Spacer(),
-        GestureDetector(
-          onTap: () async {
-            final newDate = await showAnimatedDialog<DateTime>(
-              context: context,
-              builder: (BuildContext context) {
-                return MonthYearPickerDialog(initialDate: selectedDate);
-              },
-            );
-            if (newDate != null) {
-              if (onDateSelected != null) {
-                onDateSelected!(newDate);
+    return Container(
+      height: 5.5.h,
+      padding: EdgeInsets.all(1.w),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints.tightFor(width: 8.w, height: 5.h),
+            icon: Icon(Icons.arrow_back_ios, size: 16.sp, color: textColor),
+            onPressed: () {
+              if (onPreviousMonth != null) {
+                onPreviousMonth!();
               } else {
-                ref.read(selectedDateProvider.notifier).setDate(newDate);
+                ref.read(selectedDateProvider.notifier).previousMonth();
               }
-            }
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.8.h),
-            decoration: BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: animation,
-                    child: child,
+            },
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: () async {
+              final newDate = await showAnimatedDialog<DateTime>(
+                context: context,
+                builder: (BuildContext context) {
+                  return MonthYearPickerDialog(initialDate: selectedDate);
+                },
+              );
+              if (newDate != null) {
+                if (onDateSelected != null) {
+                  onDateSelected!(newDate);
+                } else {
+                  ref.read(selectedDateProvider.notifier).setDate(newDate);
+                }
+              }
+            },
+            child: Container(
+              height: 5.h,
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              alignment: Alignment.center,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                child: Text(
+                  formattedMonthYear,
+                  key: ValueKey(formattedMonthYear),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 14.5.sp,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              },
-              child: Text(
-                formattedMonthYear,
-                key: ValueKey(formattedMonthYear),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-          ).animate(key: ValueKey(formattedMonthYear)).scaleX(
-              begin: 0.95, end: 1.0, duration: 200.ms, curve: Curves.easeOut),
-        ),
-        const Spacer(),
-        IconButton(
-          icon: Icon(Icons.arrow_forward_ios,
-              size: 18.sp,
-              color: canGoToNextMonth
-                  ? textColor
-                  : textColor?.withValues(alpha: 0.3)),
-          onPressed: canGoToNextMonth
-              ? () {
-                  if (onNextMonth != null) {
-                    onNextMonth!();
-                  } else {
-                    ref.read(selectedDateProvider.notifier).nextMonth();
+            ).animate(key: ValueKey(formattedMonthYear)).scaleX(
+                begin: 0.95, end: 1.0, duration: 200.ms, curve: Curves.easeOut),
+          ),
+          const Spacer(),
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints.tightFor(width: 8.w, height: 5.h),
+            icon: Icon(Icons.arrow_forward_ios,
+                size: 16.sp,
+                color: canGoToNextMonth
+                    ? textColor
+                    : textColor?.withValues(alpha: 0.3)),
+            onPressed: canGoToNextMonth
+                ? () {
+                    if (onNextMonth != null) {
+                      onNextMonth!();
+                    } else {
+                      ref.read(selectedDateProvider.notifier).nextMonth();
+                    }
                   }
-                }
-              : null,
-        ),
-      ],
+                : null,
+          ),
+        ],
+      ),
     );
   }
 }
