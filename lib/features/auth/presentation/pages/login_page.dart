@@ -1,4 +1,5 @@
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/gestures.dart';
@@ -33,8 +34,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       next.whenOrNull(
         error: (e, st) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('$e')));
+          showErrorToast(context, e);
         },
       );
     });

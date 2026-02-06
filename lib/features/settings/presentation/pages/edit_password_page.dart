@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
     ref.listen(authControllerProvider, (prev, next) {
       next.whenOrNull(
         error: (e, st) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('$e')));
+          showErrorToast(context, e);
         },
       );
     });
@@ -125,20 +125,18 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
               // Check if new passwords match
               if (_newPasswordController.text !=
                   _confirmPasswordController.text) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text(
-                          'Les nouveaux mots de passe ne correspondent pas')),
+                showInfoToast(
+                  context,
+                  'Les nouveaux mots de passe ne correspondent pas',
                 );
                 return;
               }
 
               // Check if new password is different from current
               if (_passwordController.text == _newPasswordController.text) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text(
-                          'Le nouveau mot de passe doit être différent de l\'actuel')),
+                showInfoToast(
+                  context,
+                  'Le nouveau mot de passe doit être différent de l\'actuel',
                 );
                 return;
               }
@@ -151,9 +149,9 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
                     );
 
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Mot de passe modifié avec succès')),
+                showSuccessToast(
+                  context,
+                  'Mot de passe modifié avec succès',
                 );
 
                 if (!mounted) return;

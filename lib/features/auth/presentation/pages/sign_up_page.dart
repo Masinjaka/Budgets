@@ -1,4 +1,5 @@
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -37,8 +38,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       next.whenOrNull(
         error: (e, st) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('$e')));
+          showErrorToast(context, e);
         },
       );
     });
@@ -175,8 +175,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
               if (!_formKey.currentState!.validate()) return;
               if (_passwordController.text != _confirmpasswordController.text) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vérifier le mot de passe')));
+                showInfoToast(context, 'Vérifiez la correspondance du mot de passe');
                 return;
               }
 

@@ -3,6 +3,7 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/features/categories/data/datasource/category_api.dart'
     as category_api;
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/features/planning/data/datasources/goal_datasource.dart'
     as goal_datasource;
 import 'package:budgets/widgets/custom_action_button.dart';
@@ -253,12 +254,9 @@ class _CategoryTabContent extends ConsumerWidget {
               final hasGoals = await goal_datasource.hasAnyGoals();
               if (hasGoals) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Cette catégorie est utilisée pour vos objectifs d\'épargne et ne peut pas être modifiée.',
-                      ),
-                    ),
+                  showInfoToast(
+                    context,
+                    'Cette catégorie est utilisée pour vos objectifs d\'épargne et ne peut pas être modifiée.',
                   );
                 }
                 return;

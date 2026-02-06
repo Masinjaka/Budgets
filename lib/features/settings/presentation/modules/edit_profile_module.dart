@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/auth/domain/providers/auth_providers.dart';
 import 'package:budgets/features/profile/domain/provider/profile_providers.dart';
@@ -16,7 +17,11 @@ class EditProfileModule {
   EditProfileModule();
 
   Future<void> deleteCurrentUserAccount(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref, {
+    VoidCallback? onDeletionStart,
+    VoidCallback? onDeletionEnd,
+  }) async {
     final dialogConfirmed = await showAnimatedDialog<bool>(
       context: context,
       builder: (ctx) => PermissionRequestDialog(
@@ -37,7 +42,12 @@ class EditProfileModule {
 
     if (dialogConfirmed == true) {
       if (!context.mounted) return;
-      await deleteAccount(context, ref);
+      onDeletionStart?.call();
+      try {
+        await deleteAccount(context, ref);
+      } finally {
+        onDeletionEnd?.call();
+      }
 
       if (!context.mounted) return;
       context.go('/getting-started');
@@ -52,9 +62,10 @@ class EditProfileModule {
     } catch (e) {
       debugPrint('Account deletion error: $e');
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Erreur lors de la suppression du compte')),
+      showAppToast(
+        context,
+        'Erreur lors de la suppression du compte',
+        type: AppToastType.error,
       );
     }
   }
@@ -126,8 +137,10 @@ class EditProfileModule {
 
     // Show feedback
     if (errorMessage != null && !(usernameUpdated || photoUpdated)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
+      showAppToast(
+        context,
+        errorMessage,
+        type: AppToastType.error,
       );
     } else {
       context.pop();

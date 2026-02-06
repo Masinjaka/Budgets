@@ -70,8 +70,12 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
   }
 
   String? validatePassword(String? v) {
-    if (v == null || v.isEmpty || v.length < 8) {
-      return "Le mot de passe doit contenir au moins";
+    if (v == null || v.isEmpty) {
+      return "Veuillez entrer un mot de passe";
+    }
+
+    if (v.length < 8) {
+      return "Le mot de passe doit contenir au moins 8 caractères.";
     }
 
     // Check for uppercase, lowercase, number, and special character
@@ -81,19 +85,19 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
     RegExp specialCharRegex = RegExp(r'[!@#\$%^&*(),.?":{}|<>]');
 
     if (!uppercaseRegex.hasMatch(v)) {
-      return "un majuscule";
+      return "Le mot de passe doit contenir au moins une majuscule.";
     }
 
     if (!lowercaseRegex.hasMatch(v)) {
-      return "un minuscule";
+      return "Le mot de passe doit contenir au moins une minuscule.";
     }
 
     if (!digitRegex.hasMatch(v)) {
-      return "un chiffre";
+      return "Le mot de passe doit contenir au moins un chiffre.";
     }
 
     if (!specialCharRegex.hasMatch(v)) {
-      return "un caractère spécial";
+      return "Le mot de passe doit contenir au moins un caractère spécial.";
     }
 
     return null; // Password is valid

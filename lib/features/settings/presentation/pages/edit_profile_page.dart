@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:budgets/core/ui/glass_flexible_space.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
 import 'package:budgets/features/settings/presentation/modules/edit_profile_module.dart';
 import 'package:budgets/widgets/custom_button.dart';
@@ -61,8 +62,7 @@ class _State extends ConsumerState<EditProfilePage> {
       next.whenOrNull(
         error: (e, st) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('$e')));
+          showErrorToast(context, e);
         },
       );
     });
@@ -70,121 +70,81 @@ class _State extends ConsumerState<EditProfilePage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        extendBodyBehindAppBar: true,
+        extendBodyBehindAppBar: false,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.transparent,
           flexibleSpace: const GlassFlexibleSpace(),
           surfaceTintColor: Colors.transparent,
           toolbarHeight: 10.h,
+          title: Text(
+            'Modifier le profil',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           actions: [
             Padding(
               padding: EdgeInsets.all(2.h),
-              child: TextButton(
-                onPressed: () async {
-                  if (_isUpdating) return; // prevent double taps
-                  setState(() => _isUpdating = true);
-                  try {
-                    await editProfileModule.updateProfile(
-                      context: context,
-                      formKey: _formKey,
-                      usernameController: _usernameController,
-                      selectedImage: _selectedImage,
-                      ref: ref,
-                      profilePhotoUrl: _profilePhotoUrl,
-                      isUpdating: _isUpdating,
-                    );
-                  } finally {
-                    setState(() => _isUpdating = false);
-                  }
-                },
-                child: _isUpdating
-                    ? SizedBox(
-                        width: 2.h,
-                        height: 2.h,
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).primaryColor,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  onPressed: () async {
+                    if (_isUpdating) return; // prevent double taps
+                    setState(() => _isUpdating = true);
+                    try {
+                      await editProfileModule.updateProfile(
+                        context: context,
+                        formKey: _formKey,
+                        usernameController: _usernameController,
+                        selectedImage: _selectedImage,
+                        ref: ref,
+                        profilePhotoUrl: _profilePhotoUrl,
+                        isUpdating: _isUpdating,
+                      );
+                    } finally {
+                      setState(() => _isUpdating = false);
+                    }
+                  },
+                  icon: _isUpdating
+                      ? SizedBox(
+                          width: 2.h,
+                          height: 2.h,
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        )
+                      : Icon(
+                          Icons.save_outlined,
+                          size: 20.sp,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
-                      )
-                    : Text(
-                        'Sauvegarder',
-                        style: TextStyle(
-                          fontSize: 15.5.sp,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
+                ),
               ),
             ),
           ],
         ),
         body: Form(
           key: _formKey,
-          child: SizedBox(
-            height: double.infinity,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.w),
-              child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: SingleChildScrollView(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 12.h), // Top padding for glass effect
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: DottedBorder(
-                        options: const CircularDottedBorderOptions(
-                          color: Colors.grey,
-                          strokeWidth: 2,
-                          dashPattern: [8, 4],
-                        ),
-                        child: Container(
-                          padding: EdgeInsets.all(2.w),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: _buildAvatarWidget(),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      "Modifier l'avatar",
-                      style: TextStyle(
-                          fontSize: 15.sp, fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(height: 5.h),
-                    CustomTextField(
-                      title: Text(
-                        "Nom d'utilisateur",
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15.5.sp,
-                        ),
-                      ),
-                      hint: 'Nouveau nom d\'utilisateur',
-                      controller: _usernameController,
-                      keyboardType: TextInputType.text,
-                    ),
+                    _buildProfilePhotoSection(context),
+                    SizedBox(height: 4.h),
+                    _buildProfileInfoSection(context),
+                    SizedBox(height: 4.h),
+                    _buildDangerZone(context),
                     SizedBox(height: 3.h),
-                    Divider(
-                      height: 4.h,
-                    ),
-                    SizedBox(height: 3.h),
-                    const Spacer(),
-                    CustomButton(
-                      backgroundColor: Colors.redAccent,
-                      text: 'Supprimer mon compte',
-                      onPressed: () async {
-                        setState(() => _isLoading = true);
-
-                        await editProfileModule.deleteCurrentUserAccount(
-                            context, ref);
-
-                        setState(() => _isLoading = false);
-                      },
-                      isLoading: _isLoading,
-                    ),
                   ],
                 ),
               ),
@@ -192,6 +152,202 @@ class _State extends ConsumerState<EditProfilePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProfilePhotoSection(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Photo de profil',
+          style: TextStyle(
+            fontSize: 15.5.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 1.h),
+        SizedBox(
+          width: double.infinity,
+          child: _buildSectionCard(
+            context,
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: DottedBorder(
+                    options: CircularDottedBorderOptions(
+                      color: theme.colorScheme.onSurface.withOpacity(0.35),
+                      strokeWidth: 2,
+                      dashPattern: const [8, 4],
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.all(2.w),
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: _buildAvatarWidget(),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 1.5.h),
+                Text(
+                  "Modifier l'avatar",
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 0.6.h),
+                Text(
+                  "JPG ou PNG • carré recommandé",
+                  style: TextStyle(
+                    fontSize: 13.5.sp,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+                SizedBox(height: 1.5.h),
+                TextButton.icon(
+                  onPressed: _pickImage,
+                  icon: Icon(
+                    Icons.photo_camera_outlined,
+                    size: 18.sp,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  label: Text(
+                    'Choisir une photo',
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.5.sp,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileInfoSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Informations',
+          style: TextStyle(
+            fontSize: 15.5.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 1.h),
+        _buildSectionCard(
+          context,
+          child: CustomTextField(
+            title: Text(
+              "Nom d'utilisateur",
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 15.5.sp,
+              ),
+            ),
+            hint: 'Nouveau nom d\'utilisateur',
+            controller: _usernameController,
+            keyboardType: TextInputType.text,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDangerZone(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Zone sensible',
+          style: TextStyle(
+            fontSize: 15.5.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 1.h),
+        _buildSectionCard(
+          context,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 18.sp,
+                    color: theme.colorScheme.error,
+                  ),
+                  SizedBox(width: 2.w),
+                  Expanded(
+                    child: Text(
+                      'La suppression est définitive',
+                      style: TextStyle(
+                        fontSize: 14.5.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 1.h),
+              Text(
+                'Votre compte et vos données seront supprimés.',
+                style: TextStyle(
+                  fontSize: 13.5.sp,
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+              SizedBox(height: 2.h),
+              CustomButton(
+                backgroundColor: Colors.redAccent,
+                text: 'Supprimer mon compte',
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        await editProfileModule.deleteCurrentUserAccount(
+                          context,
+                          ref,
+                          onDeletionStart: () {
+                            if (!mounted) return;
+                            setState(() => _isLoading = true);
+                          },
+                          onDeletionEnd: () {
+                            if (!mounted) return;
+                            setState(() => _isLoading = false);
+                          },
+                        );
+                      },
+                isLoading: _isLoading,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCard(BuildContext context, {required Widget child}) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(3.w),
+      ),
+      child: child,
     );
   }
 

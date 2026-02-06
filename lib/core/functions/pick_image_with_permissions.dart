@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:budgets/features/auth/presentation/widgets/file_picker_option.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,8 @@ Future<File?> pickImageWithPermissions(
   String description =
       'Nous avons besoin de la caméra et l\'accès aux fichiers pour continuer.',
 }) async {
+  if (!context.mounted) return null;
+
   // Determine required media permission based on platform/version
   Permission mediaPermission;
   if (Platform.isIOS) {
@@ -24,61 +27,6 @@ Future<File?> pickImageWithPermissions(
     // On Android 13+ photos/videos separated; permission_handler maps to photos. Use storage for older versions.
     mediaPermission = Permission.photos;
   }
-
-  final cameraStatus = await Permission.camera.status;
-  final mediaStatus = await mediaPermission.status;
-
-  if (!cameraStatus.isGranted || !mediaStatus.isGranted) {
-    if (!context.mounted) return null;
-
-    final granted = await showAnimatedDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => PermissionRequestDialog(
-        message: description,
-        onAllow: () {
-          Navigator.of(dialogContext).pop(true);
-        },
-        onDeny: () {
-          Navigator.of(dialogContext).pop(false);
-        },
-      ),
-    );
-
-    if (granted != true) return null;
-
-    // Request both
-    await Permission.camera.request();
-    await mediaPermission.request();
-    // Android fallback for older SDKs where storage is required
-    if (Platform.isAndroid && !(await mediaPermission.isGranted)) {
-      await Permission.storage.request();
-    }
-  }
-
-  // Verify again
-  if (!await Permission.camera.isGranted) {
-    if (!context.mounted) return null;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Caméra refusée')),
-    );
-    return null;
-  }
-  bool mediaGranted = await mediaPermission.isGranted;
-  if (Platform.isAndroid && !mediaGranted) {
-    mediaGranted = await Permission.storage.isGranted;
-  }
-  if (!mediaGranted) {
-    if (!context.mounted) return null;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Accès aux médias refusé')),
-    );
-    return null;
-  }
-
-  if (!context.mounted) return null;
 
   final source = await showModalBottomSheet<ImageSource>(
     context: context,
@@ -121,6 +69,68 @@ Future<File?> pickImageWithPermissions(
 
   if (source == null) return null;
 
+  final needsCamera = source == ImageSource.camera;
+  final needsMedia = source == ImageSource.gallery;
+
+  if (needsCamera) {
+    final cameraStatus = await Permission.camera.status;
+    if (!cameraStatus.isGranted) {
+      if (!context.mounted) return null;
+      final granted = await showAnimatedDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PermissionRequestDialog(
+          message: description,
+          onAllow: () => Navigator.of(dialogContext).pop(true),
+          onDeny: () => Navigator.of(dialogContext).pop(false),
+        ),
+      );
+      if (granted != true) return null;
+      await Permission.camera.request();
+    }
+
+    if (!await Permission.camera.isGranted) {
+      if (!context.mounted) return null;
+      showInfoToast(context, 'Caméra refusée');
+      return null;
+    }
+  }
+
+  if (needsMedia) {
+    if (Platform.isAndroid) {
+      // On Android, avoid explicit media permission requests to prevent
+      // duplicate system pickers (e.g., "Select photos" flow). Let
+      // ImagePicker handle access prompts.
+      // Proceed directly to ImagePicker below.
+      // No-op here.
+      // ignore: empty_statements
+    } else {
+      final mediaStatus = await mediaPermission.status;
+      if (!mediaStatus.isGranted && !mediaStatus.isLimited) {
+        if (!context.mounted) return null;
+        final granted = await showAnimatedDialog<bool>(
+          context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PermissionRequestDialog(
+          message: description,
+          onAllow: () => Navigator.of(dialogContext).pop(true),
+          onDeny: () => Navigator.of(dialogContext).pop(false),
+        ),
+        );
+        if (granted != true) return null;
+        await mediaPermission.request();
+      }
+
+      final isGranted = await mediaPermission.isGranted;
+      final isLimited = await mediaPermission.isLimited;
+      if (!isGranted && !isLimited) {
+        if (!context.mounted) return null;
+        showInfoToast(context, 'Accès aux médias refusé');
+        return null;
+      }
+    }
+  }
+
   try {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
@@ -130,9 +140,10 @@ Future<File?> pickImageWithPermissions(
   } catch (e) {
     debugPrint('Image pick error: $e');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Erreur lors de la sélection de l\'image')),
+      showAppToast(
+        context,
+        "Erreur lors de la sélection de l'image",
+        type: AppToastType.error,
       );
     }
     return null;

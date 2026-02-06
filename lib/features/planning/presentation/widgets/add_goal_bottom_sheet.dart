@@ -3,6 +3,7 @@ import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
@@ -107,18 +108,17 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
 
   Future<void> _saveGoal() async {
     if (_nameController.text.isEmpty || _amountController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Veuillez remplir tous les champs requis')),
-      );
+      showInfoToast(context, 'Veuillez remplir tous les champs requis');
       return;
     }
 
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur: Utilisateur non authentifié')),
+        showAppToast(
+          context,
+          'Utilisateur non authentifié',
+          type: AppToastType.error,
         );
       }
       return;
@@ -155,30 +155,26 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
       if (mounted) Navigator.of(context).pop();
     } on SocketException {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text('Erreur réseau: Vérifiez votre connexion internet')),
+        showInfoToast(
+          context,
+          'Erreur réseau: Vérifiez votre connexion internet',
         );
       }
     } on StorageException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur de téléchargement: ${e.message}')),
-        );
+        showErrorToast(context, e);
       }
     } on FileSystemException {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Erreur: Impossible d\'accéder au fichier image')),
+        showAppToast(
+          context,
+          "Impossible d'accéder au fichier image",
+          type: AppToastType.error,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
-        );
+        showErrorToast(context, e);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +32,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     ref.listen(authControllerProvider, (prev, next) {
       next.whenOrNull(
         error: (e, st) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('$e')));
+          showErrorToast(context, e);
         },
       );
     });
@@ -74,8 +74,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                           email: _emailController.text.trim(),
                         );
                     if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Email envoyé')));
+                    showSuccessToast(context, 'Email envoyé');
                   } catch (_) {}
                   setState(() => _isLoading = false);
                 },

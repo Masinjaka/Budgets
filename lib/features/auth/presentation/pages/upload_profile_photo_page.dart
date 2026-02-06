@@ -12,6 +12,7 @@ import '../../../profile/presentation/controllers/profile_photo_controller.dart'
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 
 class UploadProfilePhotoPage extends ConsumerStatefulWidget {
   const UploadProfilePhotoPage({super.key});
@@ -143,8 +144,10 @@ class _UploadProfilePhotoPageState
               // Get current user id from Supabase auth
               final userId = Supabase.instance.client.auth.currentUser?.id;
               if (userId == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Utilisateur non authentifié')),
+                showAppToast(
+                  context,
+                  'Utilisateur non authentifié',
+                  type: AppToastType.error,
                 );
                 return;
               }
@@ -156,16 +159,12 @@ class _UploadProfilePhotoPageState
               result.when(
                 data: (url) {
                   if (url != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Avatar enregistré')),
-                    );
+                    showSuccessToast(context, 'Avatar enregistré');
                   }
                   if (mounted) context.go('/home');
                 },
                 error: (e, _) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erreur: $e')),
-                  );
+                  showErrorToast(context, e);
                 },
                 loading: () {},
               );

@@ -1,4 +1,5 @@
 import 'package:budgets/features/categories/domain/models/category_model.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
 import 'package:budgets/features/planning/domain/providers/budget_provider.dart';
@@ -95,9 +96,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
 
   Future<void> _saveBudget() async {
     if (_selectedCategoryId == null || _amountController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez remplir tous les champs')),
-      );
+      showInfoToast(context, 'Veuillez remplir tous les champs');
       return;
     }
 
@@ -129,9 +128,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
-        );
+        showErrorToast(context, e);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

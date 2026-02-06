@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:intl/intl.dart';
 
 class TransactionCreationPage extends ConsumerStatefulWidget {
@@ -586,11 +586,10 @@ class _TransactionCreationPageState
           setState(() => _isLoading = false);
 
           // Show result message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result.message),
-              backgroundColor: result.success ? Colors.green : Colors.red,
-            ),
+          showAppToast(
+            context,
+            result.message,
+            type: result.success ? AppToastType.success : AppToastType.error,
           );
 
           // Navigate back on success
@@ -643,14 +642,9 @@ class _TransactionCreationPageState
           },
           onSubcategoryTap: () {
             if (_selectedCategory == null) {
-              Fluttertoast.showToast(
-                msg: "La catégorie doit être sélectionnée en premier",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 2,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
+              showInfoToast(
+                context,
+                "La catégorie doit être sélectionnée en premier",
               );
             }
           },

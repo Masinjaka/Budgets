@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,9 +31,7 @@ class CategoryModule {
   }) async {
     if (formKey.currentState!.validate()) {
       if (emoji == null || emoji.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('L\'emoticon est requis')),
-        );
+        showInfoToast(context, "L'emoticon est requis");
         return;
       }
       try {
@@ -49,8 +48,7 @@ class CategoryModule {
         context.pop();
       } catch (e) {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        showErrorToast(context, e);
       }
     }
   }
@@ -67,9 +65,7 @@ class CategoryModule {
   }) async {
     if (formKey.currentState!.validate()) {
       if (emoji == null || emoji.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('L\'emoticon est requis')),
-        );
+        showInfoToast(context, "L'emoticon est requis");
         return;
       }
       try {
@@ -87,8 +83,7 @@ class CategoryModule {
         context.pop();
       } catch (e) {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        showErrorToast(context, e);
       }
     }
   }
@@ -165,8 +160,7 @@ class CategoryModule {
         context.pop();
       } catch (e) {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        showErrorToast(context, e);
       }
     }
   }

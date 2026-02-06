@@ -9,6 +9,7 @@ import 'package:budgets/features/categories/domain/providers/category_provider.d
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
 import 'package:budgets/features/categories/domain/providers/subcategories_provider.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
@@ -54,10 +55,9 @@ class TransactionModule {
       final endDate = DateTime.parse(toDate);
 
       if (endDate.isBefore(startDate)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'La date de fin ne doit pas être antérieure à la date de début')),
+        showInfoToast(
+          context,
+          'La date de fin ne doit pas être antérieure à la date de début',
         );
         return false;
       }

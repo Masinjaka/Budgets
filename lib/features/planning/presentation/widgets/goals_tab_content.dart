@@ -1,6 +1,7 @@
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
 import 'package:budgets/features/planning/presentation/widgets/add_goal_bottom_sheet.dart';
@@ -436,10 +437,7 @@ class _GoalListItem extends ConsumerWidget {
 
       if (balance < resultMga) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Solde insuffisant pour cette opération')),
-          );
+          showInfoToast(context, 'Solde insuffisant pour cette opération');
         }
         return;
       }
@@ -466,15 +464,11 @@ class _GoalListItem extends ConsumerWidget {
             );
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Montant ajouté et déduit du solde global')),
-          );
+          showSuccessToast(context, 'Montant ajouté et déduit du solde global');
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur: $e')),
-          );
+          showErrorToast(context, e);
         }
       }
     }

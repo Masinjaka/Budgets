@@ -4,6 +4,7 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -362,12 +363,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
 
       setState(() => _isLoading = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showErrorToast(context, e);
     }
   }
 }

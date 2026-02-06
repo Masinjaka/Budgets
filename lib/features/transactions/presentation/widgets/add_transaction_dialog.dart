@@ -10,7 +10,7 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// A dialog for quickly adding a new transaction.
@@ -96,12 +96,9 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
   void _addSubcategoryAmountCard() {
     // Check if category is selected first
     if (_selectedCategory == null) {
-      Fluttertoast.showToast(
-        msg: 'Veuillez d\'abord sélectionner une catégorie principale',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
+      showInfoToast(
+        context,
+        'Veuillez d\'abord sélectionner une catégorie principale',
       );
       return;
     }
@@ -585,34 +582,21 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
   Future<void> _submitTransaction() async {
     // Check if category is selected
     if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez sélectionner une catégorie'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showInfoToast(context, 'Veuillez sélectionner une catégorie');
       return;
     }
 
     // Validate subcategory amounts if in per-subcategory mode
     if (_isPerSubcategory) {
       if (_subcategoryAmounts.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Veuillez ajouter au moins une sous-catégorie'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showInfoToast(context, 'Veuillez ajouter au moins une sous-catégorie');
         return;
       }
 
       if (!_module.validateSubcategoryAmounts(_subcategoryAmounts)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text('Veuillez remplir toutes les sous-catégories et montants'),
-            backgroundColor: Colors.red,
-          ),
+        showInfoToast(
+          context,
+          'Veuillez remplir toutes les sous-catégories et montants',
         );
         return;
       }
@@ -636,11 +620,10 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
     setState(() => _isLoading = false);
 
     // Show result message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result.message),
-        backgroundColor: result.success ? Colors.green : Colors.red,
-      ),
+    showAppToast(
+      context,
+      result.message,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
 
     // Close dialog on success
@@ -803,13 +786,7 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
   ) async {
     // Check if category is selected first
     if (_selectedCategory == null) {
-      Fluttertoast.showToast(
-        msg: 'Veuillez d\'abord sélectionner une catégorie',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
+      showInfoToast(context, 'Veuillez d\'abord sélectionner une catégorie');
       return;
     }
 

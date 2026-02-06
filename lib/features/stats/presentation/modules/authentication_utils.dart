@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -31,11 +32,10 @@ class AuthenticationUtils {
     } on PlatformException catch (e) {
       // Handle authentication errors
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur d\'authentification: ${e.message}'),
-            backgroundColor: Colors.red,
-          ),
+        showAppToast(
+          context,
+          "Erreur d'authentification. Veuillez réessayer.",
+          type: AppToastType.error,
         );
       }
     }
