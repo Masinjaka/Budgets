@@ -40,6 +40,12 @@ import 'package:shake/shake.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:budgets/features/notifications/presentation/services/foreground_notification_service.dart';
 
+// Environment variables injected via --dart-define
+const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+const String gleapToken = String.fromEnvironment('GLEAP_TOKEN');
+const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
 final supabase = Supabase.instance.client;
 
 Box<dynamic> get storageBox => Hive.box(LocalAppStorage.storageBox);
@@ -77,14 +83,13 @@ void main() async {
   await initializeDateFormatting('fr_FR', null);
 
   // Initialize Gleap
-  Gleap.initialize(token: 'Qq2gB5CN8MF6U7XdK5xUhETe49WgA0aa');
+  Gleap.initialize(token: gleapToken);
   Gleap.showFeedbackButton(false);
 
   // initialize supabase
   await Supabase.initialize(
-    url: 'https://fqqpmzurvunhilnnhmtf.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcXBtenVydnVuaGlsbm5obXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxOTIxNTcsImV4cCI6MjA2NDc2ODE1N30.ur3oGU8SIjsWZHGQS9Vk8y9Y1UXBJCrEw_KahPCAI_k',
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
   );
 
   // initialise hive box
@@ -93,8 +98,7 @@ void main() async {
 
   await SentryFlutter.init(
     (options) {
-      options.dsn =
-          'https://6dc8de8176b18952876db1f2980a7787@o4508336559947776.ingest.de.sentry.io/4510556562915408';
+      options.dsn = sentryDsn;
       options.environment = 'production';
       // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
       // We recommend adjusting this value in production.

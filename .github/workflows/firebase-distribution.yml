@@ -42,7 +42,12 @@ jobs:
       #    For Firebase App Distribution, an APK is often simpler.
       #    We will build an APK here for simplicity.
       - name: Build Android APK
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
+            --dart-define=GLEAP_TOKEN=${{ secrets.GLEAP_TOKEN }} \
+            --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }}
 
       # 7. Upload the generated APK as an artifact
       #    This allows you to download the APK from the GitHub Actions run.
