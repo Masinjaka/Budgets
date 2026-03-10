@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../auth/domain/providers/auth_providers.dart';
@@ -14,10 +15,14 @@ class AuthController extends _$AuthController {
   Future<void> signIn({required String email, required String password}) async {
     state = const AsyncLoading();
     final repo = ref.read(authRepositoryProvider);
+    debugPrint('[AuthController][signIn] Start');
     try {
       await repo.signInWithPassword(email: email, password: password);
+      debugPrint('[AuthController][signIn] Success');
       state = const AsyncData(null);
     } catch (e, st) {
+      debugPrint('[AuthController][signIn] Error: $e');
+      debugPrint('[AuthController][signIn] StackTrace: $st');
       state = AsyncError(e, st);
       rethrow;
     }
@@ -29,11 +34,15 @@ class AuthController extends _$AuthController {
       required String password}) async {
     state = const AsyncLoading();
     final repo = ref.read(authRepositoryProvider);
+    debugPrint('[AuthController][signUp] Start');
     try {
       await repo.signUpWithPassword(
           email: email, password: password, username: username);
+      debugPrint('[AuthController][signUp] Success');
       state = const AsyncData(null);
     } catch (e, st) {
+      debugPrint('[AuthController][signUp] Error: $e');
+      debugPrint('[AuthController][signUp] StackTrace: $st');
       state = AsyncError(e, st);
       rethrow;
     }

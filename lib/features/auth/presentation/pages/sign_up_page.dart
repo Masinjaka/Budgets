@@ -37,6 +37,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     ref.listen(authControllerProvider, (prev, next) {
       next.whenOrNull(
         error: (e, st) {
+          debugPrint('[SignUpPage] Auth state error: $e');
+          debugPrint('[SignUpPage] Auth state stackTrace: $st');
           if (!mounted) return;
           showErrorToast(context, e);
         },
@@ -45,7 +47,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
     return Scaffold(
       body: SafeArea(child: _buildForm(context)),
-      bottomNavigationBar: _buildBottomPart(context),
+      bottomNavigationBar: _buildBottomPart(),
     );
   }
 
@@ -162,7 +164,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     );
   }
 
-  Widget _buildBottomPart(BuildContext context) {
+  Widget _buildBottomPart() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
       child: Column(
@@ -174,23 +176,33 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             onPressed: () async {
               if (!_formKey.currentState!.validate()) return;
               if (_passwordController.text != _confirmpasswordController.text) {
+                debugPrint('[SignUpPage] Validation failed: password mismatch');
                 if (!mounted) return;
-                showInfoToast(context, 'Vérifiez la correspondance du mot de passe');
+                showInfoToast(
+                    context, 'Vérifiez la correspondance du mot de passe');
                 return;
               }
 
               setState(() => _isLoading = true);
               try {
+                debugPrint('[SignUpPage] Submit pressed - signUp started');
                 await ref.read(authControllerProvider.notifier).signUp(
                       email: _emailController.text.trim(),
                       password: _passwordController.text,
                       username: _usernameController.text.trim(),
                     );
+                debugPrint(
+                    '[SignUpPage] signUp completed - navigating to upload photo');
                 if (!mounted) return;
-                // ignore: use_build_context_synchronously
                 context.push('/upload-profile-photo');
-              } catch (_) {}
-              setState(() => _isLoading = false);
+              } catch (e, st) {
+                debugPrint('[SignUpPage] signUp submission error: $e');
+                debugPrint('[SignUpPage] signUp submission stackTrace: $st');
+              } finally {
+                if (mounted) {
+                  setState(() => _isLoading = false);
+                }
+              }
             },
           ),
         ],

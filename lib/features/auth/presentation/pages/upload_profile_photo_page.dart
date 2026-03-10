@@ -120,57 +120,64 @@ class _UploadProfilePhotoPageState
               setState(() {
                 _isLoading = true;
               });
-              if (_selectedImage == null) {
-                final proceed = await showAnimatedDialog<bool>(
-                  context: context,
-                  builder: (_) => PermissionRequestDialog(
-                    title: 'Continuer sans avatar ?',
-                    message:
-                        'Vous n\'avez pas sélectionné d\'image. Continuer sans avatar ?',
-                    allowText: 'Oui',
-                    denyText: 'Non',
-                    onAllow: () => Navigator.of(context).pop(true),
-                    onDeny: () => Navigator.of(context).pop(false),
-                  ),
-                );
-                if (proceed == true) {
-                  if (mounted) context.go('/home');
-                }
-                setState(() {
-                  _isLoading = false;
-                });
-                return;
-              }
-              // Get current user id from Supabase auth
-              final userId = Supabase.instance.client.auth.currentUser?.id;
-              if (userId == null) {
-                showAppToast(
-                  context,
-                  'Utilisateur non authentifié',
-                  type: AppToastType.error,
-                );
-                return;
-              }
-              // Trigger upload via controller
-              final controller =
-                  ref.read(profilePhotoControllerProvider.notifier);
-              await controller.upload(file: _selectedImage!, userId: userId);
-              final result = ref.read(profilePhotoControllerProvider);
-              result.when(
-                data: (url) {
-                  if (url != null) {
-                    showSuccessToast(context, 'Avatar enregistré');
+              try {
+                if (_selectedImage == null) {
+                  final proceed = await showAnimatedDialog<bool>(
+                    context: context,
+                    builder: (_) => PermissionRequestDialog(
+                      title: 'Continuer sans avatar ?',
+                      message:
+                          'Vous n\'avez pas sélectionné d\'image. Continuer sans avatar ?',
+                      allowText: 'Oui',
+                      denyText: 'Non',
+                      onAllow: () => Navigator.of(context).pop(true),
+                      onDeny: () => Navigator.of(context).pop(false),
+                    ),
+                  );
+                  if (!mounted) return;
+                  if (proceed == true) {
+                    context.go('/home');
                   }
-                  if (mounted) context.go('/home');
-                },
-                error: (e, _) {
-                  showErrorToast(context, e);
-                },
-                loading: () {},
-              );
-              setState(() {
-                _isLoading = false;
-              });
+                  return;
+                }
+                // Get current user id from Supabase auth
+                final userId = Supabase.instance.client.auth.currentUser?.id;
+                if (userId == null) {
+                  if (!mounted) return;
+                  showAppToast(
+                    context,
+                    'Utilisateur non authentifié',
+                    type: AppToastType.error,
+                  );
+                  return;
+                }
+                // Trigger upload via controller
+                final controller =
+                    ref.read(profilePhotoControllerProvider.notifier);
+                await controller.upload(file: _selectedImage!, userId: userId);
+                if (!mounted) return;
+                final result = ref.read(profilePhotoControllerProvider);
+                result.when(
+                  data: (url) {
+                    if (!mounted) return;
+                    if (url != null) {
+                      showSuccessToast(context, 'Avatar enregistré');
+                    }
+                    context.go('/home');
+                  },
+                  error: (e, _) {
+                    if (!mounted) return;
+                    showErrorToast(context, e);
+                  },
+                  loading: () {},
+                );
+              } finally {
+                if (mounted) {
+                  setState(() {
+                    _isLoading = false;
+                  });
+                }
+              }
             },
           ),
           SizedBox(height: 2.h),
@@ -190,7 +197,7 @@ class _UploadProfilePhotoPageState
 
   Future<void> _pickImage() async {
     final file = await pickImageWithPermissions(context);
-    if (file == null) return;
+    if (!mounted || file == null) return;
     setState(() {
       _selectedImage = file;
     });

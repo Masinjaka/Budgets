@@ -33,6 +33,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen(authControllerProvider, (prev, next) {
       next.whenOrNull(
         error: (e, st) {
+          debugPrint('[LoginPage] Auth state error: $e');
+          debugPrint('[LoginPage] Auth state stackTrace: $st');
           if (!mounted) return;
           showErrorToast(context, e);
         },
@@ -41,7 +43,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     return Scaffold(
       body: SafeArea(child: _buildForm(context)),
-      bottomNavigationBar: _buildBottomPart(context),
+      bottomNavigationBar: _buildBottomPart(),
     );
   }
 
@@ -144,7 +146,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildBottomPart(BuildContext context) {
+  Widget _buildBottomPart() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -157,14 +159,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
               setState(() => _isLoading = true);
               try {
+                debugPrint('[LoginPage] Submit pressed - signIn started');
                 await ref.read(authControllerProvider.notifier).signIn(
                       email: _emailController.text.trim(),
                       password: _passwordController.text,
                     );
+                debugPrint(
+                    '[LoginPage] signIn completed - navigating to /home');
                 if (!mounted) return;
                 context.go('/home');
-              } catch (_) {}
-              setState(() => _isLoading = false);
+              } catch (e, st) {
+                debugPrint('[LoginPage] signIn submission error: $e');
+                debugPrint('[LoginPage] signIn submission stackTrace: $st');
+              } finally {
+                if (mounted) {
+                  setState(() => _isLoading = false);
+                }
+              }
             },
             isLoading: _isLoading,
           ),

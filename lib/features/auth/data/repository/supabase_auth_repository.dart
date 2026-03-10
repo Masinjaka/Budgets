@@ -1,6 +1,6 @@
 import 'package:budgets/core/constants.dart';
 import 'package:budgets/main.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/interfaces/auth_repository.dart';
 
@@ -10,7 +10,18 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> signInWithPassword(
       {required String email, required String password}) async {
-    await _client.auth.signInWithPassword(email: email, password: password);
+    debugPrint('[SupabaseAuthRepository][signInWithPassword] Start');
+    try {
+      final response = await _client.auth
+          .signInWithPassword(email: email, password: password);
+      debugPrint(
+          '[SupabaseAuthRepository][signInWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
+    } catch (e, st) {
+      debugPrint('[SupabaseAuthRepository][signInWithPassword] Error: $e');
+      debugPrint(
+          '[SupabaseAuthRepository][signInWithPassword] StackTrace: $st');
+      rethrow;
+    }
   }
 
   @override
@@ -18,9 +29,20 @@ class SupabaseAuthRepository implements AuthRepository {
       {required String email,
       required String password,
       required String username}) async {
-    await _client.auth.signUp(email: email, password: password, data: {
-      'username': username,
-    });
+    debugPrint('[SupabaseAuthRepository][signUpWithPassword] Start');
+    try {
+      final response =
+          await _client.auth.signUp(email: email, password: password, data: {
+        'username': username,
+      });
+      debugPrint(
+          '[SupabaseAuthRepository][signUpWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
+    } catch (e, st) {
+      debugPrint('[SupabaseAuthRepository][signUpWithPassword] Error: $e');
+      debugPrint(
+          '[SupabaseAuthRepository][signUpWithPassword] StackTrace: $st');
+      rethrow;
+    }
   }
 
   @override
