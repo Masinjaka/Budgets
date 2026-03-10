@@ -1,8 +1,11 @@
+import 'package:budgets/features/categories/domain/models/category_model.dart';
+
 class Goal {
   final String? id; // UUID
   final DateTime? createdAt;
   final String? userId;
   final String? name;
+  final Category? category;
   final DateTime? dateAim;
   final String? goalAmount;
   final String? currentAmount;
@@ -13,6 +16,7 @@ class Goal {
     this.createdAt,
     this.userId,
     this.name,
+    this.category,
     this.dateAim,
     this.goalAmount,
     this.currentAmount,
@@ -27,6 +31,9 @@ class Goal {
           : null,
       userId: map['user_id'] as String?,
       name: map['name'] as String?,
+      category: map['category'] != null
+          ? Category.fromMap(map['category'] as Map<String, dynamic>)
+          : null,
       dateAim: map['date_aim'] != null
           ? DateTime.parse(map['date_aim'] as String)
           : null,
@@ -42,6 +49,7 @@ class Goal {
       'created_at': createdAt?.toIso8601String(),
       'user_id': userId,
       'name': name,
+      'category': category?.toMap(),
       'date_aim': dateAim?.toIso8601String(),
       'goal_amount': goalAmount,
       'current_amount': currentAmount,
@@ -54,6 +62,7 @@ class Goal {
     DateTime? createdAt,
     String? userId,
     String? name,
+    Category? category,
     DateTime? dateAim,
     String? goalAmount,
     String? currentAmount,
@@ -64,6 +73,7 @@ class Goal {
       createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,
       name: name ?? this.name,
+      category: category ?? this.category,
       dateAim: dateAim ?? this.dateAim,
       goalAmount: goalAmount ?? this.goalAmount,
       currentAmount: currentAmount ?? this.currentAmount,

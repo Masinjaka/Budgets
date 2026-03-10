@@ -11,20 +11,20 @@ class Budgets extends _$Budgets {
   @override
   Future<List<Budget>> build() async {
     final budgets = await getBudgets();
-    
-    // Check if we need to reset budgets for a new month
+
+    // Check if we need to reset budgets based on each budget period
     try {
-      final didReset = await checkAndResetIfNewMonth(budgets);
+      final didReset = await checkAndResetBudgetsByPeriod(budgets);
       if (didReset) {
         // If reset happened, fetch fresh data
-        debugPrint('Budgets were reset for new month, fetching fresh data');
+        debugPrint('Budgets were reset based on period, fetching fresh data');
         return await getBudgets();
       }
     } catch (e) {
-      debugPrint('Error checking monthly reset: $e');
+      debugPrint('Error checking budget reset: $e');
       // Continue with current data even if reset check fails
     }
-    
+
     return budgets;
   }
 

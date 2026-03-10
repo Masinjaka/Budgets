@@ -1,25 +1,33 @@
-import 'package:budgets/features/categories/domain/models/category_model.dart';
+import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/utils/animated_dialog.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
+import 'package:budgets/features/categories/presentation/widgets/add_category_dialog.dart';
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
 import 'package:budgets/features/planning/domain/providers/budget_provider.dart';
-import 'package:budgets/core/currency/currency_provider.dart';
-import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/widgets/animated_amount_field.dart';
 import 'package:budgets/widgets/custom_button.dart';
-import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/widgets/skeleton/planning_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:budgets/core/utils/amount_input_formatter.dart';
-import 'package:flutter/services.dart';
 
-/// Bottom sheet for adding or editing a budget
+/// Dialog for adding or editing a budget.
 class AddBudgetBottomSheet extends ConsumerStatefulWidget {
-  final Budget? budget; // Pass existing budget for editing
+  final Budget? budget;
 
   const AddBudgetBottomSheet({super.key, this.budget});
+
+  static Future<bool?> show(BuildContext context, {Budget? budget}) {
+    return showAnimatedDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => AddBudgetBottomSheet(budget: budget),
+    );
+  }
 
   @override
   ConsumerState<AddBudgetBottomSheet> createState() =>
@@ -27,10 +35,18 @@ class AddBudgetBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
+  static const Map<String, String> _periodLabels = {
+    'monthly': 'Mensuel',
+    'weekly': 'Hebdomadaire',
+    'bimonthly': 'Bimensuel',
+    'biweekly': 'Toutes les 2 semaines',
+    'yearly': 'Annuel',
+  };
+
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _monthController = TextEditingController();
+
   String? _selectedCategoryId;
-  DateTime _selectedMonth = DateTime.now();
+  String _selectedPeriod = 'monthly';
   bool _isLoading = false;
 
   bool get _isEditing => widget.budget != null;
@@ -40,17 +56,15 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     super.initState();
     if (widget.budget != null) {
       _selectedCategoryId = widget.budget!.category?.id;
-      if (widget.budget!.createdAt != null) {
-        _selectedMonth = widget.budget!.createdAt!;
+      final initialPeriod = widget.budget!.period?.toLowerCase().trim();
+      if (_periodLabels.containsKey(initialPeriod)) {
+        _selectedPeriod = initialPeriod!;
       }
     }
-    _monthController.text =
-        DateFormat('MMMM yyyy', 'fr_FR').format(_selectedMonth);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.budget?.amount == null) return;
-      final currencyState =
-          await ref.read(currencyControllerProvider.future);
+      final currencyState = await ref.read(currencyControllerProvider.future);
       final rate = currencyState.rateFor(currencyState.code);
       final cleanAmount =
           widget.budget!.amount!.replaceAll(RegExp(r'[^\d]'), '');
@@ -63,39 +77,11 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
   @override
   void dispose() {
     _amountController.dispose();
-    _monthController.dispose();
     super.dispose();
   }
 
-  Future<void> _selectMonth() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedMonth,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      initialEntryMode: DatePickerEntryMode.calendarOnly,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: Theme.of(context).primaryColor,
-                ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedMonth = picked;
-        _monthController.text =
-            DateFormat('MMMM yyyy', 'fr_FR').format(_selectedMonth);
-      });
-    }
-  }
-
   Future<void> _saveBudget() async {
-    if (_selectedCategoryId == null || _amountController.text.isEmpty) {
+    if (_selectedCategoryId == null || _amountController.text.trim().isEmpty) {
       showInfoToast(context, 'Veuillez remplir tous les champs');
       return;
     }
@@ -103,20 +89,17 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     setState(() => _isLoading = true);
 
     try {
-      final currencyState =
-          await ref.read(currencyControllerProvider.future);
+      final currencyState = await ref.read(currencyControllerProvider.future);
       final rate = currencyState.rateFor(currencyState.code);
       final displayAmount = parseAmountInput(_amountController.text);
       final mgaAmount = convertToMga(displayAmount, rate).round();
 
       final budget = Budget(
         id: widget.budget?.id,
-        category: _selectedCategoryId != null
-            ? Category(id: _selectedCategoryId)
-            : null,
-        // Sanitize amount: remove non-digits
+        category: Category(id: _selectedCategoryId),
         amount: mgaAmount.toString(),
         amountSpent: widget.budget?.amountSpent ?? '0',
+        period: _selectedPeriod,
       );
 
       if (_isEditing) {
@@ -125,96 +108,109 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         await ref.read(budgetsProvider.notifier).addSomeBudget(budget);
       }
 
-      if (mounted) Navigator.of(context).pop();
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) {
         showErrorToast(context, e);
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _onAddCategoryTap() async {
+    final newCategory = await AddCategoryDialog.show(
+      context,
+      transactionType: TransactionType.expense,
+    );
+
+    if (newCategory == null || !mounted) return;
+
+    final updatedCategories = await ref.read(categoriesProvider.future);
+    Category? createdCategory;
+
+    for (final category in updatedCategories) {
+      if (category.name == newCategory.name) {
+        createdCategory = category;
+        break;
+      }
+    }
+
+    if (createdCategory != null) {
+      setState(() {
+        _selectedCategoryId = createdCategory!.id;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.75,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return ClipRRect(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(8.w)),
-          child: Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            body: _buildBody(scrollController),
-            bottomNavigationBar: _buildBottomBar(),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBody(ScrollController scrollController) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: SingleChildScrollView(
-        controller: scrollController,
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHandle(),
-            SizedBox(height: 2.h),
-            _buildAmountInput(),
-            SizedBox(height: 4.h),
-            _buildCategorySection(),
-            SizedBox(height: 3.h),
-            _buildMonthPicker(),
-          ],
+      child: Dialog(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.w),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHandle() {
-    return Center(
-      child: Container(
-        width: 12.w,
-        height: 0.5.h,
-        margin: EdgeInsets.only(bottom: 1.h),
-        decoration: BoxDecoration(
-          color: Theme.of(context).hintColor.withAlpha(75),
-          borderRadius: BorderRadius.circular(2.w),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAmountInput() {
-    return Center(
-      child: IntrinsicWidth(
-        child: TextField(
-          controller: _amountController,
-          keyboardType: TextInputType.number,
-          textAlign: TextAlign.center,
-          inputFormatters: [
-            AmountInputFormatter(),
-          ],
-          style: TextStyle(
-            fontSize: 28.sp,
-            fontWeight: FontWeight.w300,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
-          decoration: InputDecoration(
-            hintText: '0.00',
-            hintStyle: TextStyle(
-              fontSize: 28.sp,
-              fontWeight: FontWeight.w300,
-              color: Theme.of(context).hintColor.withAlpha(128),
+        insetPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(5.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _isEditing ? 'Modifier le budget' : 'Nouveau budget',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(false),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 2.h),
+                AnimatedAmountField(
+                  controller: _amountController,
+                  hint: '0.00',
+                  fontSize: 28.sp,
+                  fillColor: Theme.of(context).colorScheme.surfaceDim,
+                  height: 15.h,
+                  width: double.infinity,
+                  borderRadius: BorderRadius.circular(3.w),
+                ),
+                SizedBox(height: 2.h),
+                _buildCategorySection(),
+                SizedBox(height: 2.h),
+                _buildPeriodDropdown(),
+                SizedBox(height: 3.h),
+                CustomButton(
+                  text: _isEditing ? 'Modifier' : 'Ajouter',
+                  onPressed: _saveBudget,
+                  isLoading: _isLoading,
+                ),
+              ],
             ),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
           ),
         ),
       ),
@@ -228,16 +224,16 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Categories',
+          'Catégorie',
+          textAlign: TextAlign.left,
           style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
+            fontWeight: FontWeight.w900,
+            fontSize: 15.5.sp,
           ),
         ),
-        SizedBox(height: 1.5.h),
+        SizedBox(height: 1.h),
         categoriesAsync.when(
-          data: (categories) => _buildCategoryChips(categories),
+          data: _buildCategoryPills,
           loading: () => const CategoryChipsSkeleton(),
           error: (e, _) => Text('Erreur: $e'),
         ),
@@ -245,87 +241,172 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     );
   }
 
-  Widget _buildCategoryChips(List<Category> categories) {
-    // Filter expense categories only for budgets
+  Widget _buildCategoryPills(List<Category> categories) {
     final budgetsAsync = ref.watch(budgetsProvider);
-    // Use asData?.value to persist data during loading/refreshing if available or handle it safely
     final existingBudgetCategoryIds = budgetsAsync.asData?.value
-            .where((b) =>
-                b.category?.id != null &&
-                b.id != widget.budget?.id) // Exclude current budget if editing
-            .map((b) => b.category!.id!)
+            .where(
+              (budget) =>
+                  budget.category?.id != null && budget.id != widget.budget?.id,
+            )
+            .map((budget) => budget.category!.id!)
             .toSet() ??
         <String>{};
 
-    final expenseCategories = categories.where((c) {
-      final isExpense = c.transactionType?.value == 'expense';
-      final isAlreadyBudgeted = existingBudgetCategoryIds.contains(c.id);
+    final expenseCategories = categories.where((category) {
+      final isExpense = category.transactionType?.value == 'expense';
+      final isAlreadyBudgeted = existingBudgetCategoryIds.contains(category.id);
       return isExpense && !isAlreadyBudgeted;
     }).toList();
 
-    return Wrap(
-      spacing: 2.w,
-      runSpacing: 1.h,
-      children: expenseCategories.map((category) {
-        final isSelected = _selectedCategoryId == category.id;
-        return GestureDetector(
-          onTap: () => setState(() => _selectedCategoryId = category.id),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.2.h),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(50),
+    return SizedBox(
+      height: 5.2.h,
+      child: ListView(
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        children: [
+          ...expenseCategories.map(_buildCategoryPill),
+          _buildAddCategoryPill(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryPill(Category category) {
+    final isSelected = _selectedCategoryId == category.id;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedCategoryId = category.id;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: EdgeInsets.only(right: 2.w),
+        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.inverseSurface
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(5.h),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              category.emoji ?? '📁',
+              style: TextStyle(fontSize: 14.sp),
             ),
-            child: Text(
+            SizedBox(width: 1.5.w),
+            Text(
               category.name ?? '',
               style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected
-                    ? Colors.black
-                    : Theme.of(context).textTheme.bodyLarge?.color,
+                    ? Theme.of(context).colorScheme.onInverseSurface
+                    : Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.color
+                        ?.withAlpha(200),
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddCategoryPill() {
+    final textColor =
+        Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(200);
+
+    return GestureDetector(
+      onTap: _onAddCategoryTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(5.h),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.add,
+              size: 14.sp,
+              color: textColor,
+            ),
+            SizedBox(width: 1.w),
+            Text(
+              'Ajouter une catégorie',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPeriodDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Période du budget',
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildMonthPicker() {
-    return CustomTextField(
-      title: Text(
-        'Budget pour',
-        style: TextStyle(
-          fontSize: 15.sp,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
-      ),
-      controller: _monthController,
-      isReadOnly: true,
-      onTap: _selectMonth,
-      suffixIcon: Icon(
-        Icons.calendar_today,
-        size: 18.sp,
-        color: Theme.of(context).hintColor,
-      ),
-    );
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      padding: EdgeInsets.fromLTRB(6.w, 1.h, 6.w, 3.h),
-      child: SafeArea(
-        child: CustomButton(
-          text: _isEditing ? 'Modifier' : 'Ajouter',
-          onPressed: _saveBudget,
-          isLoading: _isLoading,
+        SizedBox(height: 1.h),
+        DropdownButtonFormField<String>(
+          initialValue: _selectedPeriod,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Theme.of(context).cardColor,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 4.w,
+              vertical: 1.6.h,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(3.w),
+              borderSide: const BorderSide(color: Colors.transparent),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(3.w),
+              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+            ),
+          ),
+          borderRadius: BorderRadius.circular(3.w),
+          dropdownColor: Theme.of(context).cardColor,
+          iconEnabledColor: Theme.of(context).hintColor,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+            fontSize: 15.sp,
+          ),
+          items: _periodLabels.entries
+              .map(
+                (entry) => DropdownMenuItem<String>(
+                  value: entry.key,
+                  child: Text(entry.value),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selectedPeriod = value;
+            });
+          },
         ),
-      ),
+      ],
     );
   }
 }

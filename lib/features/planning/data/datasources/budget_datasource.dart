@@ -11,7 +11,7 @@ Future<List<Budget>> getBudgets() {
     final response = await supabase
         .from('budgets')
         .select(
-            'id, created_at, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent')
+            'id, created_at, last_reset_at, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent, period')
         .eq('user_id', userId)
         .order('created_at', ascending: true);
 
@@ -32,6 +32,7 @@ Future<void> addBudget(Budget budget) {
       'category': budget.category?.id,
       'amount': budget.amount,
       'amount_spent': budget.amountSpent ?? '0',
+      'period': budget.period ?? 'monthly',
     });
   });
 }
@@ -43,6 +44,7 @@ Future<void> updateBudget(Budget budget) {
       'category': budget.category?.id,
       'amount': budget.amount,
       'amount_spent': budget.amountSpent,
+      'period': budget.period ?? 'monthly',
     }).eq('id', budget.id!);
   });
 }

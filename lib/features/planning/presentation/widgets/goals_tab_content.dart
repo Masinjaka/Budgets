@@ -115,8 +115,9 @@ class _GoalListItem extends ConsumerWidget {
     final currentAmountMga = parseAmountInput(goal.currentAmount ?? '0');
     final goalAmount = convertFromMga(goalAmountMga, rate);
     final currentAmount = convertFromMga(currentAmountMga, rate);
-    final progress =
-        goalAmountMga > 0 ? (currentAmountMga / goalAmountMga).clamp(0.0, 1.0) : 0.0;
+    final progress = goalAmountMga > 0
+        ? (currentAmountMga / goalAmountMga).clamp(0.0, 1.0)
+        : 0.0;
 
     return Dismissible(
       key: Key(goal.id ?? DateTime.now().toString()),
@@ -186,7 +187,7 @@ class _GoalListItem extends ConsumerWidget {
                       top: 1.w,
                       right: 1.w,
                       child: GestureDetector(
-                        onTap: () => _showEditBottomSheet(context),
+                        onTap: () => _showEditDialog(context),
                         child: Container(
                           padding: EdgeInsets.all(1.5.w),
                           decoration: BoxDecoration(
@@ -236,20 +237,12 @@ class _GoalListItem extends ConsumerWidget {
         .slideY(begin: 0.3, duration: 200.ms, curve: Curves.easeOut);
   }
 
-  void _showEditBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => AddGoalBottomSheet(goal: goal),
-    );
+  void _showEditDialog(BuildContext context) {
+    AddGoalBottomSheet.show(context, goal: goal);
   }
 
-  Future<void> _showAddAmountDialog(
-      BuildContext context,
-      WidgetRef ref,
-      double rate,
-      String currencyCode) async {
+  Future<void> _showAddAmountDialog(BuildContext context, WidgetRef ref,
+      double rate, String currencyCode) async {
     final amountController = TextEditingController();
     final currentAmountMga = parseAmountInput(goal.currentAmount ?? '0');
     final goalAmountMga = parseAmountInput(goal.goalAmount ?? '0');
@@ -474,7 +467,8 @@ class _GoalListItem extends ConsumerWidget {
     }
   }
 
-  Widget _buildHeader(BuildContext context, WidgetRef ref, double rate, String currencyCode) {
+  Widget _buildHeader(
+      BuildContext context, WidgetRef ref, double rate, String currencyCode) {
     return Row(
       children: [
         Expanded(
@@ -486,6 +480,14 @@ class _GoalListItem extends ConsumerWidget {
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).textTheme.bodyLarge?.color)),
+              if (goal.category?.name != null)
+                Text(
+                  '${goal.category?.emoji ?? '🏷️'} ${goal.category?.name}',
+                  style: TextStyle(
+                    fontSize: 12.5.sp,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
               if (goal.dateAim != null)
                 Text('D\'ici le ${_formatDate(goal.dateAim!)}',
                     style: TextStyle(

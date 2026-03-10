@@ -13,8 +13,9 @@ String? extractStoragePathFromUrl(String? publicUrl) {
     final pathSegments = uri.pathSegments;
     // Find 'profile' bucket and take everything after it
     final bucketIndex = pathSegments.indexOf('profile');
-    if (bucketIndex == -1 || bucketIndex >= pathSegments.length - 1)
+    if (bucketIndex == -1 || bucketIndex >= pathSegments.length - 1) {
       return null;
+    }
     return pathSegments.sublist(bucketIndex + 1).join('/');
   } catch (e) {
     debugPrint('Error extracting storage path: $e');
@@ -68,7 +69,7 @@ Future<List<Goal>> getGoals() {
     final response = await supabase
         .from('goals')
         .select(
-            'id, created_at, user_id, name, date_aim, goal_amount, current_amount, image_path')
+            'id, created_at, user_id, name, category (id, name, emoji, color, transaction_type), date_aim, goal_amount, current_amount, image_path')
         .eq('user_id', userId)
         .order('created_at', ascending: true);
 
@@ -87,6 +88,7 @@ Future<void> addGoal(Goal goal) {
     await supabase.from('goals').insert({
       'user_id': userId,
       'name': goal.name,
+      'category': goal.category?.id,
       'date_aim': goal.dateAim?.toIso8601String(),
       'goal_amount': goal.goalAmount,
       'current_amount': goal.currentAmount ?? '0',
@@ -100,6 +102,7 @@ Future<void> updateGoal(Goal goal) {
   return Wrapper.execute(() async {
     await supabase.from('goals').update({
       'name': goal.name,
+      'category': goal.category?.id,
       'date_aim': goal.dateAim?.toIso8601String(),
       'goal_amount': goal.goalAmount,
       'current_amount': goal.currentAmount,
@@ -152,7 +155,8 @@ Future<Goal?> findGoalByName(String name) async {
 /// [goalName] - The name of the goal to update
 /// [amountDelta] - The amount to add (positive) or subtract (negative)
 /// Returns true if successful, false otherwise
-Future<bool> updateGoalAmountByDelta(String goalName, double amountDelta) async {
+Future<bool> updateGoalAmountByDelta(
+    String goalName, double amountDelta) async {
   try {
     final goal = await findGoalByName(goalName);
     if (goal == null) {
@@ -160,8 +164,10 @@ Future<bool> updateGoalAmountByDelta(String goalName, double amountDelta) async 
       return false;
     }
 
-    final currentAmount =
-        double.tryParse(goal.currentAmount?.replaceAll(',', '').replaceAll(' ', '') ?? '0') ?? 0;
+    final currentAmount = double.tryParse(
+            goal.currentAmount?.replaceAll(',', '').replaceAll(' ', '') ??
+                '0') ??
+        0;
     final newAmount = (currentAmount + amountDelta).clamp(0, double.infinity);
 
     final updatedGoal = goal.copyWith(
@@ -169,7 +175,8 @@ Future<bool> updateGoalAmountByDelta(String goalName, double amountDelta) async 
     );
 
     await updateGoal(updatedGoal);
-    debugPrint('Updated goal "$goalName" amount: $currentAmount -> $newAmount (delta: $amountDelta)');
+    debugPrint(
+        'Updated goal "$goalName" amount: $currentAmount -> $newAmount (delta: $amountDelta)');
     return true;
   } catch (e) {
     debugPrint('Error updating goal amount: $e');

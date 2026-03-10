@@ -68,6 +68,22 @@ class _BudgetListItem extends ConsumerWidget {
     required this.index,
   });
 
+  String _periodLabel(String? period) {
+    switch (period) {
+      case 'weekly':
+        return 'Hebdomadaire';
+      case 'biweekly':
+        return 'Toutes les 2 semaines';
+      case 'bimonthly':
+        return 'Bimensuel';
+      case 'yearly':
+        return 'Annuel';
+      case 'monthly':
+      default:
+        return 'Mensuel';
+    }
+  }
+
   Future<bool?> _showDeleteDialog(BuildContext context) async {
     return showAnimatedDialog<bool>(
       context: context,
@@ -122,7 +138,7 @@ class _BudgetListItem extends ConsumerWidget {
         child: Icon(Icons.delete_outline, color: Colors.white, size: 18.sp),
       ),
       child: GestureDetector(
-        onTap: () => _showEditBottomSheet(context),
+        onTap: () => _showEditDialog(context),
         child: PlanningCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,25 +173,45 @@ class _BudgetListItem extends ConsumerWidget {
                                   ?.color)),
                     ],
                   ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text.rich(
                         TextSpan(
-                          text: '${formatAmountValue(spent)} / ${formatAmountValue(amount)}',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Theme.of(context).textTheme.bodyMedium?.color,
-                          ),
+                          children: [
+                            TextSpan(
+                              text:
+                                  '${formatAmountValue(spent)} / ${formatAmountValue(amount)}',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' $currencyCode',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color,
+                              ),
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text: ' $currencyCode',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Theme.of(context).textTheme.bodyMedium?.color,
-                          ),
+                      ),
+                      SizedBox(height: 0.4.h),
+                      Text(
+                        _periodLabel(budget.period),
+                        style: TextStyle(
+                          fontSize: 11.5.sp,
+                          color: Theme.of(context).hintColor,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -191,12 +227,7 @@ class _BudgetListItem extends ConsumerWidget {
         .slideY(begin: 0.3, duration: 200.ms, curve: Curves.easeOut);
   }
 
-  void _showEditBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => AddBudgetBottomSheet(budget: budget),
-    );
+  void _showEditDialog(BuildContext context) {
+    AddBudgetBottomSheet.show(context, budget: budget);
   }
 }

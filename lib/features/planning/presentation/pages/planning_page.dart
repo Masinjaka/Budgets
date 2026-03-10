@@ -58,25 +58,15 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
     super.dispose();
   }
 
-  void _showAddBottomSheet() {
+  void _showAddDialog() {
     final currentIndex = _tabController.index;
 
     if (currentIndex == 0) {
       // Budgets tab
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        isScrollControlled: true,
-        builder: (context) => const AddBudgetBottomSheet(),
-      );
+      AddBudgetBottomSheet.show(context);
     } else if (currentIndex == 1) {
       // Goals tab
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        isScrollControlled: true,
-        builder: (context) => const AddGoalBottomSheet(),
-      );
+      AddGoalBottomSheet.show(context);
     }
     // No action for Subscriptions tab (index 2)
   }
@@ -170,7 +160,7 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
             icon: Icons.add,
             iconColor: Theme.of(context).colorScheme.onPrimary,
             backgroundColor: Theme.of(context).primaryColor,
-            onPressed: _showAddBottomSheet,
+            onPressed: _showAddDialog,
           ),
         ),
       ),
