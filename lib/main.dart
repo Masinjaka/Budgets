@@ -16,6 +16,7 @@ import 'package:budgets/features/transactions/domain/model/transaction_model.dar
 import 'package:budgets/features/transactions/presentation/pages/add_transaction.dart';
 import 'package:budgets/features/transactions/presentation/pages/transaction_page.dart';
 import 'package:budgets/features/transactions/presentation/pages/filter_transactions_page.dart';
+import 'package:budgets/features/transactions/presentation/pages/transaction_search_page.dart';
 import 'package:budgets/features/navigation/presentation/pages/navigation_page.dart';
 import 'package:budgets/features/home/presentation/pages/accueil_page.dart'
     as accueil;
@@ -35,15 +36,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
-import 'package:gleap_sdk/gleap_sdk.dart';
-import 'package:shake/shake.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:budgets/features/notifications/presentation/services/foreground_notification_service.dart';
 
 // Environment variables injected via --dart-define
 const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
-const String gleapToken = String.fromEnvironment('GLEAP_TOKEN');
 const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
 
 final supabase = Supabase.instance.client;
@@ -57,11 +55,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Background message received - system will display notification automatically
   // if it contains a 'notification' payload
-  print('🔔 [Background] FCM message received:');
-  print('   Message ID: ${message.messageId}');
-  print('   Title: ${message.notification?.title}');
-  print('   Body: ${message.notification?.body}');
-  print('   Data: ${message.data}');
+  debugPrint('🔔 [Background] FCM message received:');
+  debugPrint('   Message ID: ${message.messageId}');
+  debugPrint('   Title: ${message.notification?.title}');
+  debugPrint('   Body: ${message.notification?.body}');
+  debugPrint('   Data: ${message.data}');
 }
 
 void main() async {
@@ -81,10 +79,6 @@ void main() async {
 
   // Initialize French locale for date formatting
   await initializeDateFormatting('fr_FR', null);
-
-  // Initialize Gleap
-  Gleap.initialize(token: gleapToken);
-  Gleap.showFeedbackButton(false);
 
   // initialize supabase
   await Supabase.initialize(
@@ -124,30 +118,6 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-  late ShakeDetector detector;
-
-  @override
-  void initState() {
-    super.initState();
-
-    detector = ShakeDetector.waitForStart(
-      onPhoneShake: (_) {
-        Gleap.open();
-      },
-      minimumShakeCount: 1,
-      shakeSlopTimeMS: 500,
-      shakeCountResetTime: 3000,
-      shakeThresholdGravity: 2.7,
-    );
-    detector.startListening();
-  }
-
-  @override
-  void dispose() {
-    detector.stopListening();
-    super.dispose();
-  }
-
   late final GoRouter _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
@@ -229,6 +199,13 @@ class _MyAppState extends ConsumerState<MyApp> {
       GoRoute(
           path: '/filter-transaction',
           builder: (context, state) => const TransactionFilterPage()),
+      GoRoute(
+        path: '/transaction-search',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'] ?? 'expense';
+          return TransactionSearchPage(transactionType: type);
+        },
+      ),
       GoRoute(
           path: '/categories',
           builder: (context, state) => const CategoryPage()),

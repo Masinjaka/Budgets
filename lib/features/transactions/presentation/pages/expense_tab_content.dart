@@ -1,8 +1,6 @@
 import 'package:budgets/core/functions/transaction_utils.dart';
-import 'package:budgets/core/functions/transaction_search_mixin.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_state_widgets.dart';
-import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_state.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
@@ -10,13 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-/// Transaction tab content that contains the search bar and transaction list
+/// Expense tab content that contains the expense list
 class TransactionTabContent extends ConsumerStatefulWidget {
-  final AnimationController appBarAnimationController;
-
   const TransactionTabContent({
     super.key,
-    required this.appBarAnimationController,
   });
 
   @override
@@ -24,8 +19,7 @@ class TransactionTabContent extends ConsumerStatefulWidget {
       _TransactionTabContentState();
 }
 
-class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
-    with TransactionSearchMixin {
+class _TransactionTabContentState extends ConsumerState<TransactionTabContent> {
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
       if (notification.metrics.maxScrollExtent > 0 &&
@@ -47,20 +41,6 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
       return CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          // Search bar section (disabled during loading)
-          SliverToBoxAdapter(
-            child: TransactionSearchSection(
-              isSearchFocused: false,
-              onSearchFocused: () {},
-              onSearchUnfocused: () {},
-              onClearSearch: () {},
-              searchController: searchController,
-              hintText: 'Rechercher...',
-              availableCategories: const [],
-              selectedCategories: const [],
-              onCategorySelectionChanged: (categories) {},
-            ),
-          ),
           // Loading shimmer
           const TransactionListShimmer(),
         ],
@@ -84,53 +64,27 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent>
       TransactionType.expense,
     );
 
-    // Filter and group expenses based on search/filters
-    final filteredTransactions = TransactionUtils.filterTransactions(
-      transactions,
-      searchController.text,
-      selectedCategories,
-    );
     final groupedTransactions = TransactionUtils.groupTransactionsByDate(
-      filteredTransactions,
-      localeInitialized,
+      transactions,
+      true,
     );
-    final availableCategories =
-        TransactionUtils.extractCategoriesFromTransactions(transactions);
 
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
       child: RefreshIndicator(
-        notificationPredicate:
-            isSearchFocused ? (_) => false : defaultScrollNotificationPredicate,
         onRefresh: () async {
           await ref.read(paginatedExpensesProvider.notifier).refresh();
         },
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // Search bar section
-            SliverToBoxAdapter(
-              child: TransactionSearchSection(
-                isSearchFocused: isSearchFocused,
-                onSearchFocused: () =>
-                    onSearchFocused(widget.appBarAnimationController),
-                onSearchUnfocused: () =>
-                    onSearchUnfocused(widget.appBarAnimationController),
-                onClearSearch: onClearSearch,
-                searchController: searchController,
-                hintText: 'Rechercher...',
-                availableCategories: availableCategories,
-                selectedCategories: selectedCategories,
-                onCategorySelectionChanged: onCategorySelectionChanged,
-              ),
-            ),
             // Transaction list content with pagination
             SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 6.w),
+              padding: EdgeInsets.fromLTRB(6.w, 2.h, 6.w, 0),
               sliver: groupedTransactions.isEmpty
                   ? SliverFillRemaining(
                       hasScrollBody: false,
-                      child: TransactionEmptyState(hasFilters: hasFilters),
+                      child: const TransactionEmptyState(hasFilters: false),
                     )
                   : PaginatedTransactionDateGroup(
                       groupedTransactions: groupedTransactions,

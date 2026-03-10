@@ -5,6 +5,7 @@ import 'package:budgets/features/transactions/presentation/pages/expense_tab_con
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionPage extends ConsumerStatefulWidget {
@@ -122,6 +123,24 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                           )
                         : null,
                     centerTitle: false,
+                    actions: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 3.w),
+                        child: IconButton(
+                          tooltip: 'Rechercher',
+                          onPressed: () {
+                            final type = _tabController.index == 0
+                                ? 'expense'
+                                : 'income';
+                            context.push('/transaction-search?type=$type');
+                          },
+                          icon: Icon(
+                            Icons.search,
+                            size: 21.sp,
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -148,13 +167,9 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                 const NeverScrollableScrollPhysics(), // disable horizontal swipe
             children: [
               // Expenses tab - contains the transaction list content
-              TransactionTabContent(
-                appBarAnimationController: _appBarAnimationController,
-              ),
+              const TransactionTabContent(),
               // Income tab - contains the income content
-              IncomeTabContent(
-                appBarAnimationController: _appBarAnimationController,
-              ),
+              const IncomeTabContent(),
             ],
           ),
         ),
