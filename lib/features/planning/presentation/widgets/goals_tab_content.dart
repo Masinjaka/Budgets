@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:budgets/core/paths.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
@@ -9,8 +12,9 @@ import 'package:budgets/features/planning/presentation/widgets/planning_common_w
 import 'package:budgets/features/categories/data/datasource/category_api.dart'
     as category_api;
 import 'package:budgets/core/constants.dart';
+import 'package:budgets/widgets/animated_amount_field.dart';
 import 'package:budgets/widgets/custom_button.dart';
-import 'package:budgets/widgets/custom_textfield.dart';
+import 'package:budgets/widgets/delete_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgets/features/stats/domain/providers/stats_provider.dart';
@@ -20,6 +24,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:vibration/vibration.dart';
 
 /// Goals tab content widget for the planning page
 class GoalsTabContent extends ConsumerWidget {
@@ -51,9 +56,12 @@ class GoalsTabContent extends ConsumerWidget {
   }
 
   Widget _buildGoalList(BuildContext context, List<Goal> goals, WidgetRef ref) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    String imagePath = isDarkMode ? AppPaths.noPlanDark : AppPaths.noPlanLight;
+
     if (goals.isEmpty) {
-      return const PlanningEmptyState(
-        icon: Icons.flag_outlined,
+      return PlanningEmptyState(
+        imagePath: imagePath,
         title: 'Aucun objectif défini',
         subtitle: 'Définissez vos objectifs d\'épargne pour les atteindre',
       );
@@ -69,7 +77,7 @@ class GoalsTabContent extends ConsumerWidget {
 }
 
 /// Individual goal list item with swipe-to-delete
-class _GoalListItem extends ConsumerWidget {
+class _GoalListItem extends ConsumerStatefulWidget {
   final Goal goal;
   final int index;
 
@@ -78,33 +86,89 @@ class _GoalListItem extends ConsumerWidget {
     required this.index,
   });
 
+  @override
+  ConsumerState<_GoalListItem> createState() => _GoalListItemState();
+}
+
+class _GoalListItemState extends ConsumerState<_GoalListItem> {
+  bool _hasTriggeredHalfSwipeHaptic = false;
+  bool _canVibrate = true;
+  double _swipeProgress = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVibrationSupport();
+  }
+
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
-  Future<bool?> _showDeleteDialog(BuildContext context) async {
-    return showAnimatedDialog<bool>(
+  Future<bool> _showDeleteDialog(BuildContext context) {
+    return showDeleteConfirmationDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Supprimer l\'objectif'),
-        content:
-            const Text('Êtes-vous sûr de vouloir supprimer cet objectif ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      title: 'Supprimer l\'objectif',
+      message: 'Êtes-vous sûr de vouloir supprimer cet objectif ?',
     );
   }
 
+  Future<void> _initializeVibrationSupport() async {
+    try {
+      final canVibrate = await Vibration.hasVibrator();
+      _canVibrate = canVibrate == true;
+    } catch (_) {
+      _canVibrate = false;
+    }
+  }
+
+  Future<void> _triggerHalfSwipeVibration() async {
+    if (!_canVibrate) return;
+    try {
+      await Vibration.vibrate(duration: 30);
+    } catch (_) {
+      // Ignore vibration failures to keep delete swipe stable.
+    }
+  }
+
+  void _handleDismissUpdate(DismissUpdateDetails details) {
+    final progress = details.progress.clamp(0.0, 1.0);
+
+    if ((progress - _swipeProgress).abs() > 0.01) {
+      setState(() {
+        _swipeProgress = progress;
+      });
+    }
+
+    if (!_hasTriggeredHalfSwipeHaptic && progress >= 0.5) {
+      unawaited(_triggerHalfSwipeVibration());
+      _hasTriggeredHalfSwipeHaptic = true;
+      return;
+    }
+
+    if (_hasTriggeredHalfSwipeHaptic && progress < 0.2) {
+      _hasTriggeredHalfSwipeHaptic = false;
+    }
+  }
+
+  void _resetSwipeFeedbackState() {
+    if (_hasTriggeredHalfSwipeHaptic || _swipeProgress > 0) {
+      if (mounted) {
+        setState(() {
+          _hasTriggeredHalfSwipeHaptic = false;
+          _swipeProgress = 0;
+        });
+      } else {
+        _hasTriggeredHalfSwipeHaptic = false;
+        _swipeProgress = 0;
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final goal = widget.goal;
+    final cardBorderRadius = BorderRadius.circular(4.w);
     final currencyState = ref.watch(currencyControllerProvider).value;
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
@@ -119,131 +183,162 @@ class _GoalListItem extends ConsumerWidget {
         ? (currentAmountMga / goalAmountMga).clamp(0.0, 1.0)
         : 0.0;
 
-    return Dismissible(
-      key: Key(goal.id ?? DateTime.now().toString()),
-      direction: DismissDirection.endToStart,
-      dismissThresholds: const {DismissDirection.endToStart: 0.7},
-      confirmDismiss: (direction) async {
-        final result = await _showDeleteDialog(context);
-        if (result == true && goal.id != null) {
-          await ref.read(goalsProvider.notifier).deleteSomeGoal(goal.id!);
-        }
-        return false;
-      },
-      background: Container(
-        margin: EdgeInsets.only(bottom: 2.h),
-        alignment: Alignment.centerRight,
-        padding: EdgeInsets.only(right: 5.w),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(4.w),
-        ),
-        child: Icon(Icons.delete_outline, color: Colors.white, size: 18.sp),
-      ),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 2.h),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(4.w),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 15.h,
-              margin: EdgeInsets.all(2.w),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(2.5.w),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (hasNetworkImage)
-                      CachedNetworkImage(
-                        imageUrl: goal.imagePath!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Theme.of(context).colorScheme.surfaceDim,
-                          highlightColor: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.9),
-                          direction: ShimmerDirection.ltr,
-                          period: 1000.ms,
-                          child: Container(
-                            color: Theme.of(context).colorScheme.surface,
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Image.asset(
-                          'assets/images/image-placeholder.png',
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    else
-                      Image.asset(
-                        'assets/images/image-placeholder.png',
-                        fit: BoxFit.cover,
-                      ),
-                    Positioned(
-                      top: 1.w,
-                      right: 1.w,
-                      child: GestureDetector(
-                        onTap: () => _showEditDialog(context),
-                        child: Container(
-                          padding: EdgeInsets.all(1.5.w),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(20.w),
-                          ),
-                          child: Icon(Icons.edit_outlined,
-                              color:
-                                  Theme.of(context).textTheme.bodyMedium?.color,
-                              size: 18.sp),
-                        ),
-                      ),
-                    ),
-                  ],
+    return Padding(
+      padding: EdgeInsets.only(bottom: 2.h),
+      child: ClipRRect(
+        borderRadius: cardBorderRadius,
+        clipBehavior: Clip.antiAlias,
+        child: Dismissible(
+          key: Key(goal.id ?? DateTime.now().toString()),
+          direction: DismissDirection.endToStart,
+          onUpdate: _handleDismissUpdate,
+          dismissThresholds: const {DismissDirection.endToStart: 0.7},
+          confirmDismiss: (direction) async {
+            final result = await _showDeleteDialog(context);
+            if (result == true && goal.id != null) {
+              await ref.read(goalsProvider.notifier).deleteSomeGoal(goal.id!);
+            }
+            _resetSwipeFeedbackState();
+            return false;
+          },
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.only(right: 5.w),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Supprimer',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(width: 1.5.w),
+                Icon(Icons.delete_outline, color: Colors.white, size: 18.sp),
+              ],
+            ),
+          ).animate(target: _swipeProgress).custom(
+                duration: 120.ms,
+                curve: Curves.linear,
+                builder: (context, value, child) => DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Color.lerp(Colors.orange, Colors.red, value),
+                    borderRadius: cardBorderRadius,
+                  ),
+                  child: child,
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.w),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(context, ref, rate, currencyCode),
-                  SizedBox(height: 1.h),
-                  _buildAmountRow(
-                    context,
-                    currentAmount,
-                    goalAmount,
-                    currencyCode,
+          child: Material(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: cardBorderRadius,
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 15.h,
+                  margin: EdgeInsets.all(2.w),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(2.5.w),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (hasNetworkImage)
+                          CachedNetworkImage(
+                            imageUrl: goal.imagePath!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor:
+                                  Theme.of(context).colorScheme.surfaceDim,
+                              highlightColor: Theme.of(context)
+                                  .colorScheme
+                                  .surface
+                                  .withValues(alpha: 0.9),
+                              direction: ShimmerDirection.ltr,
+                              period: 1000.ms,
+                              child: Container(
+                                color: Theme.of(context).colorScheme.surface,
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Image.asset(
+                              'assets/images/image-placeholder.png',
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        else
+                          Image.asset(
+                            'assets/images/image-placeholder.png',
+                            fit: BoxFit.cover,
+                          ),
+                        Positioned(
+                          top: 1.w,
+                          right: 1.w,
+                          child: GestureDetector(
+                            onTap: () => _showEditDialog(context),
+                            child: Container(
+                              padding: EdgeInsets.all(1.5.w),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surface,
+                                borderRadius: BorderRadius.circular(20.w),
+                              ),
+                              child: Icon(Icons.edit_outlined,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.color,
+                                  size: 18.sp),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 1.h),
-                  PlanningProgressBar(progress: progress),
-                  SizedBox(height: 0.5.h),
-                  Text('${(progress * 100).toStringAsFixed(0)}% atteint',
-                      style: TextStyle(
-                          fontSize: 12.sp, color: Theme.of(context).hintColor)),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.w),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(context, ref, rate, currencyCode),
+                      SizedBox(height: 1.h),
+                      _buildAmountRow(
+                        context,
+                        currentAmount,
+                        goalAmount,
+                        currencyCode,
+                      ),
+                      SizedBox(height: 1.h),
+                      PlanningProgressBar(progress: progress),
+                      SizedBox(height: 0.5.h),
+                      Text('${(progress * 100).toStringAsFixed(0)}% atteint',
+                          style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Theme.of(context).hintColor)),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     )
-        .animate(delay: (50 * index).ms)
+        .animate(delay: (50 * widget.index).ms)
         .fade(duration: 200.ms)
         .slideY(begin: 0.3, duration: 200.ms, curve: Curves.easeOut);
   }
 
   void _showEditDialog(BuildContext context) {
-    AddGoalBottomSheet.show(context, goal: goal);
+    AddGoalBottomSheet.show(context, goal: widget.goal);
   }
 
   Future<void> _showAddAmountDialog(BuildContext context, WidgetRef ref,
       double rate, String currencyCode) async {
-    final amountController = TextEditingController();
+    final goal = widget.goal;
+    final amountController = AmountTextEditingController();
     final currentAmountMga = parseAmountInput(goal.currentAmount ?? '0');
     final goalAmountMga = parseAmountInput(goal.goalAmount ?? '0');
     final currentAmount = convertFromMga(currentAmountMga, rate);
@@ -283,26 +378,12 @@ class _GoalListItem extends ConsumerWidget {
                       color: Theme.of(context).hintColor,
                     ),
                   ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formatAmountValue(currentAmount),
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' $currencyCode',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    formatAmountWithCurrency(currentAmount, currencyCode),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                 ],
@@ -318,26 +399,12 @@ class _GoalListItem extends ConsumerWidget {
                       color: Theme.of(context).hintColor,
                     ),
                   ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formatAmountValue(goalAmount),
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' $currencyCode',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    formatAmountWithCurrency(goalAmount, currencyCode),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                 ],
@@ -353,43 +420,33 @@ class _GoalListItem extends ConsumerWidget {
                       color: Theme.of(context).hintColor,
                     ),
                   ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formatAmountValue(remaining),
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).hintColor,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' $currencyCode',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).hintColor,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    formatAmountWithCurrency(remaining, currencyCode),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).hintColor,
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 3.h),
-              CustomTextField(
-                title: Text(
-                  'Montant à ajouter',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
+              Text(
+                'Montant à ajouter',
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
+              ),
+              SizedBox(height: 1.h),
+              AnimatedAmountField(
                 controller: amountController,
-                hint: '0 $currencyCode',
-                keyboardType: TextInputType.number,
+                hint: '0',
+                fontSize: 23.sp,
+                height: 10.h,
+                fillColor: Theme.of(context).colorScheme.surfaceDim,
+                borderRadius: BorderRadius.circular(3.w),
               ),
               SizedBox(height: 3.h),
               Row(
@@ -469,6 +526,7 @@ class _GoalListItem extends ConsumerWidget {
 
   Widget _buildHeader(
       BuildContext context, WidgetRef ref, double rate, String currencyCode) {
+    final goal = widget.goal;
     return Row(
       children: [
         Expanded(
@@ -517,46 +575,19 @@ class _GoalListItem extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: formatAmountValue(currentAmount),
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              TextSpan(
-                text: ' $currencyCode',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-            ],
+        Text(
+          formatAmountWithCurrency(currentAmount, currencyCode),
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).primaryColor,
           ),
         ),
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: formatAmountValue(goalAmount),
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-              TextSpan(
-                text: ' $currencyCode',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-            ],
+        Text(
+          formatAmountWithCurrency(goalAmount, currencyCode),
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
           ),
         ),
       ],

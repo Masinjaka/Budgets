@@ -40,13 +40,16 @@ class AddGoalBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
-  final TextEditingController _amountController = TextEditingController();
+  final AmountTextEditingController _amountController =
+      AmountTextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final PageController _pageController = PageController();
 
   DateTime? _targetDate;
   String? _imagePath;
   String? _selectedCategoryId;
+  int _currentStep = 0;
   bool _isLoading = false;
 
   bool get _isEditing => widget.goal != null;
@@ -80,7 +83,21 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
     _amountController.dispose();
     _nameController.dispose();
     _dateController.dispose();
+    _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _goToNextStep() async {
+    if (_nameController.text.trim().isEmpty) {
+      showInfoToast(context, 'Veuillez renseigner le nom de l\'objectif');
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+    await _pageController.nextPage(
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _selectDate() async {
@@ -265,34 +282,136 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
                     ),
                   ],
                 ),
+                SizedBox(height: 1.6.h),
+                _buildStepIndicator(),
                 SizedBox(height: 2.h),
-                AnimatedAmountField(
-                  controller: _amountController,
-                  hint: '0.00',
-                  fontSize: 28.sp,
-                  fillColor: Theme.of(context).colorScheme.surfaceDim,
-                  height: 15.h,
-                  width: double.infinity,
-                  borderRadius: BorderRadius.circular(3.w),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeInOut,
+                  height: _currentStep == 0 ? 24.h : 47.h,
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onPageChanged: (index) {
+                      if (!mounted) return;
+                      setState(() => _currentStep = index);
+                    },
+                    children: [
+                      _buildStepOne(),
+                      _buildStepTwo(),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 2.h),
-                _buildCategorySection(),
-                SizedBox(height: 2.h),
-                _buildNameField(),
-                SizedBox(height: 2.h),
-                _buildDatePicker(),
-                SizedBox(height: 2.h),
-                _buildImagePicker(),
                 SizedBox(height: 3.h),
-                CustomButton(
-                  text: _isEditing ? 'Modifier' : 'Ajouter',
-                  onPressed: _saveGoal,
-                  isLoading: _isLoading,
-                ),
+                if (_currentStep == 0)
+                  CustomButton(
+                    text: 'Suivant',
+                    onPressed: _goToNextStep,
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: SizedBox(
+                          height: 6.2.h,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: IconButton(
+                              onPressed: () async {
+                                FocusScope.of(context).unfocus();
+                                await _pageController.previousPage(
+                                  duration: const Duration(milliseconds: 220),
+                                  curve: Curves.easeOutCubic,
+                                );
+                              },
+                              splashRadius: 18.sp,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: Icon(
+                                Icons.chevron_left,
+                                size: 25.sp,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 3.w),
+                      Expanded(
+                        flex: 5,
+                        child: CustomButton(
+                          text: _isEditing ? 'Modifier' : 'Ajouter',
+                          onPressed: _saveGoal,
+                          isLoading: _isLoading,
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStepIndicator() {
+    return Row(
+      children: List.generate(2, (index) {
+        final isActive = _currentStep == index;
+        return Expanded(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            margin: EdgeInsets.only(right: index == 0 ? 1.8.w : 0),
+            height: 0.8.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2.h),
+              color: isActive
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).colorScheme.surfaceDim,
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildStepOne() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildNameField(),
+        SizedBox(height: 2.h),
+        _buildDatePicker(),
+      ],
+    );
+  }
+
+  Widget _buildStepTwo() {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnimatedAmountField(
+            controller: _amountController,
+            hint: '0.00',
+            fontSize: 25.sp,
+            fillColor: Theme.of(context).colorScheme.surfaceDim,
+            height: 15.h,
+            width: double.infinity,
+            borderRadius: BorderRadius.circular(3.w),
+          ),
+          SizedBox(height: 2.h),
+          _buildCategorySection(),
+          SizedBox(height: 2.h),
+          _buildImagePicker(),
+          SizedBox(height: 0.8.h),
+        ],
       ),
     );
   }
@@ -450,7 +569,7 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
   Widget _buildDatePicker() {
     return CustomTextField(
       title: Text(
-        'Date cible (optionnel)',
+        'Échéance (optionnel)',
         style: TextStyle(
           fontSize: 15.sp,
           fontWeight: FontWeight.w600,
@@ -460,7 +579,7 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
       controller: _dateController,
       isReadOnly: true,
       onTap: _selectDate,
-      hint: 'Sélectionner une date',
+      hint: 'Choisir une échéance',
       suffixIcon: Icon(
         Icons.calendar_today,
         size: 18.sp,
@@ -470,6 +589,8 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
   }
 
   Widget _buildImagePicker() {
+    final imageSize = 24.w;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -485,8 +606,8 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
         GestureDetector(
           onTap: _pickImage,
           child: Container(
-            width: double.infinity,
-            height: 15.h,
+            width: imageSize,
+            height: imageSize,
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(3.w),
@@ -518,7 +639,7 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
                 : Center(
                     child: Icon(
                       Icons.add,
-                      size: 25.sp,
+                      size: 18.sp,
                       color: Theme.of(context).hintColor,
                     ),
                   ),

@@ -46,7 +46,8 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TransactionModule _module = TransactionModule();
 
-  final TextEditingController _montantController = TextEditingController();
+  final AmountTextEditingController _montantController =
+      AmountTextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   List<Category> _categories = [];
@@ -311,7 +312,7 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                                   key: const ValueKey('amountField'),
                                   controller: _montantController,
                                   hint: '0.00',
-                                  fontSize: 28.sp,
+                                  fontSize: 25.sp,
                                   fillColor:
                                       Theme.of(context).colorScheme.surfaceDim,
                                   height: 15.h,

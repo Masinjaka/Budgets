@@ -10,12 +10,26 @@ String _normalizeSpaces(String input) {
 }
 
 double parseAmountInput(String raw) {
-  final normalized = raw
-      .replaceAll(' ', '')
-      .replaceAll('\u00A0', '')
-      .replaceAll('\u202F', '')
-      .replaceAll(',', '');
-  return double.tryParse(normalized) ?? 0;
+  if (raw.trim().isEmpty) return 0;
+
+  final hasNegative = raw.contains('-');
+  var normalized = _normalizeSpaces(raw).replaceAll(',', '');
+  normalized = normalized.replaceAll(RegExp(r'[^0-9.]'), '');
+
+  final firstDot = normalized.indexOf('.');
+  if (firstDot != -1) {
+    final before = normalized.substring(0, firstDot + 1);
+    final after = normalized.substring(firstDot + 1).replaceAll('.', '');
+    normalized = '$before$after';
+  }
+
+  if (normalized.startsWith('.')) {
+    normalized = '0$normalized';
+  }
+
+  if (normalized.isEmpty || normalized == '.') return 0;
+  final parsed = double.tryParse(normalized) ?? 0;
+  return hasNegative ? -parsed : parsed;
 }
 
 String formatAmountValue(num? value) {
@@ -24,7 +38,28 @@ String formatAmountValue(num? value) {
 }
 
 String formatAmountWithCurrency(num? value, String currencyCode) {
-  return '${formatAmountValue(value)} $currencyCode';
+  final symbol = currencySymbolForCode(currencyCode);
+  final formatted = formatAmountValue(value);
+  if (isSuffixCurrency(currencyCode)) {
+    return '$formatted $symbol';
+  }
+  return '$symbol$formatted';
+}
+
+String currencySymbolForCode(String currencyCode) {
+  final normalized = currencyCode.toUpperCase();
+  if (normalized == 'MGA') return 'Ar';
+  try {
+    final symbol = NumberFormat.simpleCurrency(name: normalized).currencySymbol;
+    if (symbol.trim().isEmpty) return normalized;
+    return symbol;
+  } catch (_) {
+    return normalized;
+  }
+}
+
+bool isSuffixCurrency(String currencyCode) {
+  return currencyCode.toUpperCase() == 'MGA';
 }
 
 double convertFromMga(num? amountMga, double rate) {

@@ -1,3 +1,4 @@
+import 'package:budgets/core/paths.dart';
 import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -14,38 +15,71 @@ class TransactionEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.receipt_long_outlined,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          SizedBox(height: 2.h),
-          Text(
-            hasFilters
-                ? 'Aucune dépense trouvée'
-                : 'Aucune dépense enregistrée',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            hasFilters
-                ? 'Essayez de modifier vos filtres'
-                : 'Commencez par ajouter vos premières dépenses',
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14.sp,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    String imagePath =
+        isDarkMode ? AppPaths.noExpenseDark : AppPaths.noExpenseLight;
+    return Padding(
+      padding: EdgeInsets.all(6.w),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(imagePath)
+                .animate()
+                .scale(
+                  duration: 600.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                ),
+            Text(
+                'Aucune dépense',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  fontSize: 22.5.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+                  .animate()
+                  .slideY(
+                    begin: 0.3,
+                    end: 0,
+                    duration: 500.ms,
+                    delay: 200.ms,
+                    curve: Curves.easeOutCubic,
+                  )
+                  .fadeIn(
+                    duration: 400.ms,
+                    delay: 200.ms,
+                  ),
+      
+              SizedBox(height: 2.h),
+      
+              // Description
+              Text(
+                'Commencez par ajouter vos premières dépense.',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  fontSize: 16.sp,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              )
+                  .animate()
+                  .slideY(
+                    begin: 0.3,
+                    end: 0,
+                    duration: 500.ms,
+                    delay: 400.ms,
+                    curve: Curves.easeOutCubic,
+                  )
+                  .fadeIn(
+                    duration: 400.ms,
+                    delay: 400.ms,
+                  ),
+          ],
+        ),
       ),
     );
   }
@@ -57,36 +91,30 @@ class IncomeEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Non-scrollable content to be placed inside SliverToBoxAdapter
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    String imagePath =
+        isDarkMode ? AppPaths.noIncomeDark : AppPaths.noIncomeLight;
     return Padding(
       padding: EdgeInsets.all(6.w),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon with animation
-            const Icon(
-              Icons.trending_up,
-              size: 80,
-              color: AppTheme.primaryGreen,
-            )
-                .animate()
-                .scale(
-                  duration: 600.ms,
-                  curve: Curves.easeOutBack,
-                )
-                .fadeIn(
-                  duration: 400.ms,
-                ),
-
-            SizedBox(height: 3.h),
-
+            Image.asset(imagePath)
+              .animate()
+              .scale(
+                duration: 600.ms,
+                curve: Curves.easeOutBack,
+              )
+              .fadeIn(
+                duration: 400.ms,
+              ),
             // Title
             Text(
               'Aucun revenu',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 24.sp,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+                fontSize: 22.5.sp,
                 fontWeight: FontWeight.bold,
               ),
             )
@@ -107,9 +135,9 @@ class IncomeEmptyState extends StatelessWidget {
 
             // Description
             Text(
-              'Vous n\'avez encore enregistré aucun revenu.\nCommencez par ajouter vos premiers revenus.',
+              'Commencez par ajouter vos premiers revenus.',
               style: TextStyle(
-                color: Colors.white70,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontSize: 16.sp,
                 height: 1.4,
               ),

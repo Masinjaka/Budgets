@@ -1,48 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Base class for empty state displays in planning tabs
 class PlanningEmptyState extends StatelessWidget {
-  final IconData icon;
+  final String imagePath;
   final String title;
   final String subtitle;
 
   const PlanningEmptyState({
     super.key,
-    required this.icon,
+    required this.imagePath,
     required this.title,
     required this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 30.sp,
-            color: Theme.of(context).hintColor,
-          ),
-          SizedBox(height: 2.h),
-          Text(
-            title,
-            style: TextStyle(
-              color: Theme.of(context).hintColor,
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Theme.of(context).hintColor.withValues(alpha: 0.7),
-              fontSize: 14.sp,
-            ),
-          ),
-        ],
+    return Padding(
+      padding: EdgeInsets.all(6.w),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(imagePath)
+                .animate()
+                .scale(
+                  duration: 600.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                ),
+            Text(
+              title,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+                fontSize: 22.5.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            )
+                .animate()
+                .slideY(
+                  begin: 0.3,
+                  end: 0,
+                  duration: 500.ms,
+                  delay: 200.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                  delay: 200.ms,
+                ),
+
+            SizedBox(height: 2.h),
+
+            // Description
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+                fontSize: 16.sp,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            )
+                .animate()
+                .slideY(
+                  begin: 0.3,
+                  end: 0,
+                  duration: 500.ms,
+                  delay: 400.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                  delay: 400.ms,
+                ),
+          ],
+        ),
       ),
     );
   }
@@ -119,16 +155,18 @@ class PlanningProgressBar extends StatelessWidget {
 /// Card container for planning items
 class PlanningCard extends StatelessWidget {
   final Widget child;
+  final EdgeInsetsGeometry? margin;
 
   const PlanningCard({
     super.key,
     required this.child,
+    this.margin,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 2.h),
+      margin: margin ?? EdgeInsets.only(bottom: 2.h),
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,

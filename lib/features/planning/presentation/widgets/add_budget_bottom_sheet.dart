@@ -43,7 +43,8 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     'yearly': 'Annuel',
   };
 
-  final TextEditingController _amountController = TextEditingController();
+  final AmountTextEditingController _amountController =
+      AmountTextEditingController();
 
   String? _selectedCategoryId;
   String _selectedPeriod = 'monthly';
@@ -193,7 +194,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                 AnimatedAmountField(
                   controller: _amountController,
                   hint: '0.00',
-                  fontSize: 28.sp,
+                  fontSize: 25.sp,
                   fillColor: Theme.of(context).colorScheme.surfaceDim,
                   height: 15.h,
                   width: double.infinity,

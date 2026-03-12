@@ -10,6 +10,7 @@ import 'package:budgets/features/transactions/domain/providers/transaction_provi
 import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
 import 'package:budgets/features/categories/domain/providers/subcategories_provider.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/widgets/animated_amount_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
@@ -236,7 +237,7 @@ class TransactionModule {
       'subcategoryName': '', // Store the subcategory name as string
       'subcategoryController':
           TextEditingController(), // Controller for the text field
-      'amountController': TextEditingController(),
+      'amountController': AmountTextEditingController(),
     };
   }
 

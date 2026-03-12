@@ -159,45 +159,19 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 1.5.w,
-                                vertical: 0.2.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceDim,
-                                borderRadius: BorderRadius.circular(8.w),
-                              ),
-                              child: Text(
-                                currencyCode,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color,
-                                  // fontSize: 15.sp,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 0.5.h),
-                            Text(
-                              formatAmountValue(
-                                  convertFromMga(transaction.amount, rate)),
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color
-                                    ?.withAlpha(128),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          formatAmountWithCurrency(
+                              convertFromMga(transaction.amount, rate),
+                              currencyCode),
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.color
+                                ?.withAlpha(128),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                          ),
                         ),
                       ],
                     ),

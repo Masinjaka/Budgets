@@ -113,42 +113,15 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                 ],
               ),
               // ...existing code...
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    currencyCode,
-                    style: TextStyle(
+              Text(
+                formatAmountWithCurrency(displayAmount, currencyCode),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.color
-                          ?.withAlpha(153),
+                      fontWeight: FontWeight.w900,
+                      color: widget.transactionType == 'expense'
+                          ? const Color.fromARGB(255, 215, 120, 113)
+                          : const Color.fromARGB(255, 82, 149, 84),
                     ),
-                  ),
-                  SizedBox(height: 1.h),
-                  Text(
-                    formatAmountValue(displayAmount),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w900,
-                          color: widget.transactionType == 'expense'
-                              ? const Color.fromARGB(255, 215, 120, 113)
-                              : const Color.fromARGB(255, 82, 149, 84),
-                        ),
-
-                    // TextStyle(
-                    //   fontSize: 14.sp,
-                    //   color: widget.transactionType == 'expense'
-                    //       ? Colors.red
-                    //       : Colors.green,
-                    // ),
-                  ),
-                ],
               ),
             ],
           );

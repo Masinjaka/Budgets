@@ -1,5 +1,6 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/functions/transaction_utils.dart';
+import 'package:budgets/core/paths.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
@@ -8,6 +9,7 @@ import 'package:budgets/features/transactions/presentation/widgets/transaction_e
 import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_state_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -93,44 +95,81 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
     if (_isExpenseContext) {
       return TransactionEmptyState(hasFilters: _hasFilters);
     }
-
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    String imagePath =
+        isDarkMode ? AppPaths.noIncomeDark : AppPaths.noIncomeLight;
     final title =
-        _hasFilters ? 'Aucun revenu trouvé' : 'Aucun revenu enregistré';
+        _hasFilters ? 'Aucun revenu' : 'Aucun revenu enregistré';
     final subtitle = _hasFilters
         ? 'Essayez de modifier votre recherche ou vos catégories'
         : 'Commencez par ajouter vos premiers revenus';
 
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.trending_up,
-              size: 64,
-              color: Theme.of(context).primaryColor,
-            ),
-            SizedBox(height: 2.h),
-            Text(
-              title,
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 1.h),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: Theme.of(context).hintColor,
-                fontSize: 14.sp,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+    return Padding(
+      padding: EdgeInsets.all(6.w),
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(imagePath)
+                .animate()
+                .scale(
+                  duration: 600.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .fadeIn(
+                  duration: 400.ms,
+                ),
+              // Title
+              Text(
+                title,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  fontSize: 22.5.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              )
+                  .animate()
+                  .slideY(
+                    begin: 0.3,
+                    end: 0,
+                    duration: 500.ms,
+                    delay: 200.ms,
+                    curve: Curves.easeOutCubic,
+                  )
+                  .fadeIn(
+                    duration: 400.ms,
+                    delay: 200.ms,
+                  ),
+      
+              SizedBox(height: 2.h),
+      
+              // Description
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  fontSize: 16.sp,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              )
+                  .animate()
+                  .slideY(
+                    begin: 0.3,
+                    end: 0,
+                    duration: 500.ms,
+                    delay: 400.ms,
+                    curve: Curves.easeOutCubic,
+                  )
+                  .fadeIn(
+                    duration: 400.ms,
+                    delay: 400.ms,
+                  ),
+            ],
+          ),
         ),
       ),
     );
