@@ -46,8 +46,11 @@ class BalanceCard extends ConsumerWidget {
     final displayColor =
         isNegative ? Colors.red : Theme.of(context).textTheme.bodyMedium?.color;
     final convertedAmount = convertFromMga(amount.abs(), rate);
-    final formattedAmount =
-        formatAmountWithCurrency(convertedAmount, currencyCode);
+    final formattedAmount = formatAmountWithCurrency(
+      convertedAmount,
+      currencyCode,
+      preserveFraction: true,
+    );
 
     return Stack(
       children: [

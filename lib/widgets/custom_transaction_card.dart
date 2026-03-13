@@ -114,7 +114,11 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
               ),
               // ...existing code...
               Text(
-                formatAmountWithCurrency(displayAmount, currencyCode),
+                formatAmountWithCurrency(
+                  displayAmount,
+                  currencyCode,
+                  preserveFraction: true,
+                ),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w900,

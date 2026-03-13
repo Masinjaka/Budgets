@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 /// - formatAmountValue: 100000 -> "100 000"
 /// - formatAmount: parses a string and formats it with space grouping
 final NumberFormat _spaceFormatter = NumberFormat.decimalPattern('fr_FR');
+final NumberFormat _spaceDecimalFormatter = NumberFormat('#,##0.##', 'fr_FR');
 
 String _normalizeSpaces(String input) {
   return input.replaceAll('\u00A0', ' ').replaceAll('\u202F', ' ');
@@ -32,14 +33,26 @@ double parseAmountInput(String raw) {
   return hasNegative ? -parsed : parsed;
 }
 
-String formatAmountValue(num? value) {
-  final rounded = (value ?? 0).round();
-  return _normalizeSpaces(_spaceFormatter.format(rounded));
+String formatAmountValue(num? value, {bool preserveFraction = false}) {
+  if (!preserveFraction) {
+    final rounded = (value ?? 0).round();
+    return _normalizeSpaces(_spaceFormatter.format(rounded));
+  }
+
+  final amount = value ?? 0;
+  final normalizedAmount = amount.abs() < 0.005 ? 0 : amount;
+  return _normalizeSpaces(_spaceDecimalFormatter.format(normalizedAmount))
+      .replaceAll(',', '.');
 }
 
-String formatAmountWithCurrency(num? value, String currencyCode) {
+String formatAmountWithCurrency(
+  num? value,
+  String currencyCode, {
+  bool preserveFraction = false,
+}) {
   final symbol = currencySymbolForCode(currencyCode);
-  final formatted = formatAmountValue(value);
+  final formatted =
+      formatAmountValue(value, preserveFraction: preserveFraction);
   if (isSuffixCurrency(currencyCode)) {
     return '$formatted $symbol';
   }

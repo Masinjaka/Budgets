@@ -21,6 +21,7 @@ import 'package:budgets/features/stats/domain/providers/stats_provider.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -90,15 +91,29 @@ class _GoalListItem extends ConsumerStatefulWidget {
   ConsumerState<_GoalListItem> createState() => _GoalListItemState();
 }
 
-class _GoalListItemState extends ConsumerState<_GoalListItem> {
+class _GoalListItemState extends ConsumerState<_GoalListItem>
+    with SingleTickerProviderStateMixin {
+  static const String _deleteActionLabel = 'Supprimer';
+  static const double _deletePaneExtentRatio = 0.20;
+
   bool _hasTriggeredHalfSwipeHaptic = false;
   bool _canVibrate = true;
   double _swipeProgress = 0;
+  late final SlidableController _slidableController;
 
   @override
   void initState() {
     super.initState();
+    _slidableController = SlidableController(this)
+      ..animation.addListener(_handleSlideAnimation);
     _initializeVibrationSupport();
+  }
+
+  @override
+  void dispose() {
+    _slidableController.animation.removeListener(_handleSlideAnimation);
+    _slidableController.dispose();
+    super.dispose();
   }
 
   String _formatDate(DateTime date) {
@@ -131,10 +146,11 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
     }
   }
 
-  void _handleDismissUpdate(DismissUpdateDetails details) {
-    final progress = details.progress.clamp(0.0, 1.0);
+  void _handleSlideAnimation() {
+    final ratio = _slidableController.ratio.abs();
+    final progress = (ratio / _deletePaneExtentRatio).clamp(0.0, 1.0);
 
-    if ((progress - _swipeProgress).abs() > 0.01) {
+    if ((progress - _swipeProgress).abs() > 0.005 && mounted) {
       setState(() {
         _swipeProgress = progress;
       });
@@ -151,7 +167,7 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
     }
   }
 
-  void _resetSwipeFeedbackState() {
+  Future<void> _resetSwipeFeedbackState() async {
     if (_hasTriggeredHalfSwipeHaptic || _swipeProgress > 0) {
       if (mounted) {
         setState(() {
@@ -161,6 +177,31 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
       } else {
         _hasTriggeredHalfSwipeHaptic = false;
         _swipeProgress = 0;
+      }
+    }
+
+    if (_slidableController.ratio != 0) {
+      await _slidableController.close(duration: 120.ms);
+    }
+  }
+
+  Future<void> _handleDeleteAction() async {
+    final goal = widget.goal;
+    final shouldDelete = await _showDeleteDialog(context);
+    if (!shouldDelete || goal.id == null) {
+      await _resetSwipeFeedbackState();
+      return;
+    }
+
+    try {
+      await ref.read(goalsProvider.notifier).deleteSomeGoal(goal.id!);
+      if (mounted) {
+        await _resetSwipeFeedbackState();
+      }
+    } catch (e) {
+      debugPrint('Error deleting goal: $e');
+      if (mounted) {
+        await _resetSwipeFeedbackState();
       }
     }
   }
@@ -188,48 +229,43 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
       child: ClipRRect(
         borderRadius: cardBorderRadius,
         clipBehavior: Clip.antiAlias,
-        child: Dismissible(
+        child: Slidable(
+          controller: _slidableController,
           key: Key(goal.id ?? DateTime.now().toString()),
-          direction: DismissDirection.endToStart,
-          onUpdate: _handleDismissUpdate,
-          dismissThresholds: const {DismissDirection.endToStart: 0.7},
-          confirmDismiss: (direction) async {
-            final result = await _showDeleteDialog(context);
-            if (result == true && goal.id != null) {
-              await ref.read(goalsProvider.notifier).deleteSomeGoal(goal.id!);
-            }
-            _resetSwipeFeedbackState();
-            return false;
-          },
-          background: Container(
-            alignment: Alignment.centerRight,
-            padding: EdgeInsets.only(right: 5.w),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Supprimer',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
+          endActionPane: ActionPane(
+            motion: const DrawerMotion(),
+            extentRatio: _deletePaneExtentRatio,
+            children: [
+              CustomSlidableAction(
+                autoClose: false,
+                padding: EdgeInsets.only(left: 1.w),
+                backgroundColor: Colors.transparent,
+                onPressed: (_) => _handleDeleteAction(),
+                child: SizedBox.expand(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Icon(Icons.delete_outline,
+                            color: Colors.white, size: 18.sp),
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(width: 1.5.w),
-                Icon(Icons.delete_outline, color: Colors.white, size: 18.sp),
-              ],
-            ),
-          ).animate(target: _swipeProgress).custom(
-                duration: 120.ms,
-                curve: Curves.linear,
-                builder: (context, value, child) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Color.lerp(Colors.orange, Colors.red, value),
-                    borderRadius: cardBorderRadius,
-                  ),
-                  child: child,
-                ),
+                ).animate(target: _swipeProgress).custom(
+                      duration: 120.ms,
+                      curve: Curves.linear,
+                      builder: (context, value, child) => DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Color.lerp(Colors.orange, Colors.red, value),
+                          borderRadius: cardBorderRadius,
+                        ),
+                        child: child,
+                      ),
+                    ),
               ),
+            ],
+          ),
           child: Material(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: cardBorderRadius,
@@ -379,7 +415,11 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
                     ),
                   ),
                   Text(
-                    formatAmountWithCurrency(currentAmount, currencyCode),
+                    formatAmountWithCurrency(
+                      currentAmount,
+                      currencyCode,
+                      preserveFraction: true,
+                    ),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
@@ -400,7 +440,11 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
                     ),
                   ),
                   Text(
-                    formatAmountWithCurrency(goalAmount, currencyCode),
+                    formatAmountWithCurrency(
+                      goalAmount,
+                      currencyCode,
+                      preserveFraction: true,
+                    ),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
@@ -421,7 +465,11 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
                     ),
                   ),
                   Text(
-                    formatAmountWithCurrency(remaining, currencyCode),
+                    formatAmountWithCurrency(
+                      remaining,
+                      currencyCode,
+                      preserveFraction: true,
+                    ),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
@@ -576,7 +624,11 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          formatAmountWithCurrency(currentAmount, currencyCode),
+          formatAmountWithCurrency(
+            currentAmount,
+            currencyCode,
+            preserveFraction: true,
+          ),
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
@@ -584,7 +636,11 @@ class _GoalListItemState extends ConsumerState<_GoalListItem> {
           ),
         ),
         Text(
-          formatAmountWithCurrency(goalAmount, currencyCode),
+          formatAmountWithCurrency(
+            goalAmount,
+            currencyCode,
+            preserveFraction: true,
+          ),
           style: TextStyle(
             fontSize: 14.sp,
             color: Theme.of(context).textTheme.bodyMedium?.color,

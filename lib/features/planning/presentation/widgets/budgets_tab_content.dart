@@ -11,6 +11,7 @@ import 'package:budgets/widgets/delete_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:vibration/vibration.dart';
 
@@ -80,15 +81,29 @@ class _BudgetListItem extends ConsumerStatefulWidget {
   ConsumerState<_BudgetListItem> createState() => _BudgetListItemState();
 }
 
-class _BudgetListItemState extends ConsumerState<_BudgetListItem> {
+class _BudgetListItemState extends ConsumerState<_BudgetListItem>
+    with SingleTickerProviderStateMixin {
+  static const String _deleteActionLabel = 'Supprimer';
+  static const double _deletePaneExtentRatio = 0.20;
+
   bool _hasTriggeredHalfSwipeHaptic = false;
   bool _canVibrate = true;
   double _swipeProgress = 0;
+  late final SlidableController _slidableController;
 
   @override
   void initState() {
     super.initState();
+    _slidableController = SlidableController(this)
+      ..animation.addListener(_handleSlideAnimation);
     _initializeVibrationSupport();
+  }
+
+  @override
+  void dispose() {
+    _slidableController.animation.removeListener(_handleSlideAnimation);
+    _slidableController.dispose();
+    super.dispose();
   }
 
   String _periodLabel(String? period) {
@@ -133,10 +148,11 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem> {
     }
   }
 
-  void _handleDismissUpdate(DismissUpdateDetails details) {
-    final progress = details.progress.clamp(0.0, 1.0);
+  void _handleSlideAnimation() {
+    final ratio = _slidableController.ratio.abs();
+    final progress = (ratio / _deletePaneExtentRatio).clamp(0.0, 1.0);
 
-    if ((progress - _swipeProgress).abs() > 0.01) {
+    if ((progress - _swipeProgress).abs() > 0.005 && mounted) {
       setState(() {
         _swipeProgress = progress;
       });
@@ -153,7 +169,7 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem> {
     }
   }
 
-  void _resetSwipeFeedbackState() {
+  Future<void> _resetSwipeFeedbackState() async {
     if (_hasTriggeredHalfSwipeHaptic || _swipeProgress > 0) {
       if (mounted) {
         setState(() {
@@ -163,6 +179,31 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem> {
       } else {
         _hasTriggeredHalfSwipeHaptic = false;
         _swipeProgress = 0;
+      }
+    }
+
+    if (_slidableController.ratio != 0) {
+      await _slidableController.close(duration: 120.ms);
+    }
+  }
+
+  Future<void> _handleDeleteAction() async {
+    final budget = widget.budget;
+    final shouldDelete = await _showDeleteDialog(context);
+    if (!shouldDelete || budget.id == null) {
+      await _resetSwipeFeedbackState();
+      return;
+    }
+
+    try {
+      await ref.read(budgetsProvider.notifier).deleteSomeBudget(budget.id!);
+      if (mounted) {
+        await _resetSwipeFeedbackState();
+      }
+    } catch (e) {
+      debugPrint('Error deleting budget: $e');
+      if (mounted) {
+        await _resetSwipeFeedbackState();
       }
     }
   }
@@ -186,50 +227,46 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem> {
       child: ClipRRect(
         borderRadius: cardBorderRadius,
         clipBehavior: Clip.antiAlias,
-        child: Dismissible(
+        child: Slidable(
+          controller: _slidableController,
           key: Key(budget.id?.toString() ?? DateTime.now().toString()),
-          direction: DismissDirection.endToStart,
-          onUpdate: _handleDismissUpdate,
-          dismissThresholds: const {DismissDirection.endToStart: 0.7},
-          confirmDismiss: (direction) async {
-            final result = await _showDeleteDialog(context);
-            if (result == true && budget.id != null) {
-              await ref.read(budgetsProvider.notifier).deleteSomeBudget(
-                    budget.id!,
-                  );
-            }
-            _resetSwipeFeedbackState();
-            return false; // Don't auto-dismiss, provider refresh handles UI
-          },
-          background: Container(
-            alignment: Alignment.centerRight,
-            padding: EdgeInsets.only(right: 5.w),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Supprimer',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
+          endActionPane: ActionPane(
+            motion: const DrawerMotion(),
+            extentRatio: _deletePaneExtentRatio,
+            children: [
+              CustomSlidableAction(
+                autoClose: false,
+                padding: EdgeInsets.only(left: 1.w),
+                backgroundColor: Colors.transparent,
+                onPressed: (_) => _handleDeleteAction(),
+                child: SizedBox.expand(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: Colors.white,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(width: 1.5.w),
-                Icon(Icons.delete_outline, color: Colors.white, size: 18.sp),
-              ],
-            ),
-          ).animate(target: _swipeProgress).custom(
-                duration: 120.ms,
-                curve: Curves.linear,
-                builder: (context, value, child) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Color.lerp(Colors.orange, Colors.red, value),
-                    borderRadius: cardBorderRadius,
-                  ),
-                  child: child,
-                ),
+                ).animate(target: _swipeProgress).custom(
+                      duration: 120.ms,
+                      curve: Curves.linear,
+                      builder: (context, value, child) => DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Color.lerp(Colors.orange, Colors.red, value),
+                          borderRadius: cardBorderRadius,
+                        ),
+                        child: child,
+                      ),
+                    ),
               ),
+            ],
+          ),
           child: Material(
             color: Theme.of(context).cardColor,
             borderRadius: cardBorderRadius,
@@ -276,7 +313,7 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '${formatAmountWithCurrency(spent, currencyCode)} / ${formatAmountWithCurrency(amount, currencyCode)}',
+                              '${formatAmountWithCurrency(spent, currencyCode, preserveFraction: true)} / ${formatAmountWithCurrency(amount, currencyCode, preserveFraction: true)}',
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 color: Theme.of(context)

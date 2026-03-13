@@ -238,7 +238,7 @@ class BudgetHistoryCard extends ConsumerWidget {
                 ],
               ),
               Text(
-                '${formatAmountWithCurrency(spent, currencyCode)} / ${formatAmountWithCurrency(amount, currencyCode)}',
+                '${formatAmountWithCurrency(spent, currencyCode, preserveFraction: true)} / ${formatAmountWithCurrency(amount, currencyCode, preserveFraction: true)}',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: Theme.of(context).textTheme.bodyMedium?.color,

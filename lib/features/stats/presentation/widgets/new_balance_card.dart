@@ -50,8 +50,11 @@ class _NewBalanceCardState extends ConsumerState<NewBalanceCard> {
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final convertedAmount = convertFromMga(widget.amount.abs(), rate);
-    final formattedAmount =
-        formatAmountWithCurrency(convertedAmount, currencyCode);
+    final formattedAmount = formatAmountWithCurrency(
+      convertedAmount,
+      currencyCode,
+      preserveFraction: true,
+    );
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final cardColor = Theme.of(context).cardColor;
     final isExpense = widget.type == BalanceCardType.expense;
