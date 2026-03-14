@@ -14,15 +14,13 @@ import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
 
-// Widget for displaying a single transaction item in the list
 class TransactionListItem extends ConsumerStatefulWidget {
   final TransactionModel transaction;
 
   const TransactionListItem({super.key, required this.transaction});
 
   @override
-  ConsumerState<TransactionListItem> createState() =>
-      _TransactionListItemState();
+  ConsumerState<TransactionListItem> createState() => _TransactionListItemState();
 }
 
 class _TransactionListItemState extends ConsumerState<TransactionListItem>
@@ -41,7 +39,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
     super.initState();
     _slidableController = SlidableController(this)
       ..animation.addListener(_handleSlideAnimation);
-    _initializeVibrationSupport();
+    _initVibration();
   }
 
   @override
@@ -51,49 +49,22 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
     super.dispose();
   }
 
-  Future<bool> _showDeleteConfirmationDialog(BuildContext context) {
-    return showDeleteConfirmationDialog(
-      context: context,
-      title: 'Supprimer la transaction',
-      message: 'Êtes-vous sûr de vouloir supprimer cette transaction ?',
-    );
-  }
-
-  Future<void> _initializeVibrationSupport() async {
+  Future<void> _initVibration() async {
     try {
-      final canVibrate = await Vibration.hasVibrator();
-      _canVibrate = canVibrate == true;
+      _canVibrate = (await Vibration.hasVibrator()) == true;
     } catch (_) {
       _canVibrate = false;
-    }
-  }
-
-  Future<void> _triggerHalfSwipeVibration() async {
-    if (!_canVibrate) return;
-    try {
-      await Vibration.vibrate(duration: 30);
-    } catch (_) {
-      // Ignore vibration errors to avoid interrupting swipe interactions.
     }
   }
 
   void _handleSlideAnimation() {
     final ratio = _slidableController.ratio.abs();
     final progress = (ratio / _deletePaneExtentRatio).clamp(0.0, 1.0);
-
-    if ((progress - _swipeProgress).abs() > 0.005 && mounted) {
-      setState(() {
-        _swipeProgress = progress;
-      });
-    }
-
+    if ((progress - _swipeProgress).abs() > 0.005 && mounted) setState(() => _swipeProgress = progress);
     if (!_hasTriggeredHalfSwipeHaptic && progress >= 0.5) {
-      unawaited(_triggerHalfSwipeVibration());
+      if (_canVibrate) unawaited(Vibration.vibrate(duration: 30));
       _hasTriggeredHalfSwipeHaptic = true;
-      return;
-    }
-
-    if (_hasTriggeredHalfSwipeHaptic && progress < 0.2) {
+    } else if (_hasTriggeredHalfSwipeHaptic && progress < 0.2) {
       _hasTriggeredHalfSwipeHaptic = false;
     }
   }
@@ -101,52 +72,34 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
   Future<void> _resetSwipeFeedbackState() async {
     if (_hasTriggeredHalfSwipeHaptic || _swipeProgress > 0) {
       if (mounted) {
-        setState(() {
-          _hasTriggeredHalfSwipeHaptic = false;
-          _swipeProgress = 0;
-        });
+        setState(() { _hasTriggeredHalfSwipeHaptic = false; _swipeProgress = 0; });
       } else {
         _hasTriggeredHalfSwipeHaptic = false;
         _swipeProgress = 0;
       }
     }
-
-    if (_slidableController.ratio != 0) {
-      await _slidableController.close(duration: 120.ms);
-    }
+    if (_slidableController.ratio != 0) await _slidableController.close(duration: 120.ms);
   }
 
   Future<void> _handleDeleteAction() async {
     if (_isDismissing) return;
     final transaction = widget.transaction;
-    final shouldDelete = await _showDeleteConfirmationDialog(context);
-    if (!shouldDelete || transaction.id == null) {
-      await _resetSwipeFeedbackState();
-      return;
-    }
-
+    final shouldDelete = await showDeleteConfirmationDialog(
+      context: context,
+      title: 'Supprimer la transaction',
+      message: 'Êtes-vous sûr de vouloir supprimer cette transaction ?',
+    );
+    if (!shouldDelete || transaction.id == null) { await _resetSwipeFeedbackState(); return; }
     await _resetSwipeFeedbackState();
     if (!mounted) return;
-
-    setState(() {
-      _isDismissing = true;
-    });
-
+    setState(() => _isDismissing = true);
     await Future.delayed(_dismissDuration);
-
     try {
       await ref.read(transactionsProvider.notifier).deleteTransaction(
-            transaction.id!,
-            transaction.transactionType ?? TransactionType.expense,
-            transaction: transaction,
-          );
+            transaction.id!, transaction.transactionType ?? TransactionType.expense, transaction: transaction);
     } catch (e) {
       debugPrint("Error deleting transaction: $e");
-      if (mounted) {
-        setState(() {
-          _isDismissing = false;
-        });
-      }
+      if (mounted) setState(() => _isDismissing = false);
     }
   }
 
@@ -157,7 +110,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
     final currencyState = ref.watch(currencyControllerProvider).value;
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
-    final displayAmount = convertFromMga(transaction.amount, rate);
+
     final card = ClipRRect(
       borderRadius: cardBorderRadius,
       clipBehavior: Clip.antiAlias,
@@ -175,30 +128,17 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
               backgroundColor: const Color.fromARGB(0, 190, 17, 17),
               onPressed: (_) => _handleDeleteAction(),
               child: SizedBox.expand(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Icon(
-                        Icons.delete_outline,
-                        color: Colors.white,
-                        size: 18.sp,
-                      ),
-                    ),
-                  ],
-                ),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Flexible(child: Icon(Icons.delete_outline, color: Colors.white, size: 18.sp)),
+                ]),
               ).animate(target: _swipeProgress).custom(
-                    duration: 120.ms,
-                    curve: Curves.linear,
-                    builder: (context, value, child) => DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Color.lerp(Colors.orange, Colors.red, value),
-                        borderRadius: cardBorderRadius,
-                      ),
-                      child: child,
-                    ),
-                  ),
+                duration: 120.ms,
+                curve: Curves.linear,
+                builder: (context, value, child) => DecoratedBox(
+                  decoration: BoxDecoration(color: Color.lerp(Colors.orange, Colors.red, value), borderRadius: cardBorderRadius),
+                  child: child,
+                ),
+              ),
             ),
           ],
         ),
@@ -207,80 +147,35 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
           borderRadius: cardBorderRadius,
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            borderRadius: cardBorderRadius, // Match container radius
-            onTap: _isDismissing
-                ? null
-                : () {
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) => TransactionDetailBottomSheet(
-                          transaction: transaction),
-                    );
-                  },
+            borderRadius: cardBorderRadius,
+            onTap: _isDismissing ? null : () => showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              builder: (context) => TransactionDetailBottomSheet(transaction: transaction),
+            ),
             child: Padding(
               padding: EdgeInsets.all(2.5.w),
-              child: Row(
-                children: [
-                  // Icon for the transaction category
-                  Container(
-                    width: 5.h,
-                    height: 5.h,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceDim,
-                      borderRadius: BorderRadius.circular(2.w),
-                    ),
-                    child: Center(
-                      child: Text(
-                        (transaction.category != null &&
-                                transaction.category!.emoji != null)
-                            ? transaction.category!.emoji!
-                            : '❓',
-                        style: TextStyle(fontSize: 18.sp),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 1.6.h),
-                  // Transaction details (category and description)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          transaction.category?.name ?? 'Uncategorized',
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                        SizedBox(height: 0.5.h),
-                        Text(
-                          transaction.description ?? '',
-                          style: TextStyle(
-                            color: Theme.of(context).hintColor,
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 1.6.h),
-                  // Transaction amount
-                  Text(
-                    formatAmountWithCurrency(
-                      displayAmount,
-                      currencyCode,
-                      preserveFraction: true,
-                    ),
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 14.sp,
-                        ),
-                  )
-                ],
-              ),
+              child: Row(children: [
+                Container(
+                  width: 5.h, height: 5.h,
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceDim, borderRadius: BorderRadius.circular(2.w)),
+                  child: Center(child: Text((transaction.category?.emoji != null) ? transaction.category!.emoji! : '❓', style: TextStyle(fontSize: 18.sp))),
+                ),
+                SizedBox(width: 1.6.h),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(transaction.category?.name ?? 'Uncategorized', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.bold, fontSize: 15.sp)),
+                    SizedBox(height: 0.5.h),
+                    Text(transaction.description ?? '', style: TextStyle(color: Theme.of(context).hintColor, fontSize: 14.sp)),
+                  ]),
+                ),
+                SizedBox(width: 1.6.h),
+                Text(
+                  formatAmountWithCurrency(convertFromMga(transaction.amount, rate), currencyCode, preserveFraction: true),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.tertiary, fontSize: 14.sp),
+                ),
+              ]),
             ),
           ),
         ),

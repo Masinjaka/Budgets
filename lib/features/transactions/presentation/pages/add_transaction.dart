@@ -1,217 +1,75 @@
-import 'package:budgets/core/ui/glass_flexible_space.dart';
-import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/constants.dart';
-import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
-import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
-import 'package:budgets/features/transactions/presentation/widgets/add_transaction/detailed_transaction_switch.dart';
-import 'package:budgets/features/transactions/presentation/widgets/add_transaction/subcategory_amount_row.dart';
-import 'package:budgets/widgets/custom_border_painter.dart';
-import 'package:budgets/widgets/custom_button.dart';
-import 'package:budgets/widgets/custom_textfield.dart';
-import 'package:budgets/widgets/custom_dropdown.dart';
-import 'package:budgets/core/currency/currency_provider.dart';
-import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
-import 'package:budgets/features/categories/domain/providers/subcategory_expenses_providers.dart';
+import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
+import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
+import 'package:budgets/features/transactions/presentation/pages/add_transaction/multiple_amounts_section.dart';
+import 'package:budgets/features/transactions/presentation/pages/add_transaction/transaction_creation_initializer.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction/detailed_transaction_switch.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction/subcategory_amount_row.dart';
+import 'package:budgets/widgets/custom_button.dart';
+import 'package:budgets/widgets/custom_dropdown.dart';
+import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:budgets/core/ui/app_toast.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionCreationPage extends ConsumerStatefulWidget {
   final String transactionType;
-  final TransactionModel? transaction; // Optional transaction for edit mode
+  final TransactionModel? transaction;
 
-  const TransactionCreationPage({
-    super.key,
-    this.transactionType = 'expense',
-    this.transaction,
-  });
+  const TransactionCreationPage({super.key, this.transactionType = 'expense', this.transaction});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _TransactionCreationPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _TransactionCreationPageState();
 }
 
-class _TransactionCreationPageState
-    extends ConsumerState<TransactionCreationPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey();
-  bool _isLoading = false;
-  final TransactionModule _module = TransactionModule();
-
-  // Get transaction type from widget
-  TransactionType get transactionType =>
-      TransactionType.fromValue(widget.transactionType) ??
-      TransactionType.expense;
-
-  // Check if in edit mode
-  bool get isEditMode => widget.transaction != null;
-
-  final TextEditingController _designationController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _montantController = TextEditingController();
+class _TransactionCreationPageState extends ConsumerState<TransactionCreationPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _module = TransactionModule();
+  final _listKey = GlobalKey<AnimatedListState>();
+  final _designationController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _montantController = TextEditingController();
   DateTime? _selectedDate;
-
   List<Category> _categories = [];
   Category? _selectedCategory;
   List<Subcategory> _subcategories = [];
-  bool _isMultipleAmounts = false;
+  bool _isMultipleAmounts = false, _isLoading = false, _isInitializing = false;
   final List<Map<String, dynamic>> _subcategoryAmounts = [];
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  bool _isInitializing = false;
+
+  TransactionType get transactionType => TransactionType.fromValue(widget.transactionType) ?? TransactionType.expense;
+  bool get isEditMode => widget.transaction != null;
 
   @override
   void initState() {
     super.initState();
-
     _isInitializing = isEditMode;
-
-    // Pre-fill form if in edit mode
     if (isEditMode) {
       _descriptionController.text = widget.transaction!.description ?? '';
       _selectedDate = widget.transaction!.date;
     }
-
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) async {
-        final currencyState =
-            await ref.read(currencyControllerProvider.future);
-        final currencyCode = currencyState.code;
-        final rate = currencyState.rateFor(currencyCode);
-        final decimals = currencyCode == 'MGA' ? 0 : 2;
-        String formatInputAmount(double value) {
-          final fixed = value.toStringAsFixed(decimals);
-          // Only remove trailing zeros after decimal point, not integer zeros
-          if (fixed.contains('.')) {
-            return fixed.replaceAll(RegExp(r'\.?0+$'), '');
-          }
-          return fixed;
-        }
-
-        final allCategories = await _module.fetchCategories(ref);
-        // Filter categories by transaction type
-        final filteredCategories = allCategories
-            .where((category) => category.transactionType == transactionType)
-            .toList();
-
-        // Local variables for state update
-        List<Category> newCategories = filteredCategories;
-        Category? newSelectedCategory;
-        List<Subcategory> newSubcategories = [];
-        bool newIsMultipleAmounts = false;
-
-        // Pre-select category if in edit mode
-        if (isEditMode && widget.transaction!.category != null) {
-          newSelectedCategory = filteredCategories.firstWhere(
-            (cat) => cat.id == widget.transaction!.category!.id,
-            orElse: () => filteredCategories.first,
-          );
-        }
-
-        // In edit mode, check if transaction has subcategories
-        if (isEditMode && widget.transaction!.id != null) {
-          try {
-            // Fetch subcategory expenses for this transaction
-            final subcategoryExpenses = await ref.read(
-              subcategoryExpensesProvider(widget.transaction!.id!).future,
-            );
-
-            // If subcategories exist, activate detailed transaction mode
-            if (subcategoryExpenses.isNotEmpty) {
-              // Fetch subcategories for the selected category
-              if (newSelectedCategory?.id != null) {
-                newSubcategories = await _module.fetchSubcategories(
-                  ref,
-                  newSelectedCategory!.id!,
-                );
-              }
-
-              newIsMultipleAmounts = true;
-
-              // Clear any existing entries
-              _subcategoryAmounts.clear();
-
-              // Add each subcategory expense to the list
-              for (var subExpense in subcategoryExpenses) {
-                final subcategoryController = TextEditingController(
-                  text: subExpense.subcategory?.name ?? '',
-                );
-                final displayAmount =
-                    convertFromMga(subExpense.amount, rate);
-                final amountController = TextEditingController(
-                  text: formatInputAmount(displayAmount),
-                );
-
-                // Find matching subcategory instance from the fetched list
-                Subcategory? matchedSubcategory;
-                if (subExpense.subcategory?.id != null &&
-                    newSubcategories.isNotEmpty) {
-                  try {
-                    matchedSubcategory = newSubcategories.firstWhere(
-                      (s) => s.id == subExpense.subcategory!.id,
-                    );
-                  } catch (_) {
-                    // Not found in current category list
-                  }
-                }
-
-                // Fallback to the expense's subcategory if match failed
-                matchedSubcategory ??= subExpense.subcategory;
-
-                final item = {
-                  'subcategoryController': subcategoryController,
-                  'amountController': amountController,
-                  'subcategoryName': subExpense.subcategory?.name ?? '',
-                  'subcategoryId': subExpense.subcategory?.id,
-                  'subcategory': matchedSubcategory,
-                };
-
-                _subcategoryAmounts.add(item);
-              }
-
-              debugPrint(
-                "✅ Pre-filled ${subcategoryExpenses.length} subcategory expenses",
-              );
-            } else {
-              // No subcategories, use regular amount field
-              _montantController.text =
-                  formatInputAmount(
-                    convertFromMga(widget.transaction!.amount, rate),
-                  );
-            }
-          } catch (e) {
-            debugPrint("❌ Error fetching subcategory expenses: $e");
-            // Fallback to regular amount field
-            _montantController.text =
-                formatInputAmount(
-                  convertFromMga(widget.transaction!.amount, rate),
-                );
-          }
-        } else if (!isEditMode) {
-          // Not in edit mode, keep amount field empty for new transactions
-        } else {
-          // Edit mode but no transaction ID, use the total amount
-          _montantController.text =
-              formatInputAmount(
-                convertFromMga(widget.transaction!.amount, rate),
-              );
-        }
-
-        // Apply all changes
-        if (mounted) {
-          setState(() {
-            _categories = newCategories;
-            _selectedCategory = newSelectedCategory;
-            _subcategories = newSubcategories;
-            _isMultipleAmounts = newIsMultipleAmounts;
-            _isInitializing = false;
-          });
-        }
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final data = await TransactionCreationInitializer.initialize(
+        ref: ref, isEditMode: isEditMode, transaction: widget.transaction,
+        transactionType: transactionType, module: _module,
+      );
+      if (!mounted) return;
+      setState(() {
+        _categories = data.categories;
+        _selectedCategory = data.selectedCategory;
+        _subcategories = data.subcategories;
+        _isMultipleAmounts = data.isMultipleAmounts;
+        if (data.subcategoryAmounts.isNotEmpty) _subcategoryAmounts.addAll(data.subcategoryAmounts);
+        if (data.amountText != null) _montantController.text = data.amountText!;
+        _isInitializing = false;
+      });
+    });
   }
 
   @override
@@ -219,37 +77,51 @@ class _TransactionCreationPageState
     _designationController.dispose();
     _descriptionController.dispose();
     _montantController.dispose();
-
-    // Dispose subcategory controllers
     for (var item in _subcategoryAmounts) {
       item['subcategoryController']?.dispose();
       item['amountController']?.dispose();
     }
-
     super.dispose();
+  }
+
+  Widget _buildRemovedItem(Map<String, dynamic> item, Animation<double> anim) {
+    return SizeTransition(
+      sizeFactor: anim.drive(Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeInOut))),
+      child: ScaleTransition(
+        scale: anim.drive(Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOut))),
+        child: FadeTransition(opacity: anim, child: SubcategoryAmountRow(item: item, subcategories: _subcategories, enabled: false)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isInitializing) {
-      return Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-      );
+      return Scaffold(body: Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)));
     }
-    // Always use dark mode
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(context),
-      body: _buildForm(),
+      body: _buildBody(),
       bottomNavigationBar: _buildAddButton(),
     );
   }
 
-  GestureDetector _buildForm() {
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      flexibleSpace: const GlassFlexibleSpace(),
+      centerTitle: true,
+      leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
+      title: Text(
+        isEditMode ? (transactionType == TransactionType.income ? 'Modifier le revenu' : 'Modifier la dépense') : (transactionType == TransactionType.income ? 'Nouveau revenu' : 'Nouvelle dépense'),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: SizedBox(
@@ -263,63 +135,35 @@ class _TransactionCreationPageState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10.h), // Top padding for glass effect
-                  // Switch for multiple amounts - hidden for savings category
-                  if (_selectedCategory?.name != SystemCategories.savingsCategoryName)
+                  SizedBox(height: 10.h),
+                  if (_selectedCategory?.name != SystemCategories.savingsCategoryName) ...[
                     DetailedTransactionSwitch(
                       value: _isMultipleAmounts,
                       onChanged: (value) {
                         setState(() {
                           _isMultipleAmounts = value;
                           if (!value) {
-                            // Clear all items with animation
-                            _module.clearAllSubcategoryAmounts(
-                              subcategoryAmounts: _subcategoryAmounts,
-                              listKey: _listKey,
-                              buildRemovedItem: (item, index, animation) =>
-                                  _buildRemovedSubcategoryItem(item, animation),
-                              onStateChanged: () => setState(() {}),
-                            );
+                            _module.clearAllSubcategoryAmounts(subcategoryAmounts: _subcategoryAmounts, listKey: _listKey, buildRemovedItem: (item, _, anim) => _buildRemovedItem(item, anim), onStateChanged: () => setState(() {}));
                           }
                         });
                       },
                     ),
-                  if (_selectedCategory?.name != SystemCategories.savingsCategoryName)
                     SizedBox(height: 5.h),
+                  ],
                   CustomDropdown(
-                    title: Text(
-                      'Catégorie',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
-                      ),
-                    ),
+                    title: Text('Catégorie', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5.sp)),
                     hint: 'Choisissez une catégorie',
                     items: _categories,
                     selectedValue: _selectedCategory,
                     enabled: _selectedCategory?.name != SystemCategories.savingsCategoryName,
                     onChanged: (Category? category) async {
-                      setState(() {
-                        _selectedCategory = category;
-                        _subcategories =
-                            []; // Clear subcategories when category changes
-                      });
-
-                      // Fetch subcategories when a category is selected using the module method
-                      if (category != null && category.id != null) {
+                      setState(() { _selectedCategory = category; _subcategories = []; });
+                      if (category?.id != null) {
                         try {
-                          final subcategories = await _module
-                              .fetchSubcategories(ref, category.id!);
-                          setState(() {
-                            _subcategories = subcategories;
-                          });
-                          debugPrint("SUBCATEGORIES: ${subcategories.length}");
-                        } catch (e) {
-                          debugPrint("Error fetching subcategories: $e");
-                          setState(() {
-                            _subcategories = []; // Set empty list on error
-                          });
+                          final subs = await _module.fetchSubcategories(ref, category!.id!);
+                          setState(() => _subcategories = subs);
+                        } catch (_) {
+                          setState(() => _subcategories = []);
                         }
                       }
                     },
@@ -327,117 +171,48 @@ class _TransactionCreationPageState
                     showEmojis: true,
                   ),
                   SizedBox(height: 2.h),
-                  // Conditional content based on switch
                   if (!_isMultipleAmounts)
                     CustomTextField(
                       title: const SizedBox.shrink(),
-                      // Text(
-                      //   'Montant',
-                      //   textAlign: TextAlign.left,
-                      //   style: TextStyle(
-                      //     fontWeight: FontWeight.w900,
-                      //     fontSize: 15.5.sp,
-                      //   ),
-                      // ),
                       hint: '0.00',
                       controller: _montantController,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       fontSize: 24.sp,
-                      height: 16.h, // Increase vertical padding
+                      height: 16.h,
                       width: double.infinity,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(5.w),
-                        topRight: Radius.circular(5.w),
-                        bottomLeft: Radius.circular(5.w),
-                        bottomRight: Radius.circular(5.w),
-                      ),
+                      borderRadius: BorderRadius.circular(5.w),
                       validator: const <String, String>{"type": "required"},
                     )
                   else
-                    _buildMultipleAmountsSection(),
+                    MultipleAmountsSection(
+                      subcategoryAmounts: _subcategoryAmounts,
+                      subcategories: _subcategories,
+                      listKey: _listKey,
+                      module: _module,
+                      onStateChanged: () => setState(() {}),
+                      buildRemovedItem: _buildRemovedItem,
+                      onSubcategoryChanged: (sub, item) => setState(() {}),
+                      onSubcategoryTapWithoutCategory: () {
+                        if (_selectedCategory == null) showInfoToast(context, "La catégorie doit être sélectionnée en premier");
+                      },
+                    ),
                   CustomTextField(
                     title: const SizedBox.shrink(),
-                    hint: _selectedCategory?.name == SystemCategories.savingsCategoryName
-                        ? _descriptionController.text
-                        : 'Ajouter une description (optionnel)',
+                    hint: _selectedCategory?.name == SystemCategories.savingsCategoryName ? _descriptionController.text : 'Ajouter une description (optionnel)',
                     controller: _descriptionController,
                     keyboardType: TextInputType.text,
                     textAlign: TextAlign.center,
                     maxLines: null,
                     isReadOnly: _selectedCategory?.name == SystemCategories.savingsCategoryName,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(5.w),
-                      topRight: Radius.circular(5.w),
-                      bottomLeft: Radius.circular(5.w),
-                      bottomRight: Radius.circular(5.w),
-                    ),
+                    borderRadius: BorderRadius.circular(5.w),
                   ),
-                  // Date picker field - only visible in edit mode (read-only for savings)
                   if (isEditMode) ...[
                     SizedBox(height: 2.h),
-                    GestureDetector(
-                      onTap: _selectedCategory?.name == SystemCategories.savingsCategoryName
-                          ? null
-                          : () async {
-                              final DateTime? picked = await showDatePicker(
-                                context: context,
-                                initialDate: _selectedDate ?? DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  _selectedDate = picked;
-                                });
-                              }
-                            },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 5.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(5.w),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Date',
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color,
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  _selectedDate != null
-                                      ? DateFormat.yMMMd('fr_FR')
-                                          .format(_selectedDate!)
-                                      : 'Sélectionner une date',
-                                  style: TextStyle(
-                                    color: Theme.of(context).hintColor,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                                SizedBox(width: 2.w),
-                                Icon(
-                                  Icons.calendar_today,
-                                  color: Theme.of(context).primaryColor,
-                                  size: 18.sp,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                    _DatePickerField(
+                      selectedDate: _selectedDate,
+                      isReadOnly: _selectedCategory?.name == SystemCategories.savingsCategoryName,
+                      onDateSelected: (date) => setState(() => _selectedDate = date),
                     ),
                   ],
                   SizedBox(height: 2.h),
@@ -450,244 +225,62 @@ class _TransactionCreationPageState
     );
   }
 
-  Widget _buildMultipleAmountsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Montants par sous-catégories',
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 15.5.sp,
-          ),
-        ),
-        SizedBox(height: 1.5.h),
-
-        // List of subcategory amounts
-        AnimatedList(
-          key: _listKey,
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          physics: const NeverScrollableScrollPhysics(),
-          initialItemCount: _subcategoryAmounts
-              .length, // Start with current length to ensure all items animate
-          itemBuilder: (context, index, animation) {
-            if (index >= _subcategoryAmounts.length) {
-              return const SizedBox.shrink();
-            }
-
-            return _buildAnimatedSubcategoryItem(
-              _subcategoryAmounts[index],
-              index,
-              animation,
-            );
-          },
-        ),
-
-        // Add button with dashed border effect
-        GestureDetector(
-          onTap: () => _module.addSubcategoryAmount(
-            subcategoryAmounts: _subcategoryAmounts,
-            listKey: _listKey,
-            onStateChanged: () => setState(() {}),
-          ),
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 1.5.w),
-            child: CustomPaint(
-              painter: DashedBorderPainter(
-                color: Theme.of(context).dividerColor.withAlpha(128),
-                strokeWidth: 1.0,
-                borderRadius: 5.w,
-              ),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.add,
-                      color: Theme.of(context).iconTheme.color,
-                      size: 16.sp,
-                    ),
-                    SizedBox(width: 2.w),
-                    Text(
-                      'Ajouter une sous-catégorie',
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      flexibleSpace: const GlassFlexibleSpace(),
-      centerTitle: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.pop(),
-      ),
-      title: Text(
-        isEditMode
-            ? (transactionType == TransactionType.income
-                ? 'Modifier le revenu'
-                : 'Modifier la dépense')
-            : (transactionType == TransactionType.income
-                ? 'Nouveau revenu'
-                : 'Nouvelle dépense'),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 18.sp,
-        ),
-      ),
-    );
-  }
-
-  Padding _buildAddButton() {
+  Widget _buildAddButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 5.w),
       child: CustomButton(
         text: isEditMode ? 'Enregistrer' : 'Confirmer',
         backgroundColor: Theme.of(context).primaryColor,
+        isLoading: _isLoading,
         onPressed: () async {
           setState(() => _isLoading = true);
-
           final result = await _module.submitTransaction(
-            formKey: _formKey,
-            selectedCategory: _selectedCategory,
-            isMultipleAmounts: _isMultipleAmounts,
-            subcategoryAmounts: _subcategoryAmounts,
-            montantController: _montantController,
-            descriptionController: _descriptionController,
-            transactionType: transactionType,
-            ref: ref,
+            formKey: _formKey, selectedCategory: _selectedCategory,
+            isMultipleAmounts: _isMultipleAmounts, subcategoryAmounts: _subcategoryAmounts,
+            montantController: _montantController, descriptionController: _descriptionController,
+            transactionType: transactionType, ref: ref,
             transactionId: widget.transaction?.id,
             transactionDate: isEditMode ? _selectedDate : null,
             originalTransaction: widget.transaction,
           );
-
-          if (!mounted) {
-            return;
-          }
-
+          if (!mounted) return;
           setState(() => _isLoading = false);
-
-          // Show result message
-          showAppToast(
-            context,
-            result.message,
-            type: result.success ? AppToastType.success : AppToastType.error,
-          );
-
-          // Navigate back on success
-          if (result.success) {
-            context.pop();
-          }
+          showAppToast(context, result.message, type: result.success ? AppToastType.success : AppToastType.error);
+          if (result.success) context.pop();
         },
-        isLoading: _isLoading,
       ),
     );
   }
+}
 
-  Widget _buildAnimatedSubcategoryItem(
-    Map<String, dynamic> item,
-    int index,
-    Animation<double> animation,
-  ) {
-    return SlideTransition(
-      position: animation.drive(
-        Tween<Offset>(
-          begin: const Offset(0, -1), // Drop from top
-          end: Offset.zero,
-        ).chain(CurveTween(curve: Curves.easeOutBack)),
-      ),
-      child: FadeTransition(
-        opacity: animation,
-        child: SubcategoryAmountRow(
-          item: item,
-          subcategories: _subcategories,
-          onAmountChanged: (value) {
-            final subcategoryName = item['subcategoryName'] as String?;
-            debugPrint("💰 AMOUNT CHANGED:");
-            debugPrint("  - Subcategory: ${subcategoryName ?? 'Not selected'}");
-            debugPrint("  - Amount: $value");
-            debugPrint("  - Item index: ${_subcategoryAmounts.indexOf(item)}");
-          },
-          onSubcategoryChanged: (Subcategory? subcategory) {
-            if (subcategory != null) {
-              (item['subcategoryController'] as TextEditingController).text =
-                  subcategory.name ?? '';
-              item['subcategoryName'] = subcategory.name ?? '';
-              debugPrint("🔥 SUBCATEGORY SELECTED:");
-              debugPrint("  - ID: ${subcategory.id}");
-              debugPrint("  - Name: ${subcategory.name}");
-              debugPrint("  - Category ID: ${subcategory.categoryId}");
-              debugPrint(
-                  "  - Stored in item['subcategoryName']: ${item['subcategoryName']}");
-              setState(() {});
-            }
-          },
-          onSubcategoryTap: () {
-            if (_selectedCategory == null) {
-              showInfoToast(
-                context,
-                "La catégorie doit être sélectionnée en premier",
-              );
-            }
-          },
-          onRemove: () => _module.removeSubcategoryAmount(
-            index: index,
-            subcategoryAmounts: _subcategoryAmounts,
-            listKey: _listKey,
-            buildRemovedItem: (item, index, animation) =>
-                _buildRemovedSubcategoryItem(item, animation),
-            onStateChanged: () => setState(() {}),
-          ),
-          enabled: true,
-        ),
-      ),
-    );
-  }
+class _DatePickerField extends StatelessWidget {
+  final DateTime? selectedDate;
+  final bool isReadOnly;
+  final void Function(DateTime) onDateSelected;
 
-  Widget _buildRemovedSubcategoryItem(
-    Map<String, dynamic> item,
-    Animation<double> animation,
-  ) {
-    return SizeTransition(
-      sizeFactor: animation.drive(
-        Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-      ),
-      child: ScaleTransition(
-        scale: animation.drive(
-          Tween<double>(
-            begin: 0.0, // Start scaled down
-            end: 1.0, // End at full size
-          ).chain(CurveTween(curve: Curves.easeOut)),
-        ),
-        child: FadeTransition(
-          opacity: animation,
-          child: SubcategoryAmountRow(
-            item: item,
-            subcategories: _subcategories,
-            enabled: false,
-          ),
-        ),
+  const _DatePickerField({required this.selectedDate, required this.isReadOnly, required this.onDateSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isReadOnly ? null : () async {
+        final picked = await showDatePicker(context: context, initialDate: selectedDate ?? DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
+        if (picked != null) onDateSelected(picked);
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(5.w)),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Date', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 15.sp, fontWeight: FontWeight.w600)),
+          Row(children: [
+            Text(
+              selectedDate != null ? DateFormat.yMMMd('fr_FR').format(selectedDate!) : 'Sélectionner une date',
+              style: TextStyle(color: Theme.of(context).hintColor, fontSize: 14.sp),
+            ),
+            SizedBox(width: 2.w),
+            Icon(Icons.calendar_today, color: Theme.of(context).primaryColor, size: 18.sp),
+          ]),
+        ]),
       ),
     );
   }

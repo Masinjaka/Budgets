@@ -15,42 +15,29 @@ class TransactionFilterPage extends ConsumerStatefulWidget {
   const TransactionFilterPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _TransactionFilterPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _TransactionFilterPageState();
 }
 
 class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
   bool _isLoading = false;
-  final TransactionModule _module = TransactionModule();
+  final _module = TransactionModule();
   DateTime? _initialDateTime;
-
-  List<String> _selectedCategories = [];
   List<String> _finalCategories = [];
-
-  final TextEditingController _fromDate = TextEditingController();
-  final TextEditingController _toDate = TextEditingController();
+  final _fromDate = TextEditingController();
+  final _toDate = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    // get initial date time for date filter
     _initialDateTime = _module.getUserCreationDate();
-
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        _finalCategories = ref.read(selectedCategoriesProvider);
-        _selectedCategories = _finalCategories;
-
-        final dateRange = ref.read(dateRangeProvider);
-
-        // Fill up the date range if there are already
-        if (dateRange != null) {
-          _fromDate.text = '${dateRange.start.toLocal()}'.split(' ')[0];
-          _toDate.text = '${dateRange.end.toLocal()}'.split(' ')[0];
-        }
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _finalCategories = ref.read(selectedCategoriesProvider);
+      final dateRange = ref.read(dateRangeProvider);
+      if (dateRange != null) {
+        _fromDate.text = '${dateRange.start.toLocal()}'.split(' ')[0];
+        _toDate.text = '${dateRange.end.toLocal()}'.split(' ')[0];
+      }
+    });
   }
 
   @override
@@ -64,183 +51,171 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
   Widget build(BuildContext context) {
     final asyncCategories = ref.watch(categoriesProvider);
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        title: Padding(padding: EdgeInsets.symmetric(horizontal: 4.w), child: Text('Filtrer', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 19.5.sp))),
+        actions: [Padding(padding: EdgeInsets.symmetric(horizontal: 4.w), child: IconButton(onPressed: () => context.pop(), icon: Icon(Icons.close, size: 21.sp)))],
+      ),
       body: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: SizedBox(
-          height: double.infinity,
-          width: double.infinity,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 5.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Filtrer par catégorie',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 15.5.sp,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 5.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Filtrer par catégorie', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5.sp)),
+                SizedBox(height: 3.h),
+                switch (asyncCategories) {
+                  AsyncData(:final value) => _FilterCategoryChips(
+                      categories: value,
+                      selectedCategories: _finalCategories,
+                      onSelectionChanged: (cats) => setState(() => _finalCategories = cats),
                     ),
+                  AsyncError(:final error) => Text('error: $error'),
+                  _ => _CategorySkeleton(),
+                },
+                SizedBox(height: 3.h),
+                Text('Filtrer par date', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5.sp)),
+                SizedBox(height: 3.h),
+                SizedBox(
+                  height: 6.h,
+                  child: Row(
+                    children: [
+                      Expanded(child: _DateField(hint: 'De', controller: _fromDate, onTap: () => _pickDate(isFrom: true))),
+                      SizedBox(width: 2.w),
+                      Expanded(child: _DateField(hint: 'A', controller: _toDate, onTap: () => _pickDate(isFrom: false))),
+                      if (_fromDate.text.isNotEmpty || _toDate.text.isNotEmpty)
+                        IconButton(onPressed: () => setState(() { _fromDate.clear(); _toDate.clear(); ref.read(dateRangeProvider.notifier).clear(); }), icon: const Icon(Icons.clear)),
+                    ],
                   ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  // Category list
-                  switch (asyncCategories) {
-                    AsyncData(:final value) => _buildCategories(value),
-                    AsyncError(:final error) => Text('error: $error'),
-                    _ => _buildCategorySkeleton(),
-                  },
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  Text(
-                    'Filtrer par date',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 15.5.sp,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 3.h,
-                  ),
-                  SizedBox(
-                    height: 6.h,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: _buildField(
-                            'De',
-                            _fromDate,
-                            () {
-                              // Perform your desired action here
-                              showDatePicker(
-                                context: context,
-                                initialDate: _initialDateTime,
-                                firstDate:
-                                    _initialDateTime ?? DateTime(2025, 6),
-                                lastDate: DateTime.now(),
-                                cancelText: 'Annuler',
-                                helpText: 'Choisis une date',
-                              ).then((selectedDate) {
-                                if (selectedDate != null) {
-                                  setState(() {
-                                    _fromDate.text = '${selectedDate.toLocal()}'
-                                        .split(' ')[0];
-                                    // if the end date is still empty, fill it with the current date
-                                    if (_toDate.text.isEmpty ||
-                                        (_toDate.text.isNotEmpty &&
-                                            selectedDate.toLocal().isAfter(
-                                                DateTime.parse(
-                                                    _toDate.text)))) {
-                                      _toDate.text =
-                                          '${DateTime.now().toLocal()}'
-                                              .split(' ')[0];
-                                    }
-                                  });
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          width: 2.w,
-                        ),
-                        Expanded(
-                          child: _buildField(
-                            'A',
-                            _toDate,
-                            () {
-                              // Perform your desired action here
-                              showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate:
-                                    _initialDateTime ?? DateTime(2025, 6),
-                                lastDate: DateTime.now(),
-                                cancelText: 'Annuler',
-                                helpText: 'Choisis une date',
-                              ).then((selectedDate) {
-                                if (selectedDate != null) {
-                                  setState(() {
-                                    setState(() {
-                                      _toDate.text = '${selectedDate.toLocal()}'
-                                          .split(' ')[0];
-                                      // if the end date is still empty, fill it with the current date
-                                      if (_fromDate.text.isEmpty ||
-                                          (_fromDate.text.isNotEmpty &&
-                                              DateTime.parse(_fromDate.text)
-                                                  .isAfter(selectedDate
-                                                      .toLocal()))) {
-                                        _fromDate.text =
-                                            '${_initialDateTime?.toLocal()}'
-                                                .split(' ')[0];
-                                      }
-                                    });
-                                  });
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                        if (_fromDate.text.isNotEmpty ||
-                            _toDate.text.isNotEmpty)
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _fromDate.clear();
-                                _toDate.clear();
-                                ref.read(dateRangeProvider.notifier).clear();
-                              });
-                            },
-                            icon: const Icon(Icons.clear),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
-      bottomNavigationBar: _buildAddButton(),
-    );
-  }
-
-  Padding _buildAddButton() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 5.w),
-      child: CustomButton(
-        text: 'Appliquer les filtres',
-        isLoading: _isLoading,
-        onPressed: () async {
-          setState(() => _isLoading = true);
-
-          final hasSucceeded = _module.filterTransaction(
-            ref,
-            _finalCategories,
-            _fromDate.text.trim(),
-            _toDate.text.trim(),
-            context,
-          );
-
-          setState(() => _isLoading = false);
-
-          if (hasSucceeded) context.pop();
-        },
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 5.w),
+        child: CustomButton(
+          text: 'Appliquer les filtres',
+          isLoading: _isLoading,
+          onPressed: () async {
+            setState(() => _isLoading = true);
+            final ok = _module.filterTransaction(ref, _finalCategories, _fromDate.text.trim(), _toDate.text.trim(), context);
+            setState(() => _isLoading = false);
+            if (ok) context.pop();
+          },
+        ),
       ),
     );
   }
 
-  TextFormField _buildField(
-      String? hint, TextEditingController controller, void Function()? onTap) {
+  Future<void> _pickDate({required bool isFrom}) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: isFrom ? _initialDateTime : DateTime.now(),
+      firstDate: _initialDateTime ?? DateTime(2025, 6),
+      lastDate: DateTime.now(),
+      cancelText: 'Annuler',
+      helpText: 'Choisis une date',
+    );
+    if (picked != null) {
+      setState(() {
+        if (isFrom) {
+          _fromDate.text = '${picked.toLocal()}'.split(' ')[0];
+          if (_toDate.text.isEmpty || picked.toLocal().isAfter(DateTime.parse(_toDate.text))) {
+            _toDate.text = '${DateTime.now().toLocal()}'.split(' ')[0];
+          }
+        } else {
+          _toDate.text = '${picked.toLocal()}'.split(' ')[0];
+          if (_fromDate.text.isEmpty || DateTime.parse(_fromDate.text).isAfter(picked.toLocal())) {
+            _fromDate.text = '${_initialDateTime?.toLocal()}'.split(' ')[0];
+          }
+        }
+      });
+    }
+  }
+}
+
+class _FilterCategoryChips extends StatefulWidget {
+  final List<Category> categories;
+  final List<String> selectedCategories;
+  final void Function(List<String>) onSelectionChanged;
+
+  const _FilterCategoryChips({required this.categories, required this.selectedCategories, required this.onSelectionChanged});
+
+  @override
+  State<_FilterCategoryChips> createState() => _FilterCategoryChipsState();
+}
+
+class _FilterCategoryChipsState extends State<_FilterCategoryChips> {
+  late List<String> _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = List.from(widget.selectedCategories);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      runSpacing: 2.5.w,
+      children: widget.categories.map((e) {
+        final isSelected = _selected.contains(e.name);
+        return InkWell(
+          onTap: () {
+            setState(() {
+              isSelected ? _selected.remove(e.name) : _selected.add(e.name ?? 'Inconnu');
+              widget.onSelectionChanged(List.from(_selected));
+            });
+          },
+          splashColor: Colors.transparent,
+          child: Container(
+            margin: EdgeInsets.only(right: 2.w),
+            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
+            decoration: BoxDecoration(
+              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
+              border: Border.all(color: Colors.transparent),
+              borderRadius: BorderRadius.circular(5.w),
+            ),
+            child: Text(e.name ?? 'Inconnu', style: TextStyle(color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).textTheme.bodyLarge?.color, fontSize: 15.sp)),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _CategorySkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      runSpacing: 2.5.w,
+      children: List.generate(7, (i) => Container(
+        width: 10.w + Random().nextDouble() * (40.w - 10.w),
+        height: 4.2.h,
+        margin: EdgeInsets.only(right: 2.w),
+        padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
+        decoration: BoxDecoration(color: const Color.fromARGB(255, 216, 216, 216), borderRadius: BorderRadius.circular(5.w)),
+      ).animate(onPlay: (c) => c.repeat()).shimmer(duration: const Duration(seconds: 1), color: Colors.white)),
+    );
+  }
+}
+
+class _DateField extends StatelessWidget {
+  final String? hint;
+  final TextEditingController controller;
+  final VoidCallback onTap;
+
+  const _DateField({required this.hint, required this.controller, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
     return TextFormField(
       readOnly: true,
       onTap: onTap,
@@ -249,149 +224,13 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
       decoration: InputDecoration(
         filled: true,
         fillColor: Theme.of(context).cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
-          borderSide: const BorderSide(
-            color: Colors.transparent,
-            width: 1.8,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
-          borderSide: const BorderSide(
-            color: Colors.black, // Match blue stroke when focused
-            width: 1.8,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
-          borderSide: const BorderSide(
-            color: Color.fromARGB(255, 252, 154, 147),
-            width: 1.8,
-          ),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
-          borderSide: const BorderSide(
-            color: Colors.black,
-            width: 1.8,
-          ),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(2.w)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(2.w), borderSide: const BorderSide(color: Colors.transparent, width: 1.8)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(2.w), borderSide: const BorderSide(color: Colors.black, width: 1.8)),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(2.w), borderSide: const BorderSide(color: Color.fromARGB(255, 252, 154, 147), width: 1.8)),
+        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(2.w), borderSide: const BorderSide(color: Colors.black, width: 1.8)),
         hintText: hint,
-        suffixIcon: Icon(
-          Icons.calendar_month_outlined,
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-        ),
-      ),
-    );
-  }
-
-  // Build app bar
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      automaticallyImplyLeading: false,
-      title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4.w),
-        child: Text(
-          'Filtrer',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 19.5.sp,
-          ),
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: IconButton(
-              onPressed: () => context.pop(),
-              icon: Icon(
-                Icons.close,
-                size: 21.sp,
-              )),
-        ),
-      ],
-    );
-  }
-
-  // build categories
-  Wrap _buildCategories(List<Category> categories) {
-    return Wrap(
-      runSpacing: 2.5.w,
-      children: categories.map((e) {
-        bool isSelected = _finalCategories.contains(e.name);
-
-        return InkWell(
-          onTap: () {
-            // Select or de-select the category
-            setState(() {
-              _selectedCategories.contains(e.name)
-                  ? _selectedCategories.remove(e.name)
-                  : _selectedCategories.add(e.name ?? 'Inconnu');
-
-              _finalCategories = [..._selectedCategories];
-            });
-          },
-          splashColor: Colors.transparent,
-          child: Container(
-            margin: EdgeInsets.only(right: 2.w),
-            padding: EdgeInsets.symmetric(
-              horizontal: 2.w,
-              vertical: 2.w,
-            ),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).cardColor,
-              border: Border.all(color: Colors.transparent),
-              borderRadius: BorderRadius.circular(5.w),
-            ),
-            child: Text(
-              e.name ?? 'Inconnu',
-              style: TextStyle(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).textTheme.bodyLarge?.color,
-                  fontSize: 15.sp),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Wrap _buildCategorySkeleton() {
-    return Wrap(
-      runSpacing: 2.5.w,
-      children: List.generate(
-        7,
-        (index) {
-          return Container(
-            width: 10.w + Random().nextDouble() * (40.w - 10.w),
-            height: 4.2.h,
-            margin: EdgeInsets.only(right: 2.w),
-            padding: EdgeInsets.symmetric(
-              horizontal: 2.w,
-              vertical: 2.w,
-            ),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 216, 216, 216),
-              borderRadius: BorderRadius.circular(5.w),
-            ),
-          )
-              .animate(
-                onPlay: (controller) => controller.repeat(),
-              )
-              .shimmer(
-                duration: const Duration(seconds: 1),
-                color: Colors.white,
-              );
-        },
+        suffixIcon: Icon(Icons.calendar_month_outlined, color: Theme.of(context).textTheme.bodyLarge?.color),
       ),
     );
   }
