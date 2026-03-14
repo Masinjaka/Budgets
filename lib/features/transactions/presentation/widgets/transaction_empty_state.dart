@@ -1,5 +1,4 @@
 import 'package:budgets/core/paths.dart';
-import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';

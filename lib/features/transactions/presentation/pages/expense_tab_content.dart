@@ -9,51 +9,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Expense tab content that contains the expense list
-class TransactionTabContent extends ConsumerStatefulWidget {
+class TransactionTabContent extends ConsumerWidget {
   const TransactionTabContent({
     super.key,
   });
 
   @override
-  ConsumerState<TransactionTabContent> createState() =>
-      _TransactionTabContentState();
-}
-
-class _TransactionTabContentState extends ConsumerState<TransactionTabContent> {
-  bool _onScrollNotification(ScrollNotification notification) {
-    if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent > 0 &&
-          notification.metrics.pixels >=
-              notification.metrics.maxScrollExtent - 200) {
-        ref.read(paginatedExpensesProvider.notifier).loadNextPage();
+  Widget build(BuildContext context, WidgetRef ref) {
+    bool onScrollNotification(ScrollNotification notification) {
+      if (notification is ScrollUpdateNotification) {
+        if (notification.metrics.maxScrollExtent > 0 &&
+            notification.metrics.pixels >=
+                notification.metrics.maxScrollExtent - 200) {
+          ref.read(paginatedExpensesProvider.notifier).loadNextPage();
+        }
       }
+      return false;
     }
-    return false;
-  }
 
-  @override
-  Widget build(BuildContext context) {
     // Watch paginated transaction data from provider
     final paginatedState = ref.watch(paginatedExpensesProvider);
 
     // Handle initial loading state
     if (paginatedState.isLoading && paginatedState.transactions.isEmpty) {
-      return CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          // Loading shimmer
-          const TransactionListShimmer(),
-        ],
-      );
+      return const TransactionListShimmerList();
     }
 
     // Handle error state
     if (paginatedState.errorMessage != null &&
         paginatedState.transactions.isEmpty) {
-      return TransactionErrorState(
-        error: paginatedState.errorMessage!,
-        errorMessage: 'Erreur lors du chargement des dépenses',
-        onRetry: () => ref.read(paginatedExpensesProvider.notifier).refresh(),
+      return SizedBox.expand(
+        child: TransactionErrorState(
+          error: paginatedState.errorMessage!,
+          errorMessage: 'Erreur lors du chargement des dépenses',
+          onRetry: () => ref.read(paginatedExpensesProvider.notifier).refresh(),
+        ),
       );
     }
 
@@ -68,32 +58,30 @@ class _TransactionTabContentState extends ConsumerState<TransactionTabContent> {
       transactions,
       true,
     );
+    if (groupedTransactions.isEmpty) {
+      // Empty illustration state must not be scrollable.
+      return const SizedBox.expand(
+        child: TransactionEmptyState(hasFilters: false),
+      );
+    }
+
+    final listView = PaginatedTransactionDateGroupList(
+      groupedTransactions: groupedTransactions,
+      isLoadingMore: paginatedState.isLoadingMore,
+      hasMore: paginatedState.hasMore,
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: ClampingScrollPhysics(),
+      ),
+      padding: EdgeInsets.fromLTRB(6.w, 2.h, 6.w, 0),
+    );
 
     return NotificationListener<ScrollNotification>(
-      onNotification: _onScrollNotification,
+      onNotification: onScrollNotification,
       child: RefreshIndicator(
         onRefresh: () async {
           await ref.read(paginatedExpensesProvider.notifier).refresh();
         },
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            // Transaction list content with pagination
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(6.w, 2.h, 6.w, 0),
-              sliver: groupedTransactions.isEmpty
-                  ? SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: const TransactionEmptyState(hasFilters: false),
-                    )
-                  : PaginatedTransactionDateGroup(
-                      groupedTransactions: groupedTransactions,
-                      isLoadingMore: paginatedState.isLoadingMore,
-                      hasMore: paginatedState.hasMore,
-                    ),
-            ),
-          ],
-        ),
+        child: listView,
       ),
     );
   }

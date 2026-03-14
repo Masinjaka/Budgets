@@ -35,6 +35,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
 
   /// Load the first page of transactions
   Future<void> _loadFirstPage() async {
+    if (!ref.mounted) return;
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
 
@@ -44,6 +45,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
                 limit: pageSize,
                 type: TransactionType.expense,
               );
+      if (!ref.mounted) return;
 
       state = PaginatedTransactionsState(
         transactions: result.transactions,
@@ -54,6 +56,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
       );
     } catch (e, s) {
       debugPrint('Error loading first page: $e, $s');
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.toString(),
@@ -63,7 +66,10 @@ class PaginatedExpenses extends _$PaginatedExpenses {
 
   /// Load the next page of transactions
   Future<void> loadNextPage() async {
-    if (state.isLoadingMore || !state.hasMore || state.isLoading) {
+    if (!ref.mounted ||
+        state.isLoadingMore ||
+        !state.hasMore ||
+        state.isLoading) {
       return;
     }
 
@@ -77,6 +83,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
                 limit: pageSize,
                 type: TransactionType.expense,
               );
+      if (!ref.mounted) return;
 
       state = state.copyWith(
         transactions: [...state.transactions, ...result.transactions],
@@ -86,6 +93,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
       );
     } catch (e, s) {
       debugPrint('Error loading next page: $e, $s');
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoadingMore: false,
         errorMessage: e.toString(),
@@ -95,6 +103,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
 
   /// Refresh all transactions (reload from beginning)
   Future<void> refresh() async {
+    if (!ref.mounted) return;
     try {
       // Keep existing items to avoid showing empty state during refresh
       state = state.copyWith(
@@ -107,6 +116,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
       await _loadFirstPage();
     } catch (e, s) {
       debugPrint('Error refreshing transactions: $e, $s');
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.toString(),

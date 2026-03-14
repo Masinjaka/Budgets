@@ -28,11 +28,49 @@ import 'package:shimmer/shimmer.dart';
 import 'package:vibration/vibration.dart';
 
 /// Goals tab content widget for the planning page
-class GoalsTabContent extends ConsumerWidget {
+class GoalsTabContent extends ConsumerStatefulWidget {
   const GoalsTabContent({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GoalsTabContent> createState() => _GoalsTabContentState();
+}
+
+class _GoalsTabContentState extends ConsumerState<GoalsTabContent> {
+  late final ScrollController _scrollController;
+  bool _canScroll = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()..addListener(_updateScrollability);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateScrollability);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateScrollability() {
+    if (!_scrollController.hasClients) return;
+    final shouldScroll = _scrollController.position.maxScrollExtent > 0.5;
+    if (shouldScroll != _canScroll && mounted) {
+      setState(() {
+        _canScroll = shouldScroll;
+      });
+    }
+  }
+
+  void _scheduleScrollabilityCheck() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _updateScrollability();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final goalsAsyncValue = ref.watch(goalsProvider);
 
     return Padding(
@@ -42,7 +80,7 @@ class GoalsTabContent extends ConsumerWidget {
         children: [
           Expanded(
             child: switch (goalsAsyncValue) {
-              AsyncData(:final value) => _buildGoalList(context, value, ref),
+              AsyncData(:final value) => _buildGoalList(context, value),
               AsyncError(:final error) => Center(
                   child: Text('Erreur: $error',
                       style: TextStyle(
@@ -56,11 +94,19 @@ class GoalsTabContent extends ConsumerWidget {
     );
   }
 
-  Widget _buildGoalList(BuildContext context, List<Goal> goals, WidgetRef ref) {
+  Widget _buildGoalList(BuildContext context, List<Goal> goals) {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     String imagePath = isDarkMode ? AppPaths.noPlanDark : AppPaths.noPlanLight;
 
     if (goals.isEmpty) {
+      if (_canScroll) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || !_canScroll) return;
+          setState(() {
+            _canScroll = false;
+          });
+        });
+      }
       return PlanningEmptyState(
         imagePath: imagePath,
         title: 'Aucun objectif défini',
@@ -68,7 +114,13 @@ class GoalsTabContent extends ConsumerWidget {
       );
     }
 
+    _scheduleScrollabilityCheck();
+
     return ListView.builder(
+      controller: _scrollController,
+      physics: _canScroll
+          ? const ClampingScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
       padding: EdgeInsets.only(top: 2.h),
       itemCount: goals.length,
       itemBuilder: (context, index) =>
@@ -93,12 +145,13 @@ class _GoalListItem extends ConsumerStatefulWidget {
 
 class _GoalListItemState extends ConsumerState<_GoalListItem>
     with SingleTickerProviderStateMixin {
-  static const String _deleteActionLabel = 'Supprimer';
   static const double _deletePaneExtentRatio = 0.20;
+  static const _dismissDuration = Duration(milliseconds: 220);
 
   bool _hasTriggeredHalfSwipeHaptic = false;
   bool _canVibrate = true;
   double _swipeProgress = 0;
+  bool _isDismissing = false;
   late final SlidableController _slidableController;
 
   @override
@@ -186,6 +239,7 @@ class _GoalListItemState extends ConsumerState<_GoalListItem>
   }
 
   Future<void> _handleDeleteAction() async {
+    if (_isDismissing) return;
     final goal = widget.goal;
     final shouldDelete = await _showDeleteDialog(context);
     if (!shouldDelete || goal.id == null) {
@@ -193,15 +247,23 @@ class _GoalListItemState extends ConsumerState<_GoalListItem>
       return;
     }
 
+    await _resetSwipeFeedbackState();
+    if (!mounted) return;
+
+    setState(() {
+      _isDismissing = true;
+    });
+
+    await Future.delayed(_dismissDuration);
+
     try {
       await ref.read(goalsProvider.notifier).deleteSomeGoal(goal.id!);
-      if (mounted) {
-        await _resetSwipeFeedbackState();
-      }
     } catch (e) {
       debugPrint('Error deleting goal: $e');
       if (mounted) {
-        await _resetSwipeFeedbackState();
+        setState(() {
+          _isDismissing = false;
+        });
       }
     }
   }
@@ -224,7 +286,7 @@ class _GoalListItemState extends ConsumerState<_GoalListItem>
         ? (currentAmountMga / goalAmountMga).clamp(0.0, 1.0)
         : 0.0;
 
-    return Padding(
+    final card = Padding(
       padding: EdgeInsets.only(bottom: 2.h),
       child: ClipRRect(
         borderRadius: cardBorderRadius,
@@ -232,6 +294,7 @@ class _GoalListItemState extends ConsumerState<_GoalListItem>
         child: Slidable(
           controller: _slidableController,
           key: Key(goal.id ?? DateTime.now().toString()),
+          enabled: !_isDismissing,
           endActionPane: ActionPane(
             motion: const DrawerMotion(),
             extentRatio: _deletePaneExtentRatio,
@@ -312,7 +375,9 @@ class _GoalListItemState extends ConsumerState<_GoalListItem>
                           top: 1.w,
                           right: 1.w,
                           child: GestureDetector(
-                            onTap: () => _showEditDialog(context),
+                            onTap: _isDismissing
+                                ? null
+                                : () => _showEditDialog(context),
                             child: Container(
                               padding: EdgeInsets.all(1.5.w),
                               decoration: BoxDecoration(
@@ -361,10 +426,29 @@ class _GoalListItemState extends ConsumerState<_GoalListItem>
           ),
         ),
       ),
-    )
+    );
+
+    final animatedEntry = card
         .animate(delay: (50 * widget.index).ms)
         .fade(duration: 200.ms)
         .slideY(begin: 0.3, duration: 200.ms, curve: Curves.easeOut);
+
+    return AnimatedSlide(
+      duration: _dismissDuration,
+      curve: Curves.easeOutCubic,
+      offset: _isDismissing ? const Offset(0.15, 0) : Offset.zero,
+      child: AnimatedOpacity(
+        duration: _dismissDuration,
+        curve: Curves.easeOut,
+        opacity: _isDismissing ? 0 : 1,
+        child: AnimatedSize(
+          duration: _dismissDuration,
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: _isDismissing ? const SizedBox.shrink() : animatedEntry,
+        ),
+      ),
+    );
   }
 
   void _showEditDialog(BuildContext context) {

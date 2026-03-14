@@ -16,11 +16,49 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:vibration/vibration.dart';
 
 /// Budgets tab content widget for the planning page
-class BudgetsTabContent extends ConsumerWidget {
+class BudgetsTabContent extends ConsumerStatefulWidget {
   const BudgetsTabContent({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BudgetsTabContent> createState() => _BudgetsTabContentState();
+}
+
+class _BudgetsTabContentState extends ConsumerState<BudgetsTabContent> {
+  late final ScrollController _scrollController;
+  bool _canScroll = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()..addListener(_updateScrollability);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateScrollability);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateScrollability() {
+    if (!_scrollController.hasClients) return;
+    final shouldScroll = _scrollController.position.maxScrollExtent > 0.5;
+    if (shouldScroll != _canScroll && mounted) {
+      setState(() {
+        _canScroll = shouldScroll;
+      });
+    }
+  }
+
+  void _scheduleScrollabilityCheck() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _updateScrollability();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final budgetsAsyncValue = ref.watch(budgetsProvider);
 
     return Padding(
@@ -30,7 +68,7 @@ class BudgetsTabContent extends ConsumerWidget {
         children: [
           Expanded(
             child: switch (budgetsAsyncValue) {
-              AsyncData(:final value) => _buildBudgetList(context, value, ref),
+              AsyncData(:final value) => _buildBudgetList(context, value),
               AsyncError(:final error) => Center(
                   child: Text('Erreur: $error',
                       style: TextStyle(
@@ -44,13 +82,20 @@ class BudgetsTabContent extends ConsumerWidget {
     );
   }
 
-  Widget _buildBudgetList(
-      BuildContext context, List<Budget> budgets, WidgetRef ref) {
+  Widget _buildBudgetList(BuildContext context, List<Budget> budgets) {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     String imagePath =
         isDarkMode ? AppPaths.noBudgetDark : AppPaths.noBudgetLight;
 
     if (budgets.isEmpty) {
+      if (_canScroll) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || !_canScroll) return;
+          setState(() {
+            _canScroll = false;
+          });
+        });
+      }
       return PlanningEmptyState(
         imagePath: imagePath,
         title: 'Aucun budget créé',
@@ -58,7 +103,13 @@ class BudgetsTabContent extends ConsumerWidget {
       );
     }
 
+    _scheduleScrollabilityCheck();
+
     return ListView.builder(
+      controller: _scrollController,
+      physics: _canScroll
+          ? const ClampingScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
       padding: EdgeInsets.only(top: 2.h),
       itemCount: budgets.length,
       itemBuilder: (context, index) =>
@@ -83,12 +134,13 @@ class _BudgetListItem extends ConsumerStatefulWidget {
 
 class _BudgetListItemState extends ConsumerState<_BudgetListItem>
     with SingleTickerProviderStateMixin {
-  static const String _deleteActionLabel = 'Supprimer';
   static const double _deletePaneExtentRatio = 0.20;
+  static const _dismissDuration = Duration(milliseconds: 220);
 
   bool _hasTriggeredHalfSwipeHaptic = false;
   bool _canVibrate = true;
   double _swipeProgress = 0;
+  bool _isDismissing = false;
   late final SlidableController _slidableController;
 
   @override
@@ -188,6 +240,7 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem>
   }
 
   Future<void> _handleDeleteAction() async {
+    if (_isDismissing) return;
     final budget = widget.budget;
     final shouldDelete = await _showDeleteDialog(context);
     if (!shouldDelete || budget.id == null) {
@@ -195,15 +248,23 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem>
       return;
     }
 
+    await _resetSwipeFeedbackState();
+    if (!mounted) return;
+
+    setState(() {
+      _isDismissing = true;
+    });
+
+    await Future.delayed(_dismissDuration);
+
     try {
       await ref.read(budgetsProvider.notifier).deleteSomeBudget(budget.id!);
-      if (mounted) {
-        await _resetSwipeFeedbackState();
-      }
     } catch (e) {
       debugPrint('Error deleting budget: $e');
       if (mounted) {
-        await _resetSwipeFeedbackState();
+        setState(() {
+          _isDismissing = false;
+        });
       }
     }
   }
@@ -222,7 +283,7 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem>
     final spent = convertFromMga(spentMga, rate);
     final progress = amount > 0 ? (spent / amount).clamp(0.0, 1.0) : 0.0;
 
-    return Padding(
+    final card = Padding(
       padding: EdgeInsets.only(bottom: 2.h),
       child: ClipRRect(
         borderRadius: cardBorderRadius,
@@ -230,6 +291,7 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem>
         child: Slidable(
           controller: _slidableController,
           key: Key(budget.id?.toString() ?? DateTime.now().toString()),
+          enabled: !_isDismissing,
           endActionPane: ActionPane(
             motion: const DrawerMotion(),
             extentRatio: _deletePaneExtentRatio,
@@ -273,7 +335,7 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem>
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               borderRadius: cardBorderRadius,
-              onTap: () => _showEditDialog(context),
+              onTap: _isDismissing ? null : () => _showEditDialog(context),
               child: Padding(
                 padding: EdgeInsets.all(4.w),
                 child: Column(
@@ -344,10 +406,29 @@ class _BudgetListItemState extends ConsumerState<_BudgetListItem>
           ),
         ),
       ),
-    )
+    );
+
+    final animatedEntry = card
         .animate(delay: (50 * widget.index).ms)
         .fade(duration: 200.ms)
         .slideY(begin: 0.3, duration: 200.ms, curve: Curves.easeOut);
+
+    return AnimatedSlide(
+      duration: _dismissDuration,
+      curve: Curves.easeOutCubic,
+      offset: _isDismissing ? const Offset(0.15, 0) : Offset.zero,
+      child: AnimatedOpacity(
+        duration: _dismissDuration,
+        curve: Curves.easeOut,
+        opacity: _isDismissing ? 0 : 1,
+        child: AnimatedSize(
+          duration: _dismissDuration,
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: _isDismissing ? const SizedBox.shrink() : animatedEntry,
+        ),
+      ),
+    );
   }
 
   void _showEditDialog(BuildContext context) {

@@ -34,6 +34,7 @@ class PaginatedIncomes extends _$PaginatedIncomes {
   }
 
   Future<void> _loadFirstPage() async {
+    if (!ref.mounted) return;
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
       final result =
@@ -42,6 +43,7 @@ class PaginatedIncomes extends _$PaginatedIncomes {
                 limit: pageSize,
                 type: TransactionType.income,
               );
+      if (!ref.mounted) return;
       state = PaginatedTransactionsState(
         transactions: result.transactions,
         hasMore: result.hasMore,
@@ -51,6 +53,7 @@ class PaginatedIncomes extends _$PaginatedIncomes {
       );
     } catch (e, s) {
       debugPrint('Error loading first income page: $e, $s');
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.toString(),
@@ -59,7 +62,10 @@ class PaginatedIncomes extends _$PaginatedIncomes {
   }
 
   Future<void> loadNextPage() async {
-    if (state.isLoadingMore || !state.hasMore || state.isLoading) {
+    if (!ref.mounted ||
+        state.isLoadingMore ||
+        !state.hasMore ||
+        state.isLoading) {
       return;
     }
     try {
@@ -71,6 +77,7 @@ class PaginatedIncomes extends _$PaginatedIncomes {
                 limit: pageSize,
                 type: TransactionType.income,
               );
+      if (!ref.mounted) return;
       state = state.copyWith(
         transactions: [...state.transactions, ...result.transactions],
         hasMore: result.hasMore,
@@ -79,6 +86,7 @@ class PaginatedIncomes extends _$PaginatedIncomes {
       );
     } catch (e, s) {
       debugPrint('Error loading next income page: $e, $s');
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoadingMore: false,
         errorMessage: e.toString(),
@@ -87,6 +95,7 @@ class PaginatedIncomes extends _$PaginatedIncomes {
   }
 
   Future<void> refresh() async {
+    if (!ref.mounted) return;
     try {
       // Keep current list to avoid flicker
       state = state.copyWith(
@@ -98,6 +107,7 @@ class PaginatedIncomes extends _$PaginatedIncomes {
       await _loadFirstPage();
     } catch (e, s) {
       debugPrint('Error refreshing incomes: $e, $s');
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.toString(),

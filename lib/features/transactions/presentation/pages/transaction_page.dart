@@ -1,8 +1,8 @@
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/widgets/expandable_fab.dart';
-import 'package:budgets/features/transactions/presentation/widgets/add_transaction_dialog.dart';
 import 'package:budgets/features/transactions/presentation/pages/expense_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction_dialog.dart';
+import 'package:budgets/widgets/expandable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,46 +17,128 @@ class TransactionPage extends ConsumerStatefulWidget {
 }
 
 class _TransactionPageState extends ConsumerState<TransactionPage>
-    with TickerProviderStateMixin {
-  // Tab controller
-  late TabController _tabController;
-
-  // Animation controller for SliverAppBar
-  late AnimationController _appBarAnimationController;
-  late Animation<double> _appBarAnimation;
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  int _currentTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-
-    _appBarAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _appBarAnimation = CurvedAnimation(
-      parent: _appBarAnimationController,
-      curve: Curves.easeInOut,
-    );
-    // Start with app bar visible
-    _appBarAnimationController.value = 1.0;
+    _tabController = TabController(length: 2, vsync: this)
+      ..addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
-    _appBarAnimationController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (!mounted || _currentTabIndex == _tabController.index) {
+      return;
+    }
+    setState(() {
+      _currentTabIndex = _tabController.index;
+    });
+  }
+
+  void _openSearchPage() {
+    final type = _currentTabIndex == 0 ? 'expense' : 'income';
+    context.push('/transaction-search?type=$type');
+  }
+
+  void _openAddTransactionDialog() {
+    final transactionType = _currentTabIndex == 0
+        ? TransactionType.expense
+        : TransactionType.income;
+    AddTransactionDialog.show(
+      context,
+      transactionType: transactionType,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final unselectedLabelColor =
+        theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.6);
+
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        extendBodyBehindAppBar: false,
+        appBar: AppBar(
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: theme.scaffoldBackgroundColor,
+          scrolledUnderElevation: 0,
+          titleSpacing: 6.w,
+          title: Text(
+            'Transactions',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20.sp,
+            ),
+          ),
+          centerTitle: false,
+          actions: [
+            Padding(
+              padding: EdgeInsets.only(right: 3.w),
+              child: IconButton(
+                tooltip: 'Rechercher',
+                onPressed: _openSearchPage,
+                icon: Icon(
+                  Icons.search,
+                  size: 21.sp,
+                ),
+              ),
+            ),
+          ],
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(8.h),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(6.w, 0, 6.w, 1.h),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                padding: EdgeInsets.all(1.w),
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    color: theme.primaryColor,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: unselectedLabelColor,
+                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) {
+                      return states.contains(WidgetState.focused)
+                          ? null
+                          : Colors.transparent;
+                    },
+                  ),
+                  splashFactory: NoSplash.splashFactory,
+                  labelStyle: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  unselectedLabelStyle: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  tabs: const [
+                    Tab(text: 'Dépenses'),
+                    Tab(text: 'Revenus'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
         floatingActionButton: ExpandableFab(
           icon: Icons.add,
           closeIcon: Icons.close,
@@ -69,196 +151,18 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
             ),
             FabChildButton(
               icon: Icons.add,
-              onPressed: () {
-                final isExpenseTab = _tabController.index == 0;
-                final transactionType = isExpenseTab
-                    ? TransactionType.expense
-                    : TransactionType.income;
-                AddTransactionDialog.show(
-                  context,
-                  transactionType: transactionType,
-                );
-              },
+              onPressed: _openAddTransactionDialog,
             ),
           ],
         ),
-        body: NestedScrollView(
-          floatHeaderSlivers: true,
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return [
-              // Moved SliverAppBar from transaction list page
-              AnimatedBuilder(
-                animation: _appBarAnimation,
-                builder: (context, child) {
-                  return SliverAppBar(
-                    surfaceTintColor: Colors.transparent,
-                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    pinned: true,
-                    floating: true,
-                    expandedHeight: _appBarAnimation.value * kToolbarHeight,
-                    toolbarHeight: _appBarAnimation.value * kToolbarHeight,
-                    elevation: _appBarAnimation.value * 4,
-                    titleSpacing: 6.w,
-                    title: _appBarAnimation.value > 0.1
-                        ? Opacity(
-                            opacity: _appBarAnimation.value,
-                            child: Transform.translate(
-                              offset:
-                                  Offset(0, (1 - _appBarAnimation.value) * -20),
-                              child: Text(
-                                'Transactions',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20.sp,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.color
-                                      ?.withAlpha(_appBarAnimation.value > 0.1
-                                          ? 255
-                                          : 0),
-                                ),
-                              ),
-                            ),
-                          )
-                        : null,
-                    centerTitle: false,
-                    actions: [
-                      Padding(
-                        padding: EdgeInsets.only(right: 3.w),
-                        child: IconButton(
-                          tooltip: 'Rechercher',
-                          onPressed: () {
-                            final type = _tabController.index == 0
-                                ? 'expense'
-                                : 'income';
-                            context.push('/transaction-search?type=$type');
-                          },
-                          icon: Icon(
-                            Icons.search,
-                            size: 21.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              // Tab view positioned at top left - pinned to not scroll with content
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _TabBarDelegate(
-                  tabController: _tabController,
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  labelColor: Theme.of(context).textTheme.bodyLarge?.color,
-                  unselectedLabelColor: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.color
-                      ?.withAlpha(128),
-                  indicatorColor: Theme.of(context).primaryColor,
-                ),
-              ),
-            ];
-          },
-          body: TabBarView(
-            controller: _tabController,
-            physics:
-                const NeverScrollableScrollPhysics(), // disable horizontal swipe
-            children: [
-              // Expenses tab - contains the transaction list content
-              const TransactionTabContent(),
-              // Income tab - contains the income content
-              const IncomeTabContent(),
-            ],
-          ),
+        body: TabBarView(
+          controller: _tabController,
+          children: const [
+            TransactionTabContent(),
+            IncomeTabContent(),
+          ],
         ),
       ),
     );
-  }
-}
-
-class _TabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabController tabController;
-  final Color backgroundColor;
-  final Color? labelColor;
-  final Color? unselectedLabelColor;
-  final Color? indicatorColor;
-
-  _TabBarDelegate({
-    required this.tabController,
-    required this.backgroundColor,
-    this.labelColor,
-    this.unselectedLabelColor,
-    this.indicatorColor,
-  });
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: backgroundColor,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
-        child: Center(
-          child: Container(
-            width: 90.w,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            padding: EdgeInsets.all(1.w),
-            child: TabBar(
-              controller: tabController,
-              indicator: BoxDecoration(
-                color: indicatorColor ?? Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(50),
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              labelColor: Colors.white,
-              unselectedLabelColor: unselectedLabelColor,
-              overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                (Set<WidgetState> states) {
-                  return states.contains(WidgetState.focused)
-                      ? null
-                      : Colors.transparent;
-                },
-              ),
-              splashFactory: NoSplash.splashFactory,
-              labelStyle: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              unselectedLabelStyle: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w500,
-              ),
-              tabs: const [
-                Tab(text: 'Dépenses'),
-                Tab(text: 'Revenus'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 5.h + 4.h; // Tab height + padding
-
-  @override
-  double get minExtent => 5.h + 4.h; // Same as maxExtent for fixed height
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is _TabBarDelegate) {
-      return backgroundColor != oldDelegate.backgroundColor ||
-          labelColor != oldDelegate.labelColor ||
-          unselectedLabelColor != oldDelegate.unselectedLabelColor ||
-          indicatorColor != oldDelegate.indicatorColor;
-    }
-    return true;
   }
 }

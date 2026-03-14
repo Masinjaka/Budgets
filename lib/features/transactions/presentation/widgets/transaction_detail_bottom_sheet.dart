@@ -161,8 +161,13 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                         ),
                         Text(
                           formatAmountWithCurrency(
-                              convertFromMga(transaction.amount, rate),
-                              currencyCode),
+                            convertFromMga(transaction.amount, rate),
+                            currencyCode,
+                            preserveFraction: true,
+                          ),
+                          // formatAmountWithCurrency(
+                          //     convertFromMga(transaction.amount, rate),
+                          //     currencyCode),
                           style: TextStyle(
                             color: Theme.of(context)
                                 .textTheme
@@ -170,7 +175,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                                 ?.color
                                 ?.withAlpha(128),
                             fontWeight: FontWeight.bold,
-                            fontSize: 14.sp,
+                            fontSize: 16.sp,
                           ),
                         ),
                       ],
@@ -239,35 +244,49 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14.sp),
                               ),
-                              SizedBox(height: 0.5.h),
+                              SizedBox(height: 1.5.h),
                               ...subcategoryExpenses.map((sub) => Padding(
                                     padding: EdgeInsets.only(bottom: 0.5.h),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          sub.subcategory?.name ?? 'Unknown',
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge
-                                                  ?.color
-                                                  ?.withAlpha(179),
-                                              fontSize: 14.sp),
-                                        ),
-                                        Text(
-                                          formatAmountValue(
-                                              convertFromMga(sub.amount, rate)),
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge
-                                                  ?.color
-                                                  ?.withAlpha(179),
-                                              fontSize: 14.sp),
-                                        ),
-                                      ],
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 3.w, vertical: 1.h),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceDim,
+                                        borderRadius:
+                                            BorderRadius.circular(2.w),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            sub.subcategory?.name ?? 'Unknown',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.color
+                                                    ?.withAlpha(179),
+                                                fontSize: 14.sp),
+                                          ),
+                                          Text(
+                                            formatAmountWithCurrency(
+                                              convertFromMga(sub.amount, rate),
+                                              currencyCode,
+                                              preserveFraction: true,
+                                            ),
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.color
+                                                    ?.withAlpha(179),
+                                                fontSize: 14.sp),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   )),
                             ],

@@ -27,12 +27,13 @@ class TransactionListItem extends ConsumerStatefulWidget {
 
 class _TransactionListItemState extends ConsumerState<TransactionListItem>
     with SingleTickerProviderStateMixin {
-  static const String _deleteActionLabel = 'Supprimer';
   static const double _deletePaneExtentRatio = 0.20;
+  static const _dismissDuration = Duration(milliseconds: 220);
 
   bool _hasTriggeredHalfSwipeHaptic = false;
   bool _canVibrate = true;
   double _swipeProgress = 0;
+  bool _isDismissing = false;
   late final SlidableController _slidableController;
 
   @override
@@ -116,6 +117,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
   }
 
   Future<void> _handleDeleteAction() async {
+    if (_isDismissing) return;
     final transaction = widget.transaction;
     final shouldDelete = await _showDeleteConfirmationDialog(context);
     if (!shouldDelete || transaction.id == null) {
@@ -123,19 +125,27 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
       return;
     }
 
+    await _resetSwipeFeedbackState();
+    if (!mounted) return;
+
+    setState(() {
+      _isDismissing = true;
+    });
+
+    await Future.delayed(_dismissDuration);
+
     try {
       await ref.read(transactionsProvider.notifier).deleteTransaction(
             transaction.id!,
             transaction.transactionType ?? TransactionType.expense,
             transaction: transaction,
           );
-      if (mounted) {
-        await _resetSwipeFeedbackState();
-      }
     } catch (e) {
       debugPrint("Error deleting transaction: $e");
       if (mounted) {
-        await _resetSwipeFeedbackState();
+        setState(() {
+          _isDismissing = false;
+        });
       }
     }
   }
@@ -148,14 +158,15 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final displayAmount = convertFromMga(transaction.amount, rate);
-    return ClipRRect(
+    final card = ClipRRect(
       borderRadius: cardBorderRadius,
       clipBehavior: Clip.antiAlias,
       child: Slidable(
         controller: _slidableController,
         key: Key(transaction.id ?? DateTime.now().toString()),
+        enabled: !_isDismissing,
         endActionPane: ActionPane(
-          motion: DrawerMotion(),
+          motion: const DrawerMotion(),
           extentRatio: _deletePaneExtentRatio,
           children: [
             CustomSlidableAction(
@@ -197,15 +208,17 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             borderRadius: cardBorderRadius, // Match container radius
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                isScrollControlled: true,
-                builder: (context) =>
-                    TransactionDetailBottomSheet(transaction: transaction),
-              );
-            },
+            onTap: _isDismissing
+                ? null
+                : () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (context) => TransactionDetailBottomSheet(
+                          transaction: transaction),
+                    );
+                  },
             child: Padding(
               padding: EdgeInsets.all(2.5.w),
               child: Row(
@@ -270,6 +283,23 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
               ),
             ),
           ),
+        ),
+      ),
+    );
+
+    return AnimatedSlide(
+      duration: _dismissDuration,
+      curve: Curves.easeOutCubic,
+      offset: _isDismissing ? const Offset(0.15, 0) : Offset.zero,
+      child: AnimatedOpacity(
+        duration: _dismissDuration,
+        curve: Curves.easeOut,
+        opacity: _isDismissing ? 0 : 1,
+        child: AnimatedSize(
+          duration: _dismissDuration,
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: _isDismissing ? const SizedBox.shrink() : card,
         ),
       ),
     );
