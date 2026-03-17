@@ -1,8 +1,5 @@
-import 'package:budgets/core/currency/currency_provider.dart';
-import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,7 +24,6 @@ class NewCategoryBreakdown extends ConsumerStatefulWidget {
 
 class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
   bool _showExpenses = true;
-  final GlobalKey _cardKey = GlobalKey();
 
   void _switchTab(bool showExpenses) {
     if (_showExpenses == showExpenses) return;
@@ -36,38 +32,26 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyState = ref.watch(currencyControllerProvider).value;
-    final currencyCode = currencyState?.code ?? 'MGA';
-    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final surfaceColor = Theme.of(context).colorScheme.surface;
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final progressColor = isDarkMode ? Colors.white : Colors.black;
 
-    // Get current data based on toggle
     final currentData =
         _showExpenses ? widget.expensesByCategory : widget.incomeByCategory;
-
-    // Calculate total
     final total = currentData.values.fold(0.0, (sum, amount) => sum + amount);
-
-    // Sort by amount descending
     final sortedEntries = currentData.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      key: _cardKey,
-      height: 36.h,
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
         color: surfaceColor,
-        borderRadius: BorderRadius.circular(6.w),
+        borderRadius: BorderRadius.circular(4.w),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Title
           Text(
             'Catégories',
             style: TextStyle(
@@ -77,7 +61,7 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
             ),
           ),
           SizedBox(height: 1.5.h),
-          // Tabs styled like transaction page
+          // Tabs
           Container(
             width: 90.w,
             decoration: BoxDecoration(
@@ -90,13 +74,12 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => _switchTab(true),
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 3.w, vertical: 0.8.h),
                       decoration: BoxDecoration(
-                        color: _showExpenses
-                            ? primaryColor
-                            : Colors.transparent,
+                        color:
+                            _showExpenses ? primaryColor : Colors.transparent,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Center(
@@ -117,13 +100,12 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => _switchTab(false),
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 3.w, vertical: 0.8.h),
                       decoration: BoxDecoration(
-                        color: !_showExpenses
-                            ? primaryColor
-                            : Colors.transparent,
+                        color:
+                            !_showExpenses ? primaryColor : Colors.transparent,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Center(
@@ -145,197 +127,101 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
             ),
           ),
           SizedBox(height: 2.h),
-          // Donut chart + category list
-          Expanded(
-            child: sortedEntries.isEmpty
-                ? Center(
-                    child: Text(
-                      _showExpenses
-                          ? 'Aucune dépense ce mois'
-                          : 'Aucun revenu ce mois',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: textColor?.withValues(alpha: 0.5),
+          // Donut chart + legend labels below
+          if (sortedEntries.isEmpty)
+            SizedBox(
+              height: 20.h,
+              child: Center(
+                child: Text(
+                  _showExpenses
+                      ? 'Aucune dépense ce mois'
+                      : 'Aucun revenu ce mois',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: textColor?.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            )
+          else ...[
+            SizedBox(
+              height: 18.h,
+              child: _buildDonut(
+                entries: sortedEntries,
+                surfaceColor: surfaceColor,
+              ),
+            ),
+            SizedBox(height: 1.5.h),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4.w,
+              runSpacing: 1.h,
+              children: sortedEntries.map((entry) {
+                final percentage =
+                    total > 0 ? (entry.value / total * 100) : 0.0;
+                final baseColor = _parseColor(
+                    widget.categoryColors[entry.key] ?? '#10B981');
+                final color = _applyMochaAccent(baseColor, entry.key);
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 2.w,
+                      height: 2.w,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
                       ),
                     ),
-                  )
-                : LayoutBuilder(
-                    builder: (context, constraints) {
-                      final halfWidth = (constraints.maxWidth - 3.w) / 2;
-                      final donutSize = halfWidth.clamp(5.h, 7.h).toDouble();
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: double.infinity,
-                              child: _buildDonutChart(
-                                context: context,
-                                entries: sortedEntries,
-                                surfaceColor: surfaceColor,
-                                size: donutSize,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 3.w),
-                          Expanded(
-                            child: ShaderMask(
-                              shaderCallback: (bounds) {
-                                return const LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black,
-                                    Colors.black,
-                                    Colors.transparent,
-                                  ],
-                                  stops: [0.0, 0.12, 0.88, 1.0],
-                                ).createShader(bounds);
-                              },
-                              blendMode: BlendMode.dstIn,
-                              child: ListView.separated(
-                                padding:
-                                    EdgeInsets.only(top: 0.6.h, bottom: 2.h),
-                                itemCount: sortedEntries.length,
-                                itemBuilder: (context, index) {
-                                  final entry = sortedEntries[index];
-                                  final percentage = total > 0
-                                      ? (entry.value / total * 100)
-                                      : 0.0;
-                                  final emoji =
-                                      widget.categoryEmojis[entry.key] ?? '💰';
-
-                                  return _buildCategoryRow(
-                                    emoji: emoji,
-                                    name: entry.key,
-                                    amount: entry.value,
-                                    percentage: percentage,
-                                    textColor: textColor,
-                                    rate: rate,
-                                    currencyCode: currencyCode,
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    SizedBox(height: 1.2.h),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-          ),
+                    SizedBox(width: 1.5.w),
+                    Text(
+                      '${entry.key} - ${percentage.toStringAsFixed(2)}%',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                        color: textColor?.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildDonutChart({
-    required BuildContext context,
+  Widget _buildDonut({
     required List<MapEntry<String, double>> entries,
     required Color surfaceColor,
-    required double size,
   }) {
+    final radius = 7.w;
     final sections = entries.map((entry) {
       final baseColor =
           _parseColor(widget.categoryColors[entry.key] ?? '#10B981');
       final color = _applyMochaAccent(baseColor, entry.key);
       return PieChartSectionData(
         value: entry.value,
-        title: '',
         color: color,
-        radius: size * 0.34,
-        titleStyle: const TextStyle(fontSize: 0),
-        borderSide: BorderSide(color: surfaceColor, width: 1),
+        radius: radius,
+        title: '',
+        borderSide: BorderSide(color: surfaceColor, width: 1.5),
       );
     }).toList();
 
-    return Center(
-      child: SizedBox(
-        height: size,
-        width: size,
-        child: PieChart(
-          PieChartData(
-            startDegreeOffset: 270,
-            sections: sections,
-            sectionsSpace: 0,
-            centerSpaceRadius: size * 0.52,
-            borderData: FlBorderData(show: false),
-          ),
-        ),
+    return PieChart(
+      PieChartData(
+        startDegreeOffset: 270,
+        sections: sections,
+        sectionsSpace: 0,
+        centerSpaceRadius: radius * 1.4,
+        borderData: FlBorderData(show: false),
       ),
-    );
-  }
-
-  Widget _buildCategoryRow({
-    required String emoji,
-    required String name,
-    required double amount,
-    required double percentage,
-    required double rate,
-    required String currencyCode,
-    Color? textColor,
-  }) {
-    final baseColor = _parseColor(widget.categoryColors[name] ?? '#10B981');
-    final dotColor = _applyMochaAccent(baseColor, name);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 2.2.w,
-          height: 2.2.w,
-          decoration: BoxDecoration(
-            color: dotColor,
-            shape: BoxShape.circle,
-          ),
-        ),
-        SizedBox(width: 2.5.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 13.5.sp,
-                  fontWeight: FontWeight.w500,
-                  color: textColor,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 0.4.h),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: formatAmountValue(convertFromMga(amount, rate)),
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: textColor,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '  $currencyCode',
-                      style: TextStyle(
-                        fontSize: 11.5.sp,
-                        fontWeight: FontWeight.bold,
-                        color: textColor?.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    TextSpan(
-                      text: '  •  ${percentage.toStringAsFixed(0)}%',
-                      style: TextStyle(
-                        fontSize: 11.5.sp,
-                        color: textColor?.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

@@ -1,15 +1,9 @@
 import 'package:budgets/core/enums/transaction_type.dart';
-import 'package:budgets/features/categories/domain/models/category_model.dart';
-import 'package:budgets/features/categories/domain/providers/category_provider.dart';
-import 'package:budgets/features/categories/data/datasource/category_api.dart'
-    as category_api;
-import 'package:budgets/core/ui/app_toast.dart';
-import 'package:budgets/features/planning/data/datasources/goal_datasource.dart'
-    as goal_datasource;
+import 'package:budgets/features/categories/presentation/widgets/category_tab_bar_delegate.dart';
+import 'package:budgets/features/categories/presentation/widgets/category_tab_content.dart';
 import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -135,7 +129,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
               // Tab view positioned at top left - pinned to not scroll with content
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _CategoryTabBarDelegate(
+                delegate: CategoryTabBarDelegate(
                   tabController: _tabController,
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   labelColor: Theme.of(context).textTheme.bodyLarge?.color,
@@ -153,11 +147,11 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
             controller: _tabController,
             children: const [
               // Expense categories tab
-              _CategoryTabContent(
+              CategoryTabContent(
                 transactionType: TransactionType.expense,
               ),
               // Income categories tab
-              _CategoryTabContent(
+              CategoryTabContent(
                 transactionType: TransactionType.income,
               ),
             ],
@@ -165,257 +159,5 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
         ),
       ),
     );
-  }
-}
-
-// Separate widget for category tab content
-class _CategoryTabContent extends ConsumerWidget {
-  final TransactionType transactionType;
-
-  const _CategoryTabContent({required this.transactionType});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final categoriesAsyncValue = ref.watch(categoriesProvider);
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: switch (categoriesAsyncValue) {
-              AsyncData(:final value) =>
-                _categoryGrid(context, _filterCategories(value)),
-              AsyncError(:final error) => Text('error: $error'),
-              _ => _skeleton(context),
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Filter categories by transaction type
-  List<Category> _filterCategories(List<Category> categories) {
-    return categories
-        .where((category) => category.transactionType == transactionType)
-        .toList();
-  }
-
-  GridView _skeleton(BuildContext context) {
-    return GridView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: 5,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 4.w,
-        mainAxisSpacing: 4.w,
-        childAspectRatio: 2.0, // This makes the height half of the width
-      ),
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(5.w),
-        ),
-      ),
-    );
-  }
-
-  Widget _categoryGrid(BuildContext context, List<Category> categories) {
-    if (categories.isEmpty) {
-      return Center(
-        child: Text(
-          'Aucune catégorie trouvée.',
-          style: TextStyle(
-            color: Theme.of(context).hintColor,
-            fontSize: 16.sp,
-          ),
-        ),
-      );
-    }
-    return GridView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: categories.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 4.w,
-        mainAxisSpacing: 4.w,
-        childAspectRatio: 2.0, // This makes the height half of the width
-      ),
-      itemBuilder: (context, index) {
-        final category = categories[index];
-        final isSavingsCategory = category_api.isSavingsCategory(category);
-
-        return GestureDetector(
-          onTap: () async {
-            if (isSavingsCategory) {
-              // Check if user has goals before allowing edit
-              final hasGoals = await goal_datasource.hasAnyGoals();
-              if (hasGoals) {
-                if (context.mounted) {
-                  showInfoToast(
-                    context,
-                    'Cette catégorie est utilisée pour vos objectifs d\'épargne et ne peut pas être modifiée.',
-                  );
-                }
-                return;
-              }
-            }
-            if (context.mounted) {
-              context.push('/add-category', extra: category);
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Color(int.parse(category.color!, radix: 16)),
-              borderRadius: BorderRadius.circular(5.w),
-            ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Lock icon for savings category with goals
-                if (isSavingsCategory)
-                  Positioned(
-                    top: 2.w,
-                    right: 2.w,
-                    child: FutureBuilder<bool>(
-                      future: goal_datasource.hasAnyGoals(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data == true) {
-                          return Icon(
-                            Icons.lock_outline,
-                            color: Colors.white.withOpacity(0.7),
-                            size: 14.sp,
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ),
-                Positioned.fill(
-                  right: -5.w,
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: RotationTransition(
-                      turns: const AlwaysStoppedAnimation(-25 / 360),
-                      child: Text(
-                        '${category.emoji}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 35.sp,
-                              color: Colors.white,
-                            ),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned.fill(
-                  left: 5.w,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '${category.name}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 14.5.sp,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )
-            .animate(delay: (50 * index).ms)
-            .fade(duration: 200.ms)
-            .slideY(begin: 0.5, duration: 200.ms, curve: Curves.easeOut);
-      },
-    );
-  }
-}
-
-class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabController tabController;
-  final Color backgroundColor;
-  final Color? labelColor;
-  final Color? unselectedLabelColor;
-  final Color? indicatorColor;
-
-  _CategoryTabBarDelegate({
-    required this.tabController,
-    required this.backgroundColor,
-    this.labelColor,
-    this.unselectedLabelColor,
-    this.indicatorColor,
-  });
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: backgroundColor,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
-        child: Center(
-          child: Container(
-            width: 90.w,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            padding: EdgeInsets.all(1.w),
-            child: TabBar(
-              controller: tabController,
-              indicator: BoxDecoration(
-                color: indicatorColor ?? Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(50),
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              labelColor: Colors.white,
-              unselectedLabelColor: unselectedLabelColor,
-              overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                (Set<WidgetState> states) {
-                  return states.contains(WidgetState.focused)
-                      ? null
-                      : Colors.transparent;
-                },
-              ),
-              splashFactory: NoSplash.splashFactory,
-              labelStyle: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              unselectedLabelStyle: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w500,
-              ),
-              tabs: [
-                Tab(text: 'Dépenses'),
-                Tab(text: 'Revenus'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 5.h + 4.h; // Tab height + padding
-
-  @override
-  double get minExtent => 5.h + 4.h; // Same as maxExtent for fixed height
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is _CategoryTabBarDelegate) {
-      return backgroundColor != oldDelegate.backgroundColor ||
-          labelColor != oldDelegate.labelColor ||
-          unselectedLabelColor != oldDelegate.unselectedLabelColor ||
-          indicatorColor != oldDelegate.indicatorColor;
-    }
-    return true;
   }
 }

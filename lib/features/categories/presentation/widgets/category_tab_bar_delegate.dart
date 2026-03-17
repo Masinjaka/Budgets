@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-/// Tab bar delegate for planning page with pill-style indicator
-class PlanningTabBarDelegate extends SliverPersistentHeaderDelegate {
+class CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabController tabController;
   final Color backgroundColor;
   final Color? labelColor;
   final Color? unselectedLabelColor;
   final Color? indicatorColor;
-  final List<String> tabLabels;
 
-  PlanningTabBarDelegate({
+  CategoryTabBarDelegate({
     required this.tabController,
     required this.backgroundColor,
-    required this.tabLabels,
     this.labelColor,
     this.unselectedLabelColor,
     this.indicatorColor,
@@ -53,14 +50,17 @@ class PlanningTabBarDelegate extends SliverPersistentHeaderDelegate {
               ),
               splashFactory: NoSplash.splashFactory,
               labelStyle: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelStyle: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w500,
               ),
-              tabs: tabLabels.map((label) => Tab(text: label)).toList(),
+              tabs: const [
+                Tab(text: 'Dépenses'),
+                Tab(text: 'Revenus'),
+              ],
             ),
           ),
         ),
@@ -76,7 +76,7 @@ class PlanningTabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    if (oldDelegate is PlanningTabBarDelegate) {
+    if (oldDelegate is CategoryTabBarDelegate) {
       return backgroundColor != oldDelegate.backgroundColor ||
           labelColor != oldDelegate.labelColor ||
           unselectedLabelColor != oldDelegate.unselectedLabelColor ||

@@ -79,6 +79,7 @@ class StatsPageContent extends ConsumerWidget {
                   expenseData: expenseData,
                   incomeData: incomeData,
                   daysInMonth: daysInMonth,
+                  selectedMonth: date,
                 ),
               ),
               Padding(

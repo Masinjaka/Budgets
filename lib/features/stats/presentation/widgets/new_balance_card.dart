@@ -1,4 +1,3 @@
-import 'package:budgets/features/stats/presentation/modules/authentication_utils.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum BalanceCardType { expense, income }
 
-class NewBalanceCard extends ConsumerStatefulWidget {
+class NewBalanceCard extends ConsumerWidget {
   final BalanceCardType type;
   final double amount;
   final IconData iconData;
@@ -20,36 +19,11 @@ class NewBalanceCard extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<NewBalanceCard> createState() => _NewBalanceCardState();
-}
-
-class _NewBalanceCardState extends ConsumerState<NewBalanceCard> {
-  bool _isHidden = true;
-
-  void _toggleVisibility() {
-    if (_isHidden) {
-      AuthenticationUtils.authenticateAndShow(
-        context,
-        'Veuillez vous authentifier pour afficher le montant',
-        () {
-          setState(() {
-            _isHidden = false;
-          });
-        },
-      );
-    } else {
-      setState(() {
-        _isHidden = true;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currencyState = ref.watch(currencyControllerProvider).value;
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
-    final convertedAmount = convertFromMga(widget.amount.abs(), rate);
+    final convertedAmount = convertFromMga(amount.abs(), rate);
     final formattedAmount = formatAmountWithCurrency(
       convertedAmount,
       currencyCode,
@@ -57,66 +31,46 @@ class _NewBalanceCardState extends ConsumerState<NewBalanceCard> {
     );
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final cardColor = Theme.of(context).cardColor;
-    final isExpense = widget.type == BalanceCardType.expense;
+    final isExpense = type == BalanceCardType.expense;
     final title = isExpense ? 'Dépense' : 'Revenue';
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(6.w),
+        borderRadius: BorderRadius.circular(4.w),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: EdgeInsets.all(2.w),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceDim,
-                  borderRadius: BorderRadius.circular(2.w),
-                ),
-                child: Icon(widget.iconData,
-                    color: textColor?.withValues(alpha: 0.7)),
-              ),
-              GestureDetector(
-                onTap: _toggleVisibility,
-                child: Icon(
-                  _isHidden
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  size: 18.sp,
-                  color: textColor?.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
+          Container(
+            padding: EdgeInsets.all(2.w),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceDim,
+              borderRadius: BorderRadius.circular(2.w),
+            ),
+            child:
+                Icon(iconData, color: textColor?.withValues(alpha: 0.7)),
           ),
           SizedBox(height: 2.h),
           Text(
-            _isHidden ? '••••••••' : formattedAmount,
+            formattedAmount,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
               color: textColor,
-              letterSpacing: _isHidden ? 2.0 : 0.0,
             ),
             overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 1.h),
-          Row(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w500,
-                  color: textColor?.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w500,
+              color: textColor?.withValues(alpha: 0.7),
+            ),
           ),
         ],
       ),

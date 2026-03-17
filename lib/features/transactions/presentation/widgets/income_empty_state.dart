@@ -1,24 +1,17 @@
 import 'package:budgets/core/paths.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
-export 'income_empty_state.dart';
-
-/// Reusable empty state widget for transactions
-class TransactionEmptyState extends StatelessWidget {
-  final bool hasFilters;
-
-  const TransactionEmptyState({
-    super.key,
-    required this.hasFilters,
-  });
+class IncomeEmptyState extends StatelessWidget {
+  const IncomeEmptyState({super.key});
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    String imagePath =
-        isDarkMode ? AppPaths.noExpenseDark : AppPaths.noExpenseLight;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final imagePath =
+        isDarkMode ? AppPaths.noIncomeDark : AppPaths.noIncomeLight;
+
     return Padding(
       padding: EdgeInsets.all(6.w),
       child: Center(
@@ -35,7 +28,7 @@ class TransactionEmptyState extends StatelessWidget {
                   duration: 400.ms,
                 ),
             Text(
-              'Aucune dépense',
+              'Aucun revenu',
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontSize: 22.5.sp,
@@ -54,12 +47,9 @@ class TransactionEmptyState extends StatelessWidget {
                   duration: 400.ms,
                   delay: 200.ms,
                 ),
-
             SizedBox(height: 2.h),
-
-            // Description
             Text(
-              'Commencez par ajouter vos premières dépense.',
+              'Commencez par ajouter vos premiers revenus.',
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontSize: 16.sp,

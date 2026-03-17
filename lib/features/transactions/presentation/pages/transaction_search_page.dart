@@ -1,15 +1,14 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/functions/transaction_utils.dart';
-import 'package:budgets/core/paths.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
 import 'package:budgets/features/transactions/presentation/widgets/paginated_transaction_date_group.dart';
+import 'package:budgets/features/transactions/presentation/widgets/transaction_search_income_empty_state.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_empty_state.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_search_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_state_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -20,7 +19,8 @@ class TransactionSearchPage extends ConsumerStatefulWidget {
   const TransactionSearchPage({super.key, required this.transactionType});
 
   @override
-  ConsumerState<TransactionSearchPage> createState() => _TransactionSearchPageState();
+  ConsumerState<TransactionSearchPage> createState() =>
+      _TransactionSearchPageState();
 }
 
 class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
@@ -28,13 +28,17 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
   List<Category> _selectedCategories = [];
 
   bool get _isExpenseContext => widget.transactionType != 'income';
-  bool get _hasFilters => _searchController.text.trim().isNotEmpty || _selectedCategories.isNotEmpty;
+  bool get _hasFilters =>
+      _searchController.text.trim().isNotEmpty ||
+      _selectedCategories.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    _searchController.addListener(() { if (mounted) setState(() {}); });
+    _searchController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -62,7 +66,8 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
       final maxExtent = notification.metrics.maxScrollExtent;
-      if (maxExtent > 0 && notification.metrics.pixels >= maxExtent - 200) _loadNextPage();
+      if (maxExtent > 0 && notification.metrics.pixels >= maxExtent - 200)
+        _loadNextPage();
     }
     return false;
   }
@@ -74,12 +79,15 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
         : ref.watch(paginatedIncomesProvider);
 
     final sourceTransactions = _isExpenseContext
-        ? TransactionUtils.filterByTransactionType(paginatedState.transactions, TransactionType.expense)
+        ? TransactionUtils.filterByTransactionType(
+            paginatedState.transactions, TransactionType.expense)
         : paginatedState.transactions;
 
-    final filtered = TransactionUtils.filterTransactions(sourceTransactions, _searchController.text, _selectedCategories);
+    final filtered = TransactionUtils.filterTransactions(
+        sourceTransactions, _searchController.text, _selectedCategories);
     final grouped = TransactionUtils.groupTransactionsByDate(filtered, true);
-    final availableCategories = TransactionUtils.extractCategoriesFromTransactions(sourceTransactions);
+    final availableCategories =
+        TransactionUtils.extractCategoriesFromTransactions(sourceTransactions);
 
     return Scaffold(
       body: SafeArea(
@@ -97,20 +105,26 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
                     onSearchUnfocused: context.pop,
                     onClearSearch: _searchController.clear,
                     searchController: _searchController,
-                    hintText: _isExpenseContext ? 'Rechercher des dépenses...' : 'Rechercher des revenus...',
+                    hintText: _isExpenseContext
+                        ? 'Rechercher des dépenses...'
+                        : 'Rechercher des revenus...',
                     availableCategories: availableCategories,
                     selectedCategories: _selectedCategories,
-                    onCategorySelectionChanged: (cats) => setState(() => _selectedCategories = cats),
+                    onCategorySelectionChanged: (cats) =>
+                        setState(() => _selectedCategories = cats),
                   ),
                 ),
                 if (paginatedState.isLoading && sourceTransactions.isEmpty)
                   const TransactionListShimmer()
-                else if (paginatedState.errorMessage != null && sourceTransactions.isEmpty)
+                else if (paginatedState.errorMessage != null &&
+                    sourceTransactions.isEmpty)
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: TransactionErrorState(
                       error: paginatedState.errorMessage!,
-                      errorMessage: _isExpenseContext ? 'Erreur lors du chargement des dépenses' : 'Erreur lors du chargement des revenus',
+                      errorMessage: _isExpenseContext
+                          ? 'Erreur lors du chargement des dépenses'
+                          : 'Erreur lors du chargement des revenus',
                       onRetry: _refresh,
                     ),
                   )
@@ -122,50 +136,17 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
                             hasScrollBody: false,
                             child: _isExpenseContext
                                 ? TransactionEmptyState(hasFilters: _hasFilters)
-                                : _IncomeEmptyState(hasFilters: _hasFilters),
+                                : TransactionSearchIncomeEmptyState(
+                                    hasFilters: _hasFilters,
+                                  ),
                           )
-                        : PaginatedTransactionDateGroup(groupedTransactions: grouped, isLoadingMore: paginatedState.isLoadingMore, hasMore: paginatedState.hasMore),
+                        : PaginatedTransactionDateGroup(
+                            groupedTransactions: grouped,
+                            isLoadingMore: paginatedState.isLoadingMore,
+                            hasMore: paginatedState.hasMore),
                   ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _IncomeEmptyState extends StatelessWidget {
-  final bool hasFilters;
-  const _IncomeEmptyState({required this.hasFilters});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: EdgeInsets.all(6.w),
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(isDark ? AppPaths.noIncomeDark : AppPaths.noIncomeLight)
-                  .animate()
-                  .scale(duration: 600.ms, curve: Curves.easeOutBack)
-                  .fadeIn(duration: 400.ms),
-              Text(
-                hasFilters ? 'Aucun revenu' : 'Aucun revenu enregistré',
-                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 22.5.sp, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ).animate().slideY(begin: 0.3, end: 0, duration: 500.ms, delay: 200.ms, curve: Curves.easeOutCubic).fadeIn(duration: 400.ms, delay: 200.ms),
-              SizedBox(height: 2.h),
-              Text(
-                hasFilters ? 'Essayez de modifier votre recherche ou vos catégories' : 'Commencez par ajouter vos premiers revenus',
-                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 16.sp, height: 1.4),
-                textAlign: TextAlign.center,
-              ).animate().slideY(begin: 0.3, end: 0, duration: 500.ms, delay: 400.ms, curve: Curves.easeOutCubic).fadeIn(duration: 400.ms, delay: 400.ms),
-            ],
           ),
         ),
       ),

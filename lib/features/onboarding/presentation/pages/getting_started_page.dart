@@ -1,5 +1,6 @@
 import 'package:budgets/core/paths.dart';
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/features/onboarding/presentation/widgets/onboarding_image.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:async';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:flutter_animate/flutter_animate.dart'; // used for fadeIn animation
+import 'package:flutter_animate/flutter_animate.dart';
 
 class GettingStartedPage extends StatefulWidget {
   const GettingStartedPage({super.key});
@@ -76,7 +77,7 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                     },
                     itemBuilder: (context, index) {
                       final imagePath = _images[index % _images.length];
-                      return _OnboardingImage(imagePath);
+                      return OnboardingImage(imagePath);
                     },
                   ),
                   // Gradient overlay
@@ -191,19 +192,6 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _OnboardingImage extends StatelessWidget {
-  final String path;
-  const _OnboardingImage(this.path);
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      path,
-      fit: BoxFit.cover,
     );
   }
 }

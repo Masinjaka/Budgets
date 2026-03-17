@@ -1,9 +1,9 @@
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/categories/domain/providers/subcategory_expenses_providers.dart';
+import 'package:budgets/features/transactions/presentation/widgets/subcategory_detail_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:shimmer/shimmer.dart';
 
 /// Shows subcategory breakdown for a transaction (data, loading skeleton, or nothing).
 class SubcategoryDetailSection extends ConsumerWidget {
@@ -37,7 +37,8 @@ class SubcategoryDetailSection extends ConsumerWidget {
             ...items.map((sub) => Padding(
                   padding: EdgeInsets.only(bottom: 0.5.h),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceDim,
                       borderRadius: BorderRadius.circular(2.w),
@@ -47,12 +48,22 @@ class SubcategoryDetailSection extends ConsumerWidget {
                       children: [
                         Text(sub.subcategory?.name ?? 'Unknown',
                             style: TextStyle(
-                                color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179),
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color
+                                    ?.withAlpha(179),
                                 fontSize: 14.sp)),
                         Text(
-                          formatAmountWithCurrency(convertFromMga(sub.amount, rate), currencyCode, preserveFraction: true),
+                          formatAmountWithCurrency(
+                              convertFromMga(sub.amount, rate), currencyCode,
+                              preserveFraction: true),
                           style: TextStyle(
-                              color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(179),
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.color
+                                  ?.withAlpha(179),
                               fontSize: 14.sp),
                         ),
                       ],
@@ -62,48 +73,8 @@ class SubcategoryDetailSection extends ConsumerWidget {
           ],
         );
       },
-      loading: () => _SubcategorySkeleton(),
+      loading: () => const SubcategoryDetailSkeleton(),
       error: (_, __) => const SizedBox.shrink(),
-    );
-  }
-}
-
-class _SubcategorySkeleton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 1.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(
-          2,
-          (i) => Padding(
-            padding: EdgeInsets.only(bottom: 0.5.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _shimmerBox(context, width: 25.w),
-                SizedBox(width: 2.w),
-                _shimmerBox(context, width: 15.w),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _shimmerBox(BuildContext context, {required double width}) {
-    final base = Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(26) ?? Colors.grey.withAlpha(26);
-    final highlight = Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(51) ?? Colors.grey.withAlpha(51);
-    return Shimmer.fromColors(
-      baseColor: base,
-      highlightColor: highlight,
-      child: Container(
-        width: width,
-        height: 2.5.h,
-        decoration: BoxDecoration(color: base, borderRadius: BorderRadius.circular(2.w)),
-      ),
     );
   }
 }

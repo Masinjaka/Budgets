@@ -1,4 +1,6 @@
 import 'package:budgets/features/categories/domain/models/category_model.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction/add_category_pill.dart';
+import 'package:budgets/features/transactions/presentation/widgets/add_transaction/category_pill.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -39,105 +41,18 @@ class CategoryPillsSection extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               children: [
                 ...categories.map(
-                  (c) => _CategoryPill(
+                  (c) => CategoryPill(
                     category: c,
                     isSelected: selectedCategory?.id == c.id,
                     onTap: () => onCategoryTap(c),
                   ),
                 ),
-                _AddCategoryPill(onAddTap: onAddCategoryTap),
+                AddCategoryPill(onAddTap: onAddCategoryTap),
               ],
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CategoryPill extends StatelessWidget {
-  final Category category;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _CategoryPill({
-    required this.category,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(right: 2.w),
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.inverseSurface
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.h),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(category.emoji ?? '📁', style: TextStyle(fontSize: 14.sp)),
-            SizedBox(width: 1.5.w),
-            Text(
-              category.name ?? '',
-              style: TextStyle(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.onInverseSurface
-                    : Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.color
-                        ?.withAlpha(200),
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AddCategoryPill extends StatelessWidget {
-  final Future<void> Function(BuildContext) onAddTap;
-
-  const _AddCategoryPill({required this.onAddTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor =
-        Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(200);
-    return GestureDetector(
-      onTap: () => onAddTap(context),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.h),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.add, size: 14.sp, color: textColor),
-            SizedBox(width: 1.w),
-            Text(
-              'Ajouter une catégorie',
-              style: TextStyle(
-                  color: textColor,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
