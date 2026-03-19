@@ -30,17 +30,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(authControllerProvider, (prev, next) {
-      next.whenOrNull(
-        error: (e, st) {
-          debugPrint('[LoginPage] Auth state error: $e');
-          debugPrint('[LoginPage] Auth state stackTrace: $st');
-          if (!mounted) return;
-          showErrorToast(context, e);
-        },
-      );
-    });
-
     return Scaffold(
       body: SafeArea(child: _buildForm(context)),
       bottomNavigationBar: _buildBottomPart(),
@@ -171,6 +160,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               } catch (e, st) {
                 debugPrint('[LoginPage] signIn submission error: $e');
                 debugPrint('[LoginPage] signIn submission stackTrace: $st');
+                if (mounted) showErrorToast(context, e);
               } finally {
                 if (mounted) {
                   setState(() => _isLoading = false);

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -19,6 +20,7 @@ class AuthController extends _$AuthController {
     try {
       await repo.signInWithPassword(email: email, password: password);
       debugPrint('[AuthController][signIn] Success');
+      ref.invalidate(userModelProvider);
       state = const AsyncData(null);
     } catch (e, st) {
       debugPrint('[AuthController][signIn] Error: $e');
@@ -53,6 +55,7 @@ class AuthController extends _$AuthController {
     final repo = ref.read(authRepositoryProvider);
     try {
       await repo.signOut();
+      ref.invalidate(userModelProvider);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);

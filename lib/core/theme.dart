@@ -3,18 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Dark colors
-  static const Color backgroundDark = Color(0xff171819);
-  static const Color secondaryDark = Color(0xff212324);
+  static const Color backgroundDark = Color(0xFF08090A);
+  static const Color secondaryDark = Color(0xFF141617);
   static const Color borderColorDark = Color(0xff303237);
-  static const Color primaryGreen = Color(0xff10B981);
+  static const Color primaryGreen = Color(0xFF63B173);
   static const Color secondaryGreen = Color(0xff4C8352);
 
   //Text Colors
   static const Color textDark = Color(0xffEFEFEF);
 
   // Light colors
-  static const Color backgroundLight = Color(0xffFFFCF7);
-  static const Color secondaryLight = Color(0xffEDE9E3);
+  static const Color backgroundLight = Color(0xFFF4F7F5);
+  static const Color secondaryLight = Color(0xFFE8EBE9);
   static const Color textLight = Color(0xff333333);
 
 
@@ -41,6 +41,11 @@ class AppTheme {
       backgroundColor: backgroundLight,
       elevation: 0,
       iconTheme: IconThemeData(color: textLight),
+    ),
+    tabBarTheme: const TabBarThemeData(
+      indicatorColor: backgroundDark,
+      labelColor: backgroundLight,
+      unselectedLabelColor: textLight,
     ),
     colorScheme: const ColorScheme.light(
       primary: primaryGreen,
@@ -77,6 +82,11 @@ class AppTheme {
       backgroundColor: backgroundDark,
       elevation: 0,
       iconTheme: IconThemeData(color: textDark),
+    ),
+    tabBarTheme: const TabBarThemeData(
+      indicatorColor: backgroundLight,
+      labelColor: backgroundDark,
+      unselectedLabelColor: textDark,
     ),
     colorScheme: const ColorScheme.dark(
       primary: primaryGreen,

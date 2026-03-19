@@ -71,7 +71,7 @@ class _BudgetsTabContentState extends ConsumerState<BudgetsTabContent> {
                         TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
                 ),
-              _ => PlanningListSkeleton(itemHeight: 12.h),
+              _ => const BudgetListSkeleton(),
             },
           ),
         ],

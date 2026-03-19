@@ -198,8 +198,11 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Dialog(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.w)),
-        insetPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.w),
+          side: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
+        ),
+        insetPadding: EdgeInsets.symmetric(horizontal: 5.w + 2.h, vertical: 5.h),
         child: _isInitializing
             ? SizedBox(height: 30.h, child: Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)))
             : SingleChildScrollView(

@@ -23,7 +23,8 @@ class MonthYearPicker extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final surfaceColor = Theme.of(context).colorScheme.surface;
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final tabIndicatorColor = Theme.of(context).tabBarTheme.indicatorColor;
+    final tabLabelColor = Theme.of(context).tabBarTheme.labelColor;
     final selectedDate = ref.watch(selectedDateProvider);
     final now = DateTime.now();
 
@@ -77,7 +78,7 @@ class MonthYearPicker extends ConsumerWidget {
               height: 5.h,
               padding: EdgeInsets.symmetric(horizontal: 4.w),
               decoration: BoxDecoration(
-                color: primaryColor,
+                color: tabIndicatorColor,
                 borderRadius: BorderRadius.circular(100),
               ),
               alignment: Alignment.center,
@@ -96,7 +97,7 @@ class MonthYearPicker extends ConsumerWidget {
                   formattedMonthYear,
                   key: ValueKey(formattedMonthYear),
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: tabLabelColor,
                     fontSize: 14.5.sp,
                     fontWeight: FontWeight.bold,
                   ),

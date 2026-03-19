@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 
 /// Shows a dialog with Cupertino-style scale and fade animation.
@@ -35,11 +37,19 @@ Future<T?> showAnimatedDialog<T>({
         reverseCurve: Curves.easeInCubic,
       );
 
-      return ScaleTransition(
-        scale: Tween<double>(begin: 0.85, end: 1.0).animate(curvedAnimation),
-        child: FadeTransition(
-          opacity: curvedAnimation,
-          child: child,
+      final blur = Tween<double>(begin: 0.0, end: 6.0).animate(curvedAnimation);
+
+      return AnimatedBuilder(
+        animation: blur,
+        builder: (context, _) => BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur.value, sigmaY: blur.value),
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.85, end: 1.0).animate(curvedAnimation),
+            child: FadeTransition(
+              opacity: curvedAnimation,
+              child: child,
+            ),
+          ),
         ),
       );
     },

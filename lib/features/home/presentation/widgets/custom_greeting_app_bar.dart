@@ -46,23 +46,53 @@ class CustomGreetingAppBar extends ConsumerWidget
                     final username = user?.name ?? 'Utilisateur';
                     return Padding(
                       padding: EdgeInsets.only(left: 4.w),
-                      child: Text(
-                        'Salut, $username',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Bienvenue',
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
+                          Text(
+                            username,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
                   loading: () => Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: textSkeleton(context, 40.w, 2.4.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        textSkeleton(context, 20.w, 1.6.h),
+                        SizedBox(height: 0.5.h),
+                        textSkeleton(context, 30.w, 2.h),
+                      ],
+                    ),
                   ),
                   error: (_, __) => Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: textSkeleton(context, 40.w, 2.4.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        textSkeleton(context, 20.w, 1.6.h),
+                        SizedBox(height: 0.5.h),
+                        textSkeleton(context, 30.w, 2.h),
+                      ],
+                    ),
                   ),
                 ),
               ],

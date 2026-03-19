@@ -33,8 +33,10 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
   @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final primaryColor = Theme.of(context).colorScheme.primary;
     final surfaceColor = Theme.of(context).colorScheme.surface;
+    final tabIndicatorColor = Theme.of(context).tabBarTheme.indicatorColor;
+    final tabLabelColor = Theme.of(context).tabBarTheme.labelColor;
+    final tabUnselectedColor = Theme.of(context).tabBarTheme.unselectedLabelColor?.withValues(alpha: 0.7);
 
     final currentData =
         _showExpenses ? widget.expensesByCategory : widget.incomeByCategory;
@@ -79,7 +81,7 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                           horizontal: 3.w, vertical: 0.8.h),
                       decoration: BoxDecoration(
                         color:
-                            _showExpenses ? primaryColor : Colors.transparent,
+                            _showExpenses ? tabIndicatorColor : Colors.transparent,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Center(
@@ -89,8 +91,8 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             color: _showExpenses
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : textColor?.withValues(alpha: 0.7),
+                                ? tabLabelColor
+                                : tabUnselectedColor,
                           ),
                         ),
                       ),
@@ -105,7 +107,7 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                           horizontal: 3.w, vertical: 0.8.h),
                       decoration: BoxDecoration(
                         color:
-                            !_showExpenses ? primaryColor : Colors.transparent,
+                            !_showExpenses ? tabIndicatorColor : Colors.transparent,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Center(
@@ -115,8 +117,8 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             color: !_showExpenses
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : textColor?.withValues(alpha: 0.7),
+                                ? tabLabelColor
+                                : tabUnselectedColor,
                           ),
                         ),
                       ),

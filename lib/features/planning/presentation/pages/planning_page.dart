@@ -2,8 +2,6 @@ import 'package:budgets/features/planning/presentation/widgets/add_budget_bottom
 import 'package:budgets/features/planning/presentation/widgets/add_goal_bottom_sheet.dart';
 import 'package:budgets/features/planning/presentation/widgets/budgets_tab_content.dart';
 import 'package:budgets/features/planning/presentation/widgets/goals_tab_content.dart';
-import 'package:budgets/features/planning/presentation/widgets/subscriptions_tab_content.dart';
-import 'package:budgets/widgets/custom_action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -21,7 +19,7 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
   late final TabController _tabController;
   int _currentTabIndex = 0;
 
-  static const _tabLabels = ['Budgets', 'Objectifs', 'Abonnements'];
+  static const _tabLabels = ['Budgets', 'Objectifs'];
 
   @override
   void initState() {
@@ -57,8 +55,6 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final unselectedLabelColor =
-        theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.7);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -76,17 +72,6 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
             ),
           ),
           centerTitle: false,
-          actions: _currentTabIndex == 2
-              ? const []
-              : [
-                  ActionButton(
-                    icon: Icons.add,
-                    iconColor: theme.colorScheme.onPrimary,
-                    backgroundColor: theme.primaryColor,
-                    onPressed: _showAddDialog,
-                  ),
-                  SizedBox(width: 6.w),
-                ],
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(8.h),
             child: Padding(
@@ -100,13 +85,13 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
                 child: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
-                    color: theme.primaryColor,
+                    color: theme.tabBarTheme.indicatorColor,
                     borderRadius: BorderRadius.circular(50),
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: unselectedLabelColor,
+                  labelColor: theme.tabBarTheme.labelColor,
+                  unselectedLabelColor: theme.tabBarTheme.unselectedLabelColor?.withValues(alpha: 0.7),
                   overlayColor: WidgetStateProperty.resolveWith<Color?>(
                     (Set<WidgetState> states) {
                       return states.contains(WidgetState.focused)
@@ -129,12 +114,22 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
             ),
           ),
         ),
+        floatingActionButton: SizedBox(
+          width: 13.w,
+          height: 13.w,
+          child: FloatingActionButton(
+            heroTag: 'planningFab',
+            onPressed: _showAddDialog,
+            backgroundColor: theme.primaryColor,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, color: Colors.black),
+          ),
+        ),
         body: TabBarView(
           controller: _tabController,
           children: const [
             BudgetsTabContent(),
             GoalsTabContent(),
-            SubscriptionsTabContent(),
           ],
         ),
       ),

@@ -2,7 +2,6 @@ import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/transactions/presentation/pages/expense_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction_dialog.dart';
-import 'package:budgets/widgets/expandable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,8 +61,6 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final unselectedLabelColor =
-        theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.6);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -107,13 +104,13 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                 child: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
-                    color: theme.primaryColor,
+                    color: theme.tabBarTheme.indicatorColor,
                     borderRadius: BorderRadius.circular(50),
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: unselectedLabelColor,
+                  labelColor: theme.tabBarTheme.labelColor,
+                  unselectedLabelColor: theme.tabBarTheme.unselectedLabelColor?.withValues(alpha: 0.7),
                   overlayColor: WidgetStateProperty.resolveWith<Color?>(
                     (Set<WidgetState> states) {
                       return states.contains(WidgetState.focused)
@@ -139,21 +136,16 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
             ),
           ),
         ),
-        floatingActionButton: ExpandableFab(
-          icon: Icons.add,
-          closeIcon: Icons.close,
-          children: [
-            FabChildButton(
-              icon: Icons.fullscreen,
-              onPressed: () {
-                // TODO: Implement scan functionality
-              },
-            ),
-            FabChildButton(
-              icon: Icons.add,
-              onPressed: _openAddTransactionDialog,
-            ),
-          ],
+        floatingActionButton: SizedBox(
+          width: 13.w,
+          height: 13.w,
+          child: FloatingActionButton(
+            heroTag: 'transactionFab',
+            onPressed: _openAddTransactionDialog,
+            backgroundColor: Theme.of(context).primaryColor,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, color: Colors.black),
+          ),
         ),
         body: TabBarView(
           controller: _tabController,

@@ -19,7 +19,7 @@ class Jumbotron extends ConsumerStatefulWidget {
 }
 
 class _JumbotronState extends ConsumerState<Jumbotron> {
-  bool _isHidden = true;
+  bool _isHidden = false;
 
   void _toggleVisibility() {
     if (_isHidden) {
@@ -45,12 +45,12 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
     final currencyState = ref.watch(currencyControllerProvider).value;
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    const textColor = Color(0xFF1A1A1A);
 
     return Container(
       height: 16.h,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(5.w),
       ),
       child: Stack(
@@ -65,7 +65,7 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
                 'Solde total',
                 style: TextStyle(
                   fontSize: 15.5.sp,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: textColor,
                 ),
               ),
             ),
@@ -73,50 +73,26 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
           Positioned(
             top: 2.h,
             right: 2.h,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: _toggleVisibility,
-                  child: AnimatedSwitcher(
-                    duration: 200.ms,
-                    transitionBuilder: (child, animation) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: ScaleTransition(
-                          scale: animation,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Icon(
-                      _isHidden ? Ionicons.eye_off : Ionicons.eye,
-                      key: ValueKey(_isHidden),
-                      size: 18.sp,
-                      color: textColor?.withValues(alpha: 0.5),
+            child: GestureDetector(
+              onTap: _toggleVisibility,
+              child: AnimatedSwitcher(
+                duration: 200.ms,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation,
+                      child: child,
                     ),
-                  ),
+                  );
+                },
+                child: Icon(
+                  _isHidden ? Ionicons.eye_off : Ionicons.eye,
+                  key: ValueKey(_isHidden),
+                  size: 18.sp,
+                  color: textColor.withValues(alpha: 0.5),
                 ),
-                SizedBox(width: 2.w),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 3.w,
-                    vertical: 0.5.h,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.w),
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                  ),
-                  child: Text(
-                    currencyCode,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
           Positioned(
@@ -140,7 +116,7 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
                     },
                     child: _isHidden
                         ? Text(
-                            '••••••••',
+                            '********',
                             key: const ValueKey('hidden'),
                             style: TextStyle(
                               fontSize: 22.sp,
@@ -150,7 +126,7 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
                             ),
                           )
                         : Text(
-                            '${isNegative ? '-' : ''}${formatAmountValue(displayAmount)}',
+                            '${isNegative ? '-' : ''}${formatAmountWithCurrency(displayAmount, currencyCode, preserveFraction: true)}',
                             key: const ValueKey('visible'),
                             style: TextStyle(
                               fontSize: 22.sp,

@@ -71,7 +71,7 @@ class _GoalsTabContentState extends ConsumerState<GoalsTabContent> {
                         TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
                 ),
-              _ => PlanningListSkeleton(itemHeight: 15.h),
+              _ => const GoalListSkeleton(),
             },
           ),
         ],
