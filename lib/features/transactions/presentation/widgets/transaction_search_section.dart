@@ -39,11 +39,11 @@ class TransactionSearchSection extends StatelessWidget {
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
           padding: EdgeInsets.fromLTRB(
-              6.w,
+              8.w,
               isSearchFocused
                   ? 2.h
                   : 2.h, // Same padding whether focused or not
-              6.w,
+              8.w,
               1.h),
           child: Row(
             children: [
@@ -63,7 +63,7 @@ class TransactionSearchSection extends StatelessWidget {
         // Show filter widget only when search is focused with animation
         if (isSearchFocused)
           Padding(
-            padding: EdgeInsets.fromLTRB(6.w, 1.h, 6.w, 1.h),
+            padding: EdgeInsets.fromLTRB(8.w, 1.h, 8.w, 1.h),
             child: CategoryFilterWidget(
               categories: availableCategories,
               selectedCategories: selectedCategories,

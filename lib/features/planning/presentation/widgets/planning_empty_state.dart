@@ -17,7 +17,7 @@ class PlanningEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(6.w),
+      padding: EdgeInsets.all(8.w),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

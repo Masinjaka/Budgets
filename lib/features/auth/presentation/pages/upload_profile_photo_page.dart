@@ -40,7 +40,7 @@ class _UploadProfilePhotoPageState
       height: double.infinity,
       width: double.infinity,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -108,7 +108,7 @@ class _UploadProfilePhotoPageState
 
   Widget _buildBottomPart(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

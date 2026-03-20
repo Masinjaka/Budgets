@@ -76,6 +76,26 @@ class AuthController extends _$AuthController {
     }
   }
 
+  Future<void> verifyOtpAndResetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    state = const AsyncLoading();
+    final repo = ref.read(authRepositoryProvider);
+    try {
+      await repo.verifyOtpAndResetPassword(
+        email: email,
+        otp: otp,
+        newPassword: newPassword,
+      );
+      state = const AsyncData(null);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
+
   Future<void> changePassword(
       {required String currentPassword, required String newPassword}) async {
     state = const AsyncLoading();

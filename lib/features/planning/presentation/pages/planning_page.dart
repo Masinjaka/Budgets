@@ -63,7 +63,7 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
           surfaceTintColor: Colors.transparent,
           backgroundColor: theme.scaffoldBackgroundColor,
           scrolledUnderElevation: 0,
-          titleSpacing: 6.w,
+          titleSpacing: 8.w,
           title: Text(
             'Planification',
             style: TextStyle(
@@ -75,7 +75,7 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(8.h),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(6.w, 0, 6.w, 1.h),
+              padding: EdgeInsets.fromLTRB(8.w, 0, 8.w, 1.h),
               child: Container(
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,

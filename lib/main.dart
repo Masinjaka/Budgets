@@ -10,6 +10,7 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:budgets/features/auth/presentation/pages/login_page.dart';
 import 'package:budgets/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:budgets/features/auth/presentation/pages/verify_reset_code_page.dart';
 import 'package:budgets/features/onboarding/presentation/pages/splash_page.dart';
 import 'package:budgets/features/categories/presentation/pages/add_category_page.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
@@ -132,6 +133,10 @@ class _MyAppState extends ConsumerState<MyApp> {
       GoRoute(
           path: '/reset-password',
           builder: (context, state) => const ResetPasswordPage()),
+      GoRoute(
+          path: '/verify-reset-code',
+          builder: (context, state) =>
+              VerifyResetCodePage(email: state.extra as String)),
       GoRoute(
           path: '/currency-selection',
           builder: (context, state) => const CurrencySelectionPage()),

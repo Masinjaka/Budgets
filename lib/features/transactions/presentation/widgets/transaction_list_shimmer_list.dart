@@ -21,7 +21,7 @@ class TransactionListShimmerList extends StatelessWidget {
     return ListView.builder(
       controller: controller,
       physics: physics,
-      padding: padding ?? EdgeInsets.symmetric(horizontal: 6.w),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: 8.w),
       itemCount: itemCount,
       itemBuilder: (context, index) => Shimmer.fromColors(
         baseColor: Theme.of(context).cardColor,

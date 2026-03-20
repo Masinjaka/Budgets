@@ -16,7 +16,7 @@ class TransactionSearchIncomeEmptyState extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: EdgeInsets.all(6.w),
+      padding: EdgeInsets.all(8.w),
       child: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.w),

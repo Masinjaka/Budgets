@@ -56,13 +56,13 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
         title: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: Text('Filtrer',
                 style:
                     TextStyle(fontWeight: FontWeight.w900, fontSize: 19.5.sp))),
         actions: [
           Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
               child: IconButton(
                   onPressed: () => context.pop(),
                   icon: Icon(Icons.close, size: 21.sp)))
@@ -73,7 +73,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 5.h),
+            padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 5.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -130,7 +130,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 5.w),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.w),
         child: CustomButton(
           text: 'Appliquer les filtres',
           isLoading: _isLoading,

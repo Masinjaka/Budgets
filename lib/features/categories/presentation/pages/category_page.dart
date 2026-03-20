@@ -71,7 +71,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
                     toolbarHeight: _appBarAnimation.value * kToolbarHeight,
                     elevation: _appBarAnimation.value * 4,
-                    titleSpacing: 6.w,
+                    titleSpacing: 8.w,
                     title: _appBarAnimation.value > 0.1
                         ? Opacity(
                             opacity: _appBarAnimation.value,
@@ -120,7 +120,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                 ),
                               ),
                             ),
-                            SizedBox(width: 6.w),
+                            SizedBox(width: 8.w),
                           ]
                         : [],
                   );

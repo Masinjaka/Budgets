@@ -74,7 +74,7 @@ class StatsPageContent extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                 child: StatsChart(
                   expenseData: expenseData,
                   incomeData: incomeData,
@@ -83,7 +83,7 @@ class StatsPageContent extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w),
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
                 child: Row(
                   children: [
                     Expanded(
@@ -106,7 +106,7 @@ class StatsPageContent extends ConsumerWidget {
               ),
               
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                 child: NewCategoryBreakdown(
                   expensesByCategory: stats.expensesByCategory,
                   incomeByCategory: stats.incomeByCategory,
@@ -116,7 +116,7 @@ class StatsPageContent extends ConsumerWidget {
               ),
               // Budget History Card
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.h),
                 child: BudgetHistoryCard(date: date),
               ),
               // Bottom padding for navigation bar
@@ -128,7 +128,7 @@ class StatsPageContent extends ConsumerWidget {
       loading: () => const SingleChildScrollView(child: StatsSkeleton()),
       error: (error, stack) => SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
           child: Center(
             child: Text(
               'Erreur lors du chargement des données',

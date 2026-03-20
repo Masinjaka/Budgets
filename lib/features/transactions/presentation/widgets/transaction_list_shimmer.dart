@@ -12,7 +12,7 @@ class TransactionListShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => Shimmer.fromColors(

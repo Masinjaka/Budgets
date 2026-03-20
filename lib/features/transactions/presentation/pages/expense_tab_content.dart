@@ -72,7 +72,7 @@ class TransactionTabContent extends ConsumerWidget {
       physics: const AlwaysScrollableScrollPhysics(
         parent: ClampingScrollPhysics(),
       ),
-      padding: EdgeInsets.fromLTRB(6.w, 2.h, 6.w, 0),
+      padding: EdgeInsets.fromLTRB(8.w, 2.h, 8.w, 0),
     );
 
     return NotificationListener<ScrollNotification>(

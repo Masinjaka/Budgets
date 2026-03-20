@@ -42,7 +42,7 @@ class HomePage extends ConsumerWidget {
       extendBodyBehindAppBar: false,
       appBar: const CustomGreetingAppBar(),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
         child: SizedBox(
           height: double.infinity,
           child: SingleChildScrollView(

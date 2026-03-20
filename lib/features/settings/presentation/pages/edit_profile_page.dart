@@ -131,7 +131,7 @@ class _State extends ConsumerState<EditProfilePage> {
         body: Form(
           key: _formKey,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: SizedBox(
               width: double.infinity,
               height: double.infinity,

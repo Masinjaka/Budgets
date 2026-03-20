@@ -60,6 +60,20 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> verifyOtpAndResetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    await _client.auth.verifyOTP(
+      email: email,
+      token: otp,
+      type: OtpType.recovery,
+    );
+    await _client.auth.updateUser(UserAttributes(password: newPassword));
+  }
+
+  @override
   Future<void> changePassword(
       {required String currentPassword, required String newPassword}) async {
     // First, verify the current password by trying to sign in

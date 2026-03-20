@@ -6,6 +6,7 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class ResetPasswordPage extends ConsumerStatefulWidget {
@@ -42,7 +43,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
         title: const Text('Réinitialisation'),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.w),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.w),
         child: Form(
           key: _formKey,
           child: Column(
@@ -75,6 +76,10 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                         );
                     if (!mounted) return;
                     showSuccessToast(context, 'Email envoyé');
+                    context.push(
+                      '/verify-reset-code',
+                      extra: _emailController.text.trim(),
+                    );
                   } catch (_) {}
                   setState(() => _isLoading = false);
                 },

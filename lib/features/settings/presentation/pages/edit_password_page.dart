@@ -55,7 +55,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
           width: double.infinity,
           height: double.infinity,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Form(
@@ -116,7 +116,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
           ),
         ),
         bottomNavigationBar: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
           child: CustomButton(
             text: 'Sauvegarder',
             onPressed: () async {

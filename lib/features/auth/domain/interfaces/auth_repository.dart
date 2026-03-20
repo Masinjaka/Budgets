@@ -17,6 +17,13 @@ abstract class AuthRepository {
   Future<void> sendPasswordResetEmail(
       {required String email, String? redirectTo});
 
+  // Verify OTP code and set new password (password reset flow)
+  Future<void> verifyOtpAndResetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  });
+
   // Change password for authenticated user
   Future<void> changePassword(
       {required String currentPassword, required String newPassword});

@@ -130,7 +130,7 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
                   )
                 else
                   SliverPadding(
-                    padding: EdgeInsets.fromLTRB(6.w, 1.h, 6.w, 0),
+                    padding: EdgeInsets.fromLTRB(8.w, 1.h, 8.w, 0),
                     sliver: grouped.isEmpty
                         ? SliverFillRemaining(
                             hasScrollBody: false,

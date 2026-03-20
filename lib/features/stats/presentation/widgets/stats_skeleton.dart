@@ -12,7 +12,7 @@ class StatsSkeleton extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w),
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
           child: Row(
             children: [
               const Expanded(child: StatsSkeletonBalanceCard()),
@@ -22,11 +22,11 @@ class StatsSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
           child: const StatsSkeletonChart(),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
           child: const StatsSkeletonCategoryBreakdown(),
         ),
       ],

@@ -25,7 +25,7 @@ class CategoryTabContent extends ConsumerWidget {
     final categoriesAsyncValue = ref.watch(categoriesProvider);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

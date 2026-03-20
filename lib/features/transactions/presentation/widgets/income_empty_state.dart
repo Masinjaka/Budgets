@@ -13,7 +13,7 @@ class IncomeEmptyState extends StatelessWidget {
         isDarkMode ? AppPaths.noIncomeDark : AppPaths.noIncomeLight;
 
     return Padding(
-      padding: EdgeInsets.all(6.w),
+      padding: EdgeInsets.all(8.w),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

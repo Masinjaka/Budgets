@@ -40,7 +40,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8.w)),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
               child: SingleChildScrollView(
                 controller: scrollController,
                 child: Column(
@@ -118,7 +118,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
             bottomNavigationBar: Container(
               color: Theme.of(context).colorScheme.surface,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                 child: CustomButton(
                   text: 'Modifier',
                   onPressed: () {

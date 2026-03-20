@@ -24,6 +24,7 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
         decoration: const BoxDecoration(
             border:
                 Border(top: BorderSide(color: Color.fromARGB(54, 48, 50, 55)))),
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [

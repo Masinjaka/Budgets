@@ -153,7 +153,7 @@ class _TransactionCreationPageState
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.only(left: 6.w, right: 6.w, top: 5.h),
+            padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 5.h),
             child: Form(
               key: _formKey,
               child: Column(
@@ -273,7 +273,7 @@ class _TransactionCreationPageState
 
   Widget _buildAddButton() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 5.w),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.w),
       child: CustomButton(
         text: isEditMode ? 'Enregistrer' : 'Confirmer',
         backgroundColor: Theme.of(context).primaryColor,

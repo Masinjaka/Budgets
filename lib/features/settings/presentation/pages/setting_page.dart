@@ -75,7 +75,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
         child: SizedBox(
             width: double.infinity,
             height: double.infinity,

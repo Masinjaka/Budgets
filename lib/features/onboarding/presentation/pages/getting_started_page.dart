@@ -125,7 +125,7 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
             // ... keep rest of the page content here
             Expanded(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(6.w, 2.h, 6.w, 4.h),
+                padding: EdgeInsets.fromLTRB(8.w, 2.h, 8.w, 4.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

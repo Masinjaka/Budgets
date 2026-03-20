@@ -25,7 +25,7 @@ class CustomGreetingAppBar extends ConsumerWidget
       surfaceTintColor: Colors.transparent,
       elevation: 4,
       toolbarHeight: 7.h,
-      titleSpacing: 6.w,
+      titleSpacing: 8.w,
       title: Padding(
         padding: EdgeInsets.symmetric(horizontal: 0.w),
         child: Row(

@@ -51,7 +51,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
           child: Form(
             key: _formKey,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.w),
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -155,7 +155,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
   Widget _buildBottomPart() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

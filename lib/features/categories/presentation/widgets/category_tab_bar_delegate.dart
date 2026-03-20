@@ -22,7 +22,7 @@ class CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       color: backgroundColor,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 0.h),
         child: Center(
           child: Container(
             width: 90.w,

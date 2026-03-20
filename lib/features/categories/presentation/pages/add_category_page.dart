@@ -220,7 +220,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
           ? null
           : SafeArea(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(6.w, 0, 6.w, 2.h),
+                padding: EdgeInsets.fromLTRB(8.w, 0, 8.w, 2.h),
                 child: Row(
                   children: [
                     Expanded(
@@ -275,7 +275,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   /// Build info screen for savings category that cannot be edited
   Widget _buildSavingsCategoryInfo(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         children: [
           SizedBox(height: 14.h),
@@ -354,7 +354,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,

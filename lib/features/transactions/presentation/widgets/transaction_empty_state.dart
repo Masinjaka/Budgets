@@ -20,7 +20,7 @@ class TransactionEmptyState extends StatelessWidget {
     String imagePath =
         isDarkMode ? AppPaths.noExpenseDark : AppPaths.noExpenseLight;
     return Padding(
-      padding: EdgeInsets.all(6.w),
+      padding: EdgeInsets.all(8.w),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

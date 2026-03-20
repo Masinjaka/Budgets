@@ -57,7 +57,7 @@ class _BudgetsTabContentState extends ConsumerState<BudgetsTabContent> {
     final budgetsAsyncValue = ref.watch(budgetsProvider);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

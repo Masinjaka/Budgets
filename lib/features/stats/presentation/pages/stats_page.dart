@@ -92,7 +92,7 @@ class _StatsPageState extends ConsumerState<StatsPage> {
         surfaceTintColor: Colors.transparent,
         backgroundColor: theme.scaffoldBackgroundColor,
         scrolledUnderElevation: 0,
-        titleSpacing: 6.w,
+        titleSpacing: 8.w,
         title: Text(
           'Rapports',
           style: TextStyle(
@@ -105,7 +105,7 @@ class _StatsPageState extends ConsumerState<StatsPage> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: SizedBox(
               width: 90.w,
               child: MonthYearPicker(
