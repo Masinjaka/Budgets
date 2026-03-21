@@ -34,6 +34,7 @@ class IncomeEmptyState extends StatelessWidget {
                 fontSize: 22.5.sp,
                 fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
             )
                 .animate()
                 .slideY(

@@ -2,6 +2,7 @@ import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionTile extends ConsumerStatefulWidget {
@@ -94,7 +95,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                         ),
                         SizedBox(height: 1.h),
                         Text(
-                          widget.description,
+                          DateFormat('dd MMM yyyy', 'fr').format(widget.date),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,

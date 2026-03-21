@@ -1,5 +1,4 @@
-import 'package:budgets/features/planning/presentation/widgets/add_budget_bottom_sheet.dart';
-import 'package:budgets/features/planning/presentation/widgets/add_goal_bottom_sheet.dart';
+import 'package:budgets/features/navigation/domain/providers/sub_tab_providers.dart';
 import 'package:budgets/features/planning/presentation/widgets/budgets_tab_content.dart';
 import 'package:budgets/features/planning/presentation/widgets/goals_tab_content.dart';
 import 'package:flutter/material.dart';
@@ -42,14 +41,7 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
     setState(() {
       _currentTabIndex = _tabController.index;
     });
-  }
-
-  void _showAddDialog() {
-    if (_currentTabIndex == 0) {
-      AddBudgetBottomSheet.show(context);
-    } else if (_currentTabIndex == 1) {
-      AddGoalBottomSheet.show(context);
-    }
+    ref.read(planningSubTabProvider.notifier).set(_currentTabIndex);
   }
 
   @override
@@ -112,17 +104,6 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
                 ),
               ),
             ),
-          ),
-        ),
-        floatingActionButton: SizedBox(
-          width: 13.w,
-          height: 13.w,
-          child: FloatingActionButton(
-            heroTag: 'planningFab',
-            onPressed: _showAddDialog,
-            backgroundColor: theme.primaryColor,
-            shape: const CircleBorder(),
-            child: const Icon(Icons.add, color: Colors.black),
           ),
         ),
         body: TabBarView(

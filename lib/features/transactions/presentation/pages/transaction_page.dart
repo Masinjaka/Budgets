@@ -1,7 +1,6 @@
-import 'package:budgets/core/enums/transaction_type.dart';
+import 'package:budgets/features/navigation/domain/providers/sub_tab_providers.dart';
 import 'package:budgets/features/transactions/presentation/pages/expense_tab_content.dart';
 import 'package:budgets/features/transactions/presentation/pages/income_tab_content.dart';
-import 'package:budgets/features/transactions/presentation/widgets/add_transaction_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -41,21 +40,12 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
     setState(() {
       _currentTabIndex = _tabController.index;
     });
+    ref.read(transactionSubTabProvider.notifier).set(_currentTabIndex);
   }
 
   void _openSearchPage() {
     final type = _currentTabIndex == 0 ? 'expense' : 'income';
     context.push('/transaction-search?type=$type');
-  }
-
-  void _openAddTransactionDialog() {
-    final transactionType = _currentTabIndex == 0
-        ? TransactionType.expense
-        : TransactionType.income;
-    AddTransactionDialog.show(
-      context,
-      transactionType: transactionType,
-    );
   }
 
   @override
@@ -134,17 +124,6 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                 ),
               ),
             ),
-          ),
-        ),
-        floatingActionButton: SizedBox(
-          width: 13.w,
-          height: 13.w,
-          child: FloatingActionButton(
-            heroTag: 'transactionFab',
-            onPressed: _openAddTransactionDialog,
-            backgroundColor: Theme.of(context).primaryColor,
-            shape: const CircleBorder(),
-            child: const Icon(Icons.add, color: Colors.black),
           ),
         ),
         body: TabBarView(

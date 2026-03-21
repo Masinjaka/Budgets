@@ -74,7 +74,7 @@ class StatsPageContent extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                padding: EdgeInsets.fromLTRB(8.w, 0.h, 8.w, 2.h),
                 child: StatsChart(
                   expenseData: expenseData,
                   incomeData: incomeData,

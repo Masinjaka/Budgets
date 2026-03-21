@@ -17,7 +17,7 @@ class PlanningEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8.w),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -38,6 +38,7 @@ class PlanningEmptyState extends StatelessWidget {
                 fontSize: 22.5.sp,
                 fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
             )
                 .animate()
                 .slideY(
