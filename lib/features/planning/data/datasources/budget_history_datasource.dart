@@ -1,50 +1,83 @@
 import 'package:budgets/core/utils/wrapper.dart';
-import 'package:budgets/main.dart';
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/planning/domain/models/budget_history_model.dart';
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
+
+/// Build a [BudgetHistory] from a PowerSync JOIN row.
+BudgetHistory _budgetHistoryFromRow(Map<String, dynamic> row) {
+  return BudgetHistory(
+    id: row['id'] as String?,
+    createdAt: row['created_at'] != null
+        ? DateTime.parse(row['created_at'] as String)
+        : null,
+    budgetId: row['budget_id'] is int
+        ? row['budget_id'] as int
+        : int.tryParse(row['budget_id'].toString()),
+    userId: row['user_id'] as String?,
+    category: row['cat_id'] != null
+        ? Category(
+            id: row['cat_id'] as String?,
+            name: row['cat_name'] as String?,
+            emoji: row['cat_emoji'] as String?,
+            color: row['cat_color'] as String?,
+          )
+        : null,
+    amount: row['amount'] as String?,
+    amountSpent: row['amount_spent'] as String?,
+    periodMonth: row['period_month'] as String?,
+  );
+}
 
 /// Get budget history for a specific month
 /// [periodMonth] should be in format "YYYY-MM" e.g. "2026-01"
 Future<List<BudgetHistory>> getBudgetHistoryForMonth(String periodMonth) {
   return Wrapper.execute(() async {
-    final userId = supabase.auth.currentUser?.id;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) return [];
 
-    final response = await supabase
-        .from('budget_history')
-        .select(
-            'id, created_at, budget_id, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent, period_month')
-        .eq('user_id', userId)
-        .eq('period_month', periodMonth)
-        .order('created_at', ascending: true);
+    final results = await powersync.db.getAll('''
+      SELECT bh.id, bh.created_at, bh.budget_id, bh.user_id,
+             bh.amount, bh.amount_spent, bh.period_month,
+             c.id AS cat_id, c.name AS cat_name, c.emoji AS cat_emoji,
+             c.color AS cat_color, c.transaction_type AS cat_type
+      FROM budget_history bh
+      LEFT JOIN categories c ON bh.category = c.id
+      WHERE bh.user_id = ? AND bh.period_month = ?
+      ORDER BY bh.created_at ASC
+    ''', [userId, periodMonth]);
 
-    if (response.isEmpty) return [];
+    if (results.isEmpty) return [];
 
-    return (response as List)
-        .map((item) => BudgetHistory.fromMap(item))
-        .toList();
+    return results.map((row) => _budgetHistoryFromRow(row)).toList();
   });
 }
 
 /// Get all budget history for the current user
 Future<List<BudgetHistory>> getAllBudgetHistory() {
   return Wrapper.execute(() async {
-    final userId = supabase.auth.currentUser?.id;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) return [];
 
-    final response = await supabase
-        .from('budget_history')
-        .select(
-            'id, created_at, budget_id, user_id, category (id, name, emoji, color, transaction_type), amount, amount_spent, period_month')
-        .eq('user_id', userId)
-        .order('period_month', ascending: false);
+    final results = await powersync.db.getAll('''
+      SELECT bh.id, bh.created_at, bh.budget_id, bh.user_id,
+             bh.amount, bh.amount_spent, bh.period_month,
+             c.id AS cat_id, c.name AS cat_name, c.emoji AS cat_emoji,
+             c.color AS cat_color, c.transaction_type AS cat_type
+      FROM budget_history bh
+      LEFT JOIN categories c ON bh.category = c.id
+      WHERE bh.user_id = ?
+      ORDER BY bh.period_month DESC
+    ''', [userId]);
 
-    if (response.isEmpty) return [];
+    if (results.isEmpty) return [];
 
-    return (response as List)
-        .map((item) => BudgetHistory.fromMap(item))
-        .toList();
+    return results.map((row) => _budgetHistoryFromRow(row)).toList();
   });
 }
 
@@ -123,7 +156,7 @@ Future<void> archiveBudgetsToHistory(
   Map<int, String> periodKeyByBudgetId,
 ) {
   return Wrapper.execute(() async {
-    final userId = supabase.auth.currentUser?.id;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) throw Exception('User not authenticated');
 
     final historyRecords = budgets.where((budget) {
@@ -131,22 +164,33 @@ Future<void> archiveBudgetsToHistory(
       final hasPeriodKey = periodKeyByBudgetId.containsKey(budget.id);
       final spent = double.tryParse(budget.amountSpent ?? '0') ?? 0;
       return hasId && hasPeriodKey && spent > 0;
-    }).map((budget) {
-      return {
-        'budget_id': budget.id,
-        'user_id': userId,
-        'category': budget.category?.id,
-        'amount': budget.amount,
-        'amount_spent': budget.amountSpent,
-        'period_month': periodKeyByBudgetId[budget.id]!,
-      };
     }).toList();
 
-    if (historyRecords.isEmpty) {
-      return;
-    }
+    if (historyRecords.isEmpty) return;
 
-    await supabase.from('budget_history').insert(historyRecords);
+    final nowIso = DateTime.now().toUtc().toIso8601String();
+
+    await powersync.db.writeTransaction((tx) async {
+      for (final budget in historyRecords) {
+        final historyId = _uuid.v4();
+        await tx.execute(
+          '''INSERT INTO budget_history
+             (id, created_at, budget_id, user_id, category, amount, amount_spent, period_month)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+          [
+            historyId,
+            nowIso,
+            budget.id,
+            userId,
+            budget.category?.id,
+            budget.amount,
+            budget.amountSpent,
+            periodKeyByBudgetId[budget.id]!,
+          ],
+        );
+      }
+    });
+
     debugPrint('Archived ${historyRecords.length} budgets to history');
   });
 }
@@ -156,13 +200,18 @@ Future<void> resetBudgetsSpent(List<int> budgetIds) {
   return Wrapper.execute(() async {
     if (budgetIds.isEmpty) return;
 
-    final nowIso = DateTime.now().toIso8601String();
-    for (final id in budgetIds) {
-      await supabase.from('budgets').update({
-        'amount_spent': '0',
-        'last_reset_at': nowIso,
-      }).eq('id', id);
-    }
+    final nowIso = DateTime.now().toUtc().toIso8601String();
+
+    await powersync.db.writeTransaction((tx) async {
+      for (final id in budgetIds) {
+        await tx.execute(
+          '''UPDATE budgets
+             SET amount_spent = '0', last_reset_at = ?
+             WHERE id = ?''',
+          [nowIso, id.toString()],
+        );
+      }
+    });
   });
 }
 
@@ -221,6 +270,9 @@ String getPeriodMonthString(DateTime date) {
 /// Delete a budget history record by ID
 Future<void> deleteBudgetHistory(String id) {
   return Wrapper.execute(() async {
-    await supabase.from('budget_history').delete().eq('id', id);
+    await powersync.db.execute(
+      'DELETE FROM budget_history WHERE id = ?',
+      [id],
+    );
   });
 }

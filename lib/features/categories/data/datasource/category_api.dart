@@ -1,59 +1,75 @@
 import 'package:budgets/core/utils/wrapper.dart';
-import 'package:budgets/main.dart';
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/core/constants.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter/foundation.dart' hide Category;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
 
 Future<List<Category>> getCategories() {
   return Wrapper.execute(() async {
-    final response = await supabase
-        .from('categories')
-        .select('id, name, emoji, color, transaction_type');
+    final results = await powersync.db.getAll('''
+      SELECT id, name, emoji, color, transaction_type
+      FROM categories
+    ''');
 
-    if (response.isEmpty) return [];
+    if (results.isEmpty) return [];
 
-    List<Category> categories =
-        (response as List).map((item) => Category.fromMap(item)).toList();
-
-    return categories;
+    return results.map((row) => Category.fromMap(row)).toList();
   });
 }
 
-// Add category
+// Add category — replaces RPC 'add_category'
 Future<String> addCategory(Category category) {
   return Wrapper.execute(() async {
-    final response = await supabase.rpc('add_category', params: {
-      'category_name': category.name,
-      'category_emoji': category.emoji,
-      'category_color': category.color,
-      'tr_type': category.transactionType?.value ?? 'expense',
-    });
-    return response as String;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) throw Exception('No authenticated user');
+
+    final categoryId = _uuid.v4();
+    final trType = category.transactionType?.value ?? 'expense';
+
+    await powersync.db.execute(
+      '''INSERT INTO categories (id, name, emoji, color, user_id, transaction_type)
+         VALUES (?, ?, ?, ?, ?, ?)''',
+      [categoryId, category.name, category.emoji, category.color, userId, trType],
+    );
+
+    return categoryId;
   });
 }
 
-// Edit category
+// Edit category — replaces RPC 'edit_category'
 Future<String> editCategory(Category category) {
   return Wrapper.execute(() async {
-    final response = await supabase.rpc('edit_category', params: {
-      'category_id': category.id,
-      'new_name': category.name,
-      'new_emoji': category.emoji,
-      'new_color': category.color,
-      // 'new_transaction_type': category.transactionType?.value ?? 'expense',
-    });
-    return response as String;
+    if (category.id == null) throw Exception('Category ID is required');
+
+    await powersync.db.execute(
+      '''UPDATE categories
+         SET name = COALESCE(?, name),
+             emoji = COALESCE(?, emoji),
+             color = COALESCE(?, color)
+         WHERE id = ?''',
+      [category.name, category.emoji, category.color, category.id],
+    );
+
+    return category.id!;
   });
 }
 
-// Delete category
+// Delete category — replaces RPC 'delete_category'
 Future<String> deleteCategory(Category category) {
   return Wrapper.execute(() async {
-    final response = await supabase.rpc('delete_category', params: {
-      'category_id': category.id,
-    });
-    return response as String;
+    if (category.id == null) throw Exception('Category ID is required');
+
+    await powersync.db.execute(
+      'DELETE FROM categories WHERE id = ?',
+      [category.id],
+    );
+
+    return category.id!;
   });
 }
 

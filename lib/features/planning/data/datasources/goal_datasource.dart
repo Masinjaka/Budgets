@@ -1,8 +1,14 @@
 import 'dart:io';
 import 'package:budgets/core/utils/wrapper.dart';
-import 'package:budgets/main.dart';
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
+import 'package:budgets/core/offline/image_upload_queue.dart';
+import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
 
 /// Extract the storage path from a Supabase public URL
 /// Returns null if the URL is invalid or doesn't contain the expected pattern
@@ -29,6 +35,21 @@ String? extractStoragePathFromUrl(String? publicUrl) {
 Future<bool> deleteGoalImage(String? imageUrl) async {
   if (imageUrl == null || imageUrl.isEmpty) return true;
 
+  // If it's a local path (offline image), just delete the local file
+  if (!imageUrl.startsWith('http')) {
+    try {
+      final file = File(imageUrl);
+      if (await file.exists()) {
+        await file.delete();
+        debugPrint('Deleted local goal image: $imageUrl');
+      }
+      return true;
+    } catch (e) {
+      debugPrint('Warning: Failed to delete local goal image: $e');
+      return false;
+    }
+  }
+
   final path = extractStoragePathFromUrl(imageUrl);
   if (path == null) {
     debugPrint('Warning: Could not extract storage path from URL: $imageUrl');
@@ -36,7 +57,7 @@ Future<bool> deleteGoalImage(String? imageUrl) async {
   }
 
   try {
-    await supabase.storage.from('profile').remove([path]);
+    await Supabase.instance.client.storage.from('profile').remove([path]);
     debugPrint('Successfully deleted old goal image: $path');
     return true;
   } catch (e) {
@@ -45,76 +66,155 @@ Future<bool> deleteGoalImage(String? imageUrl) async {
   }
 }
 
-/// Upload goal image to Supabase storage
-/// Throws SocketException for network errors
-/// Throws StorageException for Supabase storage errors
-/// Throws FileSystemException if file cannot be read
-Future<String> uploadGoalImage(File file, String userId) async {
+/// Upload goal image — uses the image queue for offline support.
+/// Returns a local path immediately for display; the queue handles
+/// uploading to Supabase Storage when connectivity is available.
+Future<String> uploadGoalImage(File file, String userId,
+    {String? goalId}) async {
   // Verify file exists and is readable
   if (!await file.exists()) {
     throw FileSystemException('Le fichier image n\'existe pas', file.path);
   }
 
-  final path = 'goals/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
-  await supabase.storage.from('profile').upload(path, file);
-  return supabase.storage.from('profile').getPublicUrl(path);
+  final storagePath =
+      'goals/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+  // If goalId is provided, queue for background upload
+  if (goalId != null) {
+    final localPath = await ImageUploadQueue.instance.enqueue(
+      sourceFile: file,
+      bucket: 'profile',
+      storagePath: storagePath,
+      table: 'goals',
+      rowId: goalId,
+      column: 'image_path',
+    );
+    return localPath;
+  }
+
+  // Fallback: try direct upload (for online scenarios without a goalId yet)
+  try {
+    final client = Supabase.instance.client;
+    await client.storage.from('profile').upload(storagePath, file);
+    return client.storage.from('profile').getPublicUrl(storagePath);
+  } catch (e) {
+    // If upload fails (offline), save locally
+    debugPrint('Direct upload failed, saving locally: $e');
+    final localDir = await ImageUploadQueue.getLocalImageDirPath();
+    final localFile = File(
+        '$localDir/goal_${DateTime.now().millisecondsSinceEpoch}.jpg');
+    await file.copy(localFile.path);
+    return localFile.path;
+  }
 }
 
 /// Get all goals for the current user
 Future<List<Goal>> getGoals() {
   return Wrapper.execute(() async {
-    final userId = supabase.auth.currentUser?.id;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) return [];
 
-    final response = await supabase
-        .from('goals')
-        .select(
-            'id, created_at, user_id, name, category (id, name, emoji, color, transaction_type), date_aim, goal_amount, current_amount, image_path')
-        .eq('user_id', userId)
-        .order('created_at', ascending: true);
+    final results = await powersync.db.getAll('''
+      SELECT g.id, g.created_at, g.user_id, g.name, g.date_aim,
+             g.goal_amount, g.current_amount, g.image_path,
+             c.id AS cat_id, c.name AS cat_name, c.emoji AS cat_emoji,
+             c.color AS cat_color, c.transaction_type AS cat_type
+      FROM goals g
+      LEFT JOIN categories c ON g.category = c.id
+      WHERE g.user_id = ?
+      ORDER BY g.created_at ASC
+    ''', [userId]);
 
-    if (response.isEmpty) return [];
+    if (results.isEmpty) return [];
 
-    return (response as List).map((item) => Goal.fromMap(item)).toList();
+    return results.map((row) {
+      return Goal(
+        id: row['id'] as String?,
+        createdAt: row['created_at'] != null
+            ? DateTime.parse(row['created_at'] as String)
+            : null,
+        userId: row['user_id'] as String?,
+        name: row['name'] as String?,
+        category: row['cat_id'] != null
+            ? Category(
+                id: row['cat_id'] as String?,
+                name: row['cat_name'] as String?,
+                emoji: row['cat_emoji'] as String?,
+                color: row['cat_color'] as String?,
+              )
+            : null,
+        dateAim: row['date_aim'] != null
+            ? DateTime.parse(row['date_aim'] as String)
+            : null,
+        goalAmount: row['goal_amount'] as String?,
+        currentAmount: row['current_amount'] as String?,
+        imagePath: row['image_path'] as String?,
+      );
+    }).toList();
   });
 }
 
 /// Add a new goal
-Future<void> addGoal(Goal goal) {
+Future<String> addGoal(Goal goal) {
   return Wrapper.execute(() async {
-    final userId = supabase.auth.currentUser?.id;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) throw Exception('User not authenticated');
 
-    await supabase.from('goals').insert({
-      'user_id': userId,
-      'name': goal.name,
-      'category': goal.category?.id,
-      'date_aim': goal.dateAim?.toIso8601String(),
-      'goal_amount': goal.goalAmount,
-      'current_amount': goal.currentAmount ?? '0',
-      'image_path': goal.imagePath,
-    });
+    final goalId = _uuid.v4();
+    final nowIso = DateTime.now().toUtc().toIso8601String();
+
+    await powersync.db.execute(
+      '''INSERT INTO goals
+         (id, created_at, user_id, name, category, date_aim,
+          goal_amount, current_amount, image_path)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+      [
+        goalId,
+        nowIso,
+        userId,
+        goal.name,
+        goal.category?.id,
+        goal.dateAim?.toUtc().toIso8601String(),
+        goal.goalAmount,
+        goal.currentAmount ?? '0',
+        goal.imagePath,
+      ],
+    );
+
+    return goalId;
   });
 }
 
 /// Update an existing goal
 Future<void> updateGoal(Goal goal) {
   return Wrapper.execute(() async {
-    await supabase.from('goals').update({
-      'name': goal.name,
-      'category': goal.category?.id,
-      'date_aim': goal.dateAim?.toIso8601String(),
-      'goal_amount': goal.goalAmount,
-      'current_amount': goal.currentAmount,
-      'image_path': goal.imagePath,
-    }).eq('id', goal.id!);
+    if (goal.id == null) throw Exception('Goal ID is required');
+
+    await powersync.db.execute(
+      '''UPDATE goals
+         SET name = ?, category = ?, date_aim = ?,
+             goal_amount = ?, current_amount = ?, image_path = ?
+         WHERE id = ?''',
+      [
+        goal.name,
+        goal.category?.id,
+        goal.dateAim?.toUtc().toIso8601String(),
+        goal.goalAmount,
+        goal.currentAmount,
+        goal.imagePath,
+        goal.id,
+      ],
+    );
   });
 }
 
 /// Delete a goal by ID
 Future<void> deleteGoal(String id) {
   return Wrapper.execute(() async {
-    await supabase.from('goals').delete().eq('id', id);
+    await powersync.db.execute(
+      'DELETE FROM goals WHERE id = ?',
+      [id],
+    );
   });
 }
 

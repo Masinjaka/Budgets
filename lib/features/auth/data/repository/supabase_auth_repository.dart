@@ -1,4 +1,5 @@
 import 'package:budgets/core/constants.dart';
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -47,6 +48,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
+    await powersync.powerSyncLogout();
     await _client.auth.signOut();
   }
 
@@ -113,7 +115,8 @@ class SupabaseAuthRepository implements AuthRepository {
       final result = await _client.rpc('delete_user');
 
       debugPrint('delete_user RPC result: $result');
-      // Sign out locally after successful deletion
+      // Clear local PowerSync data and sign out
+      await powersync.powerSyncLogout();
       await _client.auth.signOut();
     } catch (e) {
       debugPrint('Error deleting account: $e');

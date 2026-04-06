@@ -1,35 +1,33 @@
 import 'package:budgets/core/utils/wrapper.dart';
-import 'package:budgets/main.dart';
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 
 // Get subcategories for a specific category
 Future<List<Subcategory>> getSubcategories(String categoryId) {
   return Wrapper.execute(() async {
-    final response = await supabase
-        .from('subcategories')
-        .select()
-        .eq('category_id', categoryId);
+    final results = await powersync.db.getAll('''
+      SELECT id, created_at, name, category_id
+      FROM subcategories
+      WHERE category_id = ?
+    ''', [categoryId]);
 
-    if (response.isEmpty) return [];
+    if (results.isEmpty) return [];
 
-    List<Subcategory> subcategories =
-        (response as List).map((item) => Subcategory.fromMap(item)).toList();
-
-    return subcategories;
+    return results.map((item) => Subcategory.fromMap(item)).toList();
   });
 }
 
 // Get all subcategories
 Future<List<Subcategory>> getAllSubcategories() {
   return Wrapper.execute(() async {
-    final response = await supabase.from('subcategories').select();
+    final results = await powersync.db.getAll('''
+      SELECT id, created_at, name, category_id
+      FROM subcategories
+    ''');
 
-    if (response.isEmpty) return [];
+    if (results.isEmpty) return [];
 
-    List<Subcategory> subcategories =
-        (response as List).map((item) => Subcategory.fromMap(item)).toList();
-
-    return subcategories;
+    return results.map((item) => Subcategory.fromMap(item)).toList();
   });
 }
 

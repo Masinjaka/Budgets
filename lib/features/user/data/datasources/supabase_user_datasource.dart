@@ -1,3 +1,4 @@
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/user/domain/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -8,29 +9,36 @@ class SupabaseUserDataSource {
   Future<UserModel> getCurrentUserRow() async {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw StateError('No authenticated user');
-    // Assuming table name is 'user'
-    final data = await _client
-        .from('user')
-        .select('username, profile_photo, currency_code')
-        .eq('user_id', uid)
-        .single();
 
-    return UserModel.fromJson(data);
+    final results = await powersync.db.getAll('''
+      SELECT username, profile_photo, currency_code
+      FROM user
+      WHERE user_id = ?
+      LIMIT 1
+    ''', [uid]);
+
+    if (results.isEmpty) throw StateError('User row not found');
+
+    return UserModel.fromJson(results.first);
   }
 
   Future<void> updateUsername(String username) async {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw StateError('No authenticated user');
-    await _client
-        .from('user')
-        .update({'username': username}).eq('user_id', uid);
+
+    await powersync.db.execute(
+      'UPDATE user SET username = ? WHERE user_id = ?',
+      [username, uid],
+    );
   }
 
   Future<void> updateCurrencyCode(String currencyCode) async {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw StateError('No authenticated user');
-    await _client
-        .from('user')
-        .update({'currency_code': currencyCode}).eq('user_id', uid);
+
+    await powersync.db.execute(
+      'UPDATE user SET currency_code = ? WHERE user_id = ?',
+      [currencyCode, uid],
+    );
   }
 }

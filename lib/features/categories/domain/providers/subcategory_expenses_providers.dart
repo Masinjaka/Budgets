@@ -1,4 +1,3 @@
-import 'package:budgets/main.dart';
 import 'package:budgets/features/categories/data/datasource/subcategories_expenses_api.dart';
 import 'package:budgets/features/categories/data/repository/subcategory_expenses_repository_impl.dart';
 import 'package:budgets/features/categories/domain/interfaces/subcategory_expenses_repository.dart';
@@ -9,7 +8,7 @@ part 'subcategory_expenses_providers.g.dart';
 
 @riverpod
 SubcategoriesExpensesApi subcategoriesExpensesApi(ref) {
-  return SubcategoriesExpensesApi(supabase);
+  return SubcategoriesExpensesApi();
 }
 
 @riverpod

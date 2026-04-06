@@ -16,21 +16,27 @@ class Goals extends _$Goals {
   Future<void> addSomeGoal(Goal goal) async {
     state = const AsyncValue.loading();
     try {
-      Goal goalToSave = goal;
-      // Upload image if it's a local file path (not a URL)
+      // First save the goal without the image (or with local path)
+      final goalToSave = goal;
+
+      // Add the goal and get its ID
+      final goalId = await addGoal(goalToSave);
+
+      // If there's a local image, queue it for upload with the new goalId
       if (goal.imagePath != null &&
           goal.imagePath!.isNotEmpty &&
           !goal.imagePath!.startsWith('http')) {
         final userId = goal.userId;
         if (userId != null) {
-          final imageUrl = await uploadGoalImage(File(goal.imagePath!), userId);
-          goalToSave = goal.copyWith(imagePath: imageUrl);
+          final localPath =
+              await uploadGoalImage(File(goal.imagePath!), userId, goalId: goalId);
+          // Update the goal with the local path for immediate display
+          await updateGoal(goal.copyWith(id: goalId, imagePath: localPath));
         } else {
           debugPrint('Warning: userId is null, cannot upload image');
         }
       }
 
-      await addGoal(goalToSave);
       final goals = await getGoals();
       state = AsyncValue.data(goals);
     } catch (e, s) {
@@ -51,14 +57,16 @@ class Goals extends _$Goals {
       if (hasNewLocalImage) {
         final userId = goal.userId;
         if (userId != null) {
-          // Delete old image from storage if it exists (non-blocking, log errors)
+          // Delete old image from storage if it exists (non-blocking)
           if (oldImagePath != null && oldImagePath.startsWith('http')) {
             await deleteGoalImage(oldImagePath);
           }
 
-          // Upload new image
-          final imageUrl = await uploadGoalImage(File(goal.imagePath!), userId);
-          goalToUpdate = goal.copyWith(imagePath: imageUrl);
+          // Queue new image for upload, get local path
+          final localPath = await uploadGoalImage(
+              File(goal.imagePath!), userId,
+              goalId: goal.id);
+          goalToUpdate = goal.copyWith(imagePath: localPath);
         } else {
           debugPrint('Warning: userId is null, cannot upload image');
         }
@@ -81,9 +89,8 @@ class Goals extends _$Goals {
       final goalToDelete = currentGoals.where((g) => g.id == id).firstOrNull;
 
       // Delete image from storage if it exists
-      if (goalToDelete?.imagePath != null &&
-          goalToDelete!.imagePath!.startsWith('http')) {
-        await deleteGoalImage(goalToDelete.imagePath);
+      if (goalToDelete?.imagePath != null) {
+        await deleteGoalImage(goalToDelete!.imagePath);
       }
 
       await deleteGoal(id);

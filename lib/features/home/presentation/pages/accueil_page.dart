@@ -11,6 +11,7 @@ import 'package:budgets/features/notifications/presentation/controllers/notifica
 import 'package:budgets/features/home/domain/providers/notification_permission_provider.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
+import 'package:budgets/widgets/sync_status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -49,6 +50,7 @@ class HomePage extends ConsumerWidget {
             // physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
+                const SyncStatusWidget(),
                 SizedBox(height: 2.h),
                 const Jumbotron(),
                 SizedBox(height: 3.h),

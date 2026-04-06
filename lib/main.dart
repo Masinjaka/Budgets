@@ -39,6 +39,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:budgets/features/notifications/presentation/services/foreground_notification_service.dart';
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
+import 'package:budgets/core/offline/image_upload_queue.dart';
 
 // Environment variables injected via --dart-define
 const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
@@ -90,6 +92,12 @@ void main() async {
   // initialise hive box
   await Hive.initFlutter();
   await Hive.openBox<dynamic>(LocalAppStorage.storageBox);
+
+  // Initialize PowerSync (after Supabase)
+  await powersync.openPowerSyncDatabase(LocalAppStorage.powersyncUrl);
+
+  // Initialize the offline image upload queue
+  await ImageUploadQueue.instance.init();
 
   await SentryFlutter.init(
     (options) {

@@ -1,0 +1,75 @@
+config:
+  edition: 3
+
+streams:
+  # User profile
+  user:
+    query: SELECT * FROM "user" WHERE "user_id" = auth.user_id()
+
+  # Transactions (expenses & income)
+  transaction:
+    query: SELECT * FROM "transaction" WHERE "user_id" = auth.user_id()
+
+  # Categories
+  categories:
+    query: SELECT * FROM "categories" WHERE "user_id" = auth.user_id()
+
+  # Subcategories (via category ownership)
+  subcategories:
+    query: >
+      SELECT "subcategories".*
+      FROM "subcategories"
+      INNER JOIN "categories" ON "subcategories"."category_id" = "categories"."id"
+      WHERE "categories"."user_id" = auth.user_id()
+
+  # Subcategory expenses (via transaction ownership)
+  subcategory_expenses:
+    query: >
+      SELECT "subcategory_expenses".*
+      FROM "subcategory_expenses"
+      INNER JOIN "transaction" ON "subcategory_expenses"."transaction_id" = "transaction"."id"
+      WHERE "transaction"."user_id" = auth.user_id()
+
+  # Budgets
+  budgets:
+    query: SELECT * FROM "budgets" WHERE "user_id" = auth.user_id()
+
+  # Budget history
+  budget_history:
+    query: SELECT * FROM "budget_history" WHERE "user_id" = auth.user_id()
+
+  # Goals
+  goals:
+    query: SELECT * FROM "goals" WHERE "user_id" = auth.user_id()
+
+  # Subscriptions
+  subscriptions:
+    query: SELECT * FROM "subscriptions" WHERE "user_id" = auth.user_id()
+
+  # Notification settings (PK is user_id, not id — alias it for PowerSync)
+  notification_settings:
+    query: >
+      SELECT "user_id" AS "id", "user_id", "reminders_enabled", "warnings_enabled",
+             "reminder_hour", "reminder_minute", "timezone_offset_minutes",
+             "warning_threshold", "last_reminder_sent_on", "created_at",
+             "updated_at", "notifications_enabled"
+      FROM "notification_settings"
+      WHERE "user_id" = auth.user_id()
+
+  # Device tokens
+  device_tokens:
+    query: SELECT * FROM "device_tokens" WHERE "user_id" = auth.user_id()
+
+  # Budget notification log
+  budget_notification_log:
+    query: SELECT * FROM "budget_notification_log" WHERE "user_id" = auth.user_id()
+
+  # Global: Exchange rates (shared across all users)
+  exchange_rates:
+    auto_subscribe: true
+    query: SELECT * FROM "exchange_rates"
+
+  # Global: Subscription categories (shared lookup table)
+  subscription_categories:
+    auto_subscribe: true
+    query: SELECT * FROM "subscription_categories"
