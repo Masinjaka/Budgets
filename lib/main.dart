@@ -151,6 +151,9 @@ class _MyAppState extends ConsumerState<MyApp> {
       GoRoute(
           path: '/notification-settings',
           builder: (context, state) => const NotificationSettingsPage()),
+      GoRoute(
+          path: '/settings/reports',
+          builder: (context, state) => const StatsPage()),
       // Shell with IndexedStack to preserve state across tabs
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -177,14 +180,6 @@ class _MyAppState extends ConsumerState<MyApp> {
               GoRoute(
                 path: '/planning',
                 builder: (context, state) => const PlanningPage(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/stats',
-                builder: (context, state) => const StatsPage(),
               ),
             ],
           ),

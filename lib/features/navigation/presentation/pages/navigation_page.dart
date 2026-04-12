@@ -1,14 +1,14 @@
+import 'dart:async';
+
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/navigation/domain/providers/sub_tab_providers.dart';
 import 'package:budgets/features/planning/presentation/widgets/add_budget_bottom_sheet.dart';
 import 'package:budgets/features/planning/presentation/widgets/add_goal_bottom_sheet.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction_dialog.dart';
-import 'package:budgets/widgets/lottie_nav_icon.dart';
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -22,8 +22,6 @@ class NavigatorPage extends ConsumerStatefulWidget {
 }
 
 class _NavigatorPageState extends ConsumerState<NavigatorPage> {
-  final List<ValueNotifier<int>> _tapNotifiers =
-      List.generate(5, (_) => ValueNotifier<int>(0));
   bool _isNavBarVisible = true;
   ScrollDirection? _lastDirection;
   Timer? _scrollTimer;
@@ -31,28 +29,23 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
   static const _tabs = [
     _TabConfig(
       label: 'Accueil',
-      darkAsset: 'assets/lottie/dark/home.json',
-      lightAsset: 'assets/lottie/light/home-light.json',
+      selectedIcon: FontAwesomeIcons.solidHouse,
+      unselectedIcon: FontAwesomeIcons.house,
     ),
     _TabConfig(
       label: 'Transactions',
-      darkAsset: 'assets/lottie/dark/transaction.json',
-      lightAsset: 'assets/lottie/light/transaction-light.json',
+      selectedIcon: FontAwesomeIcons.solidCreditCard,
+      unselectedIcon: FontAwesomeIcons.creditCard,
     ),
     _TabConfig(
       label: 'Planifier',
-      darkAsset: 'assets/lottie/dark/wallet.json',
-      lightAsset: 'assets/lottie/light/wallet-light.json',
-    ),
-    _TabConfig(
-      label: 'Rapports',
-      darkAsset: 'assets/lottie/dark/pie.json',
-      lightAsset: 'assets/lottie/light/pie-light.json',
+      selectedIcon: FontAwesomeIcons.solidCalendar,
+      unselectedIcon: FontAwesomeIcons.calendar,
     ),
     _TabConfig(
       label: 'Paramètres',
-      darkAsset: 'assets/lottie/dark/setting.json',
-      lightAsset: 'assets/lottie/light/setting-light.json',
+      selectedIcon: FontAwesomeIcons.gear,
+      unselectedIcon: FontAwesomeIcons.gear,
     ),
   ];
 
@@ -75,9 +68,6 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
   @override
   void dispose() {
     _scrollTimer?.cancel();
-    for (final notifier in _tapNotifiers) {
-      notifier.dispose();
-    }
     super.dispose();
   }
 
@@ -126,7 +116,9 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
           width: 13.w,
           height: 13.w,
           child: FloatingActionButton(
-            onPressed: (showFab && _isNavBarVisible) ? () => _onFabPressed(currentIndex) : null,
+            onPressed: (showFab && _isNavBarVisible)
+                ? () => _onFabPressed(currentIndex)
+                : null,
             backgroundColor: Theme.of(context).primaryColor,
             shape: const CircleBorder(),
             child: const Icon(Icons.add, color: Colors.black),
@@ -134,65 +126,64 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
         ),
       ),
       bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border(
-              top: BorderSide(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : const Color.fromARGB(54, 48, 50, 55),
-              ),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : const Color.fromARGB(54, 48, 50, 55),
             ),
           ),
-          padding: EdgeInsets.only(
-            left: 3.w,
-            right: 3.w,
-            top: 1.2.h,
-            bottom: MediaQuery.of(context).padding.bottom + 1.h,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(_tabs.length, (i) {
-              final tab = _tabs[i];
-              final isActive = currentIndex == i;
-              return Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    _tapNotifiers[i].value++;
-                    widget.navigationShell.goBranch(i);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Opacity(
-                        opacity: isActive ? 1.0 : 0.5,
-                        child: LottieNavIcon(
-                          darkAsset: tab.darkAsset,
-                          lightAsset: tab.lightAsset,
-                          isActive: isActive,
-                          tapNotifier: _tapNotifiers[i],
-                          size: 5.w,
-                        ),
-                      ),
-                      SizedBox(height: 0.5.h),
-                      Text(
-                        tab.label,
-                        style: TextStyle(
-                          fontSize: 13.5.sp,
-                          fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                          color: isActive ? textColor : hintColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
         ),
+        padding: EdgeInsets.only(
+          left: 3.w,
+          right: 3.w,
+          top: 1.2.h,
+          bottom: MediaQuery.of(context).padding.bottom + 1.h,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(_tabs.length, (i) {
+            final tab = _tabs[i];
+            final isActive = currentIndex == i;
+            return Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => widget.navigationShell.goBranch(i),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      switchInCurve: Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
+                      child: FaIcon(
+                        isActive ? tab.selectedIcon : tab.unselectedIcon,
+                        key: ValueKey('${tab.label}-$isActive'),
+                        size: 4.3.w,
+                        color: isActive ? textColor : hintColor,
+                      ),
+                    ),
+                    SizedBox(height: 0.5.h),
+                    Text(
+                      tab.label,
+                      style: TextStyle(
+                        fontSize: 13.5.sp,
+                        fontWeight:
+                            isActive ? FontWeight.w600 : FontWeight.w400,
+                        color: isActive ? textColor : hintColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
     );
   }
 }
@@ -200,11 +191,11 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
 class _TabConfig {
   const _TabConfig({
     required this.label,
-    required this.darkAsset,
-    required this.lightAsset,
+    required this.selectedIcon,
+    required this.unselectedIcon,
   });
 
   final String label;
-  final String darkAsset;
-  final String lightAsset;
+  final FaIconData selectedIcon;
+  final FaIconData unselectedIcon;
 }

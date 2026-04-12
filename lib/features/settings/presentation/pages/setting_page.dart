@@ -113,6 +113,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           context.push('/categories');
                         },
                       ),
+                      SizedBox(height: 1.h),
+                      SettingCard(
+                        title: 'Rapports',
+                        iconData: Icons.bar_chart_outlined,
+                        onTap: () {
+                          context.push('/settings/reports');
+                        },
+                      ),
                     ],
                   ),
                   SizedBox(height: 4.h),
