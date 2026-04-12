@@ -5,19 +5,31 @@ import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'currency_provider.g.dart';
 
 @riverpod
 Future<ExchangeRates?> exchangeRates(Ref ref) async {
-  final client = Supabase.instance.client;
-  final datasource = ExchangeRatesDataSource(client);
+  const datasource = ExchangeRatesDataSource();
   return datasource.fetchLatest();
 }
 
 @Riverpod(keepAlive: true)
 class CurrencyController extends _$CurrencyController {
+  static const _fallbackCurrencyCodes = <String>{
+    'MGA',
+    'USD',
+    'EUR',
+    'GBP',
+    'CAD',
+    'AUD',
+    'JPY',
+    'CNY',
+    'CHF',
+    'ZAR',
+    'KES',
+  };
+
   @override
   Future<CurrencyState> build() async {
     final rates = await ref.watch(exchangeRatesProvider.future);
@@ -31,11 +43,13 @@ class CurrencyController extends _$CurrencyController {
     }
 
     final rateMap = Map<String, double>.from(rates?.rates ?? {});
-    rateMap.putIfAbsent('MGA', () => 1.0);
-    final normalizedCode = rateMap.containsKey(code) ? code : 'MGA';
+    for (final currencyCode in _fallbackCurrencyCodes) {
+      rateMap.putIfAbsent(currencyCode, () => 1.0);
+    }
+    rateMap.putIfAbsent(code, () => 1.0);
 
     return CurrencyState(
-      code: normalizedCode,
+      code: code,
       baseCode: rates?.baseCode ?? 'MGA',
       rates: rateMap,
       fetchedAt: rates?.fetchedAt,

@@ -26,12 +26,10 @@ class TransactionListItem extends ConsumerStatefulWidget {
 class _TransactionListItemState extends ConsumerState<TransactionListItem>
     with SingleTickerProviderStateMixin {
   static const double _deletePaneExtentRatio = 0.20;
-  static const _dismissDuration = Duration(milliseconds: 220);
 
   bool _hasTriggeredHalfSwipeHaptic = false;
   bool _canVibrate = true;
   double _swipeProgress = 0;
-  bool _isDismissing = false;
   late final SlidableController _slidableController;
 
   @override
@@ -82,7 +80,6 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
   }
 
   Future<void> _handleDeleteAction() async {
-    if (_isDismissing) return;
     final transaction = widget.transaction;
     final shouldDelete = await showDeleteConfirmationDialog(
       context: context,
@@ -92,14 +89,11 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
     if (!shouldDelete || transaction.id == null) { await _resetSwipeFeedbackState(); return; }
     await _resetSwipeFeedbackState();
     if (!mounted) return;
-    setState(() => _isDismissing = true);
-    await Future.delayed(_dismissDuration);
     try {
       await ref.read(transactionsProvider.notifier).deleteTransaction(
             transaction.id!, transaction.transactionType ?? TransactionType.expense, transaction: transaction);
     } catch (e) {
       debugPrint("Error deleting transaction: $e");
-      if (mounted) setState(() => _isDismissing = false);
     }
   }
 
@@ -117,7 +111,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
       child: Slidable(
         controller: _slidableController,
         key: Key(transaction.id ?? DateTime.now().toString()),
-        enabled: !_isDismissing,
+        enabled: true,
         endActionPane: ActionPane(
           motion: const DrawerMotion(),
           extentRatio: _deletePaneExtentRatio,
@@ -148,7 +142,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             borderRadius: cardBorderRadius,
-            onTap: _isDismissing ? null : () => showModalBottomSheet(
+            onTap: () => showModalBottomSheet(
               context: context,
               backgroundColor: Colors.transparent,
               isScrollControlled: true,
@@ -182,21 +176,6 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
       ),
     );
 
-    return AnimatedSlide(
-      duration: _dismissDuration,
-      curve: Curves.easeOutCubic,
-      offset: _isDismissing ? const Offset(0.15, 0) : Offset.zero,
-      child: AnimatedOpacity(
-        duration: _dismissDuration,
-        curve: Curves.easeOut,
-        opacity: _isDismissing ? 0 : 1,
-        child: AnimatedSize(
-          duration: _dismissDuration,
-          curve: Curves.easeInOut,
-          alignment: Alignment.topCenter,
-          child: _isDismissing ? const SizedBox.shrink() : card,
-        ),
-      ),
-    );
+    return card;
   }
 }

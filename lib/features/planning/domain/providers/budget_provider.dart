@@ -51,7 +51,7 @@ class Budgets extends _$Budgets {
     }
   }
 
-  Future<void> deleteSomeBudget(int id) async {
+  Future<void> deleteSomeBudget(String id) async {
     state = const AsyncValue.loading();
     try {
       await deleteBudget(id);

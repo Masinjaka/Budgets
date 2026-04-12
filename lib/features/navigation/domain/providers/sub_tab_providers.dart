@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sub_tab_providers.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class TransactionSubTab extends _$TransactionSubTab {
   @override
   int build() => 0;

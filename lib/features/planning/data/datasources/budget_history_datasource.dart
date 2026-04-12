@@ -16,9 +16,7 @@ BudgetHistory _budgetHistoryFromRow(Map<String, dynamic> row) {
     createdAt: row['created_at'] != null
         ? DateTime.parse(row['created_at'] as String)
         : null,
-    budgetId: row['budget_id'] is int
-        ? row['budget_id'] as int
-        : int.tryParse(row['budget_id'].toString()),
+    budgetId: row['budget_id']?.toString(),
     userId: row['user_id'] as String?,
     category: row['cat_id'] != null
         ? Category(
@@ -153,7 +151,7 @@ String _historyPeriodKey({
 /// Archive current budgets to history with a period key per budget ID.
 Future<void> archiveBudgetsToHistory(
   List<Budget> budgets,
-  Map<int, String> periodKeyByBudgetId,
+  Map<String, String> periodKeyByBudgetId,
 ) {
   return Wrapper.execute(() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -196,7 +194,7 @@ Future<void> archiveBudgetsToHistory(
 }
 
 /// Reset selected budget spent amounts and move their reset baseline to now.
-Future<void> resetBudgetsSpent(List<int> budgetIds) {
+Future<void> resetBudgetsSpent(List<String> budgetIds) {
   return Wrapper.execute(() async {
     if (budgetIds.isEmpty) return;
 
@@ -208,7 +206,7 @@ Future<void> resetBudgetsSpent(List<int> budgetIds) {
           '''UPDATE budgets
              SET amount_spent = '0', last_reset_at = ?
              WHERE id = ?''',
-          [nowIso, id.toString()],
+          [nowIso, id],
         );
       }
     });
@@ -222,7 +220,7 @@ Future<bool> checkAndResetBudgetsByPeriod(List<Budget> currentBudgets) async {
 
   final now = DateTime.now();
   final dueBudgets = <Budget>[];
-  final periodKeyByBudgetId = <int, String>{};
+  final periodKeyByBudgetId = <String, String>{};
 
   for (final budget in currentBudgets) {
     final id = budget.id;

@@ -49,7 +49,7 @@ final schema = Schema([
   ]),
   Table('budget_history', [
     Column.text('created_at'),
-    Column.integer('budget_id'),
+    Column.text('budget_id'),
     Column.text('user_id'),
     Column.text('category'),
     Column.text('amount'),

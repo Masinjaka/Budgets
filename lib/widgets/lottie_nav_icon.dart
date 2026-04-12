@@ -9,12 +9,14 @@ class LottieNavIcon extends StatefulWidget {
     required this.lightAsset,
     required this.isActive,
     required this.tapNotifier,
+    this.size,
   });
 
   final String darkAsset;
   final String lightAsset;
   final bool isActive;
   final ValueNotifier<int> tapNotifier;
+  final double? size;
 
   @override
   State<LottieNavIcon> createState() => _LottieNavIconState();
@@ -54,11 +56,12 @@ class _LottieNavIconState extends State<LottieNavIcon>
     // Dark icons for light mode, light icons for dark mode
     final asset = isDark ? widget.lightAsset : widget.darkAsset;
 
+    final iconSize = widget.size ?? 5.w;
     return Lottie.asset(
       asset,
       controller: _controller,
-      width: 5.w,
-      height: 5.w,
+      width: iconSize,
+      height: iconSize,
       onLoaded: (composition) {
         _controller.duration = composition.duration;
         if (widget.isActive) {

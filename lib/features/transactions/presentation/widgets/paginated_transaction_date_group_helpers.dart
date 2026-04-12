@@ -28,8 +28,10 @@ Widget buildPaginatedDateGroup(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: transactions.length,
-        itemBuilder: (_, i) =>
-            TransactionListItem(transaction: transactions[i]),
+        itemBuilder: (_, i) => TransactionListItem(
+              key: ValueKey(transactions[i].id),
+              transaction: transactions[i],
+            ),
         separatorBuilder: (_, __) => SizedBox(height: 1.h),
       ),
       SizedBox(height: 2.h),

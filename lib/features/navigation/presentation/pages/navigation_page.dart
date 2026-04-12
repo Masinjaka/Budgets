@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class NavigatorPage extends ConsumerStatefulWidget {
@@ -87,11 +86,11 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
     final currentIndex = widget.navigationShell.currentIndex;
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final cardColor = Theme.of(context).cardColor;
+    final hintColor = Theme.of(context).hintColor;
     final showFab = currentIndex == 1 || currentIndex == 2;
 
     return Scaffold(
-      extendBody: true,
+      extendBody: false,
       body: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           final direction = notification.direction;
@@ -119,84 +118,81 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
         },
         child: widget.navigationShell,
       ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: EdgeInsets.only(right: 8.w, bottom: 1.5.h),
-              child: AnimatedScale(
-                scale: (showFab && _isNavBarVisible) ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                child: SizedBox(
-                  width: 13.w,
-                  height: 13.w,
-                  child: FloatingActionButton(
-                    onPressed: (showFab && _isNavBarVisible) ? () => _onFabPressed(currentIndex) : null,
-                    backgroundColor: Theme.of(context).primaryColor,
-                    shape: const CircleBorder(),
-                    child: const Icon(Icons.add, color: Colors.black),
-                  ),
-                ),
-              ),
-            ),
+      floatingActionButton: AnimatedScale(
+        scale: (showFab && _isNavBarVisible) ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        child: SizedBox(
+          width: 13.w,
+          height: 13.w,
+          child: FloatingActionButton(
+            onPressed: (showFab && _isNavBarVisible) ? () => _onFabPressed(currentIndex) : null,
+            backgroundColor: Theme.of(context).primaryColor,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, color: Colors.black),
           ),
-          AnimatedSlide(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            offset: _isNavBarVisible ? Offset.zero : const Offset(0, 1),
-            child: Container(
-            margin: EdgeInsets.only(left: 7.5.w, right: 7.5.w, bottom: 2.5.h),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(
+        ),
+      ),
+      bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border(
+              top: BorderSide(
                 color: Theme.of(context).brightness == Brightness.dark
                     ? Colors.white.withValues(alpha: 0.15)
                     : const Color.fromARGB(54, 48, 50, 55),
               ),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 1.5.w, vertical: 0.7.h),
-            child: GNav(
-              gap: 6,
-              activeColor: textColor,
-              color: textColor,
-              iconSize: 5.w,
-              tabBackgroundColor: cardColor,
-              padding:
-                  EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
-              tabBorderRadius: 10.w,
-              selectedIndex: currentIndex,
-              onTabChange: (index) {
-                _tapNotifiers[index].value++;
-                widget.navigationShell.goBranch(index);
-              },
-              tabs: List.generate(_tabs.length, (i) {
-                final tab = _tabs[i];
-                return GButton(
-                  leading: LottieNavIcon(
-                    darkAsset: tab.darkAsset,
-                    lightAsset: tab.lightAsset,
-                    isActive: currentIndex == i,
-                    tapNotifier: _tapNotifiers[i],
-                  ),
-                  icon: Icons.circle,
-                  iconSize: 0,
-                  text: tab.label,
-                  textStyle: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                );
-              }),
-            ),
           ),
+          padding: EdgeInsets.only(
+            left: 3.w,
+            right: 3.w,
+            top: 1.2.h,
+            bottom: MediaQuery.of(context).padding.bottom + 1.h,
           ),
-        ],
-      ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(_tabs.length, (i) {
+              final tab = _tabs[i];
+              final isActive = currentIndex == i;
+              return Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    _tapNotifiers[i].value++;
+                    widget.navigationShell.goBranch(i);
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Opacity(
+                        opacity: isActive ? 1.0 : 0.5,
+                        child: LottieNavIcon(
+                          darkAsset: tab.darkAsset,
+                          lightAsset: tab.lightAsset,
+                          isActive: isActive,
+                          tapNotifier: _tapNotifiers[i],
+                          size: 5.w,
+                        ),
+                      ),
+                      SizedBox(height: 0.5.h),
+                      Text(
+                        tab.label,
+                        style: TextStyle(
+                          fontSize: 13.5.sp,
+                          fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                          color: isActive ? textColor : hintColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
     );
   }
 }

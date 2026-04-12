@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class ExchangeRates {
   final String baseCode;
   final Map<String, double> rates;
@@ -10,7 +12,12 @@ class ExchangeRates {
   });
 
   factory ExchangeRates.fromJson(Map<String, dynamic> json) {
-    final rawRates = json['rates'] as Map<String, dynamic>? ?? {};
+    final rawRatesValue = json['rates'];
+    final rawRates = rawRatesValue is Map<String, dynamic>
+        ? rawRatesValue
+        : rawRatesValue is String
+            ? _decodeRates(rawRatesValue)
+            : <String, dynamic>{};
     final parsedRates = <String, double>{};
 
     rawRates.forEach((key, value) {
@@ -26,5 +33,14 @@ class ExchangeRates {
       fetchedAt: DateTime.tryParse(json['fetched_at']?.toString() ?? '') ??
           DateTime.now(),
     );
+  }
+}
+
+Map<String, dynamic> _decodeRates(String rawRates) {
+  try {
+    final decoded = jsonDecode(rawRates);
+    return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
+  } catch (_) {
+    return <String, dynamic>{};
   }
 }

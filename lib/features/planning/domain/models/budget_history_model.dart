@@ -3,7 +3,7 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 class BudgetHistory {
   final String? id;
   final DateTime? createdAt;
-  final int? budgetId;
+  final String? budgetId;
   final String? userId;
   final Category? category;
   final String? amount;
@@ -27,7 +27,7 @@ class BudgetHistory {
       createdAt: map['created_at'] != null
           ? DateTime.parse(map['created_at'] as String)
           : null,
-      budgetId: map['budget_id'] as int?,
+      budgetId: map['budget_id']?.toString(),
       userId: map['user_id'] as String?,
       category: map['category'] != null
           ? Category.fromMap(map['category'] as Map<String, dynamic>)
@@ -78,7 +78,7 @@ class BudgetHistory {
   BudgetHistory copyWith({
     String? id,
     DateTime? createdAt,
-    int? budgetId,
+    String? budgetId,
     String? userId,
     Category? category,
     String? amount,

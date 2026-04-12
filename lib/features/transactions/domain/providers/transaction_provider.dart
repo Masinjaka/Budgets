@@ -17,9 +17,7 @@ part 'transaction_provider.g.dart';
 class Transactions extends _$Transactions {
   @override
   Future<List<TransactionModel>> build() async {
-    return await ref
-        .read(transactionsApiProvider)
-        .getTransactions();
+    return await ref.read(transactionsApiProvider).getTransactions();
   }
 
   Future<void> addUserTransaction(
@@ -48,9 +46,9 @@ class Transactions extends _$Transactions {
   }
 
   Future<void> deleteTransaction(
-      String transactionId,
-      TransactionType transactionType, {
-      TransactionModel? transaction,
+    String transactionId,
+    TransactionType transactionType, {
+    TransactionModel? transaction,
   }) async {
     try {
       // Check if this is a savings category transaction and update goal
@@ -68,12 +66,17 @@ class Transactions extends _$Transactions {
       }
 
       await ref.read(transactionsApiProvider).deleteTransaction(transactionId);
+      ref.invalidate(budgetsProvider);
 
-      // Refresh the correct paginated provider based on transaction type
+      // Optimistically remove from the paginated list
       if (transactionType == TransactionType.income) {
-        ref.read(paginatedIncomesProvider.notifier).refresh();
+        ref
+            .read(paginatedIncomesProvider.notifier)
+            .removeTransaction(transactionId);
       } else {
-        ref.read(paginatedExpensesProvider.notifier).refresh();
+        ref
+            .read(paginatedExpensesProvider.notifier)
+            .removeTransaction(transactionId);
       }
 
       ref.invalidateSelf();
@@ -84,14 +87,14 @@ class Transactions extends _$Transactions {
   }
 
   Future<void> editTransaction(
-      String transactionId,
-      String? amount,
-      String? description,
-      String? categoryName,
-      Map<String, String>? subcategoryAmounts,
-      TransactionType? transactionType,
-      DateTime? date, {
-      TransactionModel? originalTransaction,
+    String transactionId,
+    String? amount,
+    String? description,
+    String? categoryName,
+    Map<String, String>? subcategoryAmounts,
+    TransactionType? transactionType,
+    DateTime? date, {
+    TransactionModel? originalTransaction,
   }) async {
     try {
       // Check if this is a savings category transaction and handle goal amount update
@@ -109,7 +112,8 @@ class Transactions extends _$Transactions {
 
           if (amountDelta != 0) {
             // Update the goal with the difference
-            await goal_datasource.updateGoalAmountByDelta(goalName, amountDelta);
+            await goal_datasource.updateGoalAmountByDelta(
+                goalName, amountDelta);
             // Refresh goals provider
             ref.invalidate(goalsProvider);
           }
@@ -125,6 +129,7 @@ class Transactions extends _$Transactions {
             transactionType,
             date,
           );
+      ref.invalidate(budgetsProvider);
 
       // Refresh relevant providers
       if (transactionType == TransactionType.income) {

@@ -15,6 +15,7 @@ class SupabaseAuthRepository implements AuthRepository {
     try {
       final response = await _client.auth
           .signInWithPassword(email: email, password: password);
+      await powersync.connectPowerSyncForCurrentUser(waitForSync: true);
       debugPrint(
           '[SupabaseAuthRepository][signInWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
     } catch (e, st) {
@@ -36,6 +37,7 @@ class SupabaseAuthRepository implements AuthRepository {
           await _client.auth.signUp(email: email, password: password, data: {
         'username': username,
       });
+      await powersync.connectPowerSyncForCurrentUser(waitForSync: true);
       debugPrint(
           '[SupabaseAuthRepository][signUpWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
     } catch (e, st) {

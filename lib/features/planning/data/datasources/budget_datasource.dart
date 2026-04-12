@@ -28,7 +28,7 @@ Future<List<Budget>> getBudgets() {
 
     return results.map((row) {
       return Budget(
-        id: row['id'] is int ? row['id'] as int : int.tryParse(row['id'].toString()),
+        id: row['id']?.toString(),
         createdAt: row['created_at'] != null
             ? DateTime.parse(row['created_at'] as String)
             : null,
@@ -92,18 +92,18 @@ Future<void> updateBudget(Budget budget) {
         budget.amount,
         budget.amountSpent,
         budget.period ?? 'monthly',
-        budget.id.toString(),
+        budget.id,
       ],
     );
   });
 }
 
 /// Delete a budget by ID
-Future<void> deleteBudget(int id) {
+Future<void> deleteBudget(String id) {
   return Wrapper.execute(() async {
     await powersync.db.execute(
       'DELETE FROM budgets WHERE id = ?',
-      [id.toString()],
+      [id],
     );
   });
 }

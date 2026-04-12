@@ -1,7 +1,7 @@
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 
 class Budget {
-  final int? id;
+  final String? id;
   final DateTime? createdAt;
   final DateTime? lastResetAt;
   final String? userId;
@@ -23,7 +23,7 @@ class Budget {
 
   factory Budget.fromMap(Map<String, dynamic> map) {
     return Budget(
-      id: map['id'] as int?,
+      id: map['id']?.toString(),
       createdAt: map['created_at'] != null
           ? DateTime.parse(map['created_at'] as String)
           : null,
@@ -54,7 +54,7 @@ class Budget {
   }
 
   Budget copyWith({
-    int? id,
+    String? id,
     DateTime? createdAt,
     DateTime? lastResetAt,
     String? userId,

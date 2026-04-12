@@ -45,12 +45,12 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
     final currencyState = ref.watch(currencyControllerProvider).value;
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
-    const textColor = Color(0xFF1A1A1A);
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1A1A1A);
 
     return Container(
       height: 16.h,
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(5.w),
       ),
       child: Stack(

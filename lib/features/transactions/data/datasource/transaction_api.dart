@@ -28,6 +28,9 @@ class TransactionsApi {
   Future<List<TransactionModel>> getTransactions() {
     return Wrapper.execute(() async {
       try {
+        final userId = Supabase.instance.client.auth.currentUser?.id;
+        if (userId == null) return [];
+
         final results = await powersync.db.getAll('''
           SELECT t.id, t.title, t.description, t.amount, t.date,
                  t.invoice_file, t.transaction_type,
@@ -35,8 +38,9 @@ class TransactionsApi {
                  c.emoji AS cat_emoji, c.color AS cat_color
           FROM "transaction" t
           LEFT JOIN categories c ON t.category_id = c.id
+          WHERE t.user_id = ?
           ORDER BY t.date DESC
-        ''');
+        ''', [userId]);
 
         if (results.isEmpty) return [];
 
@@ -81,10 +85,18 @@ class TransactionsApi {
     return Wrapper.execute(() async {
       try {
         final offset = page * limit;
+        final userId = Supabase.instance.client.auth.currentUser?.id;
+        if (userId == null) {
+          return const PaginatedTransactions(
+            transactions: [],
+            hasMore: false,
+            currentPage: 0,
+          );
+        }
 
-        final typeFilter = type != null
-            ? "WHERE t.transaction_type = '${type.value}'"
-            : '';
+        final typeFilter = type != null ? 'AND t.transaction_type = ?' : '';
+        final args = <Object?>[userId];
+        if (type != null) args.add(type.value);
 
         // Fetch limit+1 to check if there are more pages
         final results = await powersync.db.getAll('''
@@ -94,10 +106,11 @@ class TransactionsApi {
                  c.emoji AS cat_emoji, c.color AS cat_color
           FROM "transaction" t
           LEFT JOIN categories c ON t.category_id = c.id
+          WHERE t.user_id = ?
           $typeFilter
           ORDER BY t.date DESC
           LIMIT ${limit + 1} OFFSET $offset
-        ''');
+        ''', args);
 
         if (results.isEmpty) {
           return const PaginatedTransactions(
@@ -159,18 +172,18 @@ class TransactionsApi {
       final categoryId = categoryRows.first['id'] as String;
 
       final transactionId = _uuid.v4();
-      final trType =
-          transactionType?.value ?? TransactionType.expense.value;
+      final trType = transactionType?.value ?? TransactionType.expense.value;
       final nowIso = DateTime.now().toUtc().toIso8601String();
 
       await powersync.db.writeTransaction((tx) async {
         // 1. Insert the transaction
         await tx.execute(
-          '''INSERT INTO "transaction" (id, user_id, description, amount, date,
+          '''INSERT INTO "transaction" (id, created_at, user_id, description, amount, date,
                  category_id, transaction_type)
-             VALUES (?, ?, ?, ?, ?, ?, ?)''',
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
           [
             transactionId,
+            nowIso,
             userId,
             validDescription,
             amountNumeric,
@@ -181,14 +194,9 @@ class TransactionsApi {
         );
 
         // 2. Update budget amount_spent for matching category
-        await tx.execute(
-          '''UPDATE budgets
-             SET amount_spent = CAST(
-               COALESCE(CAST(amount_spent AS REAL), 0) + ?
-             AS TEXT)
-             WHERE category = ? AND user_id = ?''',
-          [amountNumeric, categoryId, userId],
-        );
+        if (trType == TransactionType.expense.value) {
+          await _applyBudgetDelta(tx, categoryId, userId, amountNumeric);
+        }
 
         // 3. Handle subcategories if provided
         if (subcategoryAmounts != null && subcategoryAmounts.isNotEmpty) {
@@ -209,18 +217,18 @@ class TransactionsApi {
             } else {
               subcategoryId = _uuid.v4();
               await tx.execute(
-                '''INSERT INTO subcategories (id, name, category_id)
-                   VALUES (?, ?, ?)''',
-                [subcategoryId, subName, categoryId],
+                '''INSERT INTO subcategories (id, created_at, name, category_id)
+                   VALUES (?, ?, ?, ?)''',
+                [subcategoryId, nowIso, subName, categoryId],
               );
             }
 
             // Insert subcategory expense
             await tx.execute(
               '''INSERT INTO subcategory_expenses
-                 (id, transaction_id, sub_id, amount)
-                 VALUES (?, ?, ?, ?)''',
-              [_uuid.v4(), transactionId, subcategoryId, subAmount],
+                 (id, created_at, transaction_id, sub_id, amount)
+                 VALUES (?, ?, ?, ?, ?)''',
+              [_uuid.v4(), nowIso, transactionId, subcategoryId, subAmount],
             );
           }
         }
@@ -233,7 +241,27 @@ class TransactionsApi {
   // Delete transaction — replaces RPC 'delete_expense'
   Future<void> deleteTransaction(String transactionId) {
     return Wrapper.execute(() async {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) throw Exception('No authenticated user found');
+
       await powersync.db.writeTransaction((tx) async {
+        final existingRows = await tx.getAll(
+          '''SELECT category_id, amount, transaction_type
+             FROM "transaction"
+             WHERE id = ? AND user_id = ?
+             LIMIT 1''',
+          [transactionId, userId],
+        );
+        if (existingRows.isNotEmpty &&
+            existingRows.first['transaction_type'] ==
+                TransactionType.expense.value) {
+          final oldCategoryId = existingRows.first['category_id'] as String?;
+          final oldAmount = _numFromValue(existingRows.first['amount']);
+          if (oldCategoryId != null) {
+            await _applyBudgetDelta(tx, oldCategoryId, userId, -oldAmount);
+          }
+        }
+
         // Delete subcategory expenses first
         await tx.execute(
           'DELETE FROM subcategory_expenses WHERE transaction_id = ?',
@@ -283,12 +311,27 @@ class TransactionsApi {
       }
       final categoryId = categoryRows.first['id'] as String;
 
-      final trType =
-          transactionType?.value ?? TransactionType.expense.value;
+      final trType = transactionType?.value ?? TransactionType.expense.value;
       final dateIso = date?.toUtc().toIso8601String() ??
           DateTime.now().toUtc().toIso8601String();
+      final nowIso = DateTime.now().toUtc().toIso8601String();
 
       await powersync.db.writeTransaction((tx) async {
+        final existingRows = await tx.getAll(
+          '''SELECT category_id, amount, transaction_type
+             FROM "transaction"
+             WHERE id = ? AND user_id = ?
+             LIMIT 1''',
+          [transactionId, userId],
+        );
+        if (existingRows.isEmpty) {
+          throw Exception('Transaction not found');
+        }
+        final old = existingRows.first;
+        final oldType = old['transaction_type']?.toString();
+        final oldCategoryId = old['category_id'] as String?;
+        final oldAmount = _numFromValue(old['amount']);
+
         // 1. Update the transaction
         await tx.execute(
           '''UPDATE "transaction"
@@ -304,6 +347,13 @@ class TransactionsApi {
             transactionId,
           ],
         );
+
+        if (oldType == TransactionType.expense.value && oldCategoryId != null) {
+          await _applyBudgetDelta(tx, oldCategoryId, userId, -oldAmount);
+        }
+        if (trType == TransactionType.expense.value) {
+          await _applyBudgetDelta(tx, categoryId, userId, amountNumeric);
+        }
 
         // 2. Delete existing subcategory expenses
         await tx.execute(
@@ -330,18 +380,18 @@ class TransactionsApi {
             } else {
               subcategoryId = _uuid.v4();
               await tx.execute(
-                '''INSERT INTO subcategories (id, name, category_id)
-                   VALUES (?, ?, ?)''',
-                [subcategoryId, subName, categoryId],
+                '''INSERT INTO subcategories (id, created_at, name, category_id)
+                   VALUES (?, ?, ?, ?)''',
+                [subcategoryId, nowIso, subName, categoryId],
               );
             }
 
             // Insert subcategory expense
             await tx.execute(
               '''INSERT INTO subcategory_expenses
-                 (id, transaction_id, sub_id, amount)
-                 VALUES (?, ?, ?, ?)''',
-              [_uuid.v4(), transactionId, subcategoryId, subAmount],
+                 (id, created_at, transaction_id, sub_id, amount)
+                 VALUES (?, ?, ?, ?, ?)''',
+              [_uuid.v4(), nowIso, transactionId, subcategoryId, subAmount],
             );
           }
         }
@@ -349,5 +399,26 @@ class TransactionsApi {
 
       debugPrint("Transaction edited locally: $transactionId");
     });
+  }
+
+  num _numFromValue(Object? value) {
+    if (value is num) return value;
+    return num.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  Future<void> _applyBudgetDelta(
+    dynamic tx,
+    String categoryId,
+    String userId,
+    num delta,
+  ) async {
+    await tx.execute(
+      '''UPDATE budgets
+         SET amount_spent = CAST(
+           max(COALESCE(CAST(amount_spent AS REAL), 0) + ?, 0)
+         AS TEXT)
+         WHERE category = ? AND user_id = ?''',
+      [delta, categoryId, userId],
+    );
   }
 }

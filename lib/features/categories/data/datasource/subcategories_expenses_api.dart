@@ -30,7 +30,9 @@ class SubcategoriesExpensesApi {
       return results.map((row) {
         return SubcategoryTransaction(
           id: row['id'] as String,
-          createdAt: DateTime.parse(row['created_at'] as String),
+          createdAt: row['created_at'] != null
+              ? DateTime.parse(row['created_at'] as String)
+              : DateTime.now(),
           amount: row['amount'] != null
               ? double.tryParse(row['amount'].toString())
               : null,
