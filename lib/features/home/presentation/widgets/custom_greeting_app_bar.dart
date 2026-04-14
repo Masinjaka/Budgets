@@ -16,8 +16,12 @@ class CustomGreetingAppBar extends ConsumerWidget
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final double avatarSize = 24.sp;
-
     final userAsync = ref.watch(userModelProvider);
+    final fallbackTextStyle = TextStyle(
+      fontSize: 16.sp,
+      fontWeight: FontWeight.bold,
+      color: Theme.of(context).textTheme.bodyLarge?.color,
+    );
 
     return AppBar(
       automaticallyImplyLeading: false,
@@ -39,7 +43,7 @@ class CustomGreetingAppBar extends ConsumerWidget
                     return avatar(context, user?.profilePhoto, avatarSize);
                   },
                   loading: () => avatarSkeleton(context, avatarSize),
-                  error: (_, __) => avatarSkeleton(context, avatarSize),
+                  error: (_, __) => avatar(context, null, avatarSize),
                 ),
                 userAsync.when(
                   data: (user) {
@@ -63,7 +67,8 @@ class CustomGreetingAppBar extends ConsumerWidget
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                             ),
                           ),
                         ],
@@ -84,14 +89,9 @@ class CustomGreetingAppBar extends ConsumerWidget
                   ),
                   error: (_, __) => Padding(
                     padding: EdgeInsets.only(left: 4.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        textSkeleton(context, 20.w, 1.6.h),
-                        SizedBox(height: 0.5.h),
-                        textSkeleton(context, 30.w, 2.h),
-                      ],
+                    child: Text(
+                      'Utilisateur',
+                      style: fallbackTextStyle,
                     ),
                   ),
                 ),

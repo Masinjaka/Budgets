@@ -45,12 +45,9 @@ class UserCard extends ConsumerWidget {
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
-                loading: () => SizedBox(
-                  width: 20.w,
-                  height: 4.h,
-                  child: const CircularProgressIndicator(
-                    color: Colors.grey,
-                  ),
+                loading: () => Padding(
+                  padding: EdgeInsets.only(top: 0.5.h),
+                  child: textSkeleton(context, 24.w, 2.2.h),
                 ),
                 error: (_, __) => Text(
                   'Erreur de chargement',

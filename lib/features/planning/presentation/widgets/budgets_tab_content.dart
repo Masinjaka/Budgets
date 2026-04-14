@@ -1,10 +1,10 @@
-import 'package:budgets/core/paths.dart';
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
 import 'package:budgets/features/planning/domain/providers/budget_provider.dart';
 import 'package:budgets/features/planning/presentation/widgets/budget_list_item.dart';
 import 'package:budgets/features/planning/presentation/widgets/planning_common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class BudgetsTabContent extends ConsumerStatefulWidget {
@@ -80,10 +80,6 @@ class _BudgetsTabContentState extends ConsumerState<BudgetsTabContent> {
   }
 
   Widget _buildBudgetList(BuildContext context, List<Budget> budgets) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final imagePath =
-        isDarkMode ? AppPaths.noBudgetDark : AppPaths.noBudgetLight;
-
     if (budgets.isEmpty) {
       if (_canScroll) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,9 +92,10 @@ class _BudgetsTabContentState extends ConsumerState<BudgetsTabContent> {
         });
       }
       return PlanningEmptyState(
-        imagePath: imagePath,
-        title: 'Aucun budget créé',
-        subtitle: 'Créez votre premier budget pour mieux gérer vos dépenses',
+        title: 'Donnez un cap à vos dépenses',
+        subtitle:
+            'Créez votre premier budget et gardez le contrôle facilement.',
+        icon: FontAwesomeIcons.wallet,
       );
     }
 

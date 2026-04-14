@@ -43,9 +43,9 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
       unselectedIcon: FontAwesomeIcons.calendar,
     ),
     _TabConfig(
-      label: 'Paramètres',
-      selectedIcon: FontAwesomeIcons.gear,
-      unselectedIcon: FontAwesomeIcons.gear,
+      label: 'Profil',
+      selectedIcon: FontAwesomeIcons.solidUser,
+      unselectedIcon: FontAwesomeIcons.user,
     ),
   ];
 

@@ -160,13 +160,6 @@ class _State extends ConsumerState<EditProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Photo de profil',
-          style: TextStyle(
-            fontSize: 15.5.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         SizedBox(height: 1.h),
         SizedBox(
           width: double.infinity,
@@ -178,7 +171,8 @@ class _State extends ConsumerState<EditProfilePage> {
                   onTap: _pickImage,
                   child: DottedBorder(
                     options: CircularDottedBorderOptions(
-                      color: theme.colorScheme.onSurface.withOpacity(0.35),
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.35),
                       strokeWidth: 2,
                       dashPattern: const [8, 4],
                     ),
@@ -190,22 +184,6 @@ class _State extends ConsumerState<EditProfilePage> {
                       ),
                       child: _buildAvatarWidget(),
                     ),
-                  ),
-                ),
-                SizedBox(height: 1.5.h),
-                Text(
-                  "Modifier l'avatar",
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 0.6.h),
-                Text(
-                  "JPG ou PNG • carré recommandé",
-                  style: TextStyle(
-                    fontSize: 13.5.sp,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
                 SizedBox(height: 1.5.h),
@@ -237,29 +215,19 @@ class _State extends ConsumerState<EditProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Informations',
-          style: TextStyle(
-            fontSize: 15.5.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         SizedBox(height: 1.h),
-        _buildSectionCard(
-          context,
-          child: CustomTextField(
-            title: Text(
-              "Nom d'utilisateur",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 15.5.sp,
-              ),
+        CustomTextField(
+          title: Text(
+            "Nom d'utilisateur",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 15.5.sp,
             ),
-            hint: 'Nouveau nom d\'utilisateur',
-            controller: _usernameController,
-            keyboardType: TextInputType.text,
           ),
+          hint: 'Nouveau nom d\'utilisateur',
+          controller: _usernameController,
+          keyboardType: TextInputType.text,
         ),
       ],
     );
@@ -270,70 +238,59 @@ class _State extends ConsumerState<EditProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Zone sensible',
-          style: TextStyle(
-            fontSize: 15.5.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 1.h),
-        _buildSectionCard(
-          context,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    size: 18.sp,
-                    color: theme.colorScheme.error,
-                  ),
-                  SizedBox(width: 2.w),
-                  Expanded(
-                    child: Text(
-                      'La suppression est définitive',
-                      style: TextStyle(
-                        fontSize: 14.5.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: 18.sp,
+                  color: theme.colorScheme.error,
+                ),
+                SizedBox(width: 2.w),
+                Expanded(
+                  child: Text(
+                    'La suppression est définitive',
+                    style: TextStyle(
+                      fontSize: 14.5.sp,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 1.h),
-              Text(
-                'Votre compte et vos données seront supprimés.',
-                style: TextStyle(
-                  fontSize: 13.5.sp,
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
                 ),
+              ],
+            ),
+            SizedBox(height: 1.h),
+            Text(
+              'Votre compte et vos données seront supprimés.',
+              style: TextStyle(
+                fontSize: 13.5.sp,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
-              SizedBox(height: 2.h),
-              CustomButton(
-                backgroundColor: Colors.redAccent,
-                text: 'Supprimer mon compte',
-                onPressed: _isLoading
-                    ? null
-                    : () async {
-                        await editProfileModule.deleteCurrentUserAccount(
-                          context,
-                          ref,
-                          onDeletionStart: () {
-                            if (!mounted) return;
-                            setState(() => _isLoading = true);
-                          },
-                          onDeletionEnd: () {
-                            if (!mounted) return;
-                            setState(() => _isLoading = false);
-                          },
-                        );
-                      },
-                isLoading: _isLoading,
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: 2.h),
+            CustomButton(
+              backgroundColor: Colors.redAccent,
+              text: 'Supprimer mon compte',
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      await editProfileModule.deleteCurrentUserAccount(
+                        context,
+                        ref,
+                        onDeletionStart: () {
+                          if (!mounted) return;
+                          setState(() => _isLoading = true);
+                        },
+                        onDeletionEnd: () {
+                          if (!mounted) return;
+                          setState(() => _isLoading = false);
+                        },
+                      );
+                    },
+              isLoading: _isLoading,
+            ),
+          ],
         ),
       ],
     );
@@ -343,10 +300,6 @@ class _State extends ConsumerState<EditProfilePage> {
     final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(3.w),
-      ),
       child: child,
     );
   }
@@ -366,6 +319,17 @@ class _State extends ConsumerState<EditProfilePage> {
       return avatarSkeleton(context, 50.sp);
     }
     if (_profilePhotoUrl != null && _profilePhotoUrl!.isNotEmpty) {
+      final localFile = File(_profilePhotoUrl!);
+      if (localFile.existsSync()) {
+        return ClipOval(
+          child: Image.file(
+            localFile,
+            width: 50.sp,
+            height: 50.sp,
+            fit: BoxFit.cover,
+          ),
+        );
+      }
       return ClipOval(
         child: CachedNetworkImage(
           imageUrl: _profilePhotoUrl!,

@@ -66,8 +66,9 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
       final maxExtent = notification.metrics.maxScrollExtent;
-      if (maxExtent > 0 && notification.metrics.pixels >= maxExtent - 200)
+      if (maxExtent > 0 && notification.metrics.pixels >= maxExtent - 200) {
         _loadNextPage();
+      }
     }
     return false;
   }

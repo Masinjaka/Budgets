@@ -158,8 +158,7 @@ class TransactionsApi {
       }
 
       final validDescription = description?.trim() ?? "";
-      final amountNumeric = num.tryParse(amount);
-      if (amountNumeric == null) throw Exception('Invalid amount format');
+      final amountNumeric = _parseAmountForBigint(amount);
 
       // Look up category_id locally
       final categoryRows = await powersync.db.getAll(
@@ -298,8 +297,7 @@ class TransactionsApi {
       }
 
       final validDescription = description?.trim() ?? "";
-      final amountNumeric = num.tryParse(amount);
-      if (amountNumeric == null) throw Exception('Invalid amount format');
+      final amountNumeric = _parseAmountForBigint(amount);
 
       // Look up category_id locally
       final categoryRows = await powersync.db.getAll(
@@ -404,6 +402,17 @@ class TransactionsApi {
   num _numFromValue(Object? value) {
     if (value is num) return value;
     return num.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  /// Normalizes numeric strings to a Postgres bigint-safe integer.
+  /// Accepts inputs like "45568", "45568.0", "45 568", or "45,568.00".
+  int _parseAmountForBigint(String rawAmount) {
+    final cleaned = rawAmount.replaceAll(RegExp(r'[,\s]'), '');
+    final parsed = num.tryParse(cleaned);
+    if (parsed == null) {
+      throw Exception('Invalid amount format');
+    }
+    return parsed.round();
   }
 
   Future<void> _applyBudgetDelta(

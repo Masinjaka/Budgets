@@ -100,7 +100,8 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
                   labelColor: theme.tabBarTheme.labelColor,
-                  unselectedLabelColor: theme.tabBarTheme.unselectedLabelColor?.withValues(alpha: 0.7),
+                  unselectedLabelColor: theme.tabBarTheme.unselectedLabelColor
+                      ?.withValues(alpha: 0.7),
                   overlayColor: WidgetStateProperty.resolveWith<Color?>(
                     (Set<WidgetState> states) {
                       return states.contains(WidgetState.focused)
@@ -128,6 +129,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
         ),
         body: TabBarView(
           controller: _tabController,
+          physics: const NeverScrollableScrollPhysics(),
           children: const [
             TransactionTabContent(),
             IncomeTabContent(),

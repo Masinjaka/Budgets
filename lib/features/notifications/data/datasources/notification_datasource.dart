@@ -163,10 +163,16 @@ class NotificationDataSource {
 
     final nowIso = DateTime.now().toUtc().toIso8601String();
 
-    // Check if a row exists for this user+platform
+    // Reuse an existing row for this user, preferring exact token match and
+    // otherwise falling back to platform match. This avoids duplicate rows that
+    // would violate the backend unique index on (user_id, token).
     final existing = await powersync.db.getAll(
-      'SELECT id FROM device_tokens WHERE user_id = ? AND platform = ? LIMIT 1',
-      [userId, platform],
+      '''SELECT id
+         FROM device_tokens
+         WHERE user_id = ? AND (token = ? OR platform = ?)
+         ORDER BY CASE WHEN token = ? THEN 0 ELSE 1 END
+         LIMIT 1''',
+      [userId, token, platform, token],
     );
 
     if (existing.isEmpty) {
@@ -175,14 +181,24 @@ class NotificationDataSource {
         '''INSERT INTO device_tokens
            (id, token, user_id, platform, enabled, last_seen, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-        [tokenId, token, userId, platform, enabled ? 1 : 0, nowIso, nowIso, nowIso],
+        [
+          tokenId,
+          token,
+          userId,
+          platform,
+          enabled ? 1 : 0,
+          nowIso,
+          nowIso,
+          nowIso
+        ],
       );
     } else {
+      final tokenId = existing.first['id'] as String;
       await powersync.db.execute(
         '''UPDATE device_tokens
-           SET token = ?, enabled = ?, last_seen = ?, updated_at = ?
-           WHERE user_id = ? AND platform = ?''',
-        [token, enabled ? 1 : 0, nowIso, nowIso, userId, platform],
+           SET token = ?, platform = ?, enabled = ?, last_seen = ?, updated_at = ?
+           WHERE id = ?''',
+        [token, platform, enabled ? 1 : 0, nowIso, nowIso, tokenId],
       );
     }
   }

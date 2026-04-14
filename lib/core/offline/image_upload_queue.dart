@@ -221,11 +221,18 @@ class ImageUploadQueue {
           debugPrint('✅ Image uploaded successfully: ${pending.storagePath}');
           completed.add(i);
 
-          // Clean up local file after successful upload
-          try {
-            await localFile.delete();
-          } catch (_) {
-            // Non-critical — file cleanup failure is acceptable
+          // Keep local avatar files to avoid broken UI if a stale local path is
+          // still cached in memory while providers refresh to the remote URL.
+          final keepLocalFile =
+              pending.table == 'user' && pending.column == 'profile_photo';
+
+          if (!keepLocalFile) {
+            // Clean up local file after successful upload
+            try {
+              await localFile.delete();
+            } catch (_) {
+              // Non-critical — file cleanup failure is acceptable
+            }
           }
         } catch (e) {
           debugPrint(

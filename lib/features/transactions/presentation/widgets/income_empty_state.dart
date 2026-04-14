@@ -1,78 +1,16 @@
-import 'package:budgets/core/paths.dart';
+import 'package:budgets/core/widgets/empty_state_phrase.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class IncomeEmptyState extends StatelessWidget {
   const IncomeEmptyState({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final imagePath =
-        isDarkMode ? AppPaths.noIncomeDark : AppPaths.noIncomeLight;
-
-    return Padding(
-      padding: EdgeInsets.all(8.w),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(imagePath)
-                .animate()
-                .scale(
-                  duration: 600.ms,
-                  curve: Curves.easeOutBack,
-                )
-                .fadeIn(
-                  duration: 400.ms,
-                ),
-            Text(
-              'Aucun revenu',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 22.5.sp,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            )
-                .animate()
-                .slideY(
-                  begin: 0.3,
-                  end: 0,
-                  duration: 500.ms,
-                  delay: 200.ms,
-                  curve: Curves.easeOutCubic,
-                )
-                .fadeIn(
-                  duration: 400.ms,
-                  delay: 200.ms,
-                ),
-            SizedBox(height: 2.h),
-            Text(
-              'Commencez par ajouter vos premiers revenus.',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 16.sp,
-                height: 1.4,
-              ),
-              textAlign: TextAlign.center,
-            )
-                .animate()
-                .slideY(
-                  begin: 0.3,
-                  end: 0,
-                  duration: 500.ms,
-                  delay: 400.ms,
-                  curve: Curves.easeOutCubic,
-                )
-                .fadeIn(
-                  duration: 400.ms,
-                  delay: 400.ms,
-                ),
-          ],
-        ),
-      ),
+    return const EmptyStatePhrase(
+      title: 'Faites entrer vos revenus',
+      subtitle: 'Ajoutez votre premier revenu pour voir vos progrès.',
+      icon: FontAwesomeIcons.handHoldingDollar,
     );
   }
 }

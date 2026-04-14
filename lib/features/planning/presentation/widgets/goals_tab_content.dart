@@ -1,10 +1,10 @@
-import 'package:budgets/core/paths.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
 import 'package:budgets/features/planning/presentation/widgets/goal_list_item.dart';
 import 'package:budgets/features/planning/presentation/widgets/planning_common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class GoalsTabContent extends ConsumerStatefulWidget {
@@ -80,9 +80,6 @@ class _GoalsTabContentState extends ConsumerState<GoalsTabContent> {
   }
 
   Widget _buildGoalList(BuildContext context, List<Goal> goals) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final imagePath = isDarkMode ? AppPaths.noPlanDark : AppPaths.noPlanLight;
-
     if (goals.isEmpty) {
       if (_canScroll) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -95,9 +92,10 @@ class _GoalsTabContentState extends ConsumerState<GoalsTabContent> {
         });
       }
       return PlanningEmptyState(
-        imagePath: imagePath,
-        title: 'Aucun objectif défini',
-        subtitle: 'Définissez vos objectifs d\'épargne pour les atteindre',
+        title: 'Vos objectifs commencent ici',
+        subtitle:
+            'Fixez votre premier objectif d’épargne et suivez votre élan.',
+        icon: FontAwesomeIcons.bullseye,
       );
     }
 

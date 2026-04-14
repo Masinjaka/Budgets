@@ -2,16 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:powersync/powersync.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Postgres Response codes that we cannot recover from by retrying.
-final List<RegExp> _fatalResponseCodes = [
-  // Class 22 — Data Exception (e.g. data type mismatch)
-  RegExp(r'^22...$'),
-  // Class 23 — Integrity Constraint Violation (e.g. NOT NULL, FK, UNIQUE)
-  RegExp(r'^23...$'),
-  // INSUFFICIENT PRIVILEGE — typically a row-level security violation
-  RegExp(r'^42501$'),
-];
-
 /// Tables whose Supabase primary key is NOT the PowerSync-generated `id`.
 /// Maps table name → the column that acts as the real primary key.
 const _nonIdPrimaryKeys = <String, String>{
@@ -76,11 +66,12 @@ class SupabaseConnector extends PowerSyncBackendConnector {
           // Table whose Supabase PK is NOT `id` (e.g. notification_settings)
           // PowerSync's op.id holds the real PK value (user_id).
           final data = Map<String, dynamic>.of(op.opData!);
+          _normalizeOpDataForSupabase(op.table, data);
           data[altKey] = op.id;
           if (op.op == UpdateType.put) {
             await table.upsert(data, onConflict: altKey);
           } else if (op.op == UpdateType.patch) {
-            await table.update(op.opData!).eq(altKey, op.id);
+            await table.update(data).eq(altKey, op.id);
           } else if (op.op == UpdateType.delete) {
             await table.delete().eq(altKey, op.id);
           }
@@ -88,10 +79,17 @@ class SupabaseConnector extends PowerSyncBackendConnector {
           // Standard table with `id` PK
           if (op.op == UpdateType.put) {
             final data = Map<String, dynamic>.of(op.opData!);
+            _normalizeOpDataForSupabase(op.table, data);
             data['id'] = op.id;
-            await table.upsert(data);
+            if (op.table == 'device_tokens') {
+              await table.upsert(data, onConflict: 'user_id,token');
+            } else {
+              await table.upsert(data);
+            }
           } else if (op.op == UpdateType.patch) {
-            await table.update(op.opData!).eq('id', op.id);
+            final data = Map<String, dynamic>.of(op.opData!);
+            _normalizeOpDataForSupabase(op.table, data);
+            await table.update(data).eq('id', op.id);
           } else if (op.op == UpdateType.delete) {
             await table.delete().eq('id', op.id);
           }
@@ -100,15 +98,32 @@ class SupabaseConnector extends PowerSyncBackendConnector {
 
       await transaction.complete();
     } on PostgrestException catch (e) {
-      if (e.code != null &&
-          _fatalResponseCodes.any((re) => re.hasMatch(e.code!))) {
-        // Non-recoverable error — discard the transaction to avoid blocking
-        debugPrint('PowerSync: fatal upload error, discarding $lastOp — $e');
-        await transaction.complete();
-      } else {
-        // Retryable error (network, temporary server issue)
-        rethrow;
+      // Never mark a failed upload transaction as complete. Completing here
+      // acknowledges local CRUD that may not exist on the server, and the next
+      // sync checkpoint can then remove those local rows from the app.
+      debugPrint('PowerSync: upload failed, will retry $lastOp — $e');
+      rethrow;
+    }
+  }
+
+  void _normalizeOpDataForSupabase(String table, Map<String, dynamic> data) {
+    // Postgres `transaction.amount` is bigint; PowerSync can carry "45568.0"
+    // strings from local writes, so coerce safely before upload.
+    if (table == 'transaction' && data.containsKey('amount')) {
+      final normalized = _toBigintSafeInt(data['amount']);
+      if (normalized != null) {
+        data['amount'] = normalized;
       }
     }
+  }
+
+  int? _toBigintSafeInt(Object? value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.round();
+    final cleaned = value.toString().replaceAll(RegExp(r'[,\s]'), '');
+    final parsed = num.tryParse(cleaned);
+    if (parsed == null) return null;
+    return parsed.round();
   }
 }

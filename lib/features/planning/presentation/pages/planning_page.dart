@@ -83,7 +83,8 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
                   labelColor: theme.tabBarTheme.labelColor,
-                  unselectedLabelColor: theme.tabBarTheme.unselectedLabelColor?.withValues(alpha: 0.7),
+                  unselectedLabelColor: theme.tabBarTheme.unselectedLabelColor
+                      ?.withValues(alpha: 0.7),
                   overlayColor: WidgetStateProperty.resolveWith<Color?>(
                     (Set<WidgetState> states) {
                       return states.contains(WidgetState.focused)
@@ -108,6 +109,7 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
         ),
         body: TabBarView(
           controller: _tabController,
+          physics: const NeverScrollableScrollPhysics(),
           children: const [
             BudgetsTabContent(),
             GoalsTabContent(),

@@ -128,8 +128,15 @@ class EditProfileModule {
       }
     }
 
-    // Refresh user model so other parts of UI update
-    final _ = ref.refresh(userModelProvider);
+    // Refresh user model so other parts of UI update immediately.
+    // Awaiting ensures home/settings avatars read the new local path right away,
+    // even before remote storage sync completes.
+    ref.invalidate(userModelProvider);
+    try {
+      await ref.read(userModelProvider.future);
+    } catch (_) {
+      // Keep UX resilient: profile update may still be valid locally.
+    }
 
     if (!context.mounted) {
       return;
