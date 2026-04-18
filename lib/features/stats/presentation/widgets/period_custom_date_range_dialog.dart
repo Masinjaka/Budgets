@@ -1,4 +1,5 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -119,18 +120,20 @@ class _PeriodCustomDateRangeDialogState
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
+                CustomButton(
+                  text: 'Annuler',
+                  width: 28.w,
+                  height: 4.5.h,
+                  backgroundColor: Theme.of(context).cardColor,
+                  borderColor: Colors.transparent,
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
-                    'Annuler',
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 14.sp,
-                    ),
-                  ),
                 ),
                 SizedBox(width: 2.w),
-                ElevatedButton(
+                CustomButton(
+                  text: 'Confirmer',
+                  width: 28.w,
+                  height: 4.5.h,
+                  backgroundColor: AppTheme.primaryGreen,
                   onPressed: () {
                     final start = DateTime(
                       _selectedStartDate.year,
@@ -148,17 +151,6 @@ class _PeriodCustomDateRangeDialogState
                     widget.onConfirm(start, end);
                     Navigator.of(context).pop();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.w),
-                    ),
-                  ),
-                  child: Text(
-                    'Confirmer',
-                    style: TextStyle(fontSize: 14.sp),
-                  ),
                 ),
               ],
             ),

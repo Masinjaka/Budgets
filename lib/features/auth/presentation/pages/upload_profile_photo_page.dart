@@ -183,7 +183,6 @@ class _UploadProfilePhotoPageState
           SizedBox(height: 2.h),
           CustomButton(
             text: 'Passer',
-            foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
             borderColor: Colors.transparent,
             backgroundColor: Theme.of(context).cardColor,
             onPressed: () async {

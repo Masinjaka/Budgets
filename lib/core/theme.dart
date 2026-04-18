@@ -16,7 +16,7 @@ class AppTheme {
   static const Color backgroundLight = Color(0xFFF4F7F5);
   static const Color secondaryLight = Color(0xFFE8EBE9);
   static const Color textLight = Color(0xff333333);
-
+  static const Color buttonTextColor = Colors.black;
 
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
@@ -46,6 +46,18 @@ class AppTheme {
       indicatorColor: backgroundDark,
       labelColor: backgroundLight,
       unselectedLabelColor: textLight,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(foregroundColor: buttonTextColor),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: buttonTextColor),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(foregroundColor: buttonTextColor),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(foregroundColor: buttonTextColor),
     ),
     colorScheme: const ColorScheme.light(
       primary: primaryGreen,
@@ -87,6 +99,18 @@ class AppTheme {
       indicatorColor: backgroundLight,
       labelColor: backgroundDark,
       unselectedLabelColor: textDark,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(foregroundColor: buttonTextColor),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: buttonTextColor),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(foregroundColor: buttonTextColor),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(foregroundColor: buttonTextColor),
     ),
     colorScheme: const ColorScheme.dark(
       primary: primaryGreen,

@@ -1,3 +1,4 @@
+import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -144,32 +145,26 @@ class _MonthYearPickerDialogState extends ConsumerState<MonthYearPickerDialog> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
+              CustomButton(
+                text: 'Annuler',
+                width: 28.w,
+                height: 4.5.h,
+                backgroundColor: Theme.of(context).cardColor,
+                borderColor: Colors.transparent,
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text(
-                  'Annuler',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    color: textColor?.withValues(alpha: 0.7),
-                  ),
-                ),
               ),
               SizedBox(width: 2.w),
-              TextButton(
+              CustomButton(
+                text: 'Confirmer',
+                width: 28.w,
+                height: 4.5.h,
+                backgroundColor: primaryColor,
                 onPressed: () {
                   Navigator.of(context)
                       .pop(DateTime(_selectedYear, _selectedMonth, 1));
                 },
-                child: Text(
-                  'Confirmer',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
-                  ),
-                ),
               ),
             ],
           ),

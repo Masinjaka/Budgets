@@ -9,17 +9,39 @@ class CustomButton extends StatefulWidget {
       this.width,
       this.height,
       this.backgroundColor,
-      required this.onPressed,
-      this.foregroundColor,
       this.borderColor,
+      this.icon,
+      this.iconColor,
+      this.isSquare = false,
+      this.borderRadius,
+      required this.onPressed,
       this.isLoading});
 
-  final String text;
+  const CustomButton.icon({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.width,
+    this.height,
+    this.backgroundColor,
+    this.iconColor,
+    this.isSquare = false,
+    this.borderColor,
+    this.borderRadius,
+    this.isLoading,
+  }) : text = null;
+
+  static const Color buttonTextColor = Colors.black;
+
+  final String? text;
   final double? width;
   final double? height;
   final Color? backgroundColor;
-  final Color? foregroundColor;
   final Color? borderColor;
+  final IconData? icon;
+  final Color? iconColor;
+  final bool isSquare;
+  final BorderRadius? borderRadius;
   final void Function()? onPressed;
   final bool? isLoading;
 
@@ -51,7 +73,8 @@ class _CustomButtonState extends State<CustomButton> {
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50.w),
+              borderRadius: widget.borderRadius ??
+                  BorderRadius.circular(widget.isSquare ? 3.w : 50.w),
             ),
           ),
         ),
@@ -60,18 +83,53 @@ class _CustomButtonState extends State<CustomButton> {
                 height: 6.w,
                 width: 6.w,
                 child: CircularProgressIndicator(
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: CustomButton.buttonTextColor,
                 ),
               )
-            : Text(
-                widget.text,
-                style: TextStyle(
-                  fontSize: 15.5.sp,
-                  fontWeight: FontWeight.w900,
-                  color: widget.foregroundColor ??
-                      Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
+            : _buildChild(),
+      ),
+    );
+  }
+
+  Widget _buildChild() {
+    final icon = widget.icon;
+    final text = widget.text;
+
+    if (icon != null && (text == null || text.isEmpty)) {
+      return Icon(
+        icon,
+        color: widget.iconColor ?? CustomButton.buttonTextColor,
+      );
+    }
+
+    if (icon != null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: widget.iconColor ?? CustomButton.buttonTextColor,
+          ),
+          SizedBox(width: 2.w),
+          Text(
+            text!,
+            style: TextStyle(
+              fontSize: 15.5.sp,
+              fontWeight: FontWeight.w900,
+              color: CustomButton.buttonTextColor,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Text(
+      text ?? '',
+      style: TextStyle(
+        fontSize: 15.5.sp,
+        fontWeight: FontWeight.w900,
+        color: CustomButton.buttonTextColor,
       ),
     );
   }

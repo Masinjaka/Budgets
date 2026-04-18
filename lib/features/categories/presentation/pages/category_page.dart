@@ -1,7 +1,7 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/features/categories/presentation/widgets/category_tab_bar_delegate.dart';
 import 'package:budgets/features/categories/presentation/widgets/category_tab_content.dart';
-import 'package:budgets/widgets/custom_action_button.dart';
+import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -87,8 +87,11 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                       .textTheme
                                       .bodyLarge
                                       ?.color
-                                      ?.withOpacity(
-                                          _appBarAnimation.value > 0.1 ? 1 : 0),
+                                      ?.withValues(
+                                        alpha: _appBarAnimation.value > 0.1
+                                            ? 1
+                                            : 0,
+                                      ),
                                 ),
                               ),
                             ),
@@ -102,12 +105,14 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                               child: Transform.translate(
                                 offset: Offset(
                                     0, (1 - _appBarAnimation.value) * -20),
-                                child: ActionButton(
+                                child: CustomButton.icon(
                                   icon: Icons.add,
                                   iconColor:
                                       Theme.of(context).colorScheme.onPrimary,
                                   backgroundColor:
                                       Theme.of(context).primaryColor,
+                                  width: 4.5.h,
+                                  height: 4.5.h,
                                   onPressed: () {
                                     // Get the current active tab to determine transaction type
                                     final isExpenseTab =
@@ -137,7 +142,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                       .textTheme
                       .bodyLarge
                       ?.color
-                      ?.withOpacity(0.7),
+                      ?.withValues(alpha: 0.7),
                   indicatorColor: Theme.of(context).primaryColor,
                 ),
               ),

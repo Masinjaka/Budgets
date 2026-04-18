@@ -1,4 +1,5 @@
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -45,7 +46,9 @@ class TransactionErrorState extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 2.h),
-          ElevatedButton(
+          CustomButton(
+            text: 'Réessayer',
+            width: 32.w,
             onPressed: () {
               if (onRetry != null) {
                 onRetry!();
@@ -53,11 +56,7 @@ class TransactionErrorState extends ConsumerWidget {
                 ref.invalidate(transactionsProvider);
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
-            child: const Text('Réessayer'),
+            backgroundColor: Theme.of(context).primaryColor,
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
+import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -120,28 +121,23 @@ class CategoryModule {
                   ),
                 ),
                 actions: [
-                  TextButton(
+                  CustomButton(
+                    text: 'Annuler',
+                    width: 15.h,
+                    height: 4.5.h,
+                    backgroundColor: Theme.of(dialogContext).cardColor,
+                    borderColor: Colors.transparent,
                     onPressed: () => Navigator.of(dialogContext).pop(),
-                    child: Text(
-                      'Annuler',
-                      style: TextStyle(
-                        color:
-                            Theme.of(dialogContext).textTheme.bodyLarge?.color,
-                        fontSize: 15.sp,
-                      ),
-                    ),
                   ),
-                  TextButton(
+                  CustomButton(
+                    text: 'Supprimer',
+                    width: 15.h,
+                    height: 4.5.h,
+                    backgroundColor: Colors.red,
+                    borderColor: Colors.transparent,
                     onPressed: () async {
                       Navigator.of(dialogContext).pop('deleted');
                     },
-                    child: Text(
-                      'Supprimer',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 15.sp,
-                      ),
-                    ),
                   ),
                 ],
               ),

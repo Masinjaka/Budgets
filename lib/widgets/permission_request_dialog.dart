@@ -56,7 +56,6 @@ class PermissionRequestDialog extends StatelessWidget {
                   onPressed: onDeny,
                   backgroundColor: Theme.of(context).cardColor,
                   width: 15.h,
-                  foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
                   borderColor: Colors.transparent,
                 ),
                 SizedBox(width: 2.w),

@@ -500,8 +500,6 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                     onPressed: () => Navigator.of(ctx).pop(),
                     backgroundColor: Theme.of(context).cardColor,
                     width: 15.h,
-                    foregroundColor:
-                        Theme.of(context).textTheme.bodyLarge?.color,
                     borderColor: Colors.transparent,
                   ),
                   SizedBox(width: 2.w),
