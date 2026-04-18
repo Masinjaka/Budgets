@@ -34,11 +34,14 @@ class CurrencyController extends _$CurrencyController {
   Future<CurrencyState> build() async {
     final rates = await ref.watch(exchangeRatesProvider.future);
     final user = await ref.watch(userModelProvider.future);
+    if (user == null) {
+      throw StateError('User profile is not loaded');
+    }
 
     final defaultCode = _defaultCurrencyCode();
-    final code = user?.currencyCode ?? defaultCode;
+    final code = user.currencyCode ?? defaultCode;
 
-    if (user?.currencyCode == null) {
+    if (user.currencyCode == null) {
       await ref.read(userRepositoryProvider).updateCurrencyCode(code);
     }
 

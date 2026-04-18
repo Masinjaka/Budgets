@@ -21,10 +21,9 @@ UserRepositoryImpl userRepository(Ref ref) {
 }
 
 @riverpod
-Future<UserModel?> userModel(Ref ref) async {
-  final repo = ref.watch(userRepositoryProvider);
-  final user = await repo.getUserModel();
-  return user;
+Stream<UserModel?> userModel(Ref ref) {
+  final ds = ref.watch(userDataSourceProvider);
+  return ds.watchCurrentUserRow();
 }
 
 @riverpod

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:budgets/core/offline/image_upload_queue.dart';
+import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/auth/domain/providers/auth_providers.dart';
@@ -11,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:budgets/features/user/data/datasources/user_api.dart';
 
 class EditProfileModule {
   EditProfileModule();
@@ -70,16 +71,6 @@ class EditProfileModule {
     }
   }
 
-  // Helper: fetch current user's profile photo url
-  Future<String?> fetchProfilePhotoUrl() async {
-    try {
-      final user = await getUser();
-      return user.profilePhoto;
-    } catch (_) {
-      return null;
-    }
-  }
-
   // Function to update profile
   Future<void> updateProfile({
     required GlobalKey<FormState> formKey,
@@ -120,6 +111,7 @@ class EditProfileModule {
           final newUrl = await uploader(file: file, userId: userId);
           profilePhotoUrl = newUrl; // local update for immediate UI if needed
           photoUpdated = true;
+          await ImageUploadQueue.instance.processPendingUploads();
         }
       } catch (e) {
         errorMessage = errorMessage ??
@@ -128,11 +120,10 @@ class EditProfileModule {
       }
     }
 
-    // Refresh user model so other parts of UI update immediately.
-    // Awaiting ensures home/settings avatars read the new local path right away,
-    // even before remote storage sync completes.
+    // Refresh user model so other parts of UI read the latest PowerSync row.
     ref.invalidate(userModelProvider);
     try {
+      await powersync.flushPowerSyncUploads();
       await ref.read(userModelProvider.future);
     } catch (_) {
       // Keep UX resilient: profile update may still be valid locally.

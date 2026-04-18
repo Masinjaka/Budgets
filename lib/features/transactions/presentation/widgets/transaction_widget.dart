@@ -13,6 +13,7 @@ import 'package:budgets/features/transactions/domain/providers/transaction_provi
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
+import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 
 class TransactionListItem extends ConsumerStatefulWidget {
   final TransactionModel transaction;
@@ -20,7 +21,8 @@ class TransactionListItem extends ConsumerStatefulWidget {
   const TransactionListItem({super.key, required this.transaction});
 
   @override
-  ConsumerState<TransactionListItem> createState() => _TransactionListItemState();
+  ConsumerState<TransactionListItem> createState() =>
+      _TransactionListItemState();
 }
 
 class _TransactionListItemState extends ConsumerState<TransactionListItem>
@@ -58,7 +60,9 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
   void _handleSlideAnimation() {
     final ratio = _slidableController.ratio.abs();
     final progress = (ratio / _deletePaneExtentRatio).clamp(0.0, 1.0);
-    if ((progress - _swipeProgress).abs() > 0.005 && mounted) setState(() => _swipeProgress = progress);
+    if ((progress - _swipeProgress).abs() > 0.005 && mounted) {
+      setState(() => _swipeProgress = progress);
+    }
     if (!_hasTriggeredHalfSwipeHaptic && progress >= 0.5) {
       if (_canVibrate) unawaited(Vibration.vibrate(duration: 30));
       _hasTriggeredHalfSwipeHaptic = true;
@@ -70,13 +74,18 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
   Future<void> _resetSwipeFeedbackState() async {
     if (_hasTriggeredHalfSwipeHaptic || _swipeProgress > 0) {
       if (mounted) {
-        setState(() { _hasTriggeredHalfSwipeHaptic = false; _swipeProgress = 0; });
+        setState(() {
+          _hasTriggeredHalfSwipeHaptic = false;
+          _swipeProgress = 0;
+        });
       } else {
         _hasTriggeredHalfSwipeHaptic = false;
         _swipeProgress = 0;
       }
     }
-    if (_slidableController.ratio != 0) await _slidableController.close(duration: 120.ms);
+    if (_slidableController.ratio != 0) {
+      await _slidableController.close(duration: 120.ms);
+    }
   }
 
   Future<void> _handleDeleteAction() async {
@@ -86,12 +95,17 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
       title: 'Supprimer la transaction',
       message: 'Êtes-vous sûr de vouloir supprimer cette transaction ?',
     );
-    if (!shouldDelete || transaction.id == null) { await _resetSwipeFeedbackState(); return; }
+    if (!shouldDelete || transaction.id == null) {
+      await _resetSwipeFeedbackState();
+      return;
+    }
     await _resetSwipeFeedbackState();
     if (!mounted) return;
     try {
       await ref.read(transactionsProvider.notifier).deleteTransaction(
-            transaction.id!, transaction.transactionType ?? TransactionType.expense, transaction: transaction);
+          transaction.id!,
+          transaction.transactionType ?? TransactionType.expense,
+          transaction: transaction);
     } catch (e) {
       debugPrint("Error deleting transaction: $e");
     }
@@ -101,9 +115,8 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
   Widget build(BuildContext context) {
     final transaction = widget.transaction;
     final cardBorderRadius = BorderRadius.circular(4.w);
-    final currencyState = ref.watch(currencyControllerProvider).value;
-    final currencyCode = currencyState?.code ?? 'MGA';
-    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final currencyState = ref.watch(currencyControllerProvider);
+    final currency = currencyState.asData?.value;
 
     final card = ClipRRect(
       borderRadius: cardBorderRadius,
@@ -122,17 +135,22 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
               backgroundColor: const Color.fromARGB(0, 190, 17, 17),
               onPressed: (_) => _handleDeleteAction(),
               child: SizedBox.expand(
-                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Flexible(child: Icon(Icons.delete_outline, color: Colors.white, size: 18.sp)),
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Flexible(
+                      child: Icon(Icons.delete_outline,
+                          color: Colors.white, size: 18.sp)),
                 ]),
               ).animate(target: _swipeProgress).custom(
-                duration: 120.ms,
-                curve: Curves.linear,
-                builder: (context, value, child) => DecoratedBox(
-                  decoration: BoxDecoration(color: Color.lerp(Colors.orange, Colors.red, value), borderRadius: cardBorderRadius),
-                  child: child,
-                ),
-              ),
+                    duration: 120.ms,
+                    curve: Curves.linear,
+                    builder: (context, value, child) => DecoratedBox(
+                      decoration: BoxDecoration(
+                          color: Color.lerp(Colors.orange, Colors.red, value),
+                          borderRadius: cardBorderRadius),
+                      child: child,
+                    ),
+                  ),
             ),
           ],
         ),
@@ -146,29 +164,61 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
               context: context,
               backgroundColor: Colors.transparent,
               isScrollControlled: true,
-              builder: (context) => TransactionDetailBottomSheet(transaction: transaction),
+              builder: (context) =>
+                  TransactionDetailBottomSheet(transaction: transaction),
             ),
             child: Padding(
               padding: EdgeInsets.all(2.5.w),
               child: Row(children: [
                 Container(
-                  width: 5.h, height: 5.h,
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceDim, borderRadius: BorderRadius.circular(2.w)),
-                  child: Center(child: Text((transaction.category?.emoji != null) ? transaction.category!.emoji! : '❓', style: TextStyle(fontSize: 18.sp))),
+                  width: 5.h,
+                  height: 5.h,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceDim,
+                      borderRadius: BorderRadius.circular(2.w)),
+                  child: Center(
+                      child: Text(
+                          (transaction.category?.emoji != null)
+                              ? transaction.category!.emoji!
+                              : '❓',
+                          style: TextStyle(fontSize: 18.sp))),
                 ),
                 SizedBox(width: 1.6.h),
                 Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(transaction.category?.name ?? 'Uncategorized', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.bold, fontSize: 15.sp)),
-                    SizedBox(height: 0.5.h),
-                    Text(transaction.description ?? '', style: TextStyle(color: Theme.of(context).hintColor, fontSize: 14.sp)),
-                  ]),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(transaction.category?.name ?? 'Uncategorized',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15.sp)),
+                        SizedBox(height: 0.5.h),
+                        Text(transaction.description ?? '',
+                            style: TextStyle(
+                                color: Theme.of(context).hintColor,
+                                fontSize: 14.sp)),
+                      ]),
                 ),
                 SizedBox(width: 1.6.h),
-                Text(
-                  formatAmountWithCurrency(convertFromMga(transaction.amount, rate), currencyCode, preserveFraction: true),
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.tertiary, fontSize: 14.sp),
-                ),
+                if (currency == null)
+                  textSkeleton(context, 20.w, 2.h)
+                else
+                  Text(
+                    formatAmountWithCurrency(
+                        convertFromMga(
+                          transaction.amount,
+                          currency.rateFor(currency.code),
+                        ),
+                        currency.code,
+                        preserveFraction: true),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontSize: 14.sp),
+                  ),
               ]),
             ),
           ),

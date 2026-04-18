@@ -42,10 +42,9 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
   @override
   Widget build(BuildContext context) {
     final asyncBalance = ref.watch(allTimeBalanceProvider);
-    final currencyState = ref.watch(currencyControllerProvider).value;
-    final currencyCode = currencyState?.code ?? 'MGA';
-    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1A1A1A);
+    final currencyState = ref.watch(currencyControllerProvider);
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1A1A1A);
 
     return Container(
       height: 16.h,
@@ -103,6 +102,12 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
               alignment: Alignment.centerLeft,
               child: asyncBalance.when(
                 data: (balance) {
+                  final currency = currencyState.asData?.value;
+                  if (currency == null) {
+                    return const JumbotronAmountSkeleton();
+                  }
+                  final currencyCode = currency.code;
+                  final rate = currency.rateFor(currencyCode);
                   final isNegative = balance < 0;
                   final displayAmount = convertFromMga(balance.abs(), rate);
 

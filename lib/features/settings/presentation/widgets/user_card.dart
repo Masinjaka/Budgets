@@ -27,7 +27,8 @@ class UserCard extends ConsumerWidget {
         children: [
           userAsync.when(
             data: (user) {
-              return avatar(context, user?.profilePhoto, 32.sp);
+              if (user == null) return avatarSkeleton(context, 32.sp);
+              return avatar(context, user.profilePhoto, 32.sp);
             },
             loading: () => avatarSkeleton(context, 32.sp),
             error: (_, __) => avatarSkeleton(context, 32.sp),
@@ -37,24 +38,36 @@ class UserCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               userAsync.when(
-                data: (user) => Text(
-                  user!.name ?? 'Utilisateur',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                ),
+                data: (user) {
+                  if (user == null) {
+                    return Padding(
+                      padding: EdgeInsets.only(top: 0.5.h),
+                      child: textSkeleton(context, 24.w, 2.2.h),
+                    );
+                  }
+                  final username = user.name;
+                  if (username == null || username.trim().isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.only(top: 0.5.h),
+                      child: textSkeleton(context, 24.w, 2.2.h),
+                    );
+                  }
+                  return Text(
+                    username,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  );
+                },
                 loading: () => Padding(
                   padding: EdgeInsets.only(top: 0.5.h),
                   child: textSkeleton(context, 24.w, 2.2.h),
                 ),
-                error: (_, __) => Text(
-                  'Erreur de chargement',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: Colors.red,
-                  ),
+                error: (_, __) => Padding(
+                  padding: EdgeInsets.only(top: 0.5.h),
+                  child: textSkeleton(context, 24.w, 2.2.h),
                 ),
               ),
               SizedBox(height: 1.h),

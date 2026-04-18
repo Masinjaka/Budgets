@@ -17,11 +17,6 @@ class CustomGreetingAppBar extends ConsumerWidget
   Widget build(BuildContext context, WidgetRef ref) {
     final double avatarSize = 24.sp;
     final userAsync = ref.watch(userModelProvider);
-    final fallbackTextStyle = TextStyle(
-      fontSize: 16.sp,
-      fontWeight: FontWeight.bold,
-      color: Theme.of(context).textTheme.bodyLarge?.color,
-    );
 
     return AppBar(
       automaticallyImplyLeading: false,
@@ -40,14 +35,34 @@ class CustomGreetingAppBar extends ConsumerWidget
               children: [
                 userAsync.when(
                   data: (user) {
-                    return avatar(context, user?.profilePhoto, avatarSize);
+                    if (user == null) {
+                      return avatarSkeleton(context, avatarSize);
+                    }
+                    return avatar(context, user.profilePhoto, avatarSize);
                   },
                   loading: () => avatarSkeleton(context, avatarSize),
-                  error: (_, __) => avatar(context, null, avatarSize),
+                  error: (_, __) => avatarSkeleton(context, avatarSize),
                 ),
                 userAsync.when(
                   data: (user) {
-                    final username = user?.name ?? 'Utilisateur';
+                    if (user == null) {
+                      return Padding(
+                        padding: EdgeInsets.only(left: 4.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            textSkeleton(context, 20.w, 1.6.h),
+                            SizedBox(height: 0.5.h),
+                            textSkeleton(context, 30.w, 2.h),
+                          ],
+                        ),
+                      );
+                    }
+                    final username = user.name;
+                    if (username == null || username.trim().isEmpty) {
+                      return _userTextSkeleton(context);
+                    }
                     return Padding(
                       padding: EdgeInsets.only(left: 4.w),
                       child: Column(
@@ -87,13 +102,7 @@ class CustomGreetingAppBar extends ConsumerWidget
                       ],
                     ),
                   ),
-                  error: (_, __) => Padding(
-                    padding: EdgeInsets.only(left: 4.w),
-                    child: Text(
-                      'Utilisateur',
-                      style: fallbackTextStyle,
-                    ),
-                  ),
+                  error: (_, __) => _userTextSkeleton(context),
                 ),
               ],
             ),
@@ -122,4 +131,19 @@ class CustomGreetingAppBar extends ConsumerWidget
 
   @override
   Size get preferredSize => Size.fromHeight(7.h);
+
+  Widget _userTextSkeleton(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          textSkeleton(context, 20.w, 1.6.h),
+          SizedBox(height: 0.5.h),
+          textSkeleton(context, 30.w, 2.h),
+        ],
+      ),
+    );
+  }
 }

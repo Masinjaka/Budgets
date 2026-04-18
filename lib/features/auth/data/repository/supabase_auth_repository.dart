@@ -1,4 +1,5 @@
 import 'package:budgets/core/constants.dart';
+import 'package:budgets/core/offline/image_upload_queue.dart';
 import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/main.dart';
 import 'package:flutter/foundation.dart';
@@ -16,6 +17,8 @@ class SupabaseAuthRepository implements AuthRepository {
       final response = await _client.auth
           .signInWithPassword(email: email, password: password);
       await powersync.connectPowerSyncForCurrentUser(waitForSync: true);
+      await ImageUploadQueue.instance.processPendingUploads();
+      await powersync.flushPowerSyncUploads();
       debugPrint(
           '[SupabaseAuthRepository][signInWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
     } catch (e, st) {
@@ -38,6 +41,8 @@ class SupabaseAuthRepository implements AuthRepository {
         'username': username,
       });
       await powersync.connectPowerSyncForCurrentUser(waitForSync: true);
+      await ImageUploadQueue.instance.processPendingUploads();
+      await powersync.flushPowerSyncUploads();
       debugPrint(
           '[SupabaseAuthRepository][signUpWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
     } catch (e, st) {
@@ -118,7 +123,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
       debugPrint('delete_user RPC result: $result');
       // Clear local PowerSync data and sign out
-      await powersync.powerSyncLogout();
+      await powersync.powerSyncLogout(discardPendingChanges: true);
       await _client.auth.signOut();
     } catch (e) {
       debugPrint('Error deleting account: $e');

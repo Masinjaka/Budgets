@@ -8,6 +8,7 @@ import 'package:budgets/features/settings/presentation/widgets/theme_selection_d
 import 'package:budgets/features/settings/presentation/widgets/user_card.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/widgets/custom_button.dart';
+import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,8 +56,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyState = ref.watch(currencyControllerProvider).value;
-    final currencyCode = currencyState?.code ?? 'MGA';
+    final currencyState = ref.watch(currencyControllerProvider);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -143,7 +143,23 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           context.push('/currency-selection');
                         },
                         showSuffixSettingChoice: true,
-                        settingChoice: currencyCode,
+                        settingChoiceWidget: currencyState.when(
+                          data: (state) => Text(
+                            state.code,
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          loading: () => textSkeleton(context, 10.w, 1.8.h),
+                          error: (_, __) => Text(
+                            'MGA',
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
                       ),
                       SizedBox(height: 1.h),
                       SettingCard(

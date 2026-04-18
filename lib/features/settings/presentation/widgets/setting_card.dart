@@ -9,6 +9,7 @@ class SettingCard extends StatefulWidget {
       required this.onTap,
       this.showSuffixSettingChoice = false,
       this.settingChoice,
+      this.settingChoiceWidget,
       this.useSwitch = false,
       this.onSwitchChanged,
       this.switchValue,
@@ -20,6 +21,7 @@ class SettingCard extends StatefulWidget {
   final VoidCallback onTap;
   final bool showSuffixSettingChoice;
   final String? settingChoice;
+  final Widget? settingChoiceWidget;
   final bool useSwitch;
   final void Function(bool)? onSwitchChanged;
   final bool? switchValue;
@@ -95,13 +97,14 @@ class _SettingCardState extends State<SettingCard> {
               spacing: 2.w,
               children: [
                 if (widget.showSuffixSettingChoice)
-                  Text(
-                    widget.settingChoice ?? 'MGA',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  widget.settingChoiceWidget ??
+                      Text(
+                        widget.settingChoice ?? '',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          color: Colors.grey,
+                        ),
+                      ),
                 if (widget.trailingWidget != null)
                   widget.trailingWidget!
                 else if (widget.useSwitch)

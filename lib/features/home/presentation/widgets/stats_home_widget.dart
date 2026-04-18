@@ -16,9 +16,7 @@ class StatsHomeWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currencyState = ref.watch(currencyControllerProvider).value;
-    final currencyCode = currencyState?.code ?? 'MGA';
-    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final currencyState = ref.watch(currencyControllerProvider);
 
     return Container(
       height: 35.h,
@@ -42,8 +40,14 @@ class StatsHomeWidget extends ConsumerWidget {
           SizedBox(height: 2.h),
           Expanded(
             child: switch (asyncExpenses) {
-              AsyncData(:final value) =>
-                dailyBarChart(value, currencyRate: rate),
+              AsyncData(:final value) => currencyState.when(
+                  data: (currency) => dailyBarChart(
+                    value,
+                    currencyRate: currency.rateFor(currency.code),
+                  ),
+                  loading: () => const StatsHomeWidgetSkeleton(),
+                  error: (error, _) => Text('error: $error'),
+                ),
               AsyncError(:final error) => Text('error: $error'),
               _ => const StatsHomeWidgetSkeleton(),
             },

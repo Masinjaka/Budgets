@@ -203,9 +203,11 @@ class ImageUploadQueue {
           }
 
           // Upload to Supabase Storage
-          await client.storage
-              .from(pending.storageBucket)
-              .upload(pending.storagePath, localFile);
+          await client.storage.from(pending.storageBucket).upload(
+                pending.storagePath,
+                localFile,
+                fileOptions: const FileOptions(upsert: true),
+              );
 
           // Get the public URL
           final publicUrl = client.storage
@@ -267,6 +269,9 @@ class ImageUploadQueue {
 
   /// Get the number of pending uploads.
   int get pendingCount => _getQueue().length;
+
+  /// Attempts to upload all queued images immediately.
+  Future<void> processPendingUploads() => _processQueue();
 
   /// Dispose resources.
   void dispose() {

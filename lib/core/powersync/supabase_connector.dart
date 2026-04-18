@@ -89,7 +89,9 @@ class SupabaseConnector extends PowerSyncBackendConnector {
           } else if (op.op == UpdateType.patch) {
             final data = Map<String, dynamic>.of(op.opData!);
             _normalizeOpDataForSupabase(op.table, data);
-            await table.update(data).eq('id', op.id);
+            if (data.isNotEmpty) {
+              await table.update(data).eq('id', op.id);
+            }
           } else if (op.op == UpdateType.delete) {
             await table.delete().eq('id', op.id);
           }
@@ -107,6 +109,10 @@ class SupabaseConnector extends PowerSyncBackendConnector {
   }
 
   void _normalizeOpDataForSupabase(String table, Map<String, dynamic> data) {
+    if (table == 'user' && _isLocalProfilePhoto(data['profile_photo'])) {
+      data.remove('profile_photo');
+    }
+
     // Postgres `transaction.amount` is bigint; PowerSync can carry "45568.0"
     // strings from local writes, so coerce safely before upload.
     if (table == 'transaction' && data.containsKey('amount')) {
@@ -115,6 +121,14 @@ class SupabaseConnector extends PowerSyncBackendConnector {
         data['amount'] = normalized;
       }
     }
+  }
+
+  bool _isLocalProfilePhoto(Object? value) {
+    if (value is! String || value.isEmpty) return false;
+    if (value.startsWith('file://')) return true;
+    final uri = Uri.tryParse(value);
+    if (uri != null && uri.scheme.isNotEmpty) return false;
+    return value.startsWith('/');
   }
 
   int? _toBigintSafeInt(Object? value) {

@@ -6,6 +6,7 @@ import 'package:budgets/core/ui/glass_flexible_space.dart';
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
 import 'package:budgets/features/settings/presentation/modules/edit_profile_module.dart';
+import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
@@ -36,11 +37,11 @@ class _State extends ConsumerState<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Load profile photo via module without defining a local method
-    editProfileModule.fetchProfilePhotoUrl().then((url) {
+    ref.read(userModelProvider.future).then((user) {
       if (!mounted) return;
       setState(() {
-        _profilePhotoUrl = url;
+        _profilePhotoUrl = user?.profilePhoto;
+        _usernameController.text = user?.name ?? '';
         _isLoadingPhoto = false;
       });
     }).catchError((_) {

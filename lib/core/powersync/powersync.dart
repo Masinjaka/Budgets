@@ -112,8 +112,34 @@ Future<void> connectPowerSyncForCurrentUser({
   }
 }
 
+Future<void> flushPowerSyncUploads({
+  Duration timeout = const Duration(seconds: 10),
+}) async {
+  if (!_initialized || !_isLoggedIn()) return;
+  await connectPowerSyncForCurrentUser();
+
+  final deadline = DateTime.now().add(timeout);
+  while (true) {
+    final stats = await db.getUploadQueueStats();
+    if (stats.count == 0) return;
+
+    final status = db.currentStatus;
+    if (status.uploadError != null) {
+      throw StateError('PowerSync upload failed: ${status.uploadError}');
+    }
+
+    if (DateTime.now().isAfter(deadline)) {
+      throw TimeoutException('Timed out waiting for PowerSync uploads');
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+  }
+}
+
 /// Disconnect and clear local data (used on sign-out).
-Future<void> powerSyncLogout() async {
+Future<void> powerSyncLogout({bool discardPendingChanges = false}) async {
+  if (!discardPendingChanges) {
+    await flushPowerSyncUploads();
+  }
   _currentConnector = null;
   _streamsSubscribed = false;
   _connectFuture = null;

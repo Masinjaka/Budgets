@@ -1,5 +1,6 @@
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -38,11 +39,9 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyState = ref.watch(currencyControllerProvider).value;
-    final currencyCode = currencyState?.code ?? 'MGA';
-    final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
+    final currencyState = ref.watch(currencyControllerProvider);
+    final currency = currencyState.asData?.value;
     final amountMga = parseAmountInput(widget.amount);
-    final displayAmount = convertFromMga(amountMga, rate);
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 0.5.h),
@@ -114,20 +113,23 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                 ],
               ),
               // ...existing code...
-              Text(
-                formatAmountWithCurrency(
-                  displayAmount,
-                  currencyCode,
-                  preserveFraction: true,
+              if (currency == null)
+                textSkeleton(context, 20.w, 2.h)
+              else
+                Text(
+                  formatAmountWithCurrency(
+                    convertFromMga(amountMga, currency.rateFor(currency.code)),
+                    currency.code,
+                    preserveFraction: true,
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w900,
+                        color: widget.transactionType == 'expense'
+                            ? const Color.fromARGB(255, 215, 120, 113)
+                            : const Color.fromARGB(255, 82, 149, 84),
+                      ),
                 ),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w900,
-                      color: widget.transactionType == 'expense'
-                          ? const Color.fromARGB(255, 215, 120, 113)
-                          : const Color.fromARGB(255, 82, 149, 84),
-                    ),
-              ),
             ],
           );
         },

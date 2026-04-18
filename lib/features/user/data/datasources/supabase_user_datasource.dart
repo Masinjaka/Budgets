@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:budgets/core/powersync/powersync.dart' as powersync_runtime;
 import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/user/domain/models/user_model.dart';
@@ -20,7 +22,7 @@ class SupabaseUserDataSource {
         'falling back to auth metadata.',
       );
       await powersync_runtime.connectPowerSyncForCurrentUser(waitForSync: true);
-      results = await _fetchUserRows(uid);
+      results = await _waitForUserRows(uid);
     }
 
     if (results.isEmpty) {
@@ -34,6 +36,18 @@ class SupabaseUserDataSource {
     return UserModel.fromJson(results.first);
   }
 
+  Stream<UserModel?> watchCurrentUserRow() async* {
+    final uid = _client.auth.currentUser?.id;
+    if (uid == null) throw StateError('No authenticated user');
+
+    await powersync_runtime.connectPowerSyncForCurrentUser(waitForSync: true);
+
+    await for (final rows in _watchUserRows(uid)) {
+      if (rows.isEmpty) continue;
+      yield UserModel.fromJson(rows.first);
+    }
+  }
+
   Future<List<Map<String, dynamic>>> _fetchUserRows(String uid) {
     return powersync.db.getAll('''
       SELECT username, profile_photo, currency_code
@@ -41,6 +55,27 @@ class SupabaseUserDataSource {
       WHERE user_id = ?
       LIMIT 1
     ''', [uid]);
+  }
+
+  Future<List<Map<String, dynamic>>> _waitForUserRows(String uid) {
+    return _watchUserRows(uid)
+        .firstWhere((rows) => rows.isNotEmpty)
+        .timeout(const Duration(seconds: 10), onTimeout: () => const []);
+  }
+
+  Stream<List<Map<String, dynamic>>> _watchUserRows(String uid) {
+    return powersync.db.watch(
+      '''
+          SELECT username, profile_photo, currency_code
+          FROM user
+          WHERE user_id = ?
+          LIMIT 1
+          ''',
+      parameters: [uid],
+      triggerOnTables: const ['user'],
+    ).map((rows) => [
+          for (final row in rows) Map<String, dynamic>.from(row),
+        ]);
   }
 
   UserModel? _buildFallbackUserModel() {
