@@ -1,11 +1,13 @@
 Changes in this version:
     [feature]
-        - Edit and delete transactions
+        - Offline support with local caching of changes
+        - Automatic online sync when connection is restored
     [testing]
-        - Create a budget for a category (e.g., Food) with a small limit
-        - Add an expense in the same category that pushes the budget near the limit and check for a warning notification
-        - Add another expense that goes over the limit and check for the exceeded notification
-        - Turn reminders on and wait for the daily reminder around your chosen time (mid‑morning)
-        - Confirm you only receive one reminder per day
+        - Verify all app functionality works while offline
+        - Access budgets, expenses, incomes, stats, planning, and settings screens without network
+        - Create, edit, and delete transactions, budgets, and goals while offline
+        - Confirm UI shows offline status and changes are cached locally
+        - Reopen the app offline and confirm cached data is still available
+        - Restore connection and confirm queued offline changes sync automatically
 
 Enjoy testing!
