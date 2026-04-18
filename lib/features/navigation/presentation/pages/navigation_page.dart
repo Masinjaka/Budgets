@@ -22,9 +22,15 @@ class NavigatorPage extends ConsumerStatefulWidget {
 }
 
 class _NavigatorPageState extends ConsumerState<NavigatorPage> {
-  bool _isNavBarVisible = true;
-  ScrollDirection? _lastDirection;
+  final Map<int, bool> _fabVisibilityByTab = {
+    _transactionTabIndex: true,
+    _planningTabIndex: true,
+  };
+  final Map<int, ScrollDirection?> _lastDirectionByTab = {};
   Timer? _scrollTimer;
+
+  static const _transactionTabIndex = 1;
+  static const _planningTabIndex = 2;
 
   static const _tabs = [
     _TabConfig(
@@ -49,13 +55,70 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
     ),
   ];
 
+  bool _isFabTab(int index) =>
+      index == _transactionTabIndex || index == _planningTabIndex;
+
+  bool _isFabVisibleForTab(int index) => _fabVisibilityByTab[index] ?? true;
+
+  void _setFabVisibleForTab(int index, bool visible) {
+    if (!mounted || _isFabVisibleForTab(index) == visible) {
+      return;
+    }
+
+    setState(() {
+      _fabVisibilityByTab[index] = visible;
+    });
+  }
+
+  bool _onScrollNotification(
+    UserScrollNotification notification,
+    int currentIndex,
+  ) {
+    if (!_isFabTab(currentIndex)) {
+      return false;
+    }
+
+    final direction = notification.direction;
+    if (direction == ScrollDirection.idle) {
+      _scrollTimer?.cancel();
+      _lastDirectionByTab[currentIndex] = null;
+      return false;
+    }
+
+    if (direction == ScrollDirection.forward &&
+        !_isFabVisibleForTab(currentIndex)) {
+      _scrollTimer?.cancel();
+      _lastDirectionByTab[currentIndex] = null;
+      _setFabVisibleForTab(currentIndex, true);
+    } else if (direction == ScrollDirection.reverse &&
+        _isFabVisibleForTab(currentIndex)) {
+      if (direction != _lastDirectionByTab[currentIndex]) {
+        _lastDirectionByTab[currentIndex] = direction;
+        _scrollTimer?.cancel();
+        _scrollTimer = Timer(const Duration(milliseconds: 100), () {
+          if (!mounted || widget.navigationShell.currentIndex != currentIndex) {
+            return;
+          }
+
+          if (_isFabVisibleForTab(currentIndex)) {
+            setState(() {
+              _fabVisibilityByTab[currentIndex] = false;
+            });
+          }
+        });
+      }
+    }
+
+    return false;
+  }
+
   void _onFabPressed(int currentIndex) {
-    if (currentIndex == 1) {
+    if (currentIndex == _transactionTabIndex) {
       final subTab = ref.read(transactionSubTabProvider);
       final type =
           subTab == 0 ? TransactionType.expense : TransactionType.income;
       AddTransactionDialog.show(context, transactionType: type);
-    } else if (currentIndex == 2) {
+    } else if (currentIndex == _planningTabIndex) {
       final subTab = ref.read(planningSubTabProvider);
       if (subTab == 0) {
         AddBudgetBottomSheet.show(context);
@@ -77,48 +140,25 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
     final hintColor = Theme.of(context).hintColor;
-    final showFab = currentIndex == 1 || currentIndex == 2;
+    final showFab = _isFabTab(currentIndex);
+    final isFabVisible = showFab && _isFabVisibleForTab(currentIndex);
 
     return Scaffold(
       extendBody: false,
       body: NotificationListener<UserScrollNotification>(
-        onNotification: (notification) {
-          final direction = notification.direction;
-          if (direction == ScrollDirection.idle) {
-            _scrollTimer?.cancel();
-            _lastDirection = null;
-            return false;
-          }
-          if (direction == ScrollDirection.forward && !_isNavBarVisible) {
-            _scrollTimer?.cancel();
-            _lastDirection = null;
-            setState(() => _isNavBarVisible = true);
-          } else if (direction == ScrollDirection.reverse && _isNavBarVisible) {
-            if (direction != _lastDirection) {
-              _lastDirection = direction;
-              _scrollTimer?.cancel();
-              _scrollTimer = Timer(const Duration(milliseconds: 100), () {
-                if (_isNavBarVisible) {
-                  setState(() => _isNavBarVisible = false);
-                }
-              });
-            }
-          }
-          return false;
-        },
+        onNotification: (notification) =>
+            _onScrollNotification(notification, currentIndex),
         child: widget.navigationShell,
       ),
       floatingActionButton: AnimatedScale(
-        scale: (showFab && _isNavBarVisible) ? 1.0 : 0.0,
+        scale: isFabVisible ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         child: SizedBox(
           width: 13.w,
           height: 13.w,
           child: FloatingActionButton(
-            onPressed: (showFab && _isNavBarVisible)
-                ? () => _onFabPressed(currentIndex)
-                : null,
+            onPressed: isFabVisible ? () => _onFabPressed(currentIndex) : null,
             backgroundColor: Theme.of(context).primaryColor,
             shape: const CircleBorder(),
             child: const Icon(Icons.add, color: Colors.black),

@@ -18,6 +18,11 @@ String? _powersyncUrl;
 SupabaseConnector? _currentConnector;
 bool _streamsSubscribed = false;
 Future<void>? _connectFuture;
+Future<void>? _subscriptionFuture;
+Future<void>? _logoutFuture;
+bool _isLoggingOut = false;
+int _subscriptionGeneration = 0;
+final List<SyncStreamSubscription> _streamSubscriptions = [];
 
 bool get isPowerSyncInitialized => _initialized;
 
@@ -52,8 +57,11 @@ Future<void> openPowerSyncDatabase(String powersyncUrl) async {
       await connectPowerSyncForCurrentUser();
     } else if (event == AuthChangeEvent.signedOut) {
       _currentConnector = null;
-      _streamsSubscribed = false;
-      await db.disconnect();
+      _connectFuture = null;
+      _unsubscribeFromStreams();
+      if (!db.closed) {
+        await db.disconnect();
+      }
     } else if (event == AuthChangeEvent.tokenRefreshed) {
       _currentConnector?.prefetchCredentials();
     }
@@ -67,29 +75,79 @@ bool _isLoggedIn() {
 /// Subscribe to all user-scoped sync streams.
 /// Streams with auto_subscribe (exchange_rates, subscription_categories) are
 /// handled automatically by the server.
-void _subscribeToStreams() {
-  if (_streamsSubscribed) return;
+Future<void> _subscribeToStreams() {
+  if (_streamsSubscribed || _isLoggingOut || !_isLoggedIn()) {
+    return Future<void>.value();
+  }
+
+  return _subscriptionFuture ??= _subscribeToStreamsAsync();
+}
+
+Future<void> _subscribeToStreamsAsync() async {
+  final generation = _subscriptionGeneration;
   final streams = TypedSyncStreams(db);
-  streams.user().subscribe();
-  streams.transaction().subscribe();
-  streams.categories().subscribe();
-  streams.subcategories().subscribe();
-  streams.subcategoryExpenses().subscribe();
-  streams.budgets().subscribe();
-  streams.budgetHistory().subscribe();
-  streams.goals().subscribe();
-  streams.subscriptions().subscribe();
-  streams.notificationSettings().subscribe();
-  streams.deviceTokens().subscribe();
-  streams.budgetNotificationLog().subscribe();
-  _streamsSubscribed = true;
+  final subscriptions = <SyncStreamSubscription>[];
+
+  try {
+    for (final stream in [
+      streams.user(),
+      streams.transaction(),
+      streams.categories(),
+      streams.subcategories(),
+      streams.subcategoryExpenses(),
+      streams.budgets(),
+      streams.budgetHistory(),
+      streams.goals(),
+      streams.subscriptions(),
+      streams.notificationSettings(),
+      streams.deviceTokens(),
+      streams.budgetNotificationLog(),
+    ]) {
+      if (_isLoggingOut ||
+          !_isLoggedIn() ||
+          generation != _subscriptionGeneration) {
+        _unsubscribe(subscriptions);
+        return;
+      }
+      subscriptions.add(await stream.subscribe());
+    }
+
+    if (_isLoggingOut ||
+        !_isLoggedIn() ||
+        generation != _subscriptionGeneration) {
+      _unsubscribe(subscriptions);
+      return;
+    }
+
+    _streamSubscriptions.addAll(subscriptions);
+    _streamsSubscribed = true;
+  } catch (_) {
+    _unsubscribe(subscriptions);
+    rethrow;
+  } finally {
+    _subscriptionFuture = null;
+  }
+}
+
+void _unsubscribeFromStreams() {
+  _subscriptionGeneration++;
+  _streamsSubscribed = false;
+  _subscriptionFuture = null;
+  _unsubscribe(_streamSubscriptions);
+  _streamSubscriptions.clear();
+}
+
+void _unsubscribe(List<SyncStreamSubscription> subscriptions) {
+  for (final subscription in subscriptions) {
+    subscription.unsubscribe();
+  }
 }
 
 Future<void> connectPowerSyncForCurrentUser({
   bool waitForSync = false,
   Duration timeout = const Duration(seconds: 10),
 }) async {
-  if (!_initialized || !_isLoggedIn()) return;
+  if (!_initialized || _isLoggingOut || !_isLoggedIn() || db.closed) return;
   final powersyncUrl = _powersyncUrl;
   if (powersyncUrl == null) return;
 
@@ -98,7 +156,9 @@ Future<void> connectPowerSyncForCurrentUser({
     _connectFuture = null;
   });
   await _connectFuture;
-  _subscribeToStreams();
+  if (_isLoggingOut || !_isLoggedIn() || db.closed) return;
+
+  await _subscribeToStreams();
 
   if (!waitForSync || db.currentStatus.hasSynced == true) return;
   try {
@@ -115,7 +175,7 @@ Future<void> connectPowerSyncForCurrentUser({
 Future<void> flushPowerSyncUploads({
   Duration timeout = const Duration(seconds: 10),
 }) async {
-  if (!_initialized || !_isLoggedIn()) return;
+  if (!_initialized || _isLoggingOut || !_isLoggedIn() || db.closed) return;
   await connectPowerSyncForCurrentUser();
 
   final deadline = DateTime.now().add(timeout);
@@ -137,11 +197,28 @@ Future<void> flushPowerSyncUploads({
 
 /// Disconnect and clear local data (used on sign-out).
 Future<void> powerSyncLogout({bool discardPendingChanges = false}) async {
+  _logoutFuture ??= _powerSyncLogout(
+    discardPendingChanges: discardPendingChanges,
+  ).whenComplete(() {
+    _logoutFuture = null;
+  });
+  await _logoutFuture;
+}
+
+Future<void> _powerSyncLogout({required bool discardPendingChanges}) async {
+  if (!_initialized || db.closed) return;
+
   if (!discardPendingChanges) {
     await flushPowerSyncUploads();
   }
-  _currentConnector = null;
-  _streamsSubscribed = false;
-  _connectFuture = null;
-  await db.disconnectAndClear();
+
+  _isLoggingOut = true;
+  try {
+    _currentConnector = null;
+    _connectFuture = null;
+    _unsubscribeFromStreams();
+    await db.disconnectAndClear();
+  } finally {
+    _isLoggingOut = false;
+  }
 }
