@@ -310,8 +310,6 @@ class TransactionsApi {
       final categoryId = categoryRows.first['id'] as String;
 
       final trType = transactionType?.value ?? TransactionType.expense.value;
-      final dateIso = date?.toUtc().toIso8601String() ??
-          DateTime.now().toUtc().toIso8601String();
       final nowIso = DateTime.now().toUtc().toIso8601String();
 
       await powersync.db.writeTransaction((tx) async {
@@ -329,6 +327,10 @@ class TransactionsApi {
         final oldType = old['transaction_type']?.toString();
         final oldCategoryId = old['category_id'] as String?;
         final oldAmount = _numFromValue(old['amount']);
+        final existingDateRaw = old['date']?.toString();
+        final resolvedDateIso = date?.toUtc().toIso8601String() ??
+            existingDateRaw ??
+            DateTime.now().toUtc().toIso8601String();
 
         // 1. Update the transaction
         await tx.execute(
@@ -339,7 +341,7 @@ class TransactionsApi {
           [
             validDescription,
             amountNumeric,
-            dateIso,
+            resolvedDateIso,
             categoryId,
             trType,
             transactionId,
