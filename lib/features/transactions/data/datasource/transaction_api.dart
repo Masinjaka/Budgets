@@ -314,7 +314,7 @@ class TransactionsApi {
 
       await powersync.db.writeTransaction((tx) async {
         final existingRows = await tx.getAll(
-          '''SELECT category_id, amount, transaction_type
+          '''SELECT category_id, amount, transaction_type, date
              FROM "transaction"
              WHERE id = ? AND user_id = ?
              LIMIT 1''',
