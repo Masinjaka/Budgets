@@ -25,6 +25,32 @@ const _uuid = Uuid();
 class TransactionsApi {
   TransactionsApi();
 
+  String _dateOnlyText(DateTime value) {
+    final year = value.year.toString().padLeft(4, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
+  String _normalizeStoredDate(String? rawDate) {
+    if (rawDate == null) return _dateOnlyText(DateTime.now());
+    final trimmed = rawDate.trim();
+    if (trimmed.isEmpty) return _dateOnlyText(DateTime.now());
+
+    // Keep compatibility with legacy values like:
+    // - 2026-04-19
+    // - 2026-04-19T00:00:00.000
+    // - 2026-04-19 00:00:00.000
+    final parsedDate = DateTime.tryParse(trimmed);
+    if (parsedDate != null) return _dateOnlyText(parsedDate);
+
+    final datePrefix = trimmed.length >= 10 ? trimmed.substring(0, 10) : '';
+    final datePrefixRegex = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+    if (datePrefixRegex.hasMatch(datePrefix)) return datePrefix;
+
+    return _dateOnlyText(DateTime.now());
+  }
+
   Future<List<TransactionModel>> getTransactions() {
     return Wrapper.execute(() async {
       try {
@@ -173,6 +199,7 @@ class TransactionsApi {
       final transactionId = _uuid.v4();
       final trType = transactionType?.value ?? TransactionType.expense.value;
       final nowIso = DateTime.now().toUtc().toIso8601String();
+      final transactionDateIso = _dateOnlyText(DateTime.now());
 
       await powersync.db.writeTransaction((tx) async {
         // 1. Insert the transaction
@@ -186,7 +213,7 @@ class TransactionsApi {
             userId,
             validDescription,
             amountNumeric,
-            nowIso,
+            transactionDateIso,
             categoryId,
             trType,
           ],
@@ -310,11 +337,10 @@ class TransactionsApi {
       final categoryId = categoryRows.first['id'] as String;
 
       final trType = transactionType?.value ?? TransactionType.expense.value;
-      final nowIso = DateTime.now().toUtc().toIso8601String();
 
       await powersync.db.writeTransaction((tx) async {
         final existingRows = await tx.getAll(
-          '''SELECT category_id, amount, transaction_type
+          '''SELECT category_id, amount, transaction_type, date
              FROM "transaction"
              WHERE id = ? AND user_id = ?
              LIMIT 1''',
@@ -328,9 +354,9 @@ class TransactionsApi {
         final oldCategoryId = old['category_id'] as String?;
         final oldAmount = _numFromValue(old['amount']);
         final existingDateRaw = old['date']?.toString();
-        final resolvedDateIso = date?.toUtc().toIso8601String() ??
-            existingDateRaw ??
-            DateTime.now().toUtc().toIso8601String();
+        final resolvedDateIso = date != null
+            ? _dateOnlyText(date)
+            : _normalizeStoredDate(existingDateRaw);
 
         // 1. Update the transaction
         await tx.execute(
