@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Budgets",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": [
+                "--dart-define=SUPABASE_URL=https://fqqpmzurvunhilnnhmtf.supabase.co",
+                "--dart-define=SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxcXBtenVydnVuaGlsbm5obXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxOTIxNTcsImV4cCI6MjA2NDc2ODE1N30.ur3oGU8SIjsWZHGQS9Vk8y9Y1UXBJCrEw_KahPCAI_k",
+                "--dart-define=SENTRY_DSN=https://6dc8de8176b18952876db1f2980a7787@o4508336559947776.ingest.de.sentry.io/4510556562915408"
+            ]
+        },
+        {
+            "name": "Budgets (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "toolArgs": [
+                "--dart-define=SUPABASE_URL=${env:SUPABASE_URL}",
+                "--dart-define=SUPABASE_ANON_KEY=${env:SUPABASE_ANON_KEY}",
+                "--dart-define=GLEAP_TOKEN=${env:GLEAP_TOKEN}",
+                "--dart-define=SENTRY_DSN=${env:SENTRY_DSN}"
+            ]
+        },
+        {
+            "name": "Budgets (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "toolArgs": [
+                "--dart-define=SUPABASE_URL=${env:SUPABASE_URL}",
+                "--dart-define=SUPABASE_ANON_KEY=${env:SUPABASE_ANON_KEY}",
+                "--dart-define=GLEAP_TOKEN=${env:GLEAP_TOKEN}",
+                "--dart-define=SENTRY_DSN=${env:SENTRY_DSN}"
+            ]
+        }
+    ]
+}
