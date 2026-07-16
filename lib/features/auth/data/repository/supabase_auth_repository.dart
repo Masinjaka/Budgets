@@ -110,8 +110,6 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> deleteAccount({String? reason}) async {
-    // Best practice: perform destructive operations server-side with a service role key
-    // via a Supabase Edge Function. The client sends the user's JWT for verification.
     final session = _client.auth.currentSession;
     final accessToken = session?.accessToken;
     if (accessToken == null) {

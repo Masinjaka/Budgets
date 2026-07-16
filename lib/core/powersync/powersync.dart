@@ -16,6 +16,7 @@ late final PowerSyncDatabase db;
 bool _initialized = false;
 String? _powersyncUrl;
 SupabaseConnector? _currentConnector;
+bool _connectionRequested = false;
 bool _streamsSubscribed = false;
 Future<void>? _connectFuture;
 Future<void>? _subscriptionFuture;
@@ -56,6 +57,7 @@ Future<void> openPowerSyncDatabase(String powersyncUrl) async {
     if (event == AuthChangeEvent.signedIn) {
       await connectPowerSyncForCurrentUser();
     } else if (event == AuthChangeEvent.signedOut) {
+      _connectionRequested = false;
       _currentConnector = null;
       _connectFuture = null;
       _unsubscribeFromStreams();
@@ -151,11 +153,30 @@ Future<void> connectPowerSyncForCurrentUser({
   final powersyncUrl = _powersyncUrl;
   if (powersyncUrl == null) return;
 
-  _currentConnector ??= SupabaseConnector(powersyncUrl: powersyncUrl);
-  _connectFuture ??= db.connect(connector: _currentConnector!).whenComplete(() {
-    _connectFuture = null;
-  });
-  await _connectFuture;
+  // Calling PowerSyncDatabase.connect() while a sync client is already active
+  // disconnects that client before starting a new one. Several application
+  // paths call this helper, so keep one connection request for the entire
+  // authenticated session and let PowerSync handle transient reconnects.
+  if (!_connectionRequested) {
+    final connector = SupabaseConnector(powersyncUrl: powersyncUrl);
+    _currentConnector = connector;
+    _connectionRequested = true;
+
+    final connection = _startConnection(connector);
+    _connectFuture = connection;
+    try {
+      await connection;
+    } finally {
+      if (identical(_connectFuture, connection)) {
+        _connectFuture = null;
+      }
+    }
+  } else {
+    final pendingConnection = _connectFuture;
+    if (pendingConnection != null) {
+      await pendingConnection;
+    }
+  }
   if (_isLoggingOut || !_isLoggedIn() || db.closed) return;
 
   await _subscribeToStreams();
@@ -169,6 +190,19 @@ Future<void> connectPowerSyncForCurrentUser({
   } catch (e) {
     debugPrint(
         'PowerSync: initial sync failed; continuing with local cache: $e');
+  }
+}
+
+Future<void> _startConnection(SupabaseConnector connector) async {
+  try {
+    await db.connect(connector: connector);
+  } catch (_) {
+    // Permit a later call to retry only when this is still the active attempt.
+    if (identical(_currentConnector, connector)) {
+      _currentConnector = null;
+      _connectionRequested = false;
+    }
+    rethrow;
   }
 }
 
@@ -214,6 +248,7 @@ Future<void> _powerSyncLogout({required bool discardPendingChanges}) async {
 
   _isLoggingOut = true;
   try {
+    _connectionRequested = false;
     _currentConnector = null;
     _connectFuture = null;
     _unsubscribeFromStreams();
