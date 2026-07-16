@@ -1,9 +1,9 @@
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
-import 'package:budgets/main.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserCard extends ConsumerWidget {
   const UserCard({super.key});
@@ -12,7 +12,7 @@ class UserCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userModelProvider);
 
-    final userEmail = supabase.auth.currentSession?.user.email ?? 'No Email';
+    final userEmail = _userEmail();
 
     return Container(
       width: double.infinity,
@@ -83,5 +83,14 @@ class UserCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _userEmail() {
+    try {
+      return Supabase.instance.client.auth.currentSession?.user.email ??
+          'No Email';
+    } catch (_) {
+      return 'No Email';
+    }
   }
 }
