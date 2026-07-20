@@ -18,8 +18,7 @@ class CurrencySelectionPage extends ConsumerStatefulWidget {
       _CurrencySelectionPageState();
 }
 
-class _CurrencySelectionPageState
-    extends ConsumerState<CurrencySelectionPage> {
+class _CurrencySelectionPageState extends ConsumerState<CurrencySelectionPage> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
   String? _pendingCode;
@@ -50,7 +49,8 @@ class _CurrencySelectionPageState
 
   String _formatLastUpdated(DateTime? fetchedAt) {
     if (fetchedAt == null) return 'Date inconnue';
-    return DateFormat('d MMM yyyy • HH:mm', 'fr_FR').format(fetchedAt.toLocal());
+    return DateFormat('d MMM yyyy • HH:mm', 'fr_FR')
+        .format(fetchedAt.toLocal());
   }
 
   Widget _buildSelectedIndicator(BuildContext context) {

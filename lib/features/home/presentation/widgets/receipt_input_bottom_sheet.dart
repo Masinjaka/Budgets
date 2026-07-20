@@ -1,7 +1,7 @@
 import 'package:budgets/features/home/presentation/widgets/receipt_input_option.dart';
 import 'package:flutter/material.dart';
 
-enum ReceiptInputAction { importFile, scanReceipt }
+enum ReceiptInputAction { manualEntry, importFile, scanReceipt }
 
 class ReceiptInputBottomSheet extends StatelessWidget {
   const ReceiptInputBottomSheet({super.key});
@@ -26,7 +26,7 @@ class ReceiptInputBottomSheet extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Container(
         width: sheetWidth,
-        height: 176,
+        height: 222,
         padding: const EdgeInsets.fromLTRB(28, 13, 28, 0),
         decoration: const BoxDecoration(
           color: Color(0xFFFEFEFE),
@@ -55,6 +55,15 @@ class ReceiptInputBottomSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 28),
+              ReceiptInputOption(
+                icon: Icons.edit_note_rounded,
+                label: 'Enter manually',
+                onTap: () => Navigator.pop(
+                  context,
+                  ReceiptInputAction.manualEntry,
+                ),
+              ),
+              const SizedBox(height: 12),
               ReceiptInputOption(
                 icon: Icons.note_add_outlined,
                 label: 'Import file',

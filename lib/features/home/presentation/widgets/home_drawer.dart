@@ -1,4 +1,7 @@
+import 'package:budgets/features/home/presentation/widgets/drawer_wallet_section.dart';
 import 'package:budgets/features/home/presentation/widgets/resume_date_calendar.dart';
+import 'package:budgets/features/ai_entry/presentation/view_models/ai_entry_view_model.dart';
+import 'package:budgets/features/home/presentation/view_models/activity_calendar_view_model.dart';
 import 'package:flutter/material.dart';
 
 class HomeDrawer extends StatelessWidget {
@@ -6,18 +9,28 @@ class HomeDrawer extends StatelessWidget {
     required this.width,
     required this.today,
     required this.selectedDate,
-    required this.onClose,
     required this.onDateSelected,
+    required this.onEnvelopePressed,
+    required this.onStatsPressed,
+    required this.onPlanPressed,
     required this.onSettingsPressed,
+    required this.viewModel,
+    required this.activityCalendarViewModel,
+    this.onCollapsePressed,
     super.key,
   });
 
   final double width;
   final DateTime today;
   final DateTime selectedDate;
-  final VoidCallback onClose;
   final ValueChanged<DateTime> onDateSelected;
+  final VoidCallback onEnvelopePressed;
+  final VoidCallback onStatsPressed;
+  final VoidCallback onPlanPressed;
   final VoidCallback onSettingsPressed;
+  final AiEntryViewModel viewModel;
+  final ActivityCalendarViewModel activityCalendarViewModel;
+  final VoidCallback? onCollapsePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -28,67 +41,119 @@ class HomeDrawer extends StatelessWidget {
         height: double.infinity,
         decoration: const BoxDecoration(
           color: Color(0xFFFEFEFE),
-          border: Border(
-            right: BorderSide(color: Color(0xFFCECECE), width: 3),
-          ),
         ),
-        child: SafeArea(
-          minimum: const EdgeInsets.only(top: 44, bottom: 39),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.centerRight,
+        child: Stack(
+          children: [
+            if (onCollapsePressed != null)
+              Positioned(
+                top: 8,
+                right: 8,
                 child: IconButton(
-                  onPressed: onClose,
-                  icon: const Icon(Icons.close_rounded, size: 29),
-                  constraints: const BoxConstraints.tightFor(
-                    width: 72,
-                    height: 48,
-                  ),
-                  padding: EdgeInsets.zero,
-                  tooltip: 'Close menu',
+                  key: const Key('collapse-sidebar-button'),
+                  onPressed: onCollapsePressed,
+                  tooltip: 'Collapse menu',
+                  icon: const Icon(Icons.chevron_left_rounded, size: 26),
                 ),
               ),
-              const SizedBox(height: 17),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _menuRow(Icons.mail_outline_rounded, 'Envelope'),
-                      const SizedBox(height: 11),
-                      _menuRow(Icons.pie_chart_outline_rounded, 'Stats'),
-                      const SizedBox(height: 29),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 22),
-                        child: Text(
-                          'Resume from a specific date',
-                          style: TextStyle(
-                            color: Color(0xFF606060),
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
+            SafeArea(
+              minimum: const EdgeInsets.only(top: 61, bottom: 39),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 22),
+                            child: Text(
+                              'Resume from a specific date',
+                              style: TextStyle(
+                                color: Color(0xFF606060),
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 18),
+                          ListenableBuilder(
+                            listenable: activityCalendarViewModel,
+                            builder: (context, _) => ResumeDateCalendar(
+                              today: today,
+                              selectedDay: selectedDate,
+                              activityDates:
+                                  activityCalendarViewModel.activityDates,
+                              onDaySelected: onDateSelected,
+                              onVisibleMonthChanged:
+                                  activityCalendarViewModel.loadMonth,
+                            ),
+                          ),
+                          const SizedBox(height: 22),
+                          ListenableBuilder(
+                            listenable: viewModel,
+                            builder: (context, _) => DrawerWalletSection(
+                              wallets: viewModel.wallets,
+                              isAdding: viewModel.isAddingWallet,
+                              onAddWallet: viewModel.addWallet,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      ResumeDateCalendar(
-                        today: today,
-                        selectedDay: selectedDate,
-                        onDaySelected: onDateSelected,
+                    ),
+                  ),
+                  _menuRow(
+                    Icons.mail_outline_rounded,
+                    'Envelope',
+                    key: const Key('drawer-envelope-button'),
+                    onTap: onEnvelopePressed,
+                  ),
+                  const SizedBox(height: 11),
+                  _menuRow(
+                    Icons.pie_chart_outline_rounded,
+                    'Stats',
+                    key: const Key('drawer-stats-button'),
+                    onTap: onStatsPressed,
+                  ),
+                  const SizedBox(height: 11),
+                  _menuRow(
+                    Icons.workspace_premium_outlined,
+                    'Plan',
+                    key: const Key('drawer-plan-button'),
+                    onTap: onPlanPressed,
+                  ),
+                  const SizedBox(height: 11),
+                  _menuRow(
+                    Icons.settings_outlined,
+                    'Settings',
+                    key: const Key('drawer-settings-button'),
+                    onTap: onSettingsPressed,
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: 1,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  key: const Key('drawer-separator'),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFC9C9C9),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x14000000),
+                        blurRadius: 4,
+                        offset: Offset(-1, 0),
                       ),
                     ],
                   ),
                 ),
               ),
-              _menuRow(
-                Icons.settings_outlined,
-                'Settings',
-                key: const Key('drawer-settings-button'),
-                onTap: onSettingsPressed,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -7,7 +7,7 @@ part 'budget_history_provider.g.dart';
 @riverpod
 class BudgetHistoryForMonth extends _$BudgetHistoryForMonth {
   late String _periodMonth;
-  
+
   @override
   Future<List<BudgetHistory>> build(String periodMonth) {
     _periodMonth = periodMonth;

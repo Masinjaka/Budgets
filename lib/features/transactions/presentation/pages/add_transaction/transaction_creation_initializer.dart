@@ -41,11 +41,15 @@ class TransactionCreationInitializer {
 
     String formatAmount(double value) {
       final fixed = value.toStringAsFixed(decimals);
-      return fixed.contains('.') ? fixed.replaceAll(RegExp(r'\.?0+$'), '') : fixed;
+      return fixed.contains('.')
+          ? fixed.replaceAll(RegExp(r'\.?0+$'), '')
+          : fixed;
     }
 
     final allCategories = await module.fetchCategories(ref);
-    final filteredCategories = allCategories.where((c) => c.transactionType == transactionType).toList();
+    final filteredCategories = allCategories
+        .where((c) => c.transactionType == transactionType)
+        .toList();
 
     if (!isEditMode || transaction == null) {
       return TransactionInitData(categories: filteredCategories);
@@ -63,22 +67,28 @@ class TransactionCreationInitializer {
     // Edit mode: check for subcategory expenses
     if (transaction.id != null) {
       try {
-        final subcategoryExpenses = await ref.read(subcategoryExpensesProvider(transaction.id!).future);
+        final subcategoryExpenses =
+            await ref.read(subcategoryExpensesProvider(transaction.id!).future);
         if (subcategoryExpenses.isNotEmpty) {
           List<Subcategory> subcategories = [];
           if (selectedCategory?.id != null) {
-            subcategories = await module.fetchSubcategories(ref, selectedCategory!.id!);
+            subcategories =
+                await module.fetchSubcategories(ref, selectedCategory!.id!);
           }
 
           final items = subcategoryExpenses.map((subExpense) {
             final displayAmount = convertFromMga(subExpense.amount, rate);
-            final subcategoryController = TextEditingController(text: subExpense.subcategory?.name ?? '');
-            final amountController = TextEditingController(text: formatAmount(displayAmount));
+            final subcategoryController =
+                TextEditingController(text: subExpense.subcategory?.name ?? '');
+            final amountController =
+                TextEditingController(text: formatAmount(displayAmount));
 
             Subcategory? matched;
-            if (subExpense.subcategory?.id != null && subcategories.isNotEmpty) {
+            if (subExpense.subcategory?.id != null &&
+                subcategories.isNotEmpty) {
               try {
-                matched = subcategories.firstWhere((s) => s.id == subExpense.subcategory!.id);
+                matched = subcategories
+                    .firstWhere((s) => s.id == subExpense.subcategory!.id);
               } catch (_) {}
             }
             matched ??= subExpense.subcategory;

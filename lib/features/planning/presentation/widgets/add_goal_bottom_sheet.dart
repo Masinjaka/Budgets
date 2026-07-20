@@ -247,9 +247,11 @@ class _AddGoalBottomSheetState extends ConsumerState<AddGoalBottomSheet> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5.w),
-          side: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
+          side: BorderSide(
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
         ),
-        insetPadding: EdgeInsets.symmetric(horizontal: 5.w + 2.h, vertical: 5.h),
+        insetPadding:
+            EdgeInsets.symmetric(horizontal: 5.w + 2.h, vertical: 5.h),
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.all(5.w),

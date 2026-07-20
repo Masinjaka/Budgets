@@ -1,3 +1,4 @@
+import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
@@ -86,7 +87,7 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
                       category.name ?? 'Unknown',
                       style: TextStyle(
                         color: isSelected
-                            ? Colors.white
+                            ? AppTheme.interactiveTextColor
                             : Theme.of(context).textTheme.bodyMedium?.color,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,

@@ -36,7 +36,10 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
     final surfaceColor = Theme.of(context).colorScheme.surface;
     final tabIndicatorColor = Theme.of(context).tabBarTheme.indicatorColor;
     final tabLabelColor = Theme.of(context).tabBarTheme.labelColor;
-    final tabUnselectedColor = Theme.of(context).tabBarTheme.unselectedLabelColor?.withValues(alpha: 0.7);
+    final tabUnselectedColor = Theme.of(context)
+        .tabBarTheme
+        .unselectedLabelColor
+        ?.withValues(alpha: 0.7);
 
     final currentData =
         _showExpenses ? widget.expensesByCategory : widget.incomeByCategory;
@@ -80,8 +83,9 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 3.w, vertical: 0.8.h),
                       decoration: BoxDecoration(
-                        color:
-                            _showExpenses ? tabIndicatorColor : Colors.transparent,
+                        color: _showExpenses
+                            ? tabIndicatorColor
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Center(
@@ -106,8 +110,9 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 3.w, vertical: 0.8.h),
                       decoration: BoxDecoration(
-                        color:
-                            !_showExpenses ? tabIndicatorColor : Colors.transparent,
+                        color: !_showExpenses
+                            ? tabIndicatorColor
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Center(
@@ -157,39 +162,39 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
             SizedBox(
               width: double.infinity,
               child: Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 4.w,
-              runSpacing: 1.h,
-              children: sortedEntries.map((entry) {
-                final percentage =
-                    total > 0 ? (entry.value / total * 100) : 0.0;
-                final baseColor = _parseColor(
-                    widget.categoryColors[entry.key] ?? '#10B981');
-                final color = _applyMochaAccent(baseColor, entry.key);
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 2.w,
-                      height: 2.w,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 4.w,
+                runSpacing: 1.h,
+                children: sortedEntries.map((entry) {
+                  final percentage =
+                      total > 0 ? (entry.value / total * 100) : 0.0;
+                  final baseColor = _parseColor(
+                      widget.categoryColors[entry.key] ?? '#10B981');
+                  final color = _applyMochaAccent(baseColor, entry.key);
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 2.w,
+                        height: 2.w,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      '${entry.key} - ${percentage.toStringAsFixed(2)}%',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: textColor?.withValues(alpha: 0.8),
+                      SizedBox(width: 1.5.w),
+                      Text(
+                        '${entry.key} - ${percentage.toStringAsFixed(2)}%',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
+                          color: textColor?.withValues(alpha: 0.8),
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              }).toList(),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
           ],

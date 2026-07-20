@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../theme.dart';
 import '../utils/error_messages.dart';
 
 enum AppToastType { success, error, info }
@@ -16,7 +17,7 @@ void showAppToast(
 }) {
   final theme = Theme.of(context);
   final bgColor = _toastBgColor(type);
-  final fgColor = type == AppToastType.info ? Colors.black : Colors.white;
+  const fgColor = AppTheme.interactiveTextColor;
   final icon = _toastIcon(type, fgColor);
 
   // Use the root navigator overlay so the toast renders on top of dialogs,

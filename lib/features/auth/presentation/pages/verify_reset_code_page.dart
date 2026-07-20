@@ -43,8 +43,7 @@ class _VerifyResetCodePageState extends ConsumerState<VerifyResetCodePage> {
     super.dispose();
   }
 
-  String get _otpCode =>
-      _otpControllers.map((c) => c.text).join();
+  String get _otpCode => _otpControllers.map((c) => c.text).join();
 
   @override
   Widget build(BuildContext context) {

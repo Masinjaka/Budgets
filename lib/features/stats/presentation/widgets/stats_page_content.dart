@@ -104,7 +104,7 @@ class StatsPageContent extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                 child: NewCategoryBreakdown(

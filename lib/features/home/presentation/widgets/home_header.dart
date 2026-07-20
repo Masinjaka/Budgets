@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
     required this.drawerProgress,
     required this.onMenuPressed,
+    required this.balance,
+    required this.currencyCode,
     super.key,
   });
 
   final Animation<double> drawerProgress;
   final VoidCallback onMenuPressed;
+  final int balance;
+  final String currencyCode;
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +42,19 @@ class HomeHeader extends StatelessWidget {
               tooltip: 'Menu',
             ),
           ),
-          const Expanded(
+          Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '1 000 000 Ar',
-                  style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700),
+                  _balanceLabel,
+                  style: const TextStyle(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                SizedBox(height: 2),
-                Row(
+                const SizedBox(height: 2),
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('All time', style: TextStyle(fontSize: 12)),
@@ -70,5 +78,11 @@ class HomeHeader extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String get _balanceLabel {
+    final amount =
+        NumberFormat('#,##0', 'en_US').format(balance).replaceAll(',', ' ');
+    return currencyCode == 'MGA' ? '$amount Ar' : '$amount $currencyCode';
   }
 }

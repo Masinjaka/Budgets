@@ -1,3 +1,4 @@
+import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -39,7 +40,7 @@ class CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
               ),
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
-              labelColor: Colors.white,
+              labelColor: AppTheme.interactiveTextColor,
               unselectedLabelColor: unselectedLabelColor,
               overlayColor: WidgetStateProperty.resolveWith<Color?>(
                 (Set<WidgetState> states) {

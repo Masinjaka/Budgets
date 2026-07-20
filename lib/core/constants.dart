@@ -7,10 +7,6 @@ class LocalAppStorage {
 
   // Deep link / redirect URI used for Supabase password reset
   static const String resetRedirectUri = 'io.supabase.budgets://reset-callback';
-
-  // PowerSync instance URL
-  static const String powersyncUrl =
-      'https://69d099261d5ec6fc42c8a5cc.powersync.journeyapps.com';
 }
 
 /// Constants for system-managed categories

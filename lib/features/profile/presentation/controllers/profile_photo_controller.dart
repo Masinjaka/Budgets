@@ -16,10 +16,10 @@ class ProfilePhotoController extends _$ProfilePhotoController {
   Future<void> upload({required File file, required String userId}) async {
     // Prevent concurrent operation
     if (state.isLoading) return;
-    
+
     // Get usecase fresh to avoid stale references
     final usecase = ref.read(uploadAndSaveProfilePhotoProvider);
-    
+
     final t = Object();
     _token = t;
     state = const AsyncLoading();

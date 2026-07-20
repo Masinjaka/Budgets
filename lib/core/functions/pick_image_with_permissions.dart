@@ -110,12 +110,12 @@ Future<File?> pickImageWithPermissions(
         if (!context.mounted) return null;
         final granted = await showAnimatedDialog<bool>(
           context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) => PermissionRequestDialog(
-          message: description,
-          onAllow: () => Navigator.of(dialogContext).pop(true),
-          onDeny: () => Navigator.of(dialogContext).pop(false),
-        ),
+          barrierDismissible: false,
+          builder: (dialogContext) => PermissionRequestDialog(
+            message: description,
+            onAllow: () => Navigator.of(dialogContext).pop(true),
+            onDeny: () => Navigator.of(dialogContext).pop(false),
+          ),
         );
         if (granted != true) return null;
         await mediaPermission.request();

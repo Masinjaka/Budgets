@@ -1,3 +1,6 @@
+import 'package:budgets/core/theme.dart';
+import 'package:budgets/features/home/presentation/widgets/activity_calendar_day.dart';
+import 'package:budgets/features/home/presentation/widgets/calendar_period_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -5,33 +8,23 @@ class ResumeDateCalendar extends StatefulWidget {
   const ResumeDateCalendar({
     required this.today,
     required this.selectedDay,
+    required this.activityDates,
     required this.onDaySelected,
+    required this.onVisibleMonthChanged,
     super.key,
   });
 
   final DateTime today;
   final DateTime selectedDay;
+  final Set<DateTime> activityDates;
   final ValueChanged<DateTime> onDaySelected;
+  final ValueChanged<DateTime> onVisibleMonthChanged;
 
   @override
   State<ResumeDateCalendar> createState() => _ResumeDateCalendarState();
 }
 
 class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
-  static const _months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
   static const _firstYear = 2000;
 
   late DateTime _focusedDay;
@@ -51,6 +44,7 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
     setState(() {
       _focusedDay = DateTime(_focusedDay.year, month);
     });
+    widget.onVisibleMonthChanged(_focusedDay);
   }
 
   void _changeYear(int? year) {
@@ -60,6 +54,7 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
     setState(() {
       _focusedDay = DateTime(year, month);
     });
+    widget.onVisibleMonthChanged(_focusedDay);
   }
 
   void _selectDay(DateTime selectedDay, DateTime focusedDay) {
@@ -72,8 +67,6 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final availableMonthCount =
-        _focusedDay.year == _today.year ? _today.month : 12;
     final years = [
       for (var year = _today.year; year >= _firstYear; year--) year,
     ];
@@ -95,34 +88,12 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
       ),
       child: Column(
         children: [
-          SizedBox(
-            height: 28,
-            child: Row(
-              children: [
-                _dropdown(
-                  key: const Key('calendar-month-picker'),
-                  value: _focusedDay.month,
-                  items: [
-                    for (var month = 1; month <= availableMonthCount; month++)
-                      DropdownMenuItem(
-                        value: month,
-                        child: Text(_months[month - 1]),
-                      ),
-                  ],
-                  onChanged: _changeMonth,
-                ),
-                const SizedBox(width: 18),
-                _dropdown(
-                  key: const Key('calendar-year-picker'),
-                  value: _focusedDay.year,
-                  items: [
-                    for (final year in years)
-                      DropdownMenuItem(value: year, child: Text('$year')),
-                  ],
-                  onChanged: _changeYear,
-                ),
-              ],
-            ),
+          CalendarPeriodPicker(
+            focusedDay: _focusedDay,
+            today: _today,
+            years: years,
+            onMonthChanged: _changeMonth,
+            onYearChanged: _changeYear,
           ),
           const SizedBox(height: 11),
           TableCalendar<void>(
@@ -134,7 +105,19 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
             enabledDayPredicate: (day) =>
                 !DateUtils.dateOnly(day).isAfter(_today),
             onDaySelected: _selectDay,
-            onPageChanged: (day) => setState(() => _focusedDay = day),
+            onPageChanged: (day) {
+              setState(() => _focusedDay = day);
+              widget.onVisibleMonthChanged(day);
+            },
+            calendarBuilders: CalendarBuilders(
+              prioritizedBuilder: (_, day, focusedDay) {
+                if (day.month != focusedDay.month) return null;
+                return _activityDay(
+                  day,
+                  isSelected: isSameDay(day, _selectedDay),
+                );
+              },
+            ),
             headerVisible: false,
             daysOfWeekHeight: 25,
             rowHeight: 36,
@@ -147,7 +130,11 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
                 color: Color(0xFFC5C5C5),
                 fontSize: 12.5,
               ),
-              selectedTextStyle: TextStyle(color: Colors.white, fontSize: 12.5),
+              selectedTextStyle: TextStyle(
+                color: AppTheme.interactiveTextColor,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+              ),
               selectedDecoration: BoxDecoration(
                 color: Color(0xFF087AC1),
                 shape: BoxShape.circle,
@@ -166,26 +153,11 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
     );
   }
 
-  Widget _dropdown({
-    required Key key,
-    required int value,
-    required List<DropdownMenuItem<int>> items,
-    required ValueChanged<int?> onChanged,
-  }) {
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<int>(
-        key: key,
-        value: value,
-        items: items,
-        onChanged: onChanged,
-        isDense: true,
-        icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 14),
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 13.5,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+  Widget? _activityDay(DateTime day, {bool isSelected = false}) {
+    if (!widget.activityDates.contains(DateUtils.dateOnly(day))) return null;
+    return ActivityCalendarDay(
+      day: day,
+      isSelected: isSelected,
     );
   }
 }

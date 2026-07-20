@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:budgets/features/planning/data/datasources/goal_datasource.dart';
+import 'package:budgets/features/planning/data/datasources/goal_image_datasource.dart';
 import 'package:budgets/features/planning/domain/models/goal_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -28,8 +29,8 @@ class Goals extends _$Goals {
           !goal.imagePath!.startsWith('http')) {
         final userId = goal.userId;
         if (userId != null) {
-          final localPath =
-              await uploadGoalImage(File(goal.imagePath!), userId, goalId: goalId);
+          final localPath = await uploadGoalImage(File(goal.imagePath!), userId,
+              goalId: goalId);
           // Update the goal with the local path for immediate display
           await updateGoal(goal.copyWith(id: goalId, imagePath: localPath));
         } else {
@@ -63,8 +64,7 @@ class Goals extends _$Goals {
           }
 
           // Queue new image for upload, get local path
-          final localPath = await uploadGoalImage(
-              File(goal.imagePath!), userId,
+          final localPath = await uploadGoalImage(File(goal.imagePath!), userId,
               goalId: goal.id);
           goalToUpdate = goal.copyWith(imagePath: localPath);
         } else {

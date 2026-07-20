@@ -1,18 +1,16 @@
 import 'package:budgets/core/currency/exchange_rates.dart';
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ExchangeRatesDataSource {
   const ExchangeRatesDataSource();
 
   Future<ExchangeRates?> fetchLatest() async {
-    final rows = await powersync.db.getAll('''
-      SELECT base, rates, fetched_at
-      FROM exchange_rates
-      ORDER BY fetched_at DESC
-      LIMIT 1
-    ''');
-
-    if (rows.isEmpty) return null;
-    return ExchangeRates.fromJson(rows.first);
+    final row = await Supabase.instance.client
+        .from('exchange_rates')
+        .select('base, rates, fetched_at')
+        .order('fetched_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+    return row == null ? null : ExchangeRates.fromJson(row);
   }
 }

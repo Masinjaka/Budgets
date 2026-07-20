@@ -1,29 +1,56 @@
+import 'package:budgets/core/navigation/app_navigation.dart';
 import 'package:budgets/core/theme.dart';
-import 'package:budgets/features/home/presentation/pages/chat_home_page.dart';
+import 'package:budgets/core/ui/app_responsive_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Kept as a compatibility bridge for the hidden legacy features. The new app
-// shell does not initialize or access Supabase until its backend is redesigned.
-final supabase = Supabase.instance.client;
+SupabaseClient get supabase => Supabase.instance.client;
 
-void main() => runApp(const ProviderScope(child: MyApp()));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  const url = String.fromEnvironment('SUPABASE_URL');
+  const anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  if (url.isEmpty || anonKey.isEmpty) {
+    throw StateError(
+      'SUPABASE_URL and SUPABASE_ANON_KEY dart defines are required.',
+    );
+  }
+  await Supabase.initialize(url: url, anonKey: anonKey);
+  final navigation = AppNavigation.supabase(Supabase.instance.client);
+  runApp(ProviderScope(child: MyApp(navigation: navigation)));
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({required this.navigation, super.key});
+
+  final AppNavigation navigation;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void dispose() {
+    widget.navigation.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveSizer(
-      builder: (context, orientation, screenType) => MaterialApp(
+      builder: (context, orientation, screenType) => MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: 'Drala',
         theme: AppTheme.lightTheme.copyWith(
           scaffoldBackgroundColor: const Color(0xFFFEFEFE),
         ),
-        home: const ChatHomePage(),
+        builder: (context, child) => AppResponsiveScope(
+          child: child ?? const SizedBox.shrink(),
+        ),
+        routerConfig: widget.navigation.router,
       ),
     );
   }

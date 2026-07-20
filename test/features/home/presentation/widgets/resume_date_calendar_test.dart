@@ -1,3 +1,4 @@
+import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/home/presentation/widgets/resume_date_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,7 +13,9 @@ void main() {
           body: ResumeDateCalendar(
             today: DateTime(2026, 7, 16),
             selectedDay: DateTime(2026, 7, 16),
+            activityDates: const {},
             onDaySelected: (date) => selectedDate = date,
+            onVisibleMonthChanged: (_) {},
           ),
         ),
       ),
@@ -35,7 +38,9 @@ void main() {
           body: ResumeDateCalendar(
             today: DateTime(2026, 7, 16),
             selectedDay: DateTime(2026, 7, 16),
+            activityDates: const {},
             onDaySelected: (_) {},
+            onVisibleMonthChanged: (_) {},
           ),
         ),
       ),
@@ -60,5 +65,40 @@ void main() {
       find.byKey(const Key('calendar-year-picker')),
     );
     expect(yearPicker.value, 2025);
+  });
+
+  testWidgets('marks activity dates with the shared app green', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ResumeDateCalendar(
+            today: DateTime(2026, 7, 16),
+            selectedDay: DateTime(2026, 7, 16),
+            activityDates: {DateTime(2026, 7, 15)},
+            onDaySelected: (_) {},
+            onVisibleMonthChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    final activityDay = tester.widget<Container>(
+      find.byKey(const Key('calendar-activity-day-2026-7-15')),
+    );
+    final decoration = activityDay.decoration as BoxDecoration;
+    final activityLabel = tester.widget<Text>(
+      find.descendant(
+        of: find.byKey(const Key('calendar-activity-day-2026-7-15')),
+        matching: find.text('15'),
+      ),
+    );
+    final selectedLabel = tester.widget<Text>(find.text('16'));
+
+    expect(decoration.color, AppTheme.primaryGreen);
+    expect(decoration.shape, BoxShape.circle);
+    expect(activityLabel.style?.color, AppTheme.interactiveTextColor);
+    expect(activityLabel.style?.fontWeight, FontWeight.w700);
+    expect(selectedLabel.style?.color, AppTheme.interactiveTextColor);
+    expect(selectedLabel.style?.fontWeight, FontWeight.w700);
   });
 }

@@ -1,4 +1,3 @@
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,25 +12,19 @@ class NotificationDataSource {
 
   Future<NotificationSettings> fetchSettings() async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) {
-      return NotificationSettings.defaults();
-    }
+    if (userId == null) return NotificationSettings.defaults();
 
-    // Read from PowerSync local database
-    final results = await powersync.db.getAll('''
-      SELECT reminders_enabled, warnings_enabled, reminder_hour,
-             reminder_minute, timezone_offset_minutes, warning_threshold,
-             notifications_enabled
-      FROM notification_settings
-      WHERE user_id = ?
-      LIMIT 1
-    ''', [userId]);
-
-    if (results.isEmpty) {
+    final row = await _client
+        .from('notification_settings')
+        .select()
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (row == null) {
       final defaults = NotificationSettings.defaults(
         timezoneOffsetMinutes: DateTime.now().timeZoneOffset.inMinutes,
       );
       await upsertSettings(
+        notificationsEnabled: defaults.notificationsEnabled,
         remindersEnabled: defaults.remindersEnabled,
         warningsEnabled: defaults.warningsEnabled,
         reminderHour: defaults.reminderHour,
@@ -42,25 +35,16 @@ class NotificationDataSource {
       return defaults;
     }
 
-    final row = results.first;
     return NotificationSettings(
-      notificationsEnabled: _intToBool(row['notifications_enabled']),
-      remindersEnabled: _intToBool(row['reminders_enabled']),
-      warningsEnabled: _intToBool(row['warnings_enabled']),
+      notificationsEnabled: row['notifications_enabled'] as bool? ?? true,
+      remindersEnabled: row['reminders_enabled'] as bool? ?? true,
+      warningsEnabled: row['warnings_enabled'] as bool? ?? true,
       reminderHour: row['reminder_hour'] as int? ?? 10,
       reminderMinute: row['reminder_minute'] as int? ?? 0,
       timezoneOffsetMinutes: row['timezone_offset_minutes'] as int? ?? 0,
-      warningThreshold: row['warning_threshold'] != null
-          ? double.tryParse(row['warning_threshold'].toString()) ?? 0.9
-          : 0.9,
+      warningThreshold:
+          double.tryParse(row['warning_threshold'].toString()) ?? 0.9,
     );
-  }
-
-  /// Convert SQLite integer (0/1) to bool, handling both int and bool inputs
-  bool _intToBool(dynamic value) {
-    if (value is bool) return value;
-    if (value is int) return value != 0;
-    return true; // default
   }
 
   Future<void> upsertSettings({
@@ -75,82 +59,19 @@ class NotificationDataSource {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return;
 
-    final nowIso = DateTime.now().toUtc().toIso8601String();
-
-    // Check if a row exists for this user
-    final existing = await powersync.db.getAll(
-      'SELECT id FROM notification_settings WHERE user_id = ? LIMIT 1',
-      [userId],
-    );
-
-    if (existing.isEmpty) {
-      // INSERT new row — PowerSync id maps to user_id for this table
-      await powersync.db.execute(
-        '''INSERT INTO notification_settings
-           (id, user_id, notifications_enabled, reminders_enabled,
-            warnings_enabled, reminder_hour, reminder_minute,
-            timezone_offset_minutes, warning_threshold, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-        [
-          userId, // id = user_id for this table (PK is user_id)
-          userId,
-          notificationsEnabled ?? true ? 1 : 0,
-          remindersEnabled ?? true ? 1 : 0,
-          warningsEnabled ?? true ? 1 : 0,
-          reminderHour ?? 10,
-          reminderMinute ?? 0,
-          timezoneOffsetMinutes ?? 0,
-          warningThreshold?.toString() ?? '0.9',
-          nowIso,
-          nowIso,
-        ],
-      );
-    } else {
-      // UPDATE existing row
-      final updates = <String>[];
-      final values = <dynamic>[];
-
-      if (notificationsEnabled != null) {
-        updates.add('notifications_enabled = ?');
-        values.add(notificationsEnabled ? 1 : 0);
-      }
-      if (remindersEnabled != null) {
-        updates.add('reminders_enabled = ?');
-        values.add(remindersEnabled ? 1 : 0);
-      }
-      if (warningsEnabled != null) {
-        updates.add('warnings_enabled = ?');
-        values.add(warningsEnabled ? 1 : 0);
-      }
-      if (reminderHour != null) {
-        updates.add('reminder_hour = ?');
-        values.add(reminderHour);
-      }
-      if (reminderMinute != null) {
-        updates.add('reminder_minute = ?');
-        values.add(reminderMinute);
-      }
-      if (timezoneOffsetMinutes != null) {
-        updates.add('timezone_offset_minutes = ?');
-        values.add(timezoneOffsetMinutes);
-      }
-      if (warningThreshold != null) {
-        updates.add('warning_threshold = ?');
-        values.add(warningThreshold.toString());
-      }
-
-      updates.add('updated_at = ?');
-      values.add(nowIso);
-
-      values.add(userId);
-
-      if (updates.isNotEmpty) {
-        await powersync.db.execute(
-          'UPDATE notification_settings SET ${updates.join(', ')} WHERE user_id = ?',
-          values,
-        );
-      }
-    }
+    await _client.from('notification_settings').upsert({
+      'user_id': userId,
+      if (notificationsEnabled != null)
+        'notifications_enabled': notificationsEnabled,
+      if (remindersEnabled != null) 'reminders_enabled': remindersEnabled,
+      if (warningsEnabled != null) 'warnings_enabled': warningsEnabled,
+      if (reminderHour != null) 'reminder_hour': reminderHour,
+      if (reminderMinute != null) 'reminder_minute': reminderMinute,
+      if (timezoneOffsetMinutes != null)
+        'timezone_offset_minutes': timezoneOffsetMinutes,
+      if (warningThreshold != null) 'warning_threshold': warningThreshold,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    }, onConflict: 'user_id');
   }
 
   Future<void> upsertDeviceToken({
@@ -161,57 +82,49 @@ class NotificationDataSource {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return;
 
-    final nowIso = DateTime.now().toUtc().toIso8601String();
+    var row = await _client
+        .from('device_tokens')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('token', token)
+        .maybeSingle();
+    row ??= await _client
+        .from('device_tokens')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('platform', platform)
+        .limit(1)
+        .maybeSingle();
 
-    // Reuse an existing row for this user, preferring exact token match and
-    // otherwise falling back to platform match. This avoids duplicate rows that
-    // would violate the backend unique index on (user_id, token).
-    final existing = await powersync.db.getAll(
-      '''SELECT id
-         FROM device_tokens
-         WHERE user_id = ? AND (token = ? OR platform = ?)
-         ORDER BY CASE WHEN token = ? THEN 0 ELSE 1 END
-         LIMIT 1''',
-      [userId, token, platform, token],
-    );
-
-    if (existing.isEmpty) {
-      final tokenId = _uuid.v4();
-      await powersync.db.execute(
-        '''INSERT INTO device_tokens
-           (id, token, user_id, platform, enabled, last_seen, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-        [
-          tokenId,
-          token,
-          userId,
-          platform,
-          enabled ? 1 : 0,
-          nowIso,
-          nowIso,
-          nowIso
-        ],
-      );
+    final now = DateTime.now().toUtc().toIso8601String();
+    final values = {
+      'token': token,
+      'user_id': userId,
+      'platform': platform,
+      'enabled': enabled,
+      'last_seen': now,
+      'updated_at': now,
+    };
+    if (row == null) {
+      await _client.from('device_tokens').insert({
+        'id': _uuid.v4(),
+        ...values,
+        'created_at': now,
+      });
     } else {
-      final tokenId = existing.first['id'] as String;
-      await powersync.db.execute(
-        '''UPDATE device_tokens
-           SET token = ?, platform = ?, enabled = ?, last_seen = ?, updated_at = ?
-           WHERE id = ?''',
-        [token, platform, enabled ? 1 : 0, nowIso, nowIso, tokenId],
-      );
+      await _client
+          .from('device_tokens')
+          .update(values)
+          .eq('id', row['id'] as String);
     }
   }
 
   Future<void> setAllTokensEnabled(bool enabled) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) return;
-
-    final nowIso = DateTime.now().toUtc().toIso8601String();
-
-    await powersync.db.execute(
-      'UPDATE device_tokens SET enabled = ?, updated_at = ? WHERE user_id = ?',
-      [enabled ? 1 : 0, nowIso, userId],
-    );
+    await _client.from('device_tokens').update({
+      'enabled': enabled,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    }).eq('user_id', userId);
   }
 }

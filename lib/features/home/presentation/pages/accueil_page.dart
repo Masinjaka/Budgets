@@ -11,7 +11,6 @@ import 'package:budgets/features/notifications/presentation/controllers/notifica
 import 'package:budgets/features/home/domain/providers/notification_permission_provider.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
-import 'package:budgets/widgets/sync_status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -32,9 +31,7 @@ class HomePage extends ConsumerWidget {
         final alreadyPrompted =
             ref.read(notificationPermissionPromptedProvider);
         if (alreadyPrompted) return;
-        ref
-            .read(notificationPermissionPromptedProvider.notifier)
-            .setPrompted();
+        ref.read(notificationPermissionPromptedProvider.notifier).setPrompted();
         await _maybeRequestNotificationPermission(context, ref);
       });
     }
@@ -50,7 +47,6 @@ class HomePage extends ConsumerWidget {
             // physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                const SyncStatusWidget(),
                 SizedBox(height: 2.h),
                 const Jumbotron(),
                 SizedBox(height: 3.h),
@@ -156,8 +152,7 @@ Future<void> _maybeRequestNotificationPermission(
       builder: (context) {
         return PermissionRequestDialog(
           title: 'Notifications bloquées',
-          message:
-              'Les notifications ont été bloquées pour cette application. '
+          message: 'Les notifications ont été bloquées pour cette application. '
               'Pour les réactiver, veuillez accéder aux paramètres de votre '
               'appareil et autoriser les notifications.',
           allowText: 'Ouvrir les paramètres',

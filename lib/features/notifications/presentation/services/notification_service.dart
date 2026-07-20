@@ -17,7 +17,8 @@ class NotificationService {
     final settings = await _dataSource.fetchSettings();
     print('🔔 [FCM] Settings fetched - anyEnabled: ${settings.anyEnabled}');
     if (!settings.anyEnabled) {
-      print('🔔 [FCM] Notifications disabled in settings - skipping registration');
+      print(
+          '🔔 [FCM] Notifications disabled in settings - skipping registration');
       return;
     }
 
@@ -87,5 +88,4 @@ class NotificationService {
         return 'fuchsia';
     }
   }
-
 }

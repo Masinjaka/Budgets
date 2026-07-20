@@ -100,7 +100,8 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
 
   void _addCard() {
     if (_selectedCategory == null) {
-      showInfoToast(context, 'Veuillez d\'abord sélectionner une catégorie principale');
+      showInfoToast(
+          context, 'Veuillez d\'abord sélectionner une catégorie principale');
       return;
     }
     final idx = _subcategoryAmounts.length;
@@ -112,7 +113,8 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
   }
 
   void _removeCard(int index) {
-    if (index >= _subcategoryAmounts.length || _removingIndices.contains(index)) return;
+    if (index >= _subcategoryAmounts.length || _removingIndices.contains(index))
+      return;
     final target = index > 0 ? index - 1 : 0;
     setState(() => _removingIndices.add(index));
     Future.delayed(const Duration(milliseconds: 250), () {
@@ -120,11 +122,16 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
       final removed = _subcategoryAmounts[index];
       removed['subcategoryController']?.dispose();
       removed['amountController']?.dispose();
-      setState(() { _removingIndices.clear(); _subcategoryAmounts.removeAt(index); });
+      setState(() {
+        _removingIndices.clear();
+        _subcategoryAmounts.removeAt(index);
+      });
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_pageController.hasClients && _subcategoryAmounts.isNotEmpty) {
-          _pageController.animateToPage(target.clamp(0, _subcategoryAmounts.length - 1),
-              duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
+          _pageController.animateToPage(
+              target.clamp(0, _subcategoryAmounts.length - 1),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic);
         }
       });
     });
@@ -143,7 +150,8 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
       setState(() {
         item['subcategory'] = selected;
         item['subcategoryName'] = selected.name ?? '';
-        (item['subcategoryController'] as TextEditingController).text = selected.name ?? '';
+        (item['subcategoryController'] as TextEditingController).text =
+            selected.name ?? '';
         if (selected.id == null) _subcategories.add(selected);
       });
     }
@@ -152,7 +160,10 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
   Future<void> _onCategoryTap(Category category) async {
     if (category.id == _selectedCategory?.id) return;
     if (_subcategoryAmounts.isNotEmpty) _clearSubcategoryAmounts();
-    setState(() { _selectedCategory = category; _subcategories = []; });
+    setState(() {
+      _selectedCategory = category;
+      _subcategories = [];
+    });
     if (category.id != null) {
       try {
         final subs = await _module.fetchSubcategories(ref, category.id!);
@@ -174,16 +185,21 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
         return;
       }
       if (!_module.validateSubcategoryAmounts(_subcategoryAmounts)) {
-        showInfoToast(context, 'Veuillez remplir toutes les sous-catégories et montants');
+        showInfoToast(
+            context, 'Veuillez remplir toutes les sous-catégories et montants');
         return;
       }
     }
     setState(() => _isLoading = true);
     final result = await _module.submitTransaction(
-      formKey: _formKey, selectedCategory: _selectedCategory,
-      isMultipleAmounts: _isPerSubcategory, subcategoryAmounts: _subcategoryAmounts,
-      montantController: _montantController, descriptionController: _descriptionController,
-      transactionType: widget.transactionType, ref: ref,
+      formKey: _formKey,
+      selectedCategory: _selectedCategory,
+      isMultipleAmounts: _isPerSubcategory,
+      subcategoryAmounts: _subcategoryAmounts,
+      montantController: _montantController,
+      descriptionController: _descriptionController,
+      transactionType: widget.transactionType,
+      ref: ref,
     );
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -200,11 +216,17 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5.w),
-          side: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
+          side: BorderSide(
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
         ),
-        insetPadding: EdgeInsets.symmetric(horizontal: 5.w + 2.h, vertical: 5.h),
+        insetPadding:
+            EdgeInsets.symmetric(horizontal: 5.w + 2.h, vertical: 5.h),
         child: _isInitializing
-            ? SizedBox(height: 30.h, child: Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)))
+            ? SizedBox(
+                height: 30.h,
+                child: Center(
+                    child: CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor)))
             : SingleChildScrollView(
                 child: Padding(
                   padding: EdgeInsets.all(5.w),
@@ -214,28 +236,51 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        DialogHeader(type: widget.transactionType, onClose: () => Navigator.of(context).pop(false)),
+                        DialogHeader(
+                            type: widget.transactionType,
+                            onClose: () => Navigator.of(context).pop(false)),
                         SizedBox(height: 2.h),
-                        PerSubcategorySwitch(value: _isPerSubcategory, onChanged: _togglePerSubcategory),
+                        PerSubcategorySwitch(
+                            value: _isPerSubcategory,
+                            onChanged: _togglePerSubcategory),
                         SizedBox(height: 1.h),
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           switchInCurve: Curves.easeOutCubic,
                           switchOutCurve: Curves.easeInCubic,
-                          transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: child)),
+                          transitionBuilder: (child, anim) => ScaleTransition(
+                              scale: anim,
+                              child: SizeTransition(
+                                  sizeFactor: anim,
+                                  axisAlignment: -1.0,
+                                  child: child)),
                           child: _isPerSubcategory
                               ? const SizedBox.shrink(key: ValueKey('empty'))
-                              : AnimatedAmountField(key: const ValueKey('amt'), controller: _montantController, hint: '0.00', fontSize: 25.sp, fillColor: Theme.of(context).colorScheme.surfaceDim, height: 15.h, width: double.infinity, borderRadius: BorderRadius.circular(3.w)),
+                              : AnimatedAmountField(
+                                  key: const ValueKey('amt'),
+                                  controller: _montantController,
+                                  hint: '0.00',
+                                  fontSize: 25.sp,
+                                  fillColor:
+                                      Theme.of(context).colorScheme.surfaceDim,
+                                  height: 15.h,
+                                  width: double.infinity,
+                                  borderRadius: BorderRadius.circular(3.w)),
                         ),
                         SizedBox(height: 2.h),
                         CategoryPillsSection(
-                          categories: _categories, selectedCategory: _selectedCategory,
-                          isPerSubcategory: _isPerSubcategory, onCategoryTap: _onCategoryTap,
+                          categories: _categories,
+                          selectedCategory: _selectedCategory,
+                          isPerSubcategory: _isPerSubcategory,
+                          onCategoryTap: _onCategoryTap,
                           onAddCategoryTap: (ctx) async {
-                            final newCat = await AddCategoryDialog.show(ctx, transactionType: widget.transactionType);
+                            final newCat = await AddCategoryDialog.show(ctx,
+                                transactionType: widget.transactionType);
                             if (newCat != null) {
                               await _loadCategories();
-                              final created = _categories.firstWhere((c) => c.name == newCat.name, orElse: () => newCat);
+                              final created = _categories.firstWhere(
+                                  (c) => c.name == newCat.name,
+                                  orElse: () => newCat);
                               setState(() => _selectedCategory = created);
                             }
                           },
@@ -245,17 +290,48 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                           duration: const Duration(milliseconds: 350),
                           switchInCurve: Curves.easeOutBack,
                           switchOutCurve: Curves.easeInCubic,
-                          transitionBuilder: (child, anim) => ScaleTransition(scale: anim, alignment: Alignment.topCenter, child: SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child))),
+                          transitionBuilder: (child, anim) => ScaleTransition(
+                              scale: anim,
+                              alignment: Alignment.topCenter,
+                              child: SizeTransition(
+                                  sizeFactor: anim,
+                                  axisAlignment: -1.0,
+                                  child: FadeTransition(
+                                      opacity: anim, child: child))),
                           child: _isPerSubcategory
-                              ? Column(key: const ValueKey('subs'), mainAxisSize: MainAxisSize.min, children: [
-                                  SubcategoryPagerSection(subcategoryAmounts: _subcategoryAmounts, pageController: _pageController, removingIndices: _removingIndices, newlyAddedIndex: _newlyAddedIndex, onRemove: _removeCard, onAdd: _addCard, onSubcategoryTap: _onSubcategoryTap),
-                                  SizedBox(height: 2.h),
-                                ])
+                              ? Column(
+                                  key: const ValueKey('subs'),
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                      SubcategoryPagerSection(
+                                          subcategoryAmounts:
+                                              _subcategoryAmounts,
+                                          pageController: _pageController,
+                                          removingIndices: _removingIndices,
+                                          newlyAddedIndex: _newlyAddedIndex,
+                                          onRemove: _removeCard,
+                                          onAdd: _addCard,
+                                          onSubcategoryTap: _onSubcategoryTap),
+                                      SizedBox(height: 2.h),
+                                    ])
                               : const SizedBox.shrink(key: ValueKey('noSubs')),
                         ),
-                        CustomTextField(title: Text('Description (optionnel)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp)), hint: 'Ajouter une description', controller: _descriptionController, keyboardType: TextInputType.text, maxLines: 2, borderRadius: BorderRadius.circular(3.w)),
+                        CustomTextField(
+                            title: Text('Description (optionnel)',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14.sp)),
+                            hint: 'Ajouter une description',
+                            controller: _descriptionController,
+                            keyboardType: TextInputType.text,
+                            maxLines: 2,
+                            borderRadius: BorderRadius.circular(3.w)),
                         SizedBox(height: 3.h),
-                        CustomButton(text: 'Confirmer', backgroundColor: Theme.of(context).primaryColor, onPressed: _submit, isLoading: _isLoading),
+                        CustomButton(
+                            text: 'Confirmer',
+                            backgroundColor: Theme.of(context).primaryColor,
+                            onPressed: _submit,
+                            isLoading: _isLoading),
                       ],
                     ),
                   ),

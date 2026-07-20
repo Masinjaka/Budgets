@@ -20,7 +20,8 @@ Future<T?> showAnimatedDialog<T>({
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
-    barrierLabel: barrierLabel ?? MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierLabel: barrierLabel ??
+        MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: barrierColor ?? Colors.black54,
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
@@ -44,7 +45,8 @@ Future<T?> showAnimatedDialog<T>({
         builder: (context, _) => BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blur.value, sigmaY: blur.value),
           child: ScaleTransition(
-            scale: Tween<double>(begin: 0.85, end: 1.0).animate(curvedAnimation),
+            scale:
+                Tween<double>(begin: 0.85, end: 1.0).animate(curvedAnimation),
             child: FadeTransition(
               opacity: curvedAnimation,
               child: child,

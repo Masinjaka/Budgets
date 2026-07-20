@@ -15,7 +15,10 @@ class SubcategoryAmountManager {
     for (var item in items) {
       final name = item['subcategoryName'] as String?;
       final ctrl = item['amountController'] as TextEditingController?;
-      if (name == null || name.isEmpty || ctrl == null || ctrl.text.trim().isEmpty) {
+      if (name == null ||
+          name.isEmpty ||
+          ctrl == null ||
+          ctrl.text.trim().isEmpty) {
         return false;
       }
       try {
@@ -32,7 +35,10 @@ class SubcategoryAmountManager {
     for (var item in items) {
       final name = item['subcategoryName'] as String?;
       final ctrl = item['amountController'] as TextEditingController?;
-      if (name != null && name.isNotEmpty && ctrl != null && ctrl.text.trim().isNotEmpty) {
+      if (name != null &&
+          name.isNotEmpty &&
+          ctrl != null &&
+          ctrl.text.trim().isNotEmpty) {
         map[name] = ctrl.text.trim();
       }
     }
@@ -67,7 +73,8 @@ class SubcategoryAmountManager {
     required int index,
     required List<Map<String, dynamic>> items,
     required GlobalKey<AnimatedListState> listKey,
-    required Widget Function(Map<String, dynamic>, int, Animation<double>) buildRemoved,
+    required Widget Function(Map<String, dynamic>, int, Animation<double>)
+        buildRemoved,
     required VoidCallback onStateChanged,
   }) {
     if (index >= items.length) return;
@@ -88,7 +95,8 @@ class SubcategoryAmountManager {
   void clearAll({
     required List<Map<String, dynamic>> items,
     required GlobalKey<AnimatedListState> listKey,
-    required Widget Function(Map<String, dynamic>, int, Animation<double>) buildRemoved,
+    required Widget Function(Map<String, dynamic>, int, Animation<double>)
+        buildRemoved,
     required VoidCallback onStateChanged,
   }) {
     if (items.isEmpty) return;

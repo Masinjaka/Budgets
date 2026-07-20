@@ -8,6 +8,7 @@ class ForegroundNotificationService {
   ForegroundNotificationService(this._notifications, {this.onNotificationTap});
 
   final FlutterLocalNotificationsPlugin _notifications;
+
   /// Optional callback when user taps a notification
   final void Function(RemoteMessage message)? onNotificationTap;
   StreamSubscription<RemoteMessage>? _foregroundSub;

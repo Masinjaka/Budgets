@@ -1,9 +1,4 @@
-import 'dart:async';
-
-import 'package:budgets/core/powersync/powersync.dart' as powersync_runtime;
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/user/domain/models/user_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseUserDataSource {
@@ -14,73 +9,31 @@ class SupabaseUserDataSource {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw StateError('No authenticated user');
 
-    var results = await _fetchUserRows(uid);
-
-    if (results.isEmpty) {
-      debugPrint(
-        'User row missing locally for $uid. Waiting for PowerSync sync before '
-        'falling back to auth metadata.',
-      );
-      await powersync_runtime.connectPowerSyncForCurrentUser(waitForSync: true);
-      results = await _waitForUserRows(uid);
-    }
-
-    if (results.isEmpty) {
-      final fallback = _buildFallbackUserModel();
-      if (fallback != null) {
-        return fallback;
-      }
-      throw StateError('User row not found');
-    }
-
-    return UserModel.fromJson(results.first);
+    final row = await _client
+        .from('user')
+        .select('username, profile_photo, currency_code')
+        .eq('user_id', uid)
+        .maybeSingle();
+    return row == null ? _buildFallbackUserModel() : UserModel.fromJson(row);
   }
 
   Stream<UserModel?> watchCurrentUserRow() async* {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw StateError('No authenticated user');
 
-    await powersync_runtime.connectPowerSyncForCurrentUser(waitForSync: true);
-
-    await for (final rows in _watchUserRows(uid)) {
-      if (rows.isEmpty) continue;
-      yield UserModel.fromJson(rows.first);
+    yield await getCurrentUserRow();
+    await for (final rows in _client
+        .from('user')
+        .stream(primaryKey: const ['id']).eq('user_id', uid)) {
+      if (rows.isNotEmpty) {
+        yield UserModel.fromJson(rows.first);
+      }
     }
   }
 
-  Future<List<Map<String, dynamic>>> _fetchUserRows(String uid) {
-    return powersync.db.getAll('''
-      SELECT username, profile_photo, currency_code
-      FROM user
-      WHERE user_id = ?
-      LIMIT 1
-    ''', [uid]);
-  }
-
-  Future<List<Map<String, dynamic>>> _waitForUserRows(String uid) {
-    return _watchUserRows(uid)
-        .firstWhere((rows) => rows.isNotEmpty)
-        .timeout(const Duration(seconds: 10), onTimeout: () => const []);
-  }
-
-  Stream<List<Map<String, dynamic>>> _watchUserRows(String uid) {
-    return powersync.db.watch(
-      '''
-          SELECT username, profile_photo, currency_code
-          FROM user
-          WHERE user_id = ?
-          LIMIT 1
-          ''',
-      parameters: [uid],
-      triggerOnTables: const ['user'],
-    ).map((rows) => [
-          for (final row in rows) Map<String, dynamic>.from(row),
-        ]);
-  }
-
-  UserModel? _buildFallbackUserModel() {
+  UserModel _buildFallbackUserModel() {
     final authUser = _client.auth.currentUser;
-    if (authUser == null) return null;
+    if (authUser == null) throw StateError('No authenticated user');
 
     final metadata = authUser.userMetadata ?? const <String, dynamic>{};
     final email = authUser.email;
@@ -105,9 +58,9 @@ class SupabaseUserDataSource {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw StateError('No authenticated user');
 
-    await powersync.db.execute(
-      'UPDATE user SET username = ? WHERE user_id = ?',
-      [username, uid],
+    await _client.from('user').upsert(
+      {'user_id': uid, 'username': username},
+      onConflict: 'user_id',
     );
   }
 
@@ -115,9 +68,9 @@ class SupabaseUserDataSource {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw StateError('No authenticated user');
 
-    await powersync.db.execute(
-      'UPDATE user SET currency_code = ? WHERE user_id = ?',
-      [currencyCode, uid],
+    await _client.from('user').upsert(
+      {'user_id': uid, 'currency_code': currencyCode},
+      onConflict: 'user_id',
     );
   }
 }

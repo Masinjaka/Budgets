@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../../support/home_test_window.dart';
+
 void main() {
   testWidgets('settings opens the legacy page and back returns home',
       (tester) async {
+    usePhoneWindow(tester);
     await tester.pumpWidget(
       ProviderScope(
         child: ResponsiveSizer(

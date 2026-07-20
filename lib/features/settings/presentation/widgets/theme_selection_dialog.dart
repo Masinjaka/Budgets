@@ -97,7 +97,7 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
-                labelColor: Colors.white,
+                labelColor: AppTheme.interactiveTextColor,
                 unselectedLabelColor: textColor,
                 labelStyle: TextStyle(
                   fontSize: 14.sp,
