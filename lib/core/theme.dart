@@ -8,6 +8,7 @@ class AppTheme {
   static const Color borderColorDark = Color(0xff303237);
   static const Color primaryGreen = Color(0xFF10B981);
   static const Color secondaryGreen = Color(0xff4C8352);
+  static const Color dangerColor = Color(0xFFE57373);
 
   //Text Colors
   static const Color textDark = Color(0xffEFEFEF);
@@ -16,15 +17,16 @@ class AppTheme {
   static const Color backgroundLight = Color(0xFFF4F7F5);
   static const Color secondaryLight = Color(0xFFE8EBE9);
   static const Color textLight = Color(0xff333333);
-  static const Color buttonTextColor = Colors.black;
+  static const Color interactiveTextColor = Colors.black;
+  static const Color buttonTextColor = interactiveTextColor;
 
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     scaffoldBackgroundColor: backgroundLight,
     cardColor: secondaryLight,
     primaryColor: primaryGreen,
-    fontFamily: GoogleFonts.outfit().fontFamily,
-    textTheme: GoogleFonts.outfitTextTheme(
+    fontFamily: GoogleFonts.nunito().fontFamily,
+    textTheme: GoogleFonts.nunitoTextTheme(
       const TextTheme(
         bodyLarge: TextStyle(color: textLight),
         bodyMedium: TextStyle(color: textLight),
@@ -74,8 +76,8 @@ class AppTheme {
     scaffoldBackgroundColor: backgroundDark,
     cardColor: secondaryDark,
     primaryColor: primaryGreen,
-    fontFamily: GoogleFonts.outfit().fontFamily,
-    textTheme: GoogleFonts.outfitTextTheme(
+    fontFamily: GoogleFonts.nunito().fontFamily,
+    textTheme: GoogleFonts.nunitoTextTheme(
       const TextTheme(
         bodyLarge: TextStyle(color: textDark),
         bodyMedium: TextStyle(color: textDark),

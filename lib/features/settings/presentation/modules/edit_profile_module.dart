@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:budgets/core/offline/image_upload_queue.dart';
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/auth/domain/providers/auth_providers.dart';
@@ -111,7 +109,6 @@ class EditProfileModule {
           final newUrl = await uploader(file: file, userId: userId);
           profilePhotoUrl = newUrl; // local update for immediate UI if needed
           photoUpdated = true;
-          await ImageUploadQueue.instance.processPendingUploads();
         }
       } catch (e) {
         errorMessage = errorMessage ??
@@ -120,14 +117,11 @@ class EditProfileModule {
       }
     }
 
-    // Refresh user model so other parts of UI read the latest PowerSync row.
+    // Refresh profile consumers after the direct Supabase writes complete.
     ref.invalidate(userModelProvider);
     try {
-      await powersync.flushPowerSyncUploads();
       await ref.read(userModelProvider.future);
-    } catch (_) {
-      // Keep UX resilient: profile update may still be valid locally.
-    }
+    } catch (_) {}
 
     if (!context.mounted) {
       return;

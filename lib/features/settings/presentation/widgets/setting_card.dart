@@ -67,70 +67,80 @@ class _SettingCardState extends State<SettingCard> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(3.w),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    borderRadius: BorderRadius.circular(3.w),
+            Expanded(
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(3.w),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      borderRadius: BorderRadius.circular(3.w),
+                    ),
+                    child: Icon(
+                      widget.iconData,
+                      size: 20,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
                   ),
-                  child: Icon(
-                    widget.iconData,
-                    size: 20.sp,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                ),
-                SizedBox(width: 4.w),
-                Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                ),
-              ],
-            ),
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 2.w,
-              children: [
-                if (widget.showSuffixSettingChoice)
-                  widget.settingChoiceWidget ??
-                      Text(
-                        widget.settingChoice ?? '',
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          color: Colors.grey,
-                        ),
-                      ),
-                if (widget.trailingWidget != null)
-                  widget.trailingWidget!
-                else if (widget.useSwitch)
-                  Opacity(
-                    opacity: widget.switchDisabled ? 0.5 : 1,
-                    child: IgnorePointer(
-                      ignoring: widget.switchDisabled,
-                      child: Switch(
-                        value: resolvedSwitchValue,
-                        onChanged: (val) {
-                          if (widget.switchValue == null) {
-                            setState(() => _switchValue = val);
-                          }
-                          widget.onSwitchChanged?.call(val);
-                        },
-                        // activeThumbColor: AppTheme.primaryGreen,
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
-                  )
-                else if (widget.showTrailingArrow)
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16.sp,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
-              ],
+                ],
+              ),
+            ),
+            SizedBox(width: 2.w),
+            Flexible(
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 2.w,
+                children: [
+                  if (widget.showSuffixSettingChoice)
+                    widget.settingChoiceWidget ??
+                        Text(
+                          widget.settingChoice ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                  if (widget.trailingWidget != null)
+                    widget.trailingWidget!
+                  else if (widget.useSwitch)
+                    Opacity(
+                      opacity: widget.switchDisabled ? 0.5 : 1,
+                      child: IgnorePointer(
+                        ignoring: widget.switchDisabled,
+                        child: Switch(
+                          value: resolvedSwitchValue,
+                          onChanged: (val) {
+                            if (widget.switchValue == null) {
+                              setState(() => _switchValue = val);
+                            }
+                            widget.onSwitchChanged?.call(val);
+                          },
+                        ),
+                      ),
+                    )
+                  else if (widget.showTrailingArrow)
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 15,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                ],
+              ),
             ),
           ],
         ),

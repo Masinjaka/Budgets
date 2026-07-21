@@ -1,5 +1,4 @@
 import 'package:budgets/core/utils/wrapper.dart';
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/features/planning/domain/models/budget_history_model.dart';
 import 'package:budgets/features/planning/domain/models/budget_model.dart';
@@ -8,78 +7,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
-
-/// Build a [BudgetHistory] from a PowerSync JOIN row.
-BudgetHistory _budgetHistoryFromRow(Map<String, dynamic> row) {
-  return BudgetHistory(
-    id: row['id'] as String?,
-    createdAt: row['created_at'] != null
-        ? DateTime.parse(row['created_at'] as String)
-        : null,
-    budgetId: row['budget_id']?.toString(),
-    userId: row['user_id'] as String?,
-    category: row['cat_id'] != null
-        ? Category(
-            id: row['cat_id'] as String?,
-            name: row['cat_name'] as String?,
-            emoji: row['cat_emoji'] as String?,
-            color: row['cat_color'] as String?,
-          )
-        : null,
-    amount: row['amount'] as String?,
-    amountSpent: row['amount_spent'] as String?,
-    periodMonth: row['period_month'] as String?,
-  );
-}
-
-/// Get budget history for a specific month
-/// [periodMonth] should be in format "YYYY-MM" e.g. "2026-01"
-Future<List<BudgetHistory>> getBudgetHistoryForMonth(String periodMonth) {
-  return Wrapper.execute(() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return [];
-
-    final results = await powersync.db.getAll('''
-      SELECT bh.id, bh.created_at, bh.budget_id, bh.user_id,
-             bh.amount, bh.amount_spent, bh.period_month,
-             c.id AS cat_id, c.name AS cat_name, c.emoji AS cat_emoji,
-             c.color AS cat_color, c.transaction_type AS cat_type
-      FROM budget_history bh
-      LEFT JOIN categories c ON bh.category = c.id
-      WHERE bh.user_id = ? AND bh.period_month = ?
-      ORDER BY bh.created_at ASC
-    ''', [userId, periodMonth]);
-
-    if (results.isEmpty) return [];
-
-    return results.map((row) => _budgetHistoryFromRow(row)).toList();
-  });
-}
-
-/// Get all budget history for the current user
-Future<List<BudgetHistory>> getAllBudgetHistory() {
-  return Wrapper.execute(() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return [];
-
-    final results = await powersync.db.getAll('''
-      SELECT bh.id, bh.created_at, bh.budget_id, bh.user_id,
-             bh.amount, bh.amount_spent, bh.period_month,
-             c.id AS cat_id, c.name AS cat_name, c.emoji AS cat_emoji,
-             c.color AS cat_color, c.transaction_type AS cat_type
-      FROM budget_history bh
-      LEFT JOIN categories c ON bh.category = c.id
-      WHERE bh.user_id = ?
-      ORDER BY bh.period_month DESC
-    ''', [userId]);
-
-    if (results.isEmpty) return [];
-
-    return results.map((row) => _budgetHistoryFromRow(row)).toList();
-  });
-}
-
-const Set<String> _supportedBudgetPeriods = {
+const _historySelect =
+    'id, created_at, budget_id, user_id, amount, amount_spent, period_month, '
+    'category_data:categories!budget_history_category_fkey'
+    '(id, name, emoji, color)';
+const _supportedPeriods = {
   'weekly',
   'biweekly',
   'monthly',
@@ -87,190 +19,164 @@ const Set<String> _supportedBudgetPeriods = {
   'yearly',
 };
 
-String normalizeBudgetPeriod(String? period) {
-  if (period == null) return 'monthly';
-  final normalized = period.toLowerCase().trim();
-  return _supportedBudgetPeriods.contains(normalized) ? normalized : 'monthly';
-}
-
-DateTime _startOfWeek(DateTime date) {
-  final localDate = DateTime(date.year, date.month, date.day);
-  return localDate.subtract(Duration(days: localDate.weekday - 1));
-}
-
-bool _isResetDue({
-  required DateTime now,
-  required DateTime lastResetAt,
-  required String period,
-}) {
-  switch (period) {
-    case 'weekly':
-      return _startOfWeek(now).isAfter(_startOfWeek(lastResetAt));
-    case 'biweekly':
-      return now.difference(lastResetAt).inDays >= 14;
-    case 'bimonthly':
-      final nowBucket = ((now.month - 1) ~/ 2) + 1;
-      final resetBucket = ((lastResetAt.month - 1) ~/ 2) + 1;
-      return now.year > lastResetAt.year ||
-          (now.year == lastResetAt.year && nowBucket > resetBucket);
-    case 'yearly':
-      return now.year > lastResetAt.year;
-    case 'monthly':
-    default:
-      return now.year > lastResetAt.year ||
-          (now.year == lastResetAt.year && now.month > lastResetAt.month);
-  }
-}
-
-String _historyPeriodKey({
-  required DateTime referenceDate,
-  required String period,
-}) {
-  final year = referenceDate.year;
-  final month = referenceDate.month.toString().padLeft(2, '0');
-  final day = referenceDate.day.toString().padLeft(2, '0');
-  switch (period) {
-    case 'weekly':
-      final weekStart = _startOfWeek(referenceDate);
-      final weekMonth = weekStart.month.toString().padLeft(2, '0');
-      final weekDay = weekStart.day.toString().padLeft(2, '0');
-      return 'weekly:${weekStart.year}-$weekMonth-$weekDay';
-    case 'biweekly':
-      return 'biweekly:$year-$month-$day';
-    case 'bimonthly':
-      final bucket = ((referenceDate.month - 1) ~/ 2) + 1;
-      return 'bimonthly:$year-B$bucket';
-    case 'yearly':
-      return 'yearly:$year';
-    case 'monthly':
-    default:
-      return '$year-$month';
-  }
-}
-
-/// Archive current budgets to history with a period key per budget ID.
-Future<void> archiveBudgetsToHistory(
-  List<Budget> budgets,
-  Map<String, String> periodKeyByBudgetId,
-) {
-  return Wrapper.execute(() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
-
-    final historyRecords = budgets.where((budget) {
-      final hasId = budget.id != null;
-      final hasPeriodKey = periodKeyByBudgetId.containsKey(budget.id);
-      final spent = double.tryParse(budget.amountSpent ?? '0') ?? 0;
-      return hasId && hasPeriodKey && spent > 0;
-    }).toList();
-
-    if (historyRecords.isEmpty) return;
-
-    final nowIso = DateTime.now().toUtc().toIso8601String();
-
-    await powersync.db.writeTransaction((tx) async {
-      for (final budget in historyRecords) {
-        final historyId = _uuid.v4();
-        await tx.execute(
-          '''INSERT INTO budget_history
-             (id, created_at, budget_id, user_id, category, amount, amount_spent, period_month)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-          [
-            historyId,
-            nowIso,
-            budget.id,
-            userId,
-            budget.category?.id,
-            budget.amount,
-            budget.amountSpent,
-            periodKeyByBudgetId[budget.id]!,
-          ],
-        );
-      }
-    });
-
-    debugPrint('Archived ${historyRecords.length} budgets to history');
-  });
-}
-
-/// Reset selected budget spent amounts and move their reset baseline to now.
-Future<void> resetBudgetsSpent(List<String> budgetIds) {
-  return Wrapper.execute(() async {
-    if (budgetIds.isEmpty) return;
-
-    final nowIso = DateTime.now().toUtc().toIso8601String();
-
-    await powersync.db.writeTransaction((tx) async {
-      for (final id in budgetIds) {
-        await tx.execute(
-          '''UPDATE budgets
-             SET amount_spent = '0', last_reset_at = ?
-             WHERE id = ?''',
-          [nowIso, id],
-        );
-      }
-    });
-  });
-}
-
-/// Reset budgets whose configured period has elapsed.
-/// Returns true if at least one budget was reset.
-Future<bool> checkAndResetBudgetsByPeriod(List<Budget> currentBudgets) async {
-  if (currentBudgets.isEmpty) return false;
-
-  final now = DateTime.now();
-  final dueBudgets = <Budget>[];
-  final periodKeyByBudgetId = <String, String>{};
-
-  for (final budget in currentBudgets) {
-    final id = budget.id;
-    if (id == null) continue;
-
-    final period = normalizeBudgetPeriod(budget.period);
-    final lastResetAt = budget.lastResetAt ?? budget.createdAt ?? now;
-    final due = _isResetDue(
-      now: now,
-      lastResetAt: lastResetAt,
-      period: period,
-    );
-    if (!due) continue;
-
-    dueBudgets.add(budget);
-    periodKeyByBudgetId[id] = _historyPeriodKey(
-      referenceDate: lastResetAt,
-      period: period,
-    );
-  }
-
-  if (dueBudgets.isEmpty) {
-    return false;
-  }
-
-  try {
-    await archiveBudgetsToHistory(dueBudgets, periodKeyByBudgetId);
-    await resetBudgetsSpent(dueBudgets.map((b) => b.id!).toList());
-    debugPrint('Budget reset completed for ${dueBudgets.length} budgets');
-    return true;
-  } catch (e) {
-    debugPrint('Error during budget reset: $e');
-    rethrow;
-  }
-}
-
-/// Get the formatted period month string from a DateTime
-String getPeriodMonthString(DateTime date) {
-  return _historyPeriodKey(
-    referenceDate: date,
-    period: 'monthly',
+BudgetHistory _fromRow(Map<String, dynamic> row) {
+  final category = row['category_data'] as Map<String, dynamic>?;
+  return BudgetHistory(
+    id: row['id'] as String?,
+    createdAt: DateTime.tryParse(row['created_at']?.toString() ?? ''),
+    budgetId: row['budget_id']?.toString(),
+    userId: row['user_id'] as String?,
+    category: category == null
+        ? null
+        : Category(
+            id: category['id'] as String?,
+            name: category['name'] as String?,
+            emoji: category['emoji'] as String?,
+            color: category['color'] as String?,
+          ),
+    amount: row['amount'] as String?,
+    amountSpent: row['amount_spent'] as String?,
+    periodMonth: row['period_month'] as String?,
   );
 }
 
-/// Delete a budget history record by ID
-Future<void> deleteBudgetHistory(String id) {
+Future<List<BudgetHistory>> getBudgetHistoryForMonth(String periodMonth) {
   return Wrapper.execute(() async {
-    await powersync.db.execute(
-      'DELETE FROM budget_history WHERE id = ?',
-      [id],
-    );
+    final client = Supabase.instance.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return [];
+    final rows = await client
+        .from('budget_history')
+        .select(_historySelect)
+        .eq('user_id', userId)
+        .eq('period_month', periodMonth)
+        .order('created_at');
+    return rows.map(_fromRow).toList();
   });
+}
+
+Future<List<BudgetHistory>> getAllBudgetHistory() {
+  return Wrapper.execute(() async {
+    final client = Supabase.instance.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return [];
+    final rows = await client
+        .from('budget_history')
+        .select(_historySelect)
+        .eq('user_id', userId)
+        .order('period_month', ascending: false);
+    return rows.map(_fromRow).toList();
+  });
+}
+
+String normalizeBudgetPeriod(String? period) {
+  final value = period?.toLowerCase().trim() ?? 'monthly';
+  return _supportedPeriods.contains(value) ? value : 'monthly';
+}
+
+DateTime _startOfWeek(DateTime date) {
+  final day = DateTime(date.year, date.month, date.day);
+  return day.subtract(Duration(days: day.weekday - 1));
+}
+
+bool _isResetDue(DateTime now, DateTime resetAt, String period) {
+  switch (period) {
+    case 'weekly':
+      return _startOfWeek(now).isAfter(_startOfWeek(resetAt));
+    case 'biweekly':
+      return now.difference(resetAt).inDays >= 14;
+    case 'bimonthly':
+      final nowBucket = (now.month - 1) ~/ 2;
+      final resetBucket = (resetAt.month - 1) ~/ 2;
+      return now.year > resetAt.year ||
+          now.year == resetAt.year && nowBucket > resetBucket;
+    case 'yearly':
+      return now.year > resetAt.year;
+    default:
+      return now.year > resetAt.year ||
+          now.year == resetAt.year && now.month > resetAt.month;
+  }
+}
+
+String _periodKey(DateTime date, String period) {
+  final month = date.month.toString().padLeft(2, '0');
+  final day = date.day.toString().padLeft(2, '0');
+  if (period == 'weekly') {
+    final start = _startOfWeek(date);
+    final m = start.month.toString().padLeft(2, '0');
+    final d = start.day.toString().padLeft(2, '0');
+    return 'weekly:${start.year}-$m-$d';
+  }
+  if (period == 'biweekly') return 'biweekly:${date.year}-$month-$day';
+  if (period == 'bimonthly') {
+    return 'bimonthly:${date.year}-B${((date.month - 1) ~/ 2) + 1}';
+  }
+  if (period == 'yearly') return 'yearly:${date.year}';
+  return '${date.year}-$month';
+}
+
+Future<void> archiveBudgetsToHistory(
+  List<Budget> budgets,
+  Map<String, String> keys,
+) {
+  return Wrapper.execute(() async {
+    final client = Supabase.instance.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final rows = budgets
+        .where((budget) {
+          final spent = double.tryParse(budget.amountSpent ?? '0') ?? 0;
+          return budget.id != null && keys.containsKey(budget.id) && spent > 0;
+        })
+        .map((budget) => {
+              'id': _uuid.v4(),
+              'budget_id': int.tryParse(budget.id!),
+              'user_id': userId,
+              'category': budget.category?.id,
+              'amount': budget.amount,
+              'amount_spent': budget.amountSpent,
+              'period_month': keys[budget.id],
+            })
+        .toList();
+    if (rows.isNotEmpty) await client.from('budget_history').insert(rows);
+  });
+}
+
+Future<void> resetBudgetsSpent(List<String> budgetIds) {
+  return Wrapper.execute(() async {
+    if (budgetIds.isEmpty) return;
+    final ids = budgetIds.map(int.parse).toList();
+    await Supabase.instance.client.from('budgets').update({
+      'amount_spent': '0',
+      'last_reset_at': DateTime.now().toUtc().toIso8601String(),
+    }).inFilter('id', ids);
+  });
+}
+
+Future<bool> checkAndResetBudgetsByPeriod(List<Budget> budgets) async {
+  final now = DateTime.now();
+  final due = <Budget>[];
+  final keys = <String, String>{};
+  for (final budget in budgets) {
+    if (budget.id == null) continue;
+    final period = normalizeBudgetPeriod(budget.period);
+    final resetAt = budget.lastResetAt ?? budget.createdAt ?? now;
+    if (_isResetDue(now, resetAt, period)) {
+      due.add(budget);
+      keys[budget.id!] = _periodKey(resetAt, period);
+    }
+  }
+  if (due.isEmpty) return false;
+  await archiveBudgetsToHistory(due, keys);
+  await resetBudgetsSpent(due.map((budget) => budget.id!).toList());
+  debugPrint('Budget reset completed for ${due.length} budgets');
+  return true;
+}
+
+String getPeriodMonthString(DateTime date) => _periodKey(date, 'monthly');
+
+Future<void> deleteBudgetHistory(String id) {
+  return Wrapper.execute(
+    () => Supabase.instance.client.from('budget_history').delete().eq('id', id),
+  );
 }

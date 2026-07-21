@@ -88,7 +88,8 @@ String _friendlyPostgrestMessage(String message) {
 String _friendlyStorageMessage(String message) {
   final normalized = message.toLowerCase();
 
-  if (normalized.contains('permission') || normalized.contains('not authorized')) {
+  if (normalized.contains('permission') ||
+      normalized.contains('not authorized')) {
     return "Accès refusé. Veuillez réessayer.";
   }
 

@@ -1,5 +1,4 @@
 import 'package:budgets/core/utils/wrapper.dart';
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/core/constants.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
@@ -11,10 +10,13 @@ const _uuid = Uuid();
 
 Future<List<Category>> getCategories() {
   return Wrapper.execute(() async {
-    final results = await powersync.db.getAll('''
-      SELECT id, name, emoji, color, transaction_type
-      FROM categories
-    ''');
+    final client = Supabase.instance.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return [];
+    final results = await client
+        .from('categories')
+        .select('id, name, emoji, color, transaction_type')
+        .eq('user_id', userId);
 
     if (results.isEmpty) return [];
 
@@ -31,11 +33,14 @@ Future<String> addCategory(Category category) {
     final categoryId = _uuid.v4();
     final trType = category.transactionType?.value ?? 'expense';
 
-    await powersync.db.execute(
-      '''INSERT INTO categories (id, name, emoji, color, user_id, transaction_type)
-         VALUES (?, ?, ?, ?, ?, ?)''',
-      [categoryId, category.name, category.emoji, category.color, userId, trType],
-    );
+    await Supabase.instance.client.from('categories').insert({
+      'id': categoryId,
+      'name': category.name,
+      'emoji': category.emoji,
+      'color': category.color,
+      'user_id': userId,
+      'transaction_type': trType,
+    });
 
     return categoryId;
   });
@@ -46,14 +51,15 @@ Future<String> editCategory(Category category) {
   return Wrapper.execute(() async {
     if (category.id == null) throw Exception('Category ID is required');
 
-    await powersync.db.execute(
-      '''UPDATE categories
-         SET name = COALESCE(?, name),
-             emoji = COALESCE(?, emoji),
-             color = COALESCE(?, color)
-         WHERE id = ?''',
-      [category.name, category.emoji, category.color, category.id],
-    );
+    final updates = <String, dynamic>{
+      if (category.name != null) 'name': category.name,
+      if (category.emoji != null) 'emoji': category.emoji,
+      if (category.color != null) 'color': category.color,
+    };
+    await Supabase.instance.client
+        .from('categories')
+        .update(updates)
+        .eq('id', category.id!);
 
     return category.id!;
   });
@@ -64,10 +70,10 @@ Future<String> deleteCategory(Category category) {
   return Wrapper.execute(() async {
     if (category.id == null) throw Exception('Category ID is required');
 
-    await powersync.db.execute(
-      'DELETE FROM categories WHERE id = ?',
-      [category.id],
-    );
+    await Supabase.instance.client
+        .from('categories')
+        .delete()
+        .eq('id', category.id!);
 
     return category.id!;
   });

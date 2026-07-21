@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:budgets/main.dart';
-import 'package:budgets/features/notifications/data/datasources/notification_datasource.dart';
-import 'package:budgets/features/notifications/presentation/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,7 +8,6 @@ class SplashModule {
   SplashModule();
 
   StreamSubscription<AuthState>? _sub;
-  bool _notificationsBootstrapped = false;
 
   /// Listen for auth session and navigate accordingly
   void listeToSession(BuildContext context) async {
@@ -18,9 +15,6 @@ class SplashModule {
 
     // 1) One-shot check
     final hasSession = supabase.auth.currentSession != null;
-    if (hasSession) {
-      await _bootstrapNotifications();
-    }
     if (!context.mounted) return;
     context.go(hasSession ? '/home' : '/getting-started');
 
@@ -29,7 +23,6 @@ class SplashModule {
       if (!context.mounted) return;
       switch (data.event) {
         case AuthChangeEvent.signedIn:
-          _bootstrapNotifications();
           context.go('/home');
           break;
         case AuthChangeEvent.signedOut:
@@ -45,13 +38,5 @@ class SplashModule {
   void dispose() {
     _sub?.cancel();
     _sub = null;
-  }
-
-  Future<void> _bootstrapNotifications() async {
-    if (_notificationsBootstrapped) return;
-    _notificationsBootstrapped = true;
-    final dataSource = NotificationDataSource(supabase);
-    final service = NotificationService(dataSource);
-    await service.bootstrapIfEnabled();
   }
 }

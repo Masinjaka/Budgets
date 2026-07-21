@@ -17,7 +17,8 @@ class NotificationSettings {
   final int timezoneOffsetMinutes;
   final double warningThreshold;
 
-  bool get anyEnabled => notificationsEnabled && (remindersEnabled || warningsEnabled);
+  bool get anyEnabled =>
+      notificationsEnabled && (remindersEnabled || warningsEnabled);
 
   factory NotificationSettings.fromMap(Map<String, dynamic> map) {
     return NotificationSettings(
@@ -46,7 +47,8 @@ class NotificationSettings {
       warningsEnabled: warningsEnabled ?? this.warningsEnabled,
       reminderHour: reminderHour ?? this.reminderHour,
       reminderMinute: reminderMinute ?? this.reminderMinute,
-      timezoneOffsetMinutes: timezoneOffsetMinutes ?? this.timezoneOffsetMinutes,
+      timezoneOffsetMinutes:
+          timezoneOffsetMinutes ?? this.timezoneOffsetMinutes,
       warningThreshold: warningThreshold ?? this.warningThreshold,
     );
   }

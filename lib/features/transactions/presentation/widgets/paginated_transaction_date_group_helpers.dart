@@ -29,9 +29,9 @@ Widget buildPaginatedDateGroup(
         shrinkWrap: true,
         itemCount: transactions.length,
         itemBuilder: (_, i) => TransactionListItem(
-              key: ValueKey(transactions[i].id),
-              transaction: transactions[i],
-            ),
+          key: ValueKey(transactions[i].id),
+          transaction: transactions[i],
+        ),
         separatorBuilder: (_, __) => SizedBox(height: 1.h),
       ),
       SizedBox(height: 2.h),

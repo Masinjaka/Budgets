@@ -50,8 +50,7 @@ class NewBalanceCard extends ConsumerWidget {
               color: Theme.of(context).colorScheme.surfaceDim,
               borderRadius: BorderRadius.circular(2.w),
             ),
-            child:
-                Icon(iconData, color: textColor?.withValues(alpha: 0.7)),
+            child: Icon(iconData, color: textColor?.withValues(alpha: 0.7)),
           ),
           SizedBox(height: 2.h),
           Text(

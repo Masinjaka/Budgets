@@ -25,13 +25,14 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Drala utilise l’appareil photo pour ajouter une image à votre profil ou à vos objectifs.</string>
+	<string>Drala utilise l’appareil photo pour numériser vos reçus et ajouter des images.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Drala utilise Face ID pour protéger l’accès à vos informations financières.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Drala accède à vos photos afin que vous puissiez choisir une image pour votre profil ou vos objectifs.</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

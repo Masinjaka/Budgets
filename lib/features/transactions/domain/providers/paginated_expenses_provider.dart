@@ -126,8 +126,7 @@ class PaginatedExpenses extends _$PaginatedExpenses {
 
   /// Optimistically remove a transaction by ID from the current state.
   void removeTransaction(String id) {
-    final updated =
-        state.transactions.where((t) => t.id != id).toList();
+    final updated = state.transactions.where((t) => t.id != id).toList();
     state = state.copyWith(transactions: updated);
   }
 

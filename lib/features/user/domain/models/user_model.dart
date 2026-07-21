@@ -21,7 +21,8 @@ class UserModel {
     };
   }
 
-  UserModel copyWith({String? name, String? profilePhoto, String? currencyCode}) {
+  UserModel copyWith(
+      {String? name, String? profilePhoto, String? currencyCode}) {
     return UserModel(
       name: name ?? this.name,
       profilePhoto: profilePhoto ?? this.profilePhoto,

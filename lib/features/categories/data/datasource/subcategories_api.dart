@@ -1,15 +1,14 @@
 import 'package:budgets/core/utils/wrapper.dart';
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Get subcategories for a specific category
 Future<List<Subcategory>> getSubcategories(String categoryId) {
   return Wrapper.execute(() async {
-    final results = await powersync.db.getAll('''
-      SELECT id, created_at, name, category_id
-      FROM subcategories
-      WHERE category_id = ?
-    ''', [categoryId]);
+    final results = await Supabase.instance.client
+        .from('subcategories')
+        .select('id, created_at, name, category_id')
+        .eq('category_id', categoryId);
 
     if (results.isEmpty) return [];
 
@@ -20,10 +19,9 @@ Future<List<Subcategory>> getSubcategories(String categoryId) {
 // Get all subcategories
 Future<List<Subcategory>> getAllSubcategories() {
   return Wrapper.execute(() async {
-    final results = await powersync.db.getAll('''
-      SELECT id, created_at, name, category_id
-      FROM subcategories
-    ''');
+    final results = await Supabase.instance.client
+        .from('subcategories')
+        .select('id, created_at, name, category_id');
 
     if (results.isEmpty) return [];
 

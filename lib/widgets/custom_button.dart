@@ -31,8 +31,6 @@ class CustomButton extends StatefulWidget {
     this.isLoading,
   }) : text = null;
 
-  static const Color buttonTextColor = Colors.black;
-
   final String? text;
   final double? width;
   final double? height;
@@ -53,14 +51,13 @@ class _CustomButtonState extends State<CustomButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final resolvedBackgroundColor = widget.backgroundColor ?? AppTheme.primaryGreen;
-    final isOutlinedStyle =
-        resolvedBackgroundColor == theme.cardColor ||
-            resolvedBackgroundColor == Colors.transparent;
+    final resolvedBackgroundColor =
+        widget.backgroundColor ?? AppTheme.primaryGreen;
+    final isOutlinedStyle = resolvedBackgroundColor == theme.cardColor ||
+        resolvedBackgroundColor == Colors.transparent;
     final themedOutlineColor =
         theme.brightness == Brightness.dark ? Colors.white : Colors.black;
-    final contentColor =
-        isOutlinedStyle ? themedOutlineColor : CustomButton.buttonTextColor;
+    const contentColor = AppTheme.interactiveTextColor;
 
     return SizedBox(
       width: widget.width ?? double.infinity,

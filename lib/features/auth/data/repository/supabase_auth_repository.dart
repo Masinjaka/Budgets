@@ -1,6 +1,5 @@
 import 'package:budgets/core/constants.dart';
-import 'package:budgets/core/offline/image_upload_queue.dart';
-import 'package:budgets/core/powersync/powersync.dart' as powersync;
+import 'package:budgets/core/offline/legacy_image_data_cleanup.dart';
 import 'package:budgets/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,9 +15,6 @@ class SupabaseAuthRepository implements AuthRepository {
     try {
       final response = await _client.auth
           .signInWithPassword(email: email, password: password);
-      await powersync.connectPowerSyncForCurrentUser(waitForSync: true);
-      await ImageUploadQueue.instance.processPendingUploads();
-      await powersync.flushPowerSyncUploads();
       debugPrint(
           '[SupabaseAuthRepository][signInWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
     } catch (e, st) {
@@ -40,9 +36,6 @@ class SupabaseAuthRepository implements AuthRepository {
           await _client.auth.signUp(email: email, password: password, data: {
         'username': username,
       });
-      await powersync.connectPowerSyncForCurrentUser(waitForSync: true);
-      await ImageUploadQueue.instance.processPendingUploads();
-      await powersync.flushPowerSyncUploads();
       debugPrint(
           '[SupabaseAuthRepository][signUpWithPassword] Success userId=${response.user?.id}, hasSession=${response.session != null}');
     } catch (e, st) {
@@ -55,7 +48,6 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    await powersync.powerSyncLogout();
     await _client.auth.signOut();
   }
 
@@ -111,18 +103,18 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> deleteAccount({String? reason}) async {
     final session = _client.auth.currentSession;
-    final accessToken = session?.accessToken;
-    if (accessToken == null) {
+    final email = session?.user.email;
+    if (session == null || email == null) {
       throw StateError('No authenticated session');
     }
 
     try {
-      final result = await _client.rpc('delete_user');
-
-      debugPrint('delete_user RPC result: $result');
-      // Clear local PowerSync data and sign out
-      await powersync.powerSyncLogout(discardPendingChanges: true);
-      await _client.auth.signOut();
+      await deleteLegacyImageData();
+      await _client.functions.invoke(
+        'delete-user-data',
+        body: {'action': 'account', 'confirmation': email},
+      );
+      await _client.auth.signOut(scope: SignOutScope.local);
     } catch (e) {
       debugPrint('Error deleting account: $e');
 

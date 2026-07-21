@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:permission_handler/permission_handler.dart';
+
+import 'notification_permission_service.dart';
 
 import '../../data/datasources/notification_datasource.dart';
 
@@ -13,11 +14,8 @@ class NotificationService {
   StreamSubscription<String>? _tokenSub;
 
   Future<void> bootstrapIfEnabled() async {
-    print('🔔 [FCM] bootstrapIfEnabled called');
     final settings = await _dataSource.fetchSettings();
-    print('🔔 [FCM] Settings fetched - anyEnabled: ${settings.anyEnabled}');
     if (!settings.anyEnabled) {
-      print('🔔 [FCM] Notifications disabled in settings - skipping registration');
       return;
     }
 
@@ -28,17 +26,19 @@ class NotificationService {
   }
 
   Future<bool> registerDevice() async {
-    final permissionStatus = await Permission.notification.status;
-    print('🔔 [FCM] Permission status: $permissionStatus');
-    if (!permissionStatus.isGranted) {
-      print('🔔 [FCM] Permission NOT granted - cannot register device');
+    final hasPermission = await NotificationPermissionService().isGranted();
+    if (!hasPermission) {
+      return false;
+    }
+
+    if (_requiresApnsToken() && !await _waitForApnsToken()) {
+      debugPrint('APNs token unavailable; FCM registration was deferred.');
       return false;
     }
 
     final token = await FirebaseMessaging.instance.getToken();
-    print('🔔 [FCM] Token obtained: $token');
     if (token == null) {
-      print('🔔 [FCM] Token is NULL - registration failed');
+      debugPrint('FCM returned no device token.');
       return false;
     }
 
@@ -47,10 +47,8 @@ class NotificationService {
       platform: _platformLabel(),
       enabled: true,
     );
-    print('🔔 [FCM] Token saved to Supabase for platform: ${_platformLabel()}');
 
     _tokenSub ??= FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-      print('🔔 [FCM] Token refreshed: $newToken');
       _dataSource.upsertDeviceToken(
         token: newToken,
         platform: _platformLabel(),
@@ -59,6 +57,20 @@ class NotificationService {
     });
 
     return true;
+  }
+
+  bool _requiresApnsToken() {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+  }
+
+  Future<bool> _waitForApnsToken() async {
+    for (var attempt = 0; attempt < 10; attempt++) {
+      if (await FirebaseMessaging.instance.getAPNSToken() != null) return true;
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+    return false;
   }
 
   Future<void> disableAllDevices() async {
@@ -87,5 +99,4 @@ class NotificationService {
         return 'fuchsia';
     }
   }
-
 }

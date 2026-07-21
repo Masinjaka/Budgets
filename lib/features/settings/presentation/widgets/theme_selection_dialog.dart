@@ -76,8 +76,8 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
           children: [
             Text(
               'Apparence',
-              style: TextStyle(
-                fontSize: 18.sp,
+              style: const TextStyle(
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -97,14 +97,14 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
-                labelColor: Colors.white,
+                labelColor: AppTheme.interactiveTextColor,
                 unselectedLabelColor: textColor,
-                labelStyle: TextStyle(
-                  fontSize: 14.sp,
+                labelStyle: const TextStyle(
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
-                unselectedLabelStyle: TextStyle(
-                  fontSize: 14.sp,
+                unselectedLabelStyle: const TextStyle(
+                  fontSize: 13,
                   fontWeight: FontWeight.normal,
                 ),
                 splashFactory: NoSplash.splashFactory,
