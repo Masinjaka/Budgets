@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:budgets/core/offline/image_upload_queue.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -43,37 +42,15 @@ Future<bool> deleteGoalImage(String? imageUrl) async {
 
 Future<String> uploadGoalImage(
   File file,
-  String userId, {
-  String? goalId,
-}) async {
+  String userId,
+) async {
   if (!await file.exists()) {
     throw FileSystemException('Le fichier image n\'existe pas', file.path);
   }
 
   final storagePath =
       'goals/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
-  if (goalId != null) {
-    return ImageUploadQueue.instance.enqueue(
-      sourceFile: file,
-      bucket: 'profile',
-      storagePath: storagePath,
-      table: 'goals',
-      rowId: goalId,
-      column: 'image_path',
-    );
-  }
-
-  try {
-    final client = Supabase.instance.client;
-    await client.storage.from('profile').upload(storagePath, file);
-    return client.storage.from('profile').getPublicUrl(storagePath);
-  } catch (error) {
-    debugPrint('Direct upload failed, saving locally: $error');
-    final directory = await ImageUploadQueue.getLocalImageDirPath();
-    final localFile = File(
-      '$directory/goal_${DateTime.now().millisecondsSinceEpoch}.jpg',
-    );
-    await file.copy(localFile.path);
-    return localFile.path;
-  }
+  final client = Supabase.instance.client;
+  await client.storage.from('profile').upload(storagePath, file);
+  return client.storage.from('profile').getPublicUrl(storagePath);
 }

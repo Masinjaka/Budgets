@@ -1,4 +1,6 @@
 import 'package:budgets/features/home/presentation/widgets/drawer_wallet_section.dart';
+import 'package:budgets/features/home/presentation/widgets/drawer_brand_header.dart';
+import 'package:budgets/features/home/presentation/widgets/drawer_menu_section.dart';
 import 'package:budgets/features/home/presentation/widgets/resume_date_calendar.dart';
 import 'package:budgets/features/ai_entry/presentation/view_models/ai_entry_view_model.dart';
 import 'package:budgets/features/home/presentation/view_models/activity_calendar_view_model.dart';
@@ -57,79 +59,56 @@ class HomeDrawer extends StatelessWidget {
               ),
             SafeArea(
               minimum: const EdgeInsets.only(top: 61, bottom: 39),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 22),
-                            child: Text(
-                              'Resume from a specific date',
-                              style: TextStyle(
-                                color: Color(0xFF606060),
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          ListenableBuilder(
-                            listenable: activityCalendarViewModel,
-                            builder: (context, _) => ResumeDateCalendar(
-                              today: today,
-                              selectedDay: selectedDate,
-                              activityDates:
-                                  activityCalendarViewModel.activityDates,
-                              onDaySelected: onDateSelected,
-                              onVisibleMonthChanged:
-                                  activityCalendarViewModel.loadMonth,
-                            ),
-                          ),
-                          const SizedBox(height: 22),
-                          ListenableBuilder(
-                            listenable: viewModel,
-                            builder: (context, _) => DrawerWalletSection(
-                              wallets: viewModel.wallets,
-                              isAdding: viewModel.isAddingWallet,
-                              onAddWallet: viewModel.addWallet,
-                            ),
-                          ),
-                        ],
+              child: SingleChildScrollView(
+                key: const Key('drawer-scroll-view'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DrawerBrandHeader(
+                      onProfilePressed: onSettingsPressed,
+                    ),
+                    const SizedBox(height: 27),
+                    DrawerMenuSection(
+                      onEnvelopePressed: onEnvelopePressed,
+                      onStatsPressed: onStatsPressed,
+                      onPlanPressed: onPlanPressed,
+                    ),
+                    const SizedBox(height: 34),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 22),
+                      child: Text(
+                        'Resume from a specific date',
+                        style: TextStyle(
+                          color: Color(0xFF606060),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                  _menuRow(
-                    Icons.mail_outline_rounded,
-                    'Envelope',
-                    key: const Key('drawer-envelope-button'),
-                    onTap: onEnvelopePressed,
-                  ),
-                  const SizedBox(height: 11),
-                  _menuRow(
-                    Icons.pie_chart_outline_rounded,
-                    'Stats',
-                    key: const Key('drawer-stats-button'),
-                    onTap: onStatsPressed,
-                  ),
-                  const SizedBox(height: 11),
-                  _menuRow(
-                    Icons.workspace_premium_outlined,
-                    'Plan',
-                    key: const Key('drawer-plan-button'),
-                    onTap: onPlanPressed,
-                  ),
-                  const SizedBox(height: 11),
-                  _menuRow(
-                    Icons.settings_outlined,
-                    'Settings',
-                    key: const Key('drawer-settings-button'),
-                    onTap: onSettingsPressed,
-                  ),
-                ],
+                    const SizedBox(height: 18),
+                    ListenableBuilder(
+                      listenable: activityCalendarViewModel,
+                      builder: (context, _) => ResumeDateCalendar(
+                        today: today,
+                        selectedDay: selectedDate,
+                        activityDates: activityCalendarViewModel.activityDates,
+                        onDaySelected: onDateSelected,
+                        onVisibleMonthChanged:
+                            activityCalendarViewModel.loadMonth,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    ListenableBuilder(
+                      listenable: viewModel,
+                      builder: (context, _) => DrawerWalletSection(
+                        wallets: viewModel.wallets,
+                        isAdding: viewModel.isAddingWallet,
+                        onAddWallet: viewModel.addWallet,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
             Positioned(
@@ -154,38 +133,6 @@ class HomeDrawer extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _menuRow(
-    IconData icon,
-    String label, {
-    Key? key,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      key: key,
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SizedBox(
-          height: 25,
-          child: Row(
-            children: [
-              Icon(icon, size: 22, color: Colors.black),
-              const SizedBox(width: 7),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

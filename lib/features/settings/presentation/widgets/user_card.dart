@@ -55,7 +55,7 @@ class UserCard extends ConsumerWidget {
                   return Text(
                     username,
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
@@ -73,8 +73,8 @@ class UserCard extends ConsumerWidget {
               SizedBox(height: 1.h),
               Text(
                 userEmail,
-                style: TextStyle(
-                  fontSize: 14.sp,
+                style: const TextStyle(
+                  fontSize: 12,
                   color: Colors.grey,
                 ),
               ),

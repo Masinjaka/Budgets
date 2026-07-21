@@ -32,6 +32,7 @@
 	<string>Drala accède à vos photos afin que vous puissiez choisir une image pour votre profil ou vos objectifs.</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

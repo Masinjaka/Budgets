@@ -92,8 +92,14 @@ class PreviewAiEntryRepository implements AiEntryRepository {
         transactionType: 'expense',
         currencyCode: 'USD',
         iconKey: icon,
-        emoji: '🧾',
+        emoji: _emojiFor(icon),
       );
+
+  String _emojiFor(String icon) => switch (icon) {
+        'food' => '🍔',
+        'shopping' => '🛒',
+        _ => '🧾',
+      };
 
   @override
   Future<AiEntryResult> processMessage(

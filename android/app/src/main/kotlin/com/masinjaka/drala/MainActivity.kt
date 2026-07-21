@@ -1,4 +1,4 @@
-package com.example.budgets
+package com.masinjaka.drala
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

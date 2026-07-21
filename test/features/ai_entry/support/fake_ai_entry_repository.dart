@@ -27,6 +27,7 @@ class FakeAiEntryRepository implements AiEntryRepository {
   String? resumedWalletId;
   bool? resumedWithAllWallets;
   Set<DateTime> activityDates = {};
+  Completer<Set<DateTime>>? activityDatesCompleter;
   DateTime? requestedActivityMonth;
 
   @override
@@ -39,6 +40,9 @@ class FakeAiEntryRepository implements AiEntryRepository {
   @override
   Future<Set<DateTime>> activityDatesForMonth(DateTime month) async {
     requestedActivityMonth = month;
+    if (activityDatesCompleter case final completer?) {
+      return completer.future;
+    }
     return Set.unmodifiable(activityDates);
   }
 

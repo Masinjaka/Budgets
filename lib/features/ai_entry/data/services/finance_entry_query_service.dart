@@ -97,7 +97,7 @@ class FinanceEntryQueryService {
         'transaction_type': 'transfer',
         'category': {
           'name': 'Transfer',
-          'emoji': '↔',
+          'emoji': '🔄',
           'icon_key': 'transfer',
         },
       });

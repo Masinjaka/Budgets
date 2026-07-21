@@ -154,6 +154,28 @@ void main() {
     expect(repository.resumedWalletId, isNull);
     expect(repository.resumedWithAllWallets, isTrue);
   });
+
+  test('clears entries and keeps only an empty default wallet after deletion',
+      () async {
+    final repository = FakeAiEntryRepository()
+      ..entries = [_entry('Old expense')]
+      ..walletItems = [
+        _wallet('cash', 'Cash', 400000),
+        _wallet('bank', 'Bank', 600000),
+      ];
+    final viewModel = AiEntryViewModel(repository, DateTime(2026, 7, 17));
+    await viewModel.loadDate(DateTime(2026, 7, 17));
+    repository.walletItems = [_wallet('cash', 'Cash', 0)];
+
+    await viewModel.resetAfterDataDeletion();
+
+    expect(viewModel.entries, isEmpty);
+    expect(viewModel.wallets, hasLength(1));
+    expect(viewModel.wallets.single.isDefault, isTrue);
+    expect(viewModel.wallets.single.balance, 0);
+    expect(viewModel.totalWalletBalance, 0);
+    expect(viewModel.remainingRequests, 20);
+  });
 }
 
 FinanceEntry _entry(String title) => FinanceEntry(

@@ -8,6 +8,7 @@ class AppTheme {
   static const Color borderColorDark = Color(0xff303237);
   static const Color primaryGreen = Color(0xFF10B981);
   static const Color secondaryGreen = Color(0xff4C8352);
+  static const Color dangerColor = Color(0xFFE57373);
 
   //Text Colors
   static const Color textDark = Color(0xffEFEFEF);

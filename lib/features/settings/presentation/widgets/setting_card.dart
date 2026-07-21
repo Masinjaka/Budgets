@@ -78,7 +78,7 @@ class _SettingCardState extends State<SettingCard> {
                     ),
                     child: Icon(
                       widget.iconData,
-                      size: 20.sp,
+                      size: 20,
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
@@ -89,7 +89,7 @@ class _SettingCardState extends State<SettingCard> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 15.sp,
+                        fontSize: 13,
                         color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
@@ -110,8 +110,8 @@ class _SettingCardState extends State<SettingCard> {
                           widget.settingChoice ?? '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 15.sp,
+                          style: const TextStyle(
+                            fontSize: 12,
                             color: Colors.grey,
                           ),
                         ),
@@ -136,7 +136,7 @@ class _SettingCardState extends State<SettingCard> {
                   else if (widget.showTrailingArrow)
                     Icon(
                       Icons.arrow_forward_ios,
-                      size: 16.sp,
+                      size: 15,
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                 ],

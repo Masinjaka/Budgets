@@ -23,8 +23,8 @@ void main() {
 
     await tester.tap(find.byTooltip('Menu'));
     await tester.pumpAndSettle();
-    expect(find.text('Settings').hitTestable(), findsOneWidget);
-    final settingsButton = find.byKey(const Key('drawer-settings-button'));
+    expect(find.text('Settings'), findsNothing);
+    final settingsButton = find.byKey(const Key('drawer-profile-button'));
     await tester.tap(settingsButton);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
@@ -32,6 +32,14 @@ void main() {
     expect(find.byType(SettingsWithBackPage), findsOneWidget);
     expect(find.text('Paramètres'), findsOneWidget);
     expect(find.byTooltip('Back'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text('Paramètres')).style?.fontSize,
+      18,
+    );
+    expect(
+      tester.widget<Text>(find.text('Modifier le profil')).style?.fontSize,
+      13,
+    );
 
     await tester.tap(find.byTooltip('Back'));
     await tester.pump(const Duration(milliseconds: 500));

@@ -35,7 +35,9 @@ void main() {
 Widget _app(List<FinanceEntry> entries) {
   return MaterialApp(
     home: Scaffold(
-      body: AnimatedFinanceEntryList(entries: entries),
+      body: CustomScrollView(
+        slivers: [AnimatedFinanceEntryList(entries: entries)],
+      ),
     ),
   );
 }

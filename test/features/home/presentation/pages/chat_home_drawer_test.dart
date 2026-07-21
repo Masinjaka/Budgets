@@ -33,11 +33,21 @@ void main() {
     expect(find.text('July'), findsOneWidget);
     expect(find.text('2026'), findsOneWidget);
     expect(find.text('16'), findsOneWidget);
-    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Settings'), findsNothing);
+    expect(find.byKey(const Key('drawer-settings-button')), findsNothing);
+    expect(find.byKey(const Key('drawer-profile-button')), findsOneWidget);
+    expect(find.byKey(const Key('drawer-app-icon')), findsOneWidget);
+    expect(find.byKey(const Key('drawer-app-title')), findsOneWidget);
     expect(find.byTooltip('Close menu'), findsNothing);
+    final titleY =
+        tester.getCenter(find.byKey(const Key('drawer-app-title'))).dy;
     final envelopeY = tester.getCenter(find.text('Envelope')).dy;
-    final settingsY = tester.getCenter(find.text('Settings')).dy;
-    expect(settingsY - envelopeY, lessThan(120));
+    final planY = tester.getCenter(find.text('Plan')).dy;
+    final calendarTitleY =
+        tester.getCenter(find.text('Resume from a specific date')).dy;
+    expect(planY - envelopeY, greaterThan(80));
+    expect(titleY, lessThan(envelopeY));
+    expect(planY, lessThan(calendarTitleY));
 
     await tester.dragFrom(
       const Offset(380, 400),
@@ -49,6 +59,27 @@ void main() {
     expect(_horizontalTranslation(tester, drawerPanel), lessThan(-300));
     expect(_menuOpacity(tester), 1);
     expect(_dimming(tester), 0);
+  });
+
+  testWidgets('drawer destinations move with vertical scrolling',
+      (tester) async {
+    usePhoneWindow(tester);
+    tester.view.physicalSize = const Size(400, 600);
+    await tester.pumpWidget(
+      MaterialApp(home: ChatHomePage(today: DateTime(2026, 7, 16))),
+    );
+
+    await tester.tap(find.byTooltip('Menu'));
+    await tester.pumpAndSettle();
+    final before = tester.getCenter(find.text('Envelope')).dy;
+
+    await tester.drag(
+      find.byKey(const Key('drawer-scroll-view')),
+      const Offset(0, -180),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.getCenter(find.text('Envelope')).dy, lessThan(before));
   });
 
   testWidgets('horizontal drag directly controls and settles both panels',

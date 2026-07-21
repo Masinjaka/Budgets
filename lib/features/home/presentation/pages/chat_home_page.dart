@@ -11,6 +11,7 @@ import 'package:budgets/features/envelopes/domain/repositories/envelope_reposito
 import 'package:budgets/features/home/presentation/widgets/chat_home_layout.dart';
 import 'package:budgets/features/home/presentation/widgets/drawer_destination_navigator.dart';
 import 'package:budgets/features/home/presentation/view_models/activity_calendar_view_model.dart';
+import 'package:budgets/features/notifications/presentation/widgets/notification_permission_prompt.dart';
 import 'package:budgets/features/stats/domain/repositories/monthly_stats_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -132,6 +133,15 @@ class _ChatHomePageState extends State<ChatHomePage>
     _activityCalendarViewModel.markActivity(_selectedDate);
   }
 
+  void _resetAfterDataDeletion() {
+    _activityCalendarViewModel.clear();
+    unawaited(
+      _aiEntryViewModel.resetAfterDataDeletion().catchError((Object error) {
+        if (mounted) showErrorToast(context, error);
+      }),
+    );
+  }
+
   @override
   void dispose() {
     _aiEntryViewModel.removeListener(_syncSelectedActivity);
@@ -150,24 +160,27 @@ class _ChatHomePageState extends State<ChatHomePage>
       onReturn: _aiEntryViewModel.refreshBalances,
       envelopeRepository: widget.envelopeRepository,
       statsRepository: widget.statsRepository,
+      onDataDeleted: _resetAfterDataDeletion,
     );
-    return ChatHomeLayout(
-      today: _today,
-      selectedDate: _selectedDate,
-      drawerController: _drawerController,
-      viewModel: _aiEntryViewModel,
-      activityCalendarViewModel: _activityCalendarViewModel,
-      onOpenDrawer: _openDrawer,
-      onCloseDrawer: _closeDrawer,
-      onDateSelected: _selectDate,
-      onEnvelopePressed: destinations.openEnvelopes,
-      onStatsPressed: destinations.openStats,
-      onPlanPressed: destinations.openPlans,
-      onSettingsPressed: destinations.openSettings,
-      onDragUpdate: _updateDrawerDrag,
-      onDragEnd: _settleDrawer,
-      onDragCancel: () => _animateDrawerTo(
-        _drawerController.value >= 0.5 ? 1 : 0,
+    return NotificationPermissionPrompt(
+      child: ChatHomeLayout(
+        today: _today,
+        selectedDate: _selectedDate,
+        drawerController: _drawerController,
+        viewModel: _aiEntryViewModel,
+        activityCalendarViewModel: _activityCalendarViewModel,
+        onOpenDrawer: _openDrawer,
+        onCloseDrawer: _closeDrawer,
+        onDateSelected: _selectDate,
+        onEnvelopePressed: destinations.openEnvelopes,
+        onStatsPressed: destinations.openStats,
+        onPlanPressed: destinations.openPlans,
+        onSettingsPressed: destinations.openSettings,
+        onDragUpdate: _updateDrawerDrag,
+        onDragEnd: _settleDrawer,
+        onDragCancel: () => _animateDrawerTo(
+          _drawerController.value >= 0.5 ? 1 : 0,
+        ),
       ),
     );
   }

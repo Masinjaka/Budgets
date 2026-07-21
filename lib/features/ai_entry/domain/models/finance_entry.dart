@@ -18,6 +18,8 @@ class FinanceEntry {
     final categoryJson = category is Map
         ? Map<String, dynamic>.from(category)
         : <String, dynamic>{};
+    final entryType = (json['entry_type'] as String?) ?? 'transaction';
+    final isTransfer = entryType == 'transfer';
     return FinanceEntry(
       id: json['id'] as String,
       title: (json['title'] as String?) ?? 'Entry',
@@ -27,9 +29,11 @@ class FinanceEntry {
       occurredAt: DateTime.parse(json['date'] as String).toLocal(),
       transactionType: (json['transaction_type'] as String?) ?? 'expense',
       currencyCode: (json['currency_code'] as String?) ?? 'MGA',
-      iconKey: (categoryJson['icon_key'] as String?) ?? 'other',
-      emoji: (categoryJson['emoji'] as String?) ?? '🧾',
-      entryType: (json['entry_type'] as String?) ?? 'transaction',
+      iconKey: isTransfer
+          ? 'transfer'
+          : (categoryJson['icon_key'] as String?) ?? 'other',
+      emoji: isTransfer ? '🔄' : (categoryJson['emoji'] as String?) ?? '🧾',
+      entryType: entryType,
     );
   }
 

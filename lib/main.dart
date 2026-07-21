@@ -1,6 +1,7 @@
 import 'package:budgets/core/navigation/app_navigation.dart';
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/core/ui/app_responsive_scope.dart';
+import 'package:budgets/features/notifications/presentation/services/firebase_messaging_bootstrap.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -17,6 +18,7 @@ Future<void> main() async {
       'SUPABASE_URL and SUPABASE_ANON_KEY dart defines are required.',
     );
   }
+  await FirebaseMessagingBootstrap.initialize();
   await Supabase.initialize(url: url, anonKey: anonKey);
   final navigation = AppNavigation.supabase(Supabase.instance.client);
   runApp(ProviderScope(child: MyApp(navigation: navigation)));

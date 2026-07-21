@@ -1,4 +1,5 @@
 import 'package:budgets/core/constants.dart';
+import 'package:budgets/core/offline/legacy_image_data_cleanup.dart';
 import 'package:budgets/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -102,16 +103,18 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> deleteAccount({String? reason}) async {
     final session = _client.auth.currentSession;
-    final accessToken = session?.accessToken;
-    if (accessToken == null) {
+    final email = session?.user.email;
+    if (session == null || email == null) {
       throw StateError('No authenticated session');
     }
 
     try {
-      final result = await _client.rpc('delete_user');
-
-      debugPrint('delete_user RPC result: $result');
-      await _client.auth.signOut();
+      await deleteLegacyImageData();
+      await _client.functions.invoke(
+        'delete-user-data',
+        body: {'action': 'account', 'confirmation': email},
+      );
+      await _client.auth.signOut(scope: SignOutScope.local);
     } catch (e) {
       debugPrint('Error deleting account: $e');
 

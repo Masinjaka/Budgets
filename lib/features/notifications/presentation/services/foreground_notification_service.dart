@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class ForegroundNotificationService {
@@ -16,7 +17,7 @@ class ForegroundNotificationService {
 
   static const _androidChannel = AndroidNotificationChannel(
     'budgets_notifications',
-    'Budgets Notifications',
+    'Drala Notifications',
     description: 'Notifications for reminders and budget warnings',
     importance: Importance.high,
   );
@@ -33,7 +34,11 @@ class ForegroundNotificationService {
     // Use @drawable/ic_notification for the small icon (white silhouette)
     // Falls back to @mipmap/ic_launcher if not found
     const android = AndroidInitializationSettings('@drawable/ic_notification');
-    const ios = DarwinInitializationSettings();
+    const ios = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
     const settings = InitializationSettings(android: android, iOS: ios);
     await _notifications.initialize(settings: settings);
 
@@ -46,28 +51,21 @@ class ForegroundNotificationService {
 
     // Handle notification tap when app was in background
     _openedAppSub ??= FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      print('🔔 [Tap] Notification tapped (app was backgrounded):');
-      print('   Title: ${message.notification?.title}');
-      print('   Data: ${message.data}');
+      debugPrint('Notification opened from background: ${message.messageId}');
       onNotificationTap?.call(message);
     });
 
     // Check if app was opened from a terminated state via notification tap
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
-      print('🔔 [Initial] App opened from notification tap (was terminated):');
-      print('   Title: ${initialMessage.notification?.title}');
-      print('   Data: ${initialMessage.data}');
+      debugPrint(
+        'Notification opened from terminated state: '
+        '${initialMessage.messageId}',
+      );
       onNotificationTap?.call(initialMessage);
     }
 
     _foregroundSub ??= FirebaseMessaging.onMessage.listen((message) async {
-      print('🔔 [Foreground] FCM message received:');
-      print('   Message ID: ${message.messageId}');
-      print('   Title: ${message.notification?.title}');
-      print('   Body: ${message.notification?.body}');
-      print('   Data: ${message.data}');
-
       final notification = message.notification;
       if (notification == null) return;
 

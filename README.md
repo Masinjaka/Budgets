@@ -1,6 +1,6 @@
 # Drala
 
-Drala is a Flutter mobile app for personal finance tracking. It lets users record expenses and income, organize categories, plan budgets and savings goals, view monthly reports, and keep working offline while data syncs back when connectivity returns.
+Drala is a Flutter mobile app for personal finance tracking. It lets users record expenses and income, organize categories, plan budgets and savings goals, view monthly reports, and store their financial data securely in Supabase.
 
 ## What the app does
 

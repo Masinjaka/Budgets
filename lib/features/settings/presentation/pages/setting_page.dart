@@ -1,10 +1,23 @@
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/ui/glass_flexible_space.dart';
+import 'package:budgets/features/categories/domain/providers/category_provider.dart';
+import 'package:budgets/features/planning/domain/providers/budget_provider.dart';
+import 'package:budgets/features/planning/domain/providers/goal_provider.dart';
+import 'package:budgets/features/settings/data/repositories/supabase_account_data_repository.dart';
+import 'package:budgets/features/settings/data/repositories/unavailable_account_data_repository.dart';
+import 'package:budgets/features/settings/data/services/account_data_service.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/features/settings/domain/providers/theme_provider.dart';
+import 'package:budgets/features/settings/domain/repositories/account_data_repository.dart';
 import 'package:budgets/features/settings/presentation/widgets/settings_content.dart';
+import 'package:budgets/features/settings/presentation/view_models/danger_zone_view_model.dart';
+import 'package:budgets/features/settings/presentation/widgets/danger_zone.dart';
 import 'package:budgets/features/settings/presentation/widgets/theme_selection_dialog.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/paginated_incomes_provider.dart';
+import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
+import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +26,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
-  const SettingPage({super.key});
+  const SettingPage({this.onDataDeleted, super.key});
+
+  final VoidCallback? onDataDeleted;
 
   @override
   ConsumerState<SettingPage> createState() => _SettingPageState();
@@ -24,11 +40,19 @@ class SettingPage extends ConsumerStatefulWidget {
 class _SettingPageState extends ConsumerState<SettingPage> {
   bool _isLoading = false;
   String _appVersion = '';
+  late final DangerZoneViewModel _dangerZoneViewModel;
 
   @override
   void initState() {
     super.initState();
+    _dangerZoneViewModel = DangerZoneViewModel(_accountDataRepository());
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadVersion());
+  }
+
+  @override
+  void dispose() {
+    _dangerZoneViewModel.dispose();
+    super.dispose();
   }
 
   Future<void> _loadVersion() async {
@@ -55,7 +79,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         automaticallyImplyLeading: false,
         title: Text(
           'Paramètres',
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
       ),
       body: Padding(
@@ -69,6 +93,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             ),
             onAppearance: _showThemeDialog,
             signOutButton: _signOutButton(),
+            dangerZone: DangerZone(
+              viewModel: _dangerZoneViewModel,
+              accountEmail: _accountEmail(),
+              onDataDeleted: _onDataDeleted,
+              onAccountDeleted: () => context.go('/getting-started'),
+            ),
             appVersion: _appVersion.isEmpty ? '...' : _appVersion,
           ),
         ),
@@ -78,7 +108,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   Text _currencyText(String value) => Text(
         value,
-        style: TextStyle(fontSize: 15.sp, color: Colors.grey),
+        style: const TextStyle(fontSize: 12, color: Colors.grey),
       );
 
   void _showThemeDialog() {
@@ -89,6 +119,40 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         onThemeChanged: ref.read(themeProvider.notifier).setTheme,
       ),
     );
+  }
+
+  void _onDataDeleted() {
+    ref.invalidate(userModelProvider);
+    ref.invalidate(currencyControllerProvider);
+    ref.invalidate(categoriesProvider);
+    ref.invalidate(transactionsProvider);
+    ref.invalidate(paginatedExpensesProvider);
+    ref.invalidate(paginatedIncomesProvider);
+    ref.invalidate(budgetsProvider);
+    ref.invalidate(goalsProvider);
+    if (widget.onDataDeleted case final callback?) {
+      callback();
+      Navigator.of(context).pop();
+    } else {
+      context.go('/home');
+    }
+  }
+
+  AccountDataRepository _accountDataRepository() {
+    try {
+      final service = AccountDataService(Supabase.instance.client);
+      return SupabaseAccountDataRepository(service);
+    } catch (_) {
+      return const UnavailableAccountDataRepository();
+    }
+  }
+
+  String _accountEmail() {
+    try {
+      return Supabase.instance.client.auth.currentUser?.email ?? '';
+    } catch (_) {
+      return '';
+    }
   }
 
   CustomButton _signOutButton() => CustomButton(

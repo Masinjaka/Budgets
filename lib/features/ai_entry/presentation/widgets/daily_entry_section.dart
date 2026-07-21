@@ -1,5 +1,6 @@
 import 'package:budgets/features/ai_entry/domain/models/finance_entry.dart';
 import 'package:budgets/features/ai_entry/presentation/widgets/animated_finance_entry_list.dart';
+import 'package:budgets/features/ai_entry/presentation/widgets/daily_entry_header.dart';
 import 'package:flutter/material.dart';
 
 class DailyEntrySection extends StatelessWidget {
@@ -16,67 +17,65 @@ class DailyEntrySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  dateLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(_summary, style: const TextStyle(fontSize: 12.5)),
-            ],
+    return CustomScrollView(
+      key: const Key('transaction-scroll-view'),
+      slivers: [
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: DailyEntryHeader(
+            dateLabel: dateLabel,
+            summary: _summary,
           ),
-          const SizedBox(height: 16),
-          if (isLoading)
-            const Padding(
-              padding: EdgeInsets.only(top: 28),
-              child: SizedBox.square(
-                dimension: 22,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else if (entries.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 28),
-              child: Text(
-                'No entries for this date',
-                style: TextStyle(color: Color(0xFF777777), fontSize: 12),
-              ),
-            )
-          else
-            AnimatedFinanceEntryList(entries: entries),
-        ],
-      ),
+        ),
+        if (isLoading)
+          SliverToBoxAdapter(child: _loadingState())
+        else if (entries.isEmpty)
+          SliverToBoxAdapter(child: _emptyState())
+        else
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            sliver: AnimatedFinanceEntryList(entries: entries),
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+      ],
     );
   }
 
+  Widget _loadingState() => const Padding(
+        padding: EdgeInsets.only(top: 28),
+        child: Center(
+          child: SizedBox.square(
+            dimension: 22,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+
+  Widget _emptyState() => const Padding(
+        padding: EdgeInsets.only(top: 28),
+        child: Center(
+          child: Text(
+            'No entries for this date',
+            style: TextStyle(color: Color(0xFF777777), fontSize: 12),
+          ),
+        ),
+      );
+
   String get _summary {
-    final expenseCount = entries.where((entry) => entry.isExpense).length;
-    final incomeCount = entries.where((entry) => entry.isIncome).length;
-    final transferCount = entries.where((entry) => entry.isTransfer).length;
-    if (transferCount == entries.length) {
-      return '$transferCount '
-          '${transferCount == 1 ? 'transfer' : 'transfers'}';
+    final expenses = entries.where((entry) => entry.isExpense).length;
+    final incomes = entries.where((entry) => entry.isIncome).length;
+    final transfers = entries.where((entry) => entry.isTransfer).length;
+    if (transfers == entries.length) {
+      return '$transfers ${transfers == 1 ? 'transfer' : 'transfers'}';
     }
-    if (incomeCount == 0) {
-      if (transferCount > 0) return '${entries.length} entries';
-      return '$expenseCount ${expenseCount == 1 ? 'expense' : 'expenses'}';
+    if (incomes == 0) {
+      if (transfers > 0) return '${entries.length} entries';
+      return '$expenses ${expenses == 1 ? 'expense' : 'expenses'}';
     }
-    if (expenseCount == 0) {
-      if (transferCount > 0) return '${entries.length} entries';
-      return '$incomeCount ${incomeCount == 1 ? 'income' : 'incomes'}';
+    if (expenses == 0) {
+      if (transfers > 0) return '${entries.length} entries';
+      return '$incomes ${incomes == 1 ? 'income' : 'incomes'}';
     }
     return '${entries.length} entries';
   }

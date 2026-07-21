@@ -52,13 +52,10 @@ class HomeDashboard extends StatelessWidget {
                         currencyCode: viewModel.walletCurrencyCode,
                       ),
                       Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.only(top: 40),
-                          child: DailyEntrySection(
-                            dateLabel: _dateLabel(viewModel.selectedDate),
-                            entries: viewModel.entries,
-                            isLoading: viewModel.isLoading,
-                          ),
+                        child: DailyEntrySection(
+                          dateLabel: _dateLabel(viewModel.selectedDate),
+                          entries: viewModel.entries,
+                          isLoading: viewModel.isLoading,
                         ),
                       ),
                       AiRequestQuotaLabel(

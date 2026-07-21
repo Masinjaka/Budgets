@@ -11,6 +11,7 @@ class SettingsContent extends StatelessWidget {
     required this.currencyChoice,
     required this.onAppearance,
     required this.signOutButton,
+    required this.dangerZone,
     required this.appVersion,
     super.key,
   });
@@ -18,6 +19,7 @@ class SettingsContent extends StatelessWidget {
   final Widget currencyChoice;
   final VoidCallback onAppearance;
   final Widget signOutButton;
+  final Widget dangerZone;
   final String appVersion;
 
   @override
@@ -35,6 +37,8 @@ class SettingsContent extends StatelessWidget {
           SizedBox(height: 4.h),
           _support(),
           SizedBox(height: 4.h),
+          dangerZone,
+          SizedBox(height: 4.h),
           signOutButton,
           SizedBox(height: 1.h),
           Center(
@@ -42,7 +46,7 @@ class SettingsContent extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 2.h),
               child: Text(
                 'Version $appVersion',
-                style: TextStyle(fontSize: 15.sp, color: Colors.grey),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),
           ),

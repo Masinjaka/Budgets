@@ -8,6 +8,8 @@ import 'package:budgets/features/home/domain/models/add_wallet_input.dart';
 import 'package:budgets/features/home/domain/models/wallet_summary.dart';
 import 'package:flutter/material.dart';
 
+part 'ai_entry_data_reset.dart';
+
 class AiEntryViewModel extends ChangeNotifier {
   AiEntryViewModel(this._repository, DateTime initialDate)
       : _selectedDate = DateUtils.dateOnly(initialDate);
@@ -159,6 +161,8 @@ class AiEntryViewModel extends ChangeNotifier {
 
   int get _walletBalance =>
       _wallets.fold(0, (total, wallet) => total + wallet.balance);
+
+  void _notifyDataReset() => notifyListeners();
 
   Future<void> _applyResult(AiEntryResult result, DateTime targetDate) async {
     _quota = AiQuota(

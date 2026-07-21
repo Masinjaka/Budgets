@@ -6,6 +6,7 @@ import 'package:budgets/widgets/permission_request_dialog.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
 import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
 import 'package:budgets/features/notifications/domain/models/notification_settings.dart';
+import 'package:budgets/features/notifications/presentation/services/notification_permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -276,7 +277,6 @@ class NotificationSettingsPage extends ConsumerWidget {
       return false;
     }
 
-    final result = await Permission.notification.request();
-    return result.isGranted;
+    return NotificationPermissionService().request();
   }
 }

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 class FinanceEntryIcon extends StatelessWidget {
-  const FinanceEntryIcon({required this.iconKey, super.key});
+  const FinanceEntryIcon({
+    required this.emoji,
+    required this.iconKey,
+    super.key,
+  });
 
+  final String emoji;
   final String iconKey;
 
   @override
@@ -15,23 +20,30 @@ class FinanceEntryIcon extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
-      child: Icon(_iconFor(iconKey), size: 21, color: Colors.black),
+      child: Text(
+        _resolvedEmoji,
+        key: const Key('finance-entry-emoji'),
+        style: const TextStyle(fontSize: 22),
+      ),
     );
   }
 
-  IconData _iconFor(String key) => switch (key) {
-        'food' => Icons.fastfood_outlined,
-        'shopping' => Icons.shopping_cart_outlined,
-        'transport' => Icons.directions_car_outlined,
-        'housing' => Icons.home_outlined,
-        'health' => Icons.medical_services_outlined,
-        'entertainment' => Icons.movie_outlined,
-        'education' => Icons.school_outlined,
-        'utilities' => Icons.lightbulb_outline,
-        'salary' => Icons.work_outline,
-        'freelance' => Icons.laptop_mac_outlined,
-        'income' => Icons.payments_outlined,
-        'transfer' => Icons.swap_vert_rounded,
-        _ => Icons.receipt_long_outlined,
-      };
+  String get _resolvedEmoji {
+    if (emoji.trim().isNotEmpty) return emoji;
+    return switch (iconKey) {
+      'food' => '🍔',
+      'shopping' => '🛒',
+      'transport' => '🚗',
+      'housing' => '🏠',
+      'health' => '🩺',
+      'entertainment' => '🎬',
+      'education' => '🎓',
+      'utilities' => '💡',
+      'salary' => '💼',
+      'freelance' => '💻',
+      'income' => '💰',
+      'transfer' => '🔄',
+      _ => '🧾',
+    };
+  }
 }

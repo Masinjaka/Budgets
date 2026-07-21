@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class SlidingDrawerLayout extends StatelessWidget {
@@ -80,6 +81,7 @@ class SlidingDrawerLayout extends StatelessWidget {
     return GestureDetector(
       key: key,
       behavior: HitTestBehavior.opaque,
+      dragStartBehavior: DragStartBehavior.down,
       onHorizontalDragStart: (_) => controller.stop(),
       onHorizontalDragUpdate: onDragUpdate,
       onHorizontalDragEnd: onDragEnd,

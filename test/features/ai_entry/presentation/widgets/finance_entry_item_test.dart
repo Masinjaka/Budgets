@@ -54,7 +54,8 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.swap_vert_rounded), findsOneWidget);
+    expect(find.text('🔄'), findsOneWidget);
+    expect(find.byType(Icon), findsNothing);
     final amount = tester.widget<Text>(
       find.byKey(const Key('finance-entry-amount-transfer')),
     );
@@ -65,6 +66,22 @@ void main() {
     );
     expect(amount.style?.color, Colors.black);
     expect(amount.style?.fontSize, 11);
+  });
+
+  testWidgets('renders the category emoji instead of a Material icon',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FinanceEntryItem(
+            entry: _entry('meal', 'expense', emoji: '🍜'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('🍜'), findsOneWidget);
+    expect(find.byIcon(Icons.fastfood_outlined), findsNothing);
   });
 }
 
@@ -79,6 +96,7 @@ FinanceEntry _entry(
   String id,
   String type, {
   String entryType = 'transaction',
+  String? emoji,
 }) =>
     FinanceEntry(
       id: id,
@@ -89,6 +107,6 @@ FinanceEntry _entry(
       transactionType: type,
       currencyCode: 'MGA',
       iconKey: entryType == 'transfer' ? 'transfer' : 'other',
-      emoji: '🧾',
+      emoji: emoji ?? (entryType == 'transfer' ? '🔄' : '🧾'),
       entryType: entryType,
     );

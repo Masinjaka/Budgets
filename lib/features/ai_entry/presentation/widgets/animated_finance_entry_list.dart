@@ -17,7 +17,7 @@ class AnimatedFinanceEntryList extends StatefulWidget {
 
 class _AnimatedFinanceEntryListState extends State<AnimatedFinanceEntryList> {
   static const _duration = Duration(milliseconds: 280);
-  final _listKey = GlobalKey<AnimatedListState>();
+  final _listKey = GlobalKey<SliverAnimatedListState>();
   late final List<FinanceEntry> _entries = [...widget.entries];
 
   @override
@@ -61,11 +61,9 @@ class _AnimatedFinanceEntryListState extends State<AnimatedFinanceEntryList> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedList(
+    return SliverAnimatedList(
       key: _listKey,
       initialItemCount: _entries.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index, animation) {
         return _transition(_entries[index], animation);
       },

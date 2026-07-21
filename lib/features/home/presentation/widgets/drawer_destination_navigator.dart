@@ -12,6 +12,7 @@ class DrawerDestinationNavigator {
     required this.selectedDate,
     required this.closeDrawer,
     this.onReturn,
+    this.onDataDeleted,
     this.envelopeRepository,
     this.statsRepository,
   });
@@ -20,10 +21,13 @@ class DrawerDestinationNavigator {
   final DateTime selectedDate;
   final VoidCallback closeDrawer;
   final Future<void> Function()? onReturn;
+  final VoidCallback? onDataDeleted;
   final EnvelopeRepository? envelopeRepository;
   final MonthlyStatsRepository? statsRepository;
 
-  void openSettings() => _push(const SettingsWithBackPage());
+  void openSettings() => _push(
+        SettingsWithBackPage(onDataDeleted: onDataDeleted),
+      );
 
   void openPlans() => _push(const PlanPage());
 

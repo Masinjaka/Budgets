@@ -24,4 +24,20 @@ void main() {
     expect(entry.iconKey, 'food');
     expect(entry.isExpense, isTrue);
   });
+
+  test('uses the native transfer emoji for committed transfers', () {
+    final entry = FinanceEntry.fromJson({
+      'id': 'transfer-id',
+      'title': 'Moved from Cash to Bank',
+      'amount': 5000,
+      'date': '2026-07-17T09:30:00.000Z',
+      'transaction_type': 'transfer',
+      'currency_code': 'MGA',
+      'entry_type': 'transfer',
+    });
+
+    expect(entry.emoji, '🔄');
+    expect(entry.iconKey, 'transfer');
+    expect(entry.isTransfer, isTrue);
+  });
 }

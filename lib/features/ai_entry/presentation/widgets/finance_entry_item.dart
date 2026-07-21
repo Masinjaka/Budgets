@@ -15,7 +15,10 @@ class FinanceEntryItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FinanceEntryIcon(iconKey: entry.iconKey),
+          FinanceEntryIcon(
+            emoji: entry.emoji,
+            iconKey: entry.iconKey,
+          ),
           const SizedBox(width: 17),
           Expanded(
             child: Padding(
