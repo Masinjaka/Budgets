@@ -4,7 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('uses overlay navigation below the tablet breakpoint', () {
     expect(AppBreakpoints.usesPersistentNavigation(599), isFalse);
-    expect(AppBreakpoints.mobileDrawerWidth(400), 330);
+    expect(AppBreakpoints.mobileDrawerWidth(400), 380);
+    expect(AppBreakpoints.mobileDrawerWidth(480), 456);
   });
 
   test('uses persistent navigation on tablet and large windows', () {

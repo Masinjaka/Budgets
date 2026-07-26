@@ -1,5 +1,7 @@
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
 
 class DestructiveConfirmationDialog extends StatefulWidget {
@@ -67,10 +69,10 @@ class _DestructiveConfirmationDialogState
                 widget.instruction,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
-              hint: 'Confirmation',
+              hint: context.l10n.confirmation,
               fillColor: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(14),
-              fontSize: 14,
+              fontSize: AppTypography.body,
             ),
           ],
         ),
@@ -78,7 +80,7 @@ class _DestructiveConfirmationDialogState
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
+          child: Text(context.l10n.cancel),
         ),
         FilledButton(
           key: const Key('danger-confirm-button'),
@@ -87,7 +89,7 @@ class _DestructiveConfirmationDialogState
             backgroundColor: AppTheme.dangerColor,
             foregroundColor: AppTheme.interactiveTextColor,
           ),
-          child: const Text('Supprimer'),
+          child: Text(context.l10n.delete),
         ),
       ],
     );

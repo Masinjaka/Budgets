@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class DrawerBrandHeader extends StatelessWidget {
   const DrawerBrandHeader({required this.onProfilePressed, super.key});
 
-  final VoidCallback onProfilePressed;
+  final Future<void> Function() onProfilePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +24,11 @@ class DrawerBrandHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 11),
-          const Text(
+          Text(
             'Drala',
-            key: Key('drawer-app-title'),
+            key: const Key('drawer-app-title'),
             style: TextStyle(
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 21,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.4,

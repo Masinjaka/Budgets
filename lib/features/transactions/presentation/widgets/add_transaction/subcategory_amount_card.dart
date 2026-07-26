@@ -1,6 +1,5 @@
 import 'package:budgets/widgets/animated_amount_field.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class SubcategoryAmountCard extends StatelessWidget {
   final Map<String, dynamic> item;
@@ -21,44 +20,44 @@ class SubcategoryAmountCard extends StatelessWidget {
     final amountController = item['amountController'] as TextEditingController;
     final subcategoryName = item['subcategoryName'] as String? ?? '';
     return Container(
-      margin: EdgeInsets.only(right: 3.w),
-      height: 20.h,
+      margin: EdgeInsets.only(right: 12),
+      height: 160,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
         fit: StackFit.expand,
         children: [
           Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 3.w),
+              padding: EdgeInsets.symmetric(horizontal: 12),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AnimatedSubcategoryAmountField(
                     controller: amountController,
                     hint: '0.00',
-                    fontSize: 25.sp,
+                    fontSize: 25,
                     fillColor: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(3.w),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 8),
                   GestureDetector(
                     onTap: () => onSubcategoryTap(item, index),
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceDim,
-                        borderRadius: BorderRadius.circular(5.w),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         subcategoryName.isNotEmpty
                             ? subcategoryName
                             : 'Choisir une sous-catégorie',
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: 13,
                           fontWeight: subcategoryName.isNotEmpty
                               ? FontWeight.w600
                               : FontWeight.normal,
@@ -74,13 +73,13 @@ class SubcategoryAmountCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 1.h,
-            right: 1.h,
+            top: 8,
+            right: 8,
             child: GestureDetector(
               onTap: () => onRemove(index),
               child: Container(
-                height: 3.h,
-                width: 3.h,
+                height: 24,
+                width: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Theme.of(context).colorScheme.surfaceDim,

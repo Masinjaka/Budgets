@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SubcategoryDetailSkeleton extends StatelessWidget {
@@ -8,19 +7,19 @@ class SubcategoryDetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 1.h),
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(
           2,
           (index) => Padding(
-            padding: EdgeInsets.only(bottom: 0.5.h),
+            padding: EdgeInsets.only(bottom: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _shimmerBox(context, width: 25.w),
-                SizedBox(width: 2.w),
-                _shimmerBox(context, width: 15.w),
+                _shimmerBox(context, width: 100),
+                SizedBox(width: 8),
+                _shimmerBox(context, width: 60),
               ],
             ),
           ),
@@ -40,10 +39,10 @@ class SubcategoryDetailSkeleton extends StatelessWidget {
       highlightColor: highlight,
       child: Container(
         width: width,
-        height: 2.5.h,
+        height: 20,
         decoration: BoxDecoration(
           color: base,
-          borderRadius: BorderRadius.circular(2.w),
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );

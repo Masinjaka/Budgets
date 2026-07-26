@@ -9,6 +9,7 @@ class Envelope {
     required this.amount,
     required this.spent,
     required this.currencyCode,
+    this.overspentAmount = 0,
   });
 
   final String id;
@@ -20,10 +21,11 @@ class Envelope {
   final int amount;
   final int spent;
   final String currencyCode;
+  final int overspentAmount;
 
   int get remaining => amount - spent;
   double get progress => amount == 0 ? 0 : spent / amount;
-  bool get isExceeded => spent > amount;
+  bool get isExceeded => overspentAmount > 0;
 
   Envelope copyWith({int? spent}) => Envelope(
         id: id,
@@ -35,5 +37,6 @@ class Envelope {
         amount: amount,
         spent: spent ?? this.spent,
         currencyCode: currencyCode,
+        overspentAmount: overspentAmount,
       );
 }

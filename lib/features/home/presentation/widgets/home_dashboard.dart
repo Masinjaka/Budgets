@@ -1,25 +1,26 @@
-import 'package:budgets/core/ui/app_toast.dart';
-import 'package:budgets/features/ai_entry/domain/errors/ai_entry_exception.dart';
+import 'package:budgets/core/currency/currency_state.dart';
 import 'package:budgets/features/ai_entry/presentation/view_models/ai_entry_view_model.dart';
 import 'package:budgets/features/ai_entry/presentation/widgets/daily_entry_section.dart';
-import 'package:budgets/features/home/domain/errors/insufficient_funds_exception.dart';
-import 'package:budgets/features/home/domain/errors/wallet_selection_required_exception.dart';
-import 'package:budgets/features/home/domain/models/wallet_funding_choice.dart';
-import 'package:budgets/features/home/presentation/widgets/ai_entry_result_feedback.dart';
+import 'package:budgets/features/home/presentation/controllers/home_entry_actions.dart';
 import 'package:budgets/features/home/presentation/widgets/ai_request_quota_label.dart';
 import 'package:budgets/features/home/presentation/widgets/chat_input_bar.dart';
+import 'package:budgets/features/home/presentation/widgets/home_collapsing_surface.dart';
 import 'package:budgets/features/home/presentation/widgets/home_header.dart';
-import 'package:budgets/features/home/presentation/widgets/manual_entry_sheet.dart';
-import 'package:budgets/features/home/presentation/widgets/wallet_funding_prompt.dart';
+import 'package:budgets/features/notifications/presentation/view_models/finance_notification_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 
-class HomeDashboard extends StatelessWidget {
+class HomeDashboard extends StatefulWidget {
   const HomeDashboard({
     required this.today,
     required this.drawerProgress,
     required this.onMenuPressed,
     required this.viewModel,
+    required this.notificationViewModel,
+    required this.onNotificationsPressed,
+    required this.onFinanceChanged,
+    this.currencyState,
     super.key,
   });
 
@@ -27,168 +28,128 @@ class HomeDashboard extends StatelessWidget {
   final Animation<double> drawerProgress;
   final VoidCallback onMenuPressed;
   final AiEntryViewModel viewModel;
+  final FinanceNotificationViewModel notificationViewModel;
+  final VoidCallback onNotificationsPressed;
+  final Future<void> Function() onFinanceChanged;
+  final CurrencyState? currencyState;
+
+  @override
+  State<HomeDashboard> createState() => _HomeDashboardState();
+}
+
+class _HomeDashboardState extends State<HomeDashboard> {
+  static const _collapseDistance = 72.0;
+  final _scrollController = ScrollController();
+  final _collapseProgress = ValueNotifier<double>(0);
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateCollapseProgress);
+  }
+
+  void _updateCollapseProgress() {
+    final next = (_scrollController.offset / _collapseDistance).clamp(0.0, 1.0);
+    if ((next - _collapseProgress.value).abs() > 0.001) {
+      _collapseProgress.value = next;
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateCollapseProgress);
+    _scrollController.dispose();
+    _collapseProgress.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: const Color(0xFFFEFEFE),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width =
-              constraints.maxWidth > 480 ? 480.0 : constraints.maxWidth;
-          return Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: width),
-              child: SafeArea(
-                minimum: const EdgeInsets.only(top: 44, bottom: 4),
-                child: ListenableBuilder(
-                  listenable: viewModel,
-                  builder: (context, _) => Column(
-                    children: [
-                      HomeHeader(
-                        drawerProgress: drawerProgress,
-                        onMenuPressed: onMenuPressed,
-                        balance: viewModel.totalWalletBalance,
-                        currencyCode: viewModel.walletCurrencyCode,
-                      ),
-                      Expanded(
-                        child: DailyEntrySection(
-                          dateLabel: _dateLabel(viewModel.selectedDate),
-                          entries: viewModel.entries,
-                          isLoading: viewModel.isLoading,
-                        ),
-                      ),
-                      AiRequestQuotaLabel(
-                        remaining: viewModel.remainingRequests,
-                        unlimited: viewModel.hasUnlimitedAiRequests,
-                      ),
-                      const SizedBox(height: 6),
-                      ChatInputBar(
-                        isSubmitting: viewModel.isSubmitting,
-                        isQuotaExhausted: !viewModel.hasUnlimitedAiRequests &&
-                            viewModel.remainingRequests == 0,
-                        onSubmit: (message) => _submit(context, message),
-                        onManualEntryRequested: () => _addManual(context),
-                      ),
-                    ],
-                  ),
+    final actions = HomeEntryActions(
+      widget.viewModel,
+      currencyState: widget.currencyState,
+    );
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) => HomeCollapsingSurface(
+        collapseProgress: _collapseProgress,
+        header: HomeHeader(
+          drawerProgress: widget.drawerProgress,
+          collapseProgress: _collapseProgress,
+          onMenuPressed: widget.onMenuPressed,
+          balance: _displayBalance,
+          notificationViewModel: widget.notificationViewModel,
+          onNotificationsPressed: widget.onNotificationsPressed,
+          currencyCode:
+              widget.currencyState?.code ?? widget.viewModel.walletCurrencyCode,
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: DailyEntrySection(
+                dateLabel: _dateLabel(
+                  context,
+                  widget.viewModel.selectedDate,
                 ),
+                entries: widget.viewModel.entries,
+                isLoading: widget.viewModel.isLoading,
+                controller: _scrollController,
+                collapseProgress: _collapseProgress,
+                expandedSurfaceRadius: HomeCollapsingSurface.expandedRadius,
+                onEntryTap: (entry) async {
+                  await actions.editEntry(context, entry);
+                  await widget.onFinanceChanged();
+                },
+                currencyState: widget.currencyState,
               ),
             ),
-          );
-        },
+            AiRequestQuotaLabel(
+              remaining: widget.viewModel.remainingRequests,
+              unlimited: widget.viewModel.hasUnlimitedAiRequests,
+            ),
+            const SizedBox(height: 6),
+            ChatInputBar(
+              isSubmitting: widget.viewModel.isSubmitting,
+              isQuotaExhausted: !widget.viewModel.hasUnlimitedAiRequests &&
+                  widget.viewModel.remainingRequests == 0,
+              onSubmit: (message) => _refreshAfter(
+                () => actions.submitMessage(context, message),
+              ),
+              onReceiptSubmit: (input) => _refreshAfter(
+                () => actions.submitReceipt(context, input),
+              ),
+              onManualEntryRequested: () async {
+                await actions.addManual(context);
+                await widget.onFinanceChanged();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  String _dateLabel(DateTime selectedDate) {
-    return DateUtils.isSameDay(selectedDate, today)
-        ? 'Today, ${DateFormat('d MMMM').format(selectedDate)}'
-        : DateFormat('EEEE, d MMMM').format(selectedDate);
+  Future<bool> _refreshAfter(Future<bool> Function() action) async {
+    final succeeded = await action();
+    if (succeeded) await widget.onFinanceChanged();
+    return succeeded;
   }
 
-  Future<bool> _submit(BuildContext context, String message) async {
-    try {
-      final result = await viewModel.submit(message);
-      if (!context.mounted) return true;
-      AiEntryResultFeedback.show(context, result);
-      return true;
-    } on WalletSelectionRequiredException catch (error) {
-      if (!context.mounted ||
-          error.requestId == null ||
-          error.extraction == null) {
-        return false;
-      }
-      final funding = await _chooseFunding(context, error.requiredAmount);
-      if (funding == null || !context.mounted) {
-        await _cancelPendingRequest(error.requestId!);
-        return false;
-      }
-      try {
-        final result = await viewModel.resumeMessage(
-          requestId: error.requestId!,
-          extraction: error.extraction!,
-          walletId: funding.walletId,
-          useAllWallets: funding.useAllWallets,
-        );
-        if (context.mounted) AiEntryResultFeedback.show(context, result);
-        return true;
-      } on InsufficientFundsException {
-        if (context.mounted) _showInsufficientFunds(context);
-        return false;
-      } catch (retryError) {
-        if (context.mounted) showErrorToast(context, retryError);
-        return false;
-      }
-    } on InsufficientFundsException {
-      if (context.mounted) _showInsufficientFunds(context);
-      return false;
-    } on AiEntryException catch (error) {
-      if (context.mounted) {
-        showAppToast(context, error.message, type: AppToastType.error);
-      }
-      return false;
-    } catch (error) {
-      if (context.mounted) showErrorToast(context, error);
-      return false;
-    }
+  String _dateLabel(BuildContext context, DateTime selectedDate) {
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return DateUtils.isSameDay(selectedDate, widget.today)
+        ? context.l10n.todayWithDate(
+            DateFormat('d MMMM', locale).format(selectedDate),
+          )
+        : DateFormat('EEEE, d MMMM', locale).format(selectedDate);
   }
 
-  Future<void> _addManual(BuildContext context) async {
-    try {
-      final categories = await viewModel.manualEntryCategories();
-      if (!context.mounted) return;
-      final input = await ManualEntrySheet.show(
-        context,
-        categories: categories,
-        targetDate: viewModel.selectedDate,
-      );
-      if (input == null) return;
-      try {
-        await viewModel.addManualEntry(input);
-      } on WalletSelectionRequiredException catch (error) {
-        if (!context.mounted) return;
-        final funding = await _chooseFunding(context, error.requiredAmount);
-        if (funding == null) return;
-        await viewModel.addManualEntry(input.copyWith(
-          sourceWalletId: funding.walletId,
-          useAllWallets: funding.useAllWallets,
-        ));
-      }
-      if (context.mounted) {
-        showSuccessToast(context, 'Entry added.');
-      }
-    } on InsufficientFundsException {
-      if (context.mounted) _showInsufficientFunds(context);
-    } catch (error) {
-      if (context.mounted) showErrorToast(context, error);
-    }
-  }
-
-  Future<WalletFundingChoice?> _chooseFunding(
-    BuildContext context,
-    int amount,
-  ) async {
-    await viewModel.refreshBalances();
-    if (!context.mounted) return null;
-    return WalletFundingPrompt.show(
-      context,
-      wallets: viewModel.wallets,
-      requiredAmount: amount,
-    );
-  }
-
-  Future<void> _cancelPendingRequest(String requestId) async {
-    try {
-      await viewModel.cancelPendingRequest(requestId);
-    } catch (_) {}
-  }
-
-  void _showInsufficientFunds(BuildContext context) {
-    showAppToast(
-      context,
-      'Insufficient funds across all wallets.',
-      type: AppToastType.error,
+  num get _displayBalance {
+    final currency = widget.currencyState;
+    if (currency == null) return widget.viewModel.totalWalletBalance;
+    return currency.convertToSelected(
+      widget.viewModel.totalWalletBalance,
+      widget.viewModel.walletCurrencyCode,
     );
   }
 }

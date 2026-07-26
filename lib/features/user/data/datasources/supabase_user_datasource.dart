@@ -17,20 +17,6 @@ class SupabaseUserDataSource {
     return row == null ? _buildFallbackUserModel() : UserModel.fromJson(row);
   }
 
-  Stream<UserModel?> watchCurrentUserRow() async* {
-    final uid = _client.auth.currentUser?.id;
-    if (uid == null) throw StateError('No authenticated user');
-
-    yield await getCurrentUserRow();
-    await for (final rows in _client
-        .from('user')
-        .stream(primaryKey: const ['id']).eq('user_id', uid)) {
-      if (rows.isNotEmpty) {
-        yield UserModel.fromJson(rows.first);
-      }
-    }
-  }
-
   UserModel _buildFallbackUserModel() {
     final authUser = _client.auth.currentUser;
     if (authUser == null) throw StateError('No authenticated user');

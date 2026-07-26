@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NewCategoryBreakdown extends ConsumerStatefulWidget {
@@ -48,10 +47,10 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: surfaceColor,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,28 +59,28 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
           Text(
             'Catégories',
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: textColor?.withValues(alpha: 0.7),
             ),
           ),
-          SizedBox(height: 1.5.h),
+          SizedBox(height: 12),
           // Tabs
           Container(
-            width: 90.w,
+            width: 360,
             decoration: BoxDecoration(
               color: surfaceColor,
               borderRadius: BorderRadius.circular(50),
             ),
-            padding: EdgeInsets.all(1.w),
+            padding: EdgeInsets.all(4),
             child: Row(
               children: [
                 Expanded(
                   child: GestureDetector(
                     onTap: () => _switchTab(true),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 3.w, vertical: 0.8.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 6.4),
                       decoration: BoxDecoration(
                         color: _showExpenses
                             ? tabIndicatorColor
@@ -92,7 +91,7 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                         child: Text(
                           'Dépenses',
                           style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: _showExpenses
                                 ? tabLabelColor
@@ -107,8 +106,8 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                   child: GestureDetector(
                     onTap: () => _switchTab(false),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 3.w, vertical: 0.8.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 6.4),
                       decoration: BoxDecoration(
                         color: !_showExpenses
                             ? tabIndicatorColor
@@ -119,7 +118,7 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                         child: Text(
                           'Revenus',
                           style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: !_showExpenses
                                 ? tabLabelColor
@@ -133,18 +132,18 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
               ],
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           // Donut chart + legend labels below
           if (sortedEntries.isEmpty)
             SizedBox(
-              height: 20.h,
+              height: 160,
               child: Center(
                 child: Text(
                   _showExpenses
                       ? 'Aucune dépense ce mois'
                       : 'Aucun revenu ce mois',
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 14,
                     color: textColor?.withValues(alpha: 0.5),
                   ),
                 ),
@@ -152,20 +151,20 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
             )
           else ...[
             SizedBox(
-              height: 18.h,
+              height: 144,
               child: _buildDonut(
                 entries: sortedEntries,
                 surfaceColor: surfaceColor,
               ),
             ),
-            SizedBox(height: 1.5.h),
+            SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: Wrap(
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 4.w,
-                runSpacing: 1.h,
+                spacing: 16,
+                runSpacing: 8,
                 children: sortedEntries.map((entry) {
                   final percentage =
                       total > 0 ? (entry.value / total * 100) : 0.0;
@@ -176,18 +175,18 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 2.w,
-                        height: 2.w,
+                        width: 8,
+                        height: 8,
                         decoration: BoxDecoration(
                           color: color,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 1.5.w),
+                      SizedBox(width: 6),
                       Text(
                         '${entry.key} - ${percentage.toStringAsFixed(2)}%',
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: textColor?.withValues(alpha: 0.8),
                         ),
@@ -207,7 +206,7 @@ class _NewCategoryBreakdownState extends ConsumerState<NewCategoryBreakdown> {
     required List<MapEntry<String, double>> entries,
     required Color surfaceColor,
   }) {
-    final radius = 7.w;
+    final radius = 28.0;
     final sections = entries.map((entry) {
       final baseColor =
           _parseColor(widget.categoryColors[entry.key] ?? '#10B981');

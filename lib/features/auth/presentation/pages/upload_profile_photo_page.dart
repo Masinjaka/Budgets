@@ -1,9 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'dart:io';
 import 'package:budgets/widgets/permission_request_dialog.dart';
@@ -13,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/core/functions/pick_image_with_permissions.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 
 class UploadProfilePhotoPage extends ConsumerStatefulWidget {
   const UploadProfilePhotoPage({super.key});
@@ -40,29 +38,29 @@ class _UploadProfilePhotoPageState
       height: double.infinity,
       width: double.infinity,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        padding: EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 5.h),
+            SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Ajouter un avatar',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 20.5.sp,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: AppTypography.title,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             Text(
               'Pour que vos partenaires de budget puissent vous reconnaitre.',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 15.5.sp,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: AppTypography.body,
               ),
             ),
             Expanded(
@@ -76,7 +74,7 @@ class _UploadProfilePhotoPageState
                       dashPattern: [8, 4],
                     ),
                     child: Container(
-                      padding: EdgeInsets.all(2.w),
+                      padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
                         shape: BoxShape.circle,
@@ -84,14 +82,14 @@ class _UploadProfilePhotoPageState
                       child: _selectedImage == null
                           ? Icon(
                               Icons.person,
-                              size: 50.sp,
+                              size: 50,
                               color: Colors.grey,
                             )
                           : ClipOval(
                               child: Image.file(
                                 _selectedImage!,
-                                width: 50.sp,
-                                height: 50.sp,
+                                width: 50,
+                                height: 50,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -108,7 +106,7 @@ class _UploadProfilePhotoPageState
 
   Widget _buildBottomPart(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -117,9 +115,7 @@ class _UploadProfilePhotoPageState
             isLoading: _isLoading,
             onPressed: () async {
               if (_isLoading) return;
-              setState(() {
-                _isLoading = true;
-              });
+              setState(() => _isLoading = true);
               try {
                 if (_selectedImage == null) {
                   final proceed = await showAnimatedDialog<bool>(
@@ -134,7 +130,7 @@ class _UploadProfilePhotoPageState
                       onDeny: () => Navigator.of(context).pop(false),
                     ),
                   );
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   if (proceed == true) {
                     context.go('/home');
                   }
@@ -173,14 +169,12 @@ class _UploadProfilePhotoPageState
                 );
               } finally {
                 if (mounted) {
-                  setState(() {
-                    _isLoading = false;
-                  });
+                  setState(() => _isLoading = false);
                 }
               }
             },
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           CustomButton(
             text: 'Passer',
             borderColor: Colors.transparent,
@@ -197,8 +191,6 @@ class _UploadProfilePhotoPageState
   Future<void> _pickImage() async {
     final file = await pickImageWithPermissions(context);
     if (!mounted || file == null) return;
-    setState(() {
-      _selectedImage = file;
-    });
+    setState(() => _selectedImage = file);
   }
 }

@@ -42,7 +42,7 @@ Deno.serve(async (request) => {
   const action = body.action as DeleteAction;
   const confirmation = String(body.confirmation ?? "").trim();
   const confirmed = action === "data"
-    ? confirmation === "SUPPRIMER"
+    ? ["SUPPRIMER", "DELETE"].includes(confirmation.toUpperCase())
     : action === "account" &&
       confirmation.toLowerCase() === (user.email ?? "").toLowerCase();
   if (!confirmed) {
@@ -55,6 +55,9 @@ Deno.serve(async (request) => {
 
   try {
     await deleteUserFiles(admin, user.id);
+    const { error: receiptError } = await admin.from("receipt_scans")
+      .delete().eq("user_id", user.id);
+    if (receiptError && receiptError.code !== "42P01") throw receiptError;
     const { error: cleanupError } = await admin.rpc(
       "cleanup_user_app_data",
       {

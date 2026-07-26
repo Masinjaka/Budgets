@@ -1,7 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import {
-  completeRequest,
   failRequest,
   loadContext,
   quotaSnapshot,
@@ -9,7 +8,15 @@ import {
 } from "./database.ts";
 import { ApiError } from "./errors.ts";
 import { activeModel, callModel } from "./providers.ts";
-import { buildPrompts } from "./prompt.ts";
+import { buildPrompts, buildReceiptPrompts } from "./prompt.ts";
+import {
+  markReceiptFailed,
+  markReceiptProcessed,
+  markReceiptProcessing,
+} from "./receipt_database.ts";
+import { loadReceiptMedia } from "./receipt_media.ts";
+import { financeSuccessResponse } from "./success_response.ts";
+import { completeAndHydrate } from "./complete_and_hydrate.ts";
 import { parseFinanceRequest } from "./request.ts";
 import { anchorTransactionsToDate } from "./transaction_date.ts";
 import { validateExtraction } from "./validation.ts";
@@ -35,6 +42,7 @@ Deno.serve(async (request: Request) => {
 
   let userId: string | undefined;
   let requestId: string | undefined;
+  let receiptId: string | undefined;
   let admin: ReturnType<typeof createClient> | undefined;
   try {
     const body = await parseFinanceRequest(request);
@@ -85,7 +93,7 @@ Deno.serve(async (request: Request) => {
         model: "validated-extraction",
         billingTier: "n/a",
       };
-      const committed = await completeRequest(
+      const committed = await completeAndHydrate(
         admin,
         userId,
         requestId,
@@ -97,6 +105,8 @@ Deno.serve(async (request: Request) => {
       const quota = await quotaSnapshot(admin, userId);
       return jsonResponse({
         entries: committed.entries ?? [],
+        wallets: committed.wallets,
+        total_funds: committed.total_funds,
         message: extraction.message,
         ...quota,
         model: {
@@ -108,12 +118,13 @@ Deno.serve(async (request: Request) => {
     }
 
     const model = activeModel();
+    receiptId = body.receiptId;
     const reservation = await reserveRequest(
       admin,
       userId,
       model.provider,
       model.model,
-      body.message,
+      receiptId ? `[Receipt ${receiptId}]` : body.message,
     );
     if (reservation.allowed !== true) {
       throw quotaError(reservation);
@@ -121,19 +132,39 @@ Deno.serve(async (request: Request) => {
     requestId = reservation.request_id as string;
 
     const context = await loadContext(admin, userId, requestId);
-    const prompts = buildPrompts(
-      body.message,
-      context,
-      new Date().toISOString(),
-      body.timezone,
-      body.targetDate,
-    );
+    const prompts = receiptId
+      ? buildReceiptPrompts(
+        context,
+        new Date().toISOString(),
+        body.timezone,
+        body.targetDate,
+        body.outputLanguage,
+      )
+      : buildPrompts(
+        body.message,
+        context,
+        new Date().toISOString(),
+        body.timezone,
+        body.targetDate,
+      );
+    const media = receiptId
+      ? (await loadReceiptMedia(admin, userId, receiptId)).media
+      : [];
+    if (receiptId) await markReceiptProcessing(admin, userId, receiptId);
     const modelResult = anchorTransactionsToDate(
-      await callModel(prompts.system, prompts.user),
+      await callModel(prompts.system, prompts.user, media),
       body.targetDate,
       body.timezoneOffsetMinutes,
     );
-    const committed = await completeRequest(
+    if (receiptId) {
+      await markReceiptProcessed(
+        admin,
+        userId,
+        receiptId,
+        modelResult.extraction as unknown as Record<string, unknown>,
+      );
+    }
+    const committed = await completeAndHydrate(
       admin,
       userId,
       requestId,
@@ -142,23 +173,16 @@ Deno.serve(async (request: Request) => {
       body.targetDate,
       false,
     );
-    return jsonResponse({
-      entries: committed.entries ?? [],
-      message: modelResult.extraction.message,
-      remaining: reservation.remaining,
-      plan: reservation.plan ?? "free",
-      unlimited: reservation.unlimited ?? false,
-      model: {
-        provider: modelResult.provider,
-        name: modelResult.model,
-        billing_tier: modelResult.billingTier,
-      },
-      notice: modelResult.billingTier === "paid"
-        ? "This request used a paid AI provider tier."
-        : null,
-    });
+    return financeSuccessResponse(committed, modelResult, reservation);
   } catch (caught) {
     const error = normalizeError(caught);
+    if (
+      admin && userId && receiptId &&
+      error.code !== "wallet_selection_required" &&
+      error.code !== "wallet_consent_required"
+    ) {
+      await markReceiptFailed(admin, userId, receiptId, error.message);
+    }
     if (
       admin && userId && requestId &&
       error.code !== "wallet_selection_required" &&

@@ -2,7 +2,6 @@ import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionDetailHeader extends StatelessWidget {
   final TransactionModel transaction;
@@ -23,20 +22,20 @@ class TransactionDetailHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 5.h,
-          height: 5.h,
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
             color: categoryColor,
-            borderRadius: BorderRadius.circular(2.w),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
             child: Text(
               transaction.category?.emoji ?? '',
-              style: TextStyle(fontSize: 18.sp),
+              style: TextStyle(fontSize: 18),
             ),
           ),
         ),
-        SizedBox(width: 3.w),
+        SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,10 +45,10 @@ class TransactionDetailHeader extends StatelessWidget {
                 style: TextStyle(
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: 16,
                 ),
               ),
-              SizedBox(height: 0.5.h),
+              SizedBox(height: 4),
               Row(
                 children: [
                   Icon(
@@ -59,9 +58,9 @@ class TransactionDetailHeader extends StatelessWidget {
                         .bodyLarge
                         ?.color
                         ?.withAlpha(128),
-                    size: 14.sp,
+                    size: 14,
                   ),
-                  SizedBox(width: 2.w),
+                  SizedBox(width: 8),
                   Text(
                     transaction.date != null
                         ? DateFormat.yMMMMd('fr_FR')
@@ -73,11 +72,11 @@ class TransactionDetailHeader extends StatelessWidget {
                           .bodyLarge
                           ?.color
                           ?.withAlpha(179),
-                      fontSize: 14.sp,
+                      fontSize: 14,
                     ),
                   ),
                   if (transaction.date != null) ...[
-                    SizedBox(width: 3.w),
+                    SizedBox(width: 12),
                     Icon(
                       Icons.access_time,
                       color: Theme.of(context)
@@ -85,9 +84,9 @@ class TransactionDetailHeader extends StatelessWidget {
                           .bodyLarge
                           ?.color
                           ?.withAlpha(128),
-                      size: 14.sp,
+                      size: 14,
                     ),
-                    SizedBox(width: 1.w),
+                    SizedBox(width: 4),
                     Text(
                       DateFormat.Hm('fr_FR')
                           .format(transaction.date!.toLocal()),
@@ -97,7 +96,7 @@ class TransactionDetailHeader extends StatelessWidget {
                             .bodyLarge
                             ?.color
                             ?.withAlpha(179),
-                        fontSize: 14.sp,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -115,7 +114,7 @@ class TransactionDetailHeader extends StatelessWidget {
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyLarge?.color?.withAlpha(128),
             fontWeight: FontWeight.bold,
-            fontSize: 16.sp,
+            fontSize: 16,
           ),
         ),
       ],

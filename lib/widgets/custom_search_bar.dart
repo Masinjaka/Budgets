@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 // A reusable search bar widget
 class ReusableSearchBar extends StatefulWidget {
@@ -64,7 +63,7 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(50.w),
+        borderRadius: BorderRadius.circular(200),
       ),
       child: TextFormField(
         controller: widget.controller,
@@ -99,8 +98,8 @@ class _ReusableSearchBarState extends State<ReusableSearchBar> {
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(
-            horizontal: 2.h,
-            vertical: 1.6.h,
+            horizontal: 16,
+            vertical: 12.8,
           ),
         ),
       ),

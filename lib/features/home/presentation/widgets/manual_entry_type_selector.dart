@@ -1,4 +1,4 @@
-import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:flutter/material.dart';
 
 class ManualEntryTypeSelector extends StatelessWidget {
@@ -14,22 +14,23 @@ class ManualEntryTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: const Color(0xFFEDEDED),
-        borderRadius: BorderRadius.circular(14),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         children: [
-          _option('expense', 'Expense'),
-          _option('income', 'Income'),
+          _option(context, 'expense', 'Expense'),
+          _option(context, 'income', 'Income'),
         ],
       ),
     );
   }
 
-  Widget _option(String type, String label) {
+  Widget _option(BuildContext context, String type, String label) {
     final selected = value == type;
+    final colors = Theme.of(context).colorScheme;
     return Expanded(
       child: GestureDetector(
         key: Key('manual-$type-option'),
@@ -39,16 +40,14 @@ class ManualEntryTypeSelector extends StatelessWidget {
           height: 38,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? AppTheme.primaryGreen : Colors.transparent,
-            borderRadius: BorderRadius.circular(11),
+            color: selected ? colors.inverseSurface : Colors.transparent,
+            borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: selected
-                  ? AppTheme.interactiveTextColor
-                  : const Color(0xFF555555),
-              fontSize: 12.5,
+              color: selected ? colors.onInverseSurface : colors.onSurface,
+              fontSize: AppTypography.body,
               fontWeight: FontWeight.w700,
             ),
           ),

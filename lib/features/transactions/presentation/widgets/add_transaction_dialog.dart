@@ -14,7 +14,6 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class AddTransactionDialog extends ConsumerStatefulWidget {
   final TransactionType transactionType;
@@ -215,21 +214,20 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
       child: Dialog(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.w),
+          borderRadius: BorderRadius.circular(20),
           side: BorderSide(
               color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
         ),
-        insetPadding:
-            EdgeInsets.symmetric(horizontal: 5.w + 2.h, vertical: 5.h),
+        insetPadding: EdgeInsets.symmetric(horizontal: 20 + 16, vertical: 40),
         child: _isInitializing
             ? SizedBox(
-                height: 30.h,
+                height: 240,
                 child: Center(
                     child: CircularProgressIndicator(
                         color: Theme.of(context).primaryColor)))
             : SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.all(5.w),
+                  padding: EdgeInsets.all(20),
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -239,11 +237,11 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                         DialogHeader(
                             type: widget.transactionType,
                             onClose: () => Navigator.of(context).pop(false)),
-                        SizedBox(height: 2.h),
+                        SizedBox(height: 16),
                         PerSubcategorySwitch(
                             value: _isPerSubcategory,
                             onChanged: _togglePerSubcategory),
-                        SizedBox(height: 1.h),
+                        SizedBox(height: 8),
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           switchInCurve: Curves.easeOutCubic,
@@ -260,14 +258,14 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                                   key: const ValueKey('amt'),
                                   controller: _montantController,
                                   hint: '0.00',
-                                  fontSize: 25.sp,
+                                  fontSize: 25,
                                   fillColor:
                                       Theme.of(context).colorScheme.surfaceDim,
-                                  height: 15.h,
+                                  height: 120,
                                   width: double.infinity,
-                                  borderRadius: BorderRadius.circular(3.w)),
+                                  borderRadius: BorderRadius.circular(12)),
                         ),
-                        SizedBox(height: 2.h),
+                        SizedBox(height: 16),
                         CategoryPillsSection(
                           categories: _categories,
                           selectedCategory: _selectedCategory,
@@ -285,7 +283,7 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                             }
                           },
                         ),
-                        SizedBox(height: 2.h),
+                        SizedBox(height: 16),
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 350),
                           switchInCurve: Curves.easeOutBack,
@@ -312,21 +310,20 @@ class _AddTransactionDialogState extends ConsumerState<AddTransactionDialog> {
                                           onRemove: _removeCard,
                                           onAdd: _addCard,
                                           onSubcategoryTap: _onSubcategoryTap),
-                                      SizedBox(height: 2.h),
+                                      SizedBox(height: 16),
                                     ])
                               : const SizedBox.shrink(key: ValueKey('noSubs')),
                         ),
                         CustomTextField(
                             title: Text('Description (optionnel)',
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14.sp)),
+                                    fontWeight: FontWeight.w600, fontSize: 14)),
                             hint: 'Ajouter une description',
                             controller: _descriptionController,
                             keyboardType: TextInputType.text,
                             maxLines: 2,
-                            borderRadius: BorderRadius.circular(3.w)),
-                        SizedBox(height: 3.h),
+                            borderRadius: BorderRadius.circular(12)),
+                        SizedBox(height: 24),
                         CustomButton(
                             text: 'Confirmer',
                             backgroundColor: Theme.of(context).primaryColor,

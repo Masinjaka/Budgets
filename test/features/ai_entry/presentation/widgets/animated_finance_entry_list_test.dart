@@ -1,9 +1,22 @@
 import 'package:budgets/features/ai_entry/domain/models/finance_entry.dart';
 import 'package:budgets/features/ai_entry/presentation/widgets/animated_finance_entry_list.dart';
+import 'package:budgets/features/ai_entry/presentation/widgets/finance_entry_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('keeps breathing room between transaction rows', (tester) async {
+    await tester.pumpWidget(
+      _app([_entry('first', 'Breakfast'), _entry('second', 'Lunch')]),
+    );
+
+    final first = find.byKey(const ValueKey('finance-entry-first'));
+    final second = find.byKey(const ValueKey('finance-entry-second'));
+    final distance = tester.getTopLeft(second).dy - tester.getTopLeft(first).dy;
+
+    expect(distance, FinanceEntryItem.height);
+  });
+
   testWidgets('inserts a new entry above existing rows with animation',
       (tester) async {
     final existing = _entry('existing', 'Breakfast');
@@ -30,13 +43,50 @@ void main() {
 
     await tester.pumpAndSettle();
   });
+
+  testWidgets('only non-transfer entries invoke the edit callback',
+      (tester) async {
+    FinanceEntry? tapped;
+    final expense = _entry('expense', 'Lunch');
+    final transfer = FinanceEntry(
+      id: 'transfer',
+      title: 'Moved from Cash to Bank',
+      categoryName: 'Transfer',
+      amount: 5000,
+      occurredAt: DateTime(2026, 7, 17),
+      transactionType: 'transfer',
+      currencyCode: 'MGA',
+      iconKey: 'transfer',
+      emoji: '🔄',
+      entryType: 'transfer',
+    );
+    await tester.pumpWidget(_app(
+      [expense, transfer],
+      onEntryTap: (entry) => tapped = entry,
+    ));
+
+    await tester.tap(find.byKey(const ValueKey('finance-entry-expense')));
+    expect(tapped, same(expense));
+
+    tapped = null;
+    await tester.tap(find.byKey(const ValueKey('finance-entry-transfer')));
+    expect(tapped, isNull);
+  });
 }
 
-Widget _app(List<FinanceEntry> entries) {
+Widget _app(
+  List<FinanceEntry> entries, {
+  ValueChanged<FinanceEntry>? onEntryTap,
+}) {
   return MaterialApp(
     home: Scaffold(
       body: CustomScrollView(
-        slivers: [AnimatedFinanceEntryList(entries: entries)],
+        slivers: [
+          AnimatedFinanceEntryList(
+            entries: entries,
+            onEntryTap: onEntryTap,
+          ),
+        ],
       ),
     ),
   );

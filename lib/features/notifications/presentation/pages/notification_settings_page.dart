@@ -1,282 +1,156 @@
-import 'package:budgets/core/ui/glass_flexible_space.dart';
-import 'package:budgets/features/notifications/presentation/controllers/notification_controller.dart';
-import 'package:budgets/features/notifications/domain/providers/pending_target_provider.dart';
-import 'package:budgets/core/utils/animated_dialog.dart';
-import 'package:budgets/widgets/permission_request_dialog.dart';
-import 'package:budgets/features/settings/presentation/widgets/setting_card.dart';
-import 'package:budgets/features/settings/presentation/widgets/setting_section.dart';
+import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/app_wheel_picker.dart';
 import 'package:budgets/features/notifications/domain/models/notification_settings.dart';
-import 'package:budgets/features/notifications/presentation/services/notification_permission_service.dart';
+import 'package:budgets/features/notifications/domain/providers/pending_target_provider.dart';
+import 'package:budgets/features/notifications/presentation/controllers/notification_controller.dart';
+import 'package:budgets/features/notifications/presentation/services/notification_permission_coordinator.dart';
+import 'package:budgets/features/notifications/presentation/widgets/notification_reminder_time_tile.dart';
+import 'package:budgets/features/notifications/presentation/widgets/notification_settings_toggle.dart';
+import 'package:budgets/features/settings/presentation/widgets/settings_menu_group.dart';
+import 'package:budgets/features/settings/presentation/widgets/settings_page_shell.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class NotificationSettingsPage extends ConsumerWidget {
   const NotificationSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notificationsState = ref.watch(notificationControllerProvider);
-    final settings = notificationsState.asData?.value ??
+    final state = ref.watch(notificationControllerProvider);
+    final settings = state.asData?.value ??
         NotificationSettings.defaults(
           timezoneOffsetMinutes: DateTime.now().timeZoneOffset.inMinutes,
         );
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: const GlassFlexibleSpace(),
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          'Notifications',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
+    final pending = ref.watch(pendingTargetProvider);
+    return SettingsPageShell(
+      title: context.l10n.notification,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+        children: [
+          SettingsMenuGroup(
+            items: [
+              NotificationSettingsToggle(
+                title: context.l10n.allowNotifications,
+                icon: Icons.notifications_outlined,
+                value: settings.notificationsEnabled,
+                enabled: pending == null,
+                onChanged: (value) => _setMaster(context, ref, value),
+              ),
+              if (settings.notificationsEnabled)
+                NotificationSettingsToggle(
+                  title: context.l10n.dailyReminders,
+                  icon: Icons.alarm_outlined,
+                  value: settings.remindersEnabled,
+                  enabled: pending == null,
+                  onChanged: (value) => _setReminder(context, ref, value),
+                ),
+              if (settings.notificationsEnabled && settings.remindersEnabled)
+                NotificationReminderTimeTile(
+                  time: TimeOfDay(
+                    hour: settings.reminderHour,
+                    minute: settings.reminderMinute,
+                  ),
+                  enabled: pending == null,
+                  onTap: () => _selectReminderTime(context, ref, settings),
+                ),
+              if (settings.notificationsEnabled)
+                NotificationSettingsToggle(
+                  title: context.l10n.budgetAlerts,
+                  icon: Icons.warning_amber_outlined,
+                  value: settings.warningsEnabled,
+                  enabled: pending == null,
+                  onChanged: (value) => _setWarning(context, ref, value),
+                ),
+            ],
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 12.h),
-                _buildSettingsSection(context, ref, settings),
-              ],
-            ),
-          ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildSettingsSection(
+  Future<bool> _setMaster(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    return _run(context, ref, ToggleTarget.master, enabled, () {
+      return ref
+          .read(notificationControllerProvider.notifier)
+          .setAllEnabled(enabled);
+    });
+  }
+
+  Future<bool> _setReminder(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    return _run(context, ref, ToggleTarget.reminders, enabled, () {
+      return ref
+          .read(notificationControllerProvider.notifier)
+          .setRemindersEnabled(enabled);
+    });
+  }
+
+  Future<bool> _setWarning(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    return _run(context, ref, ToggleTarget.warnings, enabled, () {
+      return ref
+          .read(notificationControllerProvider.notifier)
+          .setWarningsEnabled(enabled);
+    });
+  }
+
+  Future<void> _selectReminderTime(
     BuildContext context,
     WidgetRef ref,
     NotificationSettings settings,
-  ) {
-    final pendingTarget = ref.watch(pendingTargetProvider);
-    final enabled = settings.notificationsEnabled;
-    final masterBusy = pendingTarget == ToggleTarget.master;
-    final reminderBusy = pendingTarget == ToggleTarget.reminders;
-    final warningBusy = pendingTarget == ToggleTarget.warnings;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SettingSection(
-          title: 'Préférences',
-          children: [
-            SizedBox(height: 1.h),
-            SettingCard(
-              title: 'Activer les notifications',
-              iconData: Icons.notifications_outlined,
-              useSwitch: true,
-              switchValue: enabled,
-              switchDisabled: masterBusy,
-              onSwitchChanged: masterBusy
-                  ? null
-                  : (value) async {
-                      await _handleMasterToggle(
-                        context,
-                        ref,
-                        value,
-                      );
-                    },
-              onTap: () {},
-            ),
-            if (enabled) ...[
-              SizedBox(height: 1.h),
-              SettingCard(
-                title: 'Rappels quotidiens',
-                iconData: Icons.alarm_outlined,
-                useSwitch: true,
-                switchValue: settings.remindersEnabled,
-                switchDisabled: reminderBusy,
-                onSwitchChanged: reminderBusy
-                    ? null
-                    : (value) async {
-                        await _handleReminderToggle(
-                          context,
-                          ref,
-                          value,
-                        );
-                      },
-                onTap: () {},
-              ),
-              SizedBox(height: 1.h),
-              SettingCard(
-                title: 'Alertes de budget',
-                iconData: Icons.warning_amber_outlined,
-                useSwitch: true,
-                switchValue: settings.warningsEnabled,
-                switchDisabled: warningBusy,
-                onSwitchChanged: warningBusy
-                    ? null
-                    : (value) async {
-                        await _handleWarningToggle(
-                          context,
-                          ref,
-                          value,
-                        );
-                      },
-                onTap: () {},
-              ),
-            ],
-          ],
-        ),
-      ],
+  ) async {
+    final selected = await AppWheelPicker.time(
+      context,
+      initialTime: TimeOfDay(
+        hour: settings.reminderHour,
+        minute: settings.reminderMinute,
+      ),
+      title: context.l10n.selectReminderTime,
     );
+    if (selected == null || !context.mounted) return;
+    if (selected.hour == settings.reminderHour &&
+        selected.minute == settings.reminderMinute) {
+      return;
+    }
+
+    try {
+      await _run(context, ref, ToggleTarget.reminderTime, false, () {
+        return ref
+            .read(notificationControllerProvider.notifier)
+            .setReminderTime(hour: selected.hour, minute: selected.minute);
+      });
+    } catch (error) {
+      if (context.mounted) showErrorToast(context, error);
+    }
   }
 
-  Future<void> _handleMasterToggle(
+  Future<bool> _run(
     BuildContext context,
     WidgetRef ref,
+    ToggleTarget target,
     bool enabled,
+    Future<bool> Function() update,
   ) async {
-    if (ref.read(pendingTargetProvider) != null) return;
-    ref.read(pendingTargetProvider.notifier).set(ToggleTarget.master);
-    if (!enabled) {
-      await ref
-          .read(notificationControllerProvider.notifier)
-          .setAllEnabled(false);
-      ref.read(pendingTargetProvider.notifier).set(null);
-      return;
-    }
-
-    final allowed = await _ensurePermission(context);
-    if (!allowed) {
-      ref.read(pendingTargetProvider.notifier).set(null);
-      return;
-    }
-
-    await ref.read(notificationControllerProvider.notifier).setAllEnabled(true);
-    ref.read(pendingTargetProvider.notifier).set(null);
-  }
-
-  Future<void> _handleReminderToggle(
-    BuildContext context,
-    WidgetRef ref,
-    bool enabled,
-  ) async {
-    if (ref.read(pendingTargetProvider) != null) return;
-    ref.read(pendingTargetProvider.notifier).set(ToggleTarget.reminders);
-    if (!enabled) {
-      await ref
-          .read(notificationControllerProvider.notifier)
-          .setRemindersEnabled(false);
-      ref.read(pendingTargetProvider.notifier).set(null);
-      return;
-    }
-
-    final allowed = await _ensurePermission(context);
-    if (!allowed) {
-      ref.read(pendingTargetProvider.notifier).set(null);
-      return;
-    }
-
-    await ref
-        .read(notificationControllerProvider.notifier)
-        .setRemindersEnabled(true);
-    ref.read(pendingTargetProvider.notifier).set(null);
-  }
-
-  Future<void> _handleWarningToggle(
-    BuildContext context,
-    WidgetRef ref,
-    bool enabled,
-  ) async {
-    if (ref.read(pendingTargetProvider) != null) return;
-    ref.read(pendingTargetProvider.notifier).set(ToggleTarget.warnings);
-    if (!enabled) {
-      await ref
-          .read(notificationControllerProvider.notifier)
-          .setWarningsEnabled(false);
-      ref.read(pendingTargetProvider.notifier).set(null);
-      return;
-    }
-
-    final allowed = await _ensurePermission(context);
-    if (!allowed) {
-      ref.read(pendingTargetProvider.notifier).set(null);
-      return;
-    }
-
-    await ref
-        .read(notificationControllerProvider.notifier)
-        .setWarningsEnabled(true);
-    ref.read(pendingTargetProvider.notifier).set(null);
-  }
-
-  Future<bool> _ensurePermission(BuildContext context) async {
-    final permissionStatus = await Permission.notification.status;
-    if (permissionStatus.isPermanentlyDenied || permissionStatus.isRestricted) {
-      if (!context.mounted) return false;
-      final openedSettings = await showAnimatedDialog<bool>(
-        context: context,
-        builder: (context) {
-          return PermissionRequestDialog(
-            title: 'Notifications bloquées',
-            message:
-                'Les notifications ont été bloquées pour cette application. '
-                'Pour les réactiver, veuillez accéder aux paramètres de votre '
-                'appareil et autoriser les notifications.',
-            allowText: 'Ouvrir les paramètres',
-            denyText: 'Annuler',
-            onAllow: () async {
-              await openAppSettings();
-              if (context.mounted) {
-                Navigator.of(context).pop(true);
-              }
-            },
-            onDeny: () => Navigator.of(context).pop(false),
-          );
-        },
-      );
-      // Re-check permission after returning from settings
-      if (openedSettings == true) {
-        final newStatus = await Permission.notification.status;
-        return newStatus.isGranted;
+    if (ref.read(pendingTargetProvider) != null) return false;
+    ref.read(pendingTargetProvider.notifier).set(target);
+    try {
+      if (enabled && !await NotificationPermissionCoordinator.ensure(context)) {
+        return false;
       }
-      return false;
+      return update();
+    } finally {
+      ref.read(pendingTargetProvider.notifier).set(null);
     }
-
-    if (permissionStatus.isGranted) {
-      return true;
-    }
-
-    if (!context.mounted) return false;
-    final allow = await showAnimatedDialog<bool>(
-      context: context,
-      builder: (context) {
-        return PermissionRequestDialog(
-          title: 'Activer les notifications',
-          message:
-              'Autorisez les notifications pour recevoir vos rappels quotidiens '
-              'et les alertes de budget.',
-          allowText: 'Autoriser',
-          denyText: 'Refuser',
-          onAllow: () => Navigator.of(context).pop(true),
-          onDeny: () => Navigator.of(context).pop(false),
-        );
-      },
-    );
-
-    if (allow != true || !context.mounted) {
-      return false;
-    }
-
-    return NotificationPermissionService().request();
   }
 }

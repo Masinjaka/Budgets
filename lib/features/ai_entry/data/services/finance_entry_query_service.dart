@@ -60,7 +60,9 @@ class FinanceEntryQueryService {
         .from('transaction')
         .select(
           'id,title,description,amount,date,transaction_type,currency_code,'
-          'categories(name,emoji,icon_key)',
+          'source_wallet_id,envelope_amount_used,'
+          'envelope:envelopes(name),categories(id,name,emoji,icon_key),'
+          'transaction_wallet_debits(wallet_id)',
         )
         .eq('user_id', userId)
         .gte('date', start.toUtc().toIso8601String())

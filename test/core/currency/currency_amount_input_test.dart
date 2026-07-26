@@ -1,0 +1,23 @@
+import 'package:budgets/core/currency/currency_amount_input.dart';
+import 'package:budgets/core/currency/currency_state.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  const usd = CurrencyState(
+    code: 'USD',
+    baseCode: 'MGA',
+    rates: {'USD': 0.0002},
+  );
+
+  test('converts selected-currency input to MGA storage units', () {
+    expect(CurrencyAmountInput.toMga('200', usd), 1000000);
+  });
+
+  test('formats an MGA storage amount in the selected currency', () {
+    expect(CurrencyAmountInput.fromStored(1000000, 'MGA', usd), '200');
+  });
+
+  test('uses the selected currency in amount hints', () {
+    expect(CurrencyAmountInput.hint(usd), r'$0');
+  });
+}

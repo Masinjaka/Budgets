@@ -4,7 +4,6 @@ import 'package:budgets/widgets/charts/bar_chart.dart';
 import 'package:budgets/widgets/skeleton/home_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class StatsHomeWidget extends ConsumerWidget {
   const StatsHomeWidget({
@@ -19,25 +18,25 @@ class StatsHomeWidget extends ConsumerWidget {
     final currencyState = ref.watch(currencyControllerProvider);
 
     return Container(
-      height: 35.h,
-      padding: EdgeInsets.only(bottom: 2.h, left: 5.w, right: 5.w),
+      height: 280,
+      padding: EdgeInsets.only(bottom: 16, left: 20, right: 20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(5.w),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         children: [
-          SizedBox(height: 4.h),
+          SizedBox(height: 32),
           // Legend for the chart
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildLegendItem(context, 'Dépenses', Colors.redAccent),
-              SizedBox(width: 4.w),
+              SizedBox(width: 16),
               _buildLegendItem(context, 'Revenus', Colors.greenAccent),
             ],
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           Expanded(
             child: switch (asyncExpenses) {
               AsyncData(:final value) => currencyState.when(
@@ -62,19 +61,19 @@ class StatsHomeWidget extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 3.w,
-          height: 3.w,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(1.w),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
-        SizedBox(width: 2.w),
+        SizedBox(width: 8),
         Text(
           label,
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyLarge?.color,
-            fontSize: 12.sp,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
         ),

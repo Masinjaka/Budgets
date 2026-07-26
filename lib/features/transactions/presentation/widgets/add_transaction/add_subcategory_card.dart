@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class AddSubcategoryCard extends StatelessWidget {
   final VoidCallback onAdd;
@@ -14,17 +13,17 @@ class AddSubcategoryCard extends StatelessWidget {
     return GestureDetector(
       onTap: onAdd,
       child: Container(
-        margin: EdgeInsets.only(right: 3.w),
-        height: 20.h,
-        width: 25.w,
+        margin: EdgeInsets.only(right: 12),
+        height: 160,
+        width: 100,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(4.w),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Center(
           child: Icon(
             Icons.add,
-            size: 24.sp,
+            size: 24,
             color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),

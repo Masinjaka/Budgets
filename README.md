@@ -171,7 +171,10 @@ They expect backend environment variables such as:
 
 ### Sentry
 
-Sentry is initialized at startup for crash and performance monitoring using the `SENTRY_DSN` dart define.
+Sentry is initialized before the application starts using the `SENTRY_DSN`
+dart define. It captures unhandled Flutter errors and navigation breadcrumbs.
+Sentry stays disabled when the define is empty. Request bodies, screenshots, view
+hierarchies, and default personally identifiable information are not sent.
 
 ### Local storage
 
@@ -188,6 +191,8 @@ Copy [`.env.example`](/home/masy/project/Budgets/.env.example:1) to `.env` and f
 SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
 SENTRY_DSN=...
+SENTRY_ENVIRONMENT=development
+SENTRY_STARTUP_TEST=false
 ```
 
 ## How to run
@@ -231,8 +236,14 @@ Or by passing values directly:
 fvm flutter run \
   --dart-define=SUPABASE_URL=your-url \
   --dart-define=SUPABASE_ANON_KEY=your-anon-key \
-  --dart-define=SENTRY_DSN=your-sentry-dsn
+  --dart-define=SENTRY_DSN=your-sentry-dsn \
+  --dart-define=SENTRY_ENVIRONMENT=development \
+  --dart-define=SENTRY_STARTUP_TEST=true
 ```
+
+`SENTRY_STARTUP_TEST=true` sends a warning event named
+`Drala Sentry startup test` on every launch. Disable it after confirming the
+event appears in Sentry.
 
 ### Run tests
 

@@ -2,7 +2,6 @@ import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CustomGreetingAppBar extends ConsumerWidget
     implements PreferredSizeWidget {
@@ -15,7 +14,7 @@ class CustomGreetingAppBar extends ConsumerWidget
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final double avatarSize = 24.sp;
+    final double avatarSize = 24;
     final userAsync = ref.watch(userModelProvider);
 
     return AppBar(
@@ -23,10 +22,10 @@ class CustomGreetingAppBar extends ConsumerWidget
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       surfaceTintColor: Colors.transparent,
       elevation: 4,
-      toolbarHeight: 7.h,
-      titleSpacing: 8.w,
+      toolbarHeight: 56,
+      titleSpacing: 32,
       title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 0.w),
+        padding: EdgeInsets.symmetric(horizontal: 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -47,14 +46,14 @@ class CustomGreetingAppBar extends ConsumerWidget
                   data: (user) {
                     if (user == null) {
                       return Padding(
-                        padding: EdgeInsets.only(left: 4.w),
+                        padding: EdgeInsets.only(left: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            textSkeleton(context, 20.w, 1.6.h),
-                            SizedBox(height: 0.5.h),
-                            textSkeleton(context, 30.w, 2.h),
+                            textSkeleton(context, 80, 12.8),
+                            SizedBox(height: 4),
+                            textSkeleton(context, 120, 16),
                           ],
                         ),
                       );
@@ -64,7 +63,7 @@ class CustomGreetingAppBar extends ConsumerWidget
                       return _userTextSkeleton(context);
                     }
                     return Padding(
-                      padding: EdgeInsets.only(left: 4.w),
+                      padding: EdgeInsets.only(left: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
@@ -72,7 +71,7 @@ class CustomGreetingAppBar extends ConsumerWidget
                           Text(
                             'Bienvenue',
                             style: TextStyle(
-                              fontSize: 15.sp,
+                              fontSize: 15,
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context).hintColor,
                             ),
@@ -80,7 +79,7 @@ class CustomGreetingAppBar extends ConsumerWidget
                           Text(
                             username,
                             style: TextStyle(
-                              fontSize: 16.sp,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color:
                                   Theme.of(context).textTheme.bodyLarge?.color,
@@ -91,14 +90,14 @@ class CustomGreetingAppBar extends ConsumerWidget
                     );
                   },
                   loading: () => Padding(
-                    padding: EdgeInsets.only(left: 4.w),
+                    padding: EdgeInsets.only(left: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        textSkeleton(context, 20.w, 1.6.h),
-                        SizedBox(height: 0.5.h),
-                        textSkeleton(context, 30.w, 2.h),
+                        textSkeleton(context, 80, 12.8),
+                        SizedBox(height: 4),
+                        textSkeleton(context, 120, 16),
                       ],
                     ),
                   ),
@@ -116,7 +115,7 @@ class CustomGreetingAppBar extends ConsumerWidget
                   child: IconButton(
                       icon: Icon(
                         Icons.notifications_none_rounded,
-                        size: 18.sp,
+                        size: 18,
                         color: Theme.of(context).colorScheme.inverseSurface,
                       ),
                       onPressed: onNotificationPressed),
@@ -130,18 +129,18 @@ class CustomGreetingAppBar extends ConsumerWidget
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(7.h);
+  Size get preferredSize => Size.fromHeight(56);
 
   Widget _userTextSkeleton(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 4.w),
+      padding: EdgeInsets.only(left: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          textSkeleton(context, 20.w, 1.6.h),
-          SizedBox(height: 0.5.h),
-          textSkeleton(context, 30.w, 2.h),
+          textSkeleton(context, 80, 12.8),
+          SizedBox(height: 4),
+          textSkeleton(context, 120, 16),
         ],
       ),
     );

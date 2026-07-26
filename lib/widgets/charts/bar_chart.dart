@@ -4,7 +4,6 @@ import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [BarChart] widget for daily expenses and income.
 Widget dailyBarChart(List<TransactionModel> transactions,
@@ -45,7 +44,7 @@ Widget dailyBarChart(List<TransactionModel> transactions,
       return BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          groupsSpace: 12.w,
+          groupsSpace: 48,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -76,7 +75,7 @@ Widget dailyBarChart(List<TransactionModel> transactions,
                     ),
                   );
                 },
-                reservedSize: 2.h,
+                reservedSize: 16,
               ),
             ),
             leftTitles: AxisTitles(
@@ -89,7 +88,7 @@ Widget dailyBarChart(List<TransactionModel> transactions,
                     style: const TextStyle(fontSize: 10),
                   );
                 },
-                reservedSize: 4.h,
+                reservedSize: 32,
               ),
             ),
             topTitles:
@@ -189,7 +188,7 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses,
                     style: const TextStyle(fontSize: 10)),
               );
             },
-            reservedSize: 2.h,
+            reservedSize: 16,
           ),
         ),
         leftTitles: AxisTitles(
@@ -201,7 +200,7 @@ Widget dailyExpensesBarChart(List<TransactionModel> expenses,
               return Text(formatAmountValue(value),
                   style: const TextStyle(fontSize: 10));
             },
-            reservedSize: 4.h,
+            reservedSize: 32,
           ),
         ),
         topTitles: const AxisTitles(

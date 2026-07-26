@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class StatsSkeletonChart extends StatelessWidget {
@@ -13,8 +12,8 @@ class StatsSkeletonChart extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
       child: Container(
-        height: 25.h,
-        padding: EdgeInsets.all(4.w),
+        height: 200,
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
@@ -26,17 +25,17 @@ class StatsSkeletonChart extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 15.w,
-                  height: 1.5.h,
+                  width: 60,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
-                SizedBox(width: 6.w),
+                SizedBox(width: 24),
                 Container(
-                  width: 15.w,
-                  height: 1.5.h,
+                  width: 60,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(4),
@@ -44,7 +43,7 @@ class StatsSkeletonChart extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(

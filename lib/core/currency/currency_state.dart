@@ -12,8 +12,27 @@ class CurrencyState {
   });
 
   double rateFor(String currencyCode) {
-    if (currencyCode == baseCode) return 1.0;
-    return rates[currencyCode] ?? 1.0;
+    final normalized = currencyCode.toUpperCase();
+    if (normalized == baseCode.toUpperCase()) return 1.0;
+    return rates[normalized] ?? 1.0;
+  }
+
+  double convertToSelected(num amount, String sourceCurrencyCode) {
+    return convert(amount, from: sourceCurrencyCode, to: code);
+  }
+
+  double convertSelectedToMga(num amount) {
+    return convert(amount, from: code, to: 'MGA');
+  }
+
+  double convert(
+    num amount, {
+    required String from,
+    required String to,
+  }) {
+    final sourceRate = rateFor(from);
+    if (sourceRate == 0) return 0;
+    return amount / sourceRate * rateFor(to);
   }
 
   CurrencyState copyWith({

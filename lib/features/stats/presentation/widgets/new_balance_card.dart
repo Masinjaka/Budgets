@@ -1,7 +1,6 @@
 import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum BalanceCardType { expense, income }
@@ -35,38 +34,38 @@ class NewBalanceCard extends ConsumerWidget {
     final title = isExpense ? 'Dépense' : 'Revenue';
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.all(2.w),
+            padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceDim,
-              borderRadius: BorderRadius.circular(2.w),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(iconData, color: textColor?.withValues(alpha: 0.7)),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           Text(
             formattedAmount,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textColor,
             ),
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 1.h),
+          SizedBox(height: 8),
           Text(
             title,
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: textColor?.withValues(alpha: 0.7),
             ),

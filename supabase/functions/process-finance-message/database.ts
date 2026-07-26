@@ -144,7 +144,8 @@ function financeCommitError(
   const errors: Record<string, string> = {
     wallet_not_found: "One of those wallets could not be found.",
     same_wallet_transfer: "Choose two different wallets for a transfer.",
-    wallet_currency_mismatch: "Transfers require wallets in the same currency.",
+    wallet_currency_mismatch:
+      "The entry currency does not match the wallet currency.",
     insufficient_wallet_balance: "The source wallet has insufficient funds.",
     invalid_transfer_amount: "Enter a valid transfer amount.",
   };

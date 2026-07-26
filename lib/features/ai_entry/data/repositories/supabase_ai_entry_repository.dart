@@ -45,6 +45,17 @@ class SupabaseAiEntryRepository implements AiEntryRepository {
       _manualEntryService.add(input);
 
   @override
+  Future<FinanceEntry> updateFinanceEntry(
+    String entryId,
+    ManualEntryInput input,
+  ) =>
+      _manualEntryService.update(entryId, input);
+
+  @override
+  Future<void> deleteFinanceEntry(String entryId) =>
+      _manualEntryService.delete(entryId);
+
+  @override
   Future<AiEntryResult> processMessage(
     String message, {
     required DateTime targetDate,

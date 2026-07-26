@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionFilterDateField extends StatelessWidget {
   final String? hint;
@@ -24,25 +23,25 @@ class TransactionFilterDateField extends StatelessWidget {
         filled: true,
         fillColor: Theme.of(context).cardColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
+          borderRadius: BorderRadius.circular(8),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Colors.transparent, width: 1.8),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Colors.black, width: 1.8),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(
             color: Color.fromARGB(255, 252, 154, 147),
             width: 1.8,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.w),
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Colors.black, width: 1.8),
         ),
         hintText: hint,

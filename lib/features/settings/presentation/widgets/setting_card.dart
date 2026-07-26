@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class SettingCard extends StatefulWidget {
   const SettingCard(
@@ -59,10 +58,10 @@ class _SettingCardState extends State<SettingCard> {
       },
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(2.w),
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(5.w),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -71,10 +70,10 @@ class _SettingCardState extends State<SettingCard> {
               child: Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(3.w),
+                    padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
-                      borderRadius: BorderRadius.circular(3.w),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       widget.iconData,
@@ -82,7 +81,7 @@ class _SettingCardState extends State<SettingCard> {
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
-                  SizedBox(width: 4.w),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       widget.title,
@@ -97,12 +96,12 @@ class _SettingCardState extends State<SettingCard> {
                 ],
               ),
             ),
-            SizedBox(width: 2.w),
+            SizedBox(width: 8),
             Flexible(
               child: Wrap(
                 alignment: WrapAlignment.end,
                 crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 2.w,
+                spacing: 8,
                 children: [
                   if (widget.showSuffixSettingChoice)
                     widget.settingChoiceWidget ??

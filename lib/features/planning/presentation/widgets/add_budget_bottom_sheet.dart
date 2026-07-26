@@ -13,7 +13,6 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/skeleton/planning_skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Dialog for adding or editing a budget.
 class AddBudgetBottomSheet extends ConsumerStatefulWidget {
@@ -154,15 +153,14 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
       child: Dialog(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.w),
+          borderRadius: BorderRadius.circular(20),
           side: BorderSide(
               color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
         ),
-        insetPadding:
-            EdgeInsets.symmetric(horizontal: 5.w + 2.h, vertical: 5.h),
+        insetPadding: EdgeInsets.symmetric(horizontal: 20 + 16, vertical: 40),
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(5.w),
+            padding: EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +173,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                         _isEditing ? 'Modifier le budget' : 'Nouveau budget',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 18.sp,
+                          fontSize: 18,
                         ),
                       ),
                     ),
@@ -193,21 +191,21 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                     ),
                   ],
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 16),
                 AnimatedAmountField(
                   controller: _amountController,
                   hint: '0.00',
-                  fontSize: 25.sp,
+                  fontSize: 25,
                   fillColor: Theme.of(context).colorScheme.surfaceDim,
-                  height: 15.h,
+                  height: 120,
                   width: double.infinity,
-                  borderRadius: BorderRadius.circular(3.w),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 16),
                 _buildCategorySection(),
-                SizedBox(height: 2.h),
+                SizedBox(height: 16),
                 _buildPeriodDropdown(),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 CustomButton(
                   text: _isEditing ? 'Modifier' : 'Ajouter',
                   onPressed: _saveBudget,
@@ -232,10 +230,10 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
           textAlign: TextAlign.left,
           style: TextStyle(
             fontWeight: FontWeight.w900,
-            fontSize: 15.5.sp,
+            fontSize: 15.5,
           ),
         ),
-        SizedBox(height: 1.h),
+        SizedBox(height: 8),
         categoriesAsync.when(
           data: _buildCategoryPills,
           loading: () => const CategoryChipsSkeleton(),
@@ -263,7 +261,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     }).toList();
 
     return SizedBox(
-      height: 5.2.h,
+      height: 41.6,
       child: ListView(
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
@@ -286,22 +284,22 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(right: 2.w),
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
+        margin: EdgeInsets.only(right: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9.6),
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.inverseSurface
               : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.h),
+          borderRadius: BorderRadius.circular(40),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               category.emoji ?? '📁',
-              style: TextStyle(fontSize: 14.sp),
+              style: TextStyle(fontSize: 14),
             ),
-            SizedBox(width: 1.5.w),
+            SizedBox(width: 6),
             Text(
               category.name ?? '',
               style: TextStyle(
@@ -312,7 +310,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                         .bodyMedium
                         ?.color
                         ?.withAlpha(200),
-                fontSize: 14.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -329,25 +327,25 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     return GestureDetector(
       onTap: _onAddCategoryTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.h),
+          borderRadius: BorderRadius.circular(40),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.add,
-              size: 14.sp,
+              size: 14,
               color: textColor,
             ),
-            SizedBox(width: 1.w),
+            SizedBox(width: 4),
             Text(
               'Ajouter une catégorie',
               style: TextStyle(
                 color: textColor,
-                fontSize: 14.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -364,36 +362,36 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         Text(
           'Période du budget',
           style: TextStyle(
-            fontSize: 15.sp,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
-        SizedBox(height: 1.h),
+        SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: _selectedPeriod,
           decoration: InputDecoration(
             filled: true,
             fillColor: Theme.of(context).cardColor,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 4.w,
-              vertical: 1.6.h,
+              horizontal: 16,
+              vertical: 12.8,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(3.w),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Colors.transparent),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(3.w),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Theme.of(context).primaryColor),
             ),
           ),
-          borderRadius: BorderRadius.circular(3.w),
+          borderRadius: BorderRadius.circular(12),
           dropdownColor: Theme.of(context).cardColor,
           iconEnabledColor: Theme.of(context).hintColor,
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyLarge?.color,
-            fontSize: 15.sp,
+            fontSize: 15,
           ),
           items: _periodLabels.entries
               .map(

@@ -21,9 +21,10 @@ UserRepositoryImpl userRepository(Ref ref) {
 }
 
 @riverpod
-Stream<UserModel?> userModel(Ref ref) {
+Future<UserModel?> userModel(Ref ref) async {
+  if (Supabase.instance.client.auth.currentUser == null) return null;
   final ds = ref.watch(userDataSourceProvider);
-  return ds.watchCurrentUserRow();
+  return ds.getCurrentUserRow();
 }
 
 @riverpod

@@ -1,6 +1,5 @@
 import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabController tabController;
@@ -23,15 +22,15 @@ class CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       color: backgroundColor,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 0.h),
+        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
         child: Center(
           child: Container(
-            width: 90.w,
+            width: 360,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(50),
             ),
-            padding: EdgeInsets.all(1.w),
+            padding: EdgeInsets.all(4),
             child: TabBar(
               controller: tabController,
               indicator: BoxDecoration(
@@ -51,11 +50,11 @@ class CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
               ),
               splashFactory: NoSplash.splashFactory,
               labelStyle: TextStyle(
-                fontSize: 15.sp,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelStyle: TextStyle(
-                fontSize: 15.sp,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
               tabs: const [
@@ -70,10 +69,10 @@ class CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 5.h + 4.h;
+  double get maxExtent => 40 + 32;
 
   @override
-  double get minExtent => 5.h + 4.h;
+  double get minExtent => 40 + 32;
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {

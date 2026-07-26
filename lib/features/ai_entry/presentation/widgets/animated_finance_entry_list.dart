@@ -1,3 +1,4 @@
+import 'package:budgets/core/currency/currency_state.dart';
 import 'package:budgets/features/ai_entry/domain/models/finance_entry.dart';
 import 'package:budgets/features/ai_entry/presentation/widgets/finance_entry_item.dart';
 import 'package:flutter/material.dart';
@@ -5,10 +6,14 @@ import 'package:flutter/material.dart';
 class AnimatedFinanceEntryList extends StatefulWidget {
   const AnimatedFinanceEntryList({
     required this.entries,
+    this.onEntryTap,
+    this.currencyState,
     super.key,
   });
 
   final List<FinanceEntry> entries;
+  final ValueChanged<FinanceEntry>? onEntryTap;
+  final CurrencyState? currencyState;
 
   @override
   State<AnimatedFinanceEntryList> createState() =>
@@ -83,6 +88,10 @@ class _AnimatedFinanceEntryListState extends State<AnimatedFinanceEntryList> {
         child: FinanceEntryItem(
           key: ValueKey('finance-entry-${entry.id}'),
           entry: entry,
+          currencyState: widget.currencyState,
+          onTap: entry.isTransfer || widget.onEntryTap == null
+              ? null
+              : () => widget.onEntryTap!(entry),
         ),
       ),
     );

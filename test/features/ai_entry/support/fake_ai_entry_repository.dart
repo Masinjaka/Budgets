@@ -22,6 +22,9 @@ class FakeAiEntryRepository implements AiEntryRepository {
   List<ManualEntryCategory> manualCategories = const [];
   FinanceEntry? manualEntry;
   ManualEntryInput? addedManualInput;
+  ManualEntryInput? updatedManualInput;
+  String? updatedEntryId;
+  String? deletedEntryId;
   int? totalFundsValue;
   String? cancelledRequestId;
   String? resumedWalletId;
@@ -92,6 +95,38 @@ class FakeAiEntryRepository implements AiEntryRepository {
           iconKey: 'other',
           emoji: '🧾',
         );
+  }
+
+  @override
+  Future<FinanceEntry> updateFinanceEntry(
+    String entryId,
+    ManualEntryInput input,
+  ) async {
+    updatedEntryId = entryId;
+    updatedManualInput = input;
+    final updated = FinanceEntry(
+      id: entryId,
+      title: input.title,
+      description: input.description,
+      categoryName: 'Other',
+      amount: input.amount.toDouble(),
+      occurredAt: input.occurredAt,
+      transactionType: input.transactionType,
+      currencyCode: 'MGA',
+      iconKey: 'other',
+      emoji: '🧾',
+      categoryId: input.categoryId,
+    );
+    entries = entries
+        .map((entry) => entry.id == entryId ? updated : entry)
+        .toList();
+    return updated;
+  }
+
+  @override
+  Future<void> deleteFinanceEntry(String entryId) async {
+    deletedEntryId = entryId;
+    entries = entries.where((entry) => entry.id != entryId).toList();
   }
 
   @override

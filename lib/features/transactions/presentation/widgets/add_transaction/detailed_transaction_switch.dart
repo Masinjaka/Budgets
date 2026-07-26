@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class DetailedTransactionSwitch extends StatelessWidget {
   final bool value;
@@ -23,7 +22,7 @@ class DetailedTransactionSwitch extends StatelessWidget {
                 'Transaction détaillée',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
@@ -31,14 +30,14 @@ class DetailedTransactionSwitch extends StatelessWidget {
                 'Activer pour répartir le montant entre plusieurs sous-catégories',
                 style: TextStyle(
                   fontWeight: FontWeight.w400,
-                  fontSize: 14.sp,
+                  fontSize: 14,
                   color: Theme.of(context).textTheme.bodySmall?.color,
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(width: 3.w),
+        SizedBox(width: 12),
         Switch(
           value: value,
           onChanged: onChanged,

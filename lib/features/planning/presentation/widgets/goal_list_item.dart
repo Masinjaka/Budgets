@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vibration/vibration.dart';
 
@@ -174,7 +173,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
   @override
   Widget build(BuildContext context) {
     final goal = widget.goal;
-    final cardBorderRadius = BorderRadius.circular(4.w);
+    final cardBorderRadius = BorderRadius.circular(16);
     final currencyState = ref.watch(currencyControllerProvider).value;
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
@@ -190,7 +189,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
         : 0.0;
 
     final card = Padding(
-      padding: EdgeInsets.only(bottom: 2.h),
+      padding: EdgeInsets.only(bottom: 16),
       child: ClipRRect(
         borderRadius: cardBorderRadius,
         clipBehavior: Clip.antiAlias,
@@ -204,7 +203,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
             children: [
               CustomSlidableAction(
                 autoClose: false,
-                padding: EdgeInsets.only(left: 1.w),
+                padding: EdgeInsets.only(left: 4),
                 backgroundColor: Colors.transparent,
                 onPressed: (_) => _handleDeleteAction(),
                 child: SizedBox.expand(
@@ -216,7 +215,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                         child: Icon(
                           Icons.delete_outline,
                           color: Colors.white,
-                          size: 18.sp,
+                          size: 18,
                         ),
                       ),
                     ],
@@ -243,10 +242,10 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 15.h,
-                  margin: EdgeInsets.all(2.w),
+                  height: 120,
+                  margin: EdgeInsets.all(8),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(2.5.w),
+                    borderRadius: BorderRadius.circular(10),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
@@ -278,17 +277,17 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                             fit: BoxFit.cover,
                           ),
                         Positioned(
-                          top: 1.w,
-                          right: 1.w,
+                          top: 4,
+                          right: 4,
                           child: GestureDetector(
                             onTap: _isDismissing
                                 ? null
                                 : () => _showEditDialog(context),
                             child: Container(
-                              padding: EdgeInsets.all(1.5.w),
+                              padding: EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(20.w),
+                                borderRadius: BorderRadius.circular(80),
                               ),
                               child: Icon(
                                 Icons.edit_outlined,
@@ -296,7 +295,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                                     .textTheme
                                     .bodyMedium
                                     ?.color,
-                                size: 18.sp,
+                                size: 18,
                               ),
                             ),
                           ),
@@ -306,26 +305,26 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.w),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(context, ref, rate, currencyCode),
-                      SizedBox(height: 1.h),
+                      SizedBox(height: 8),
                       _buildAmountRow(
                         context,
                         currentAmount,
                         goalAmount,
                         currencyCode,
                       ),
-                      SizedBox(height: 1.h),
+                      SizedBox(height: 8),
                       PlanningProgressBar(progress: progress),
-                      SizedBox(height: 0.5.h),
+                      SizedBox(height: 4),
                       Text(
                         '${(progress * 100).toStringAsFixed(0)}% atteint',
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: 12,
                           color: Theme.of(context).hintColor,
                         ),
                       ),
@@ -379,13 +378,13 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
     final result = await showAnimatedDialog<double>(
       context: context,
       builder: (ctx) => Dialog(
-        insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
+        insetPadding: EdgeInsets.symmetric(horizontal: 32),
         backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4.w),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
-          padding: EdgeInsets.all(5.w),
+          padding: EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,19 +392,19 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
               Text(
                 'Ajouter à ${goal.name ?? 'l\'objectif'}',
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Montant actuel',
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 14,
                       color: Theme.of(context).hintColor,
                     ),
                   ),
@@ -416,21 +415,21 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                       preserveFraction: true,
                     ),
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).primaryColor,
+                      color: Colors.black,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 1.h),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Objectif',
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 14,
                       color: Theme.of(context).hintColor,
                     ),
                   ),
@@ -441,21 +440,21 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                       preserveFraction: true,
                     ),
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 1.h),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Restant',
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 14,
                       color: Theme.of(context).hintColor,
                     ),
                   ),
@@ -466,32 +465,32 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                       preserveFraction: true,
                     ),
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).hintColor,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 3.h),
+              SizedBox(height: 24),
               Text(
                 'Montant à ajouter',
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
-              SizedBox(height: 1.h),
+              SizedBox(height: 8),
               AnimatedAmountField(
                 controller: amountController,
                 hint: '0',
-                fontSize: 23.sp,
-                height: 10.h,
+                fontSize: 23,
+                height: 80,
                 fillColor: Theme.of(context).colorScheme.surfaceDim,
-                borderRadius: BorderRadius.circular(3.w),
+                borderRadius: BorderRadius.circular(12),
               ),
-              SizedBox(height: 3.h),
+              SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -499,10 +498,10 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                     text: 'Annuler',
                     onPressed: () => Navigator.of(ctx).pop(),
                     backgroundColor: Theme.of(context).cardColor,
-                    width: 15.h,
+                    width: 120,
                     borderColor: Colors.transparent,
                   ),
-                  SizedBox(width: 2.w),
+                  SizedBox(width: 8),
                   CustomButton(
                     text: 'Ajouter',
                     onPressed: () {
@@ -512,7 +511,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                       }
                     },
                     backgroundColor: Theme.of(context).primaryColor,
-                    width: 15.h,
+                    width: 120,
                   ),
                 ],
               ),
@@ -575,7 +574,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
               Text(
                 goal.name ?? 'Objectif',
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
@@ -584,7 +583,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                 Text(
                   '${goal.category?.emoji ?? '🏷️'} ${goal.category?.name}',
                   style: TextStyle(
-                    fontSize: 12.5.sp,
+                    fontSize: 12.5,
                     color: Theme.of(context).hintColor,
                   ),
                 ),
@@ -592,7 +591,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
                 Text(
                   'D\'ici le ${_formatDate(goal.dateAim!)}',
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: 13,
                     color: Theme.of(context).hintColor,
                   ),
                 ),
@@ -609,7 +608,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
           child: Icon(
             Icons.add_circle_outline_rounded,
             color: Theme.of(context).textTheme.bodyMedium?.color,
-            size: 20.sp,
+            size: 20,
           ),
         ),
       ],
@@ -628,9 +627,9 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
             preserveFraction: true,
           ),
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Theme.of(context).primaryColor,
+            color: Colors.black,
           ),
         ),
         Text(
@@ -640,7 +639,7 @@ class _GoalListItemState extends ConsumerState<GoalListItem>
             preserveFraction: true,
           ),
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: 14,
             color: Theme.of(context).textTheme.bodyMedium?.color,
           ),
         ),

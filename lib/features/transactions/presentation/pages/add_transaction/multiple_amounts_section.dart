@@ -3,7 +3,6 @@ import 'package:budgets/features/transactions/presentation/modules/transaction_m
 import 'package:budgets/features/transactions/presentation/pages/add_transaction/animated_subcategory_item.dart';
 import 'package:budgets/widgets/custom_border_painter.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class MultipleAmountsSection extends StatelessWidget {
   final List<Map<String, dynamic>> subcategoryAmounts;
@@ -35,8 +34,8 @@ class MultipleAmountsSection extends StatelessWidget {
       children: [
         Text('Montants par sous-catégories',
             textAlign: TextAlign.left,
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5.sp)),
-        SizedBox(height: 1.5.h),
+            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5)),
+        SizedBox(height: 12),
         AnimatedList(
           key: listKey,
           shrinkWrap: true,
@@ -69,24 +68,24 @@ class MultipleAmountsSection extends StatelessWidget {
           ),
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 1.5.w),
+            padding: EdgeInsets.symmetric(vertical: 6),
             child: CustomPaint(
               painter: DashedBorderPainter(
                   color: Theme.of(context).dividerColor.withAlpha(128),
                   strokeWidth: 1.0,
-                  borderRadius: 5.w),
+                  borderRadius: 20),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.5.h),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.add,
-                        color: Theme.of(context).iconTheme.color, size: 16.sp),
-                    SizedBox(width: 2.w),
+                        color: Theme.of(context).iconTheme.color, size: 16),
+                    SizedBox(width: 8),
                     Text('Ajouter une sous-catégorie',
                         style: TextStyle(
                             color: Theme.of(context).textTheme.bodyLarge?.color,
-                            fontSize: 14.sp,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500)),
                   ],
                 ),

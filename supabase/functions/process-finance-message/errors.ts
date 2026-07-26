@@ -1,25 +1,39 @@
 export class ApiError extends Error {
+  readonly code: string;
+  readonly status: number;
+  readonly details?: Record<string, unknown>;
+
   constructor(
-    readonly code: string,
+    code: string,
     message: string,
-    readonly status = 500,
-    readonly details?: Record<string, unknown>,
+    status = 500,
+    details?: Record<string, unknown>,
   ) {
     super(message);
+    this.code = code;
+    this.status = status;
+    this.details = details;
   }
 }
 
 export class ProviderError extends ApiError {
+  readonly provider: string;
+  readonly model: string;
+  readonly billingTier: string;
+
   constructor(
     code: string,
     message: string,
     status: number,
-    readonly provider: string,
-    readonly model: string,
-    readonly billingTier: string,
+    provider: string,
+    model: string,
+    billingTier: string,
     details?: Record<string, unknown>,
   ) {
     super(code, message, status, details);
+    this.provider = provider;
+    this.model = model;
+    this.billingTier = billingTier;
   }
 }
 

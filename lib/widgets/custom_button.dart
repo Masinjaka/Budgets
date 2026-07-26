@@ -1,146 +1,148 @@
-import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/ui/app_control_metrics.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
-class CustomButton extends StatefulWidget {
-  const CustomButton(
-      {super.key,
-      required this.text,
-      this.width,
-      this.height,
-      this.backgroundColor,
-      this.borderColor,
-      this.icon,
-      this.iconColor,
-      this.isSquare = false,
-      this.borderRadius,
-      required this.onPressed,
-      this.isLoading});
+class CustomButton extends StatelessWidget {
+  const CustomButton({
+    required this.text,
+    required this.onPressed,
+    this.width,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.borderColor,
+    this.icon,
+    this.iconColor,
+    this.isSquare = false,
+    this.borderRadius,
+    this.isLoading,
+    super.key,
+  }) : outlined = false;
+
+  const CustomButton.outlined({
+    required this.text,
+    required this.onPressed,
+    this.width,
+    this.foregroundColor,
+    this.borderColor,
+    this.icon,
+    this.iconColor,
+    this.isSquare = false,
+    this.borderRadius,
+    this.isLoading,
+    super.key,
+  })  : backgroundColor = Colors.transparent,
+        outlined = true;
 
   const CustomButton.icon({
-    super.key,
     required this.icon,
     required this.onPressed,
     this.width,
-    this.height,
     this.backgroundColor,
+    this.foregroundColor,
     this.iconColor,
     this.isSquare = false,
     this.borderColor,
     this.borderRadius,
     this.isLoading,
-  }) : text = null;
+    super.key,
+  })  : text = null,
+        outlined = false;
 
   final String? text;
   final double? width;
-  final double? height;
   final Color? backgroundColor;
+  final Color? foregroundColor;
   final Color? borderColor;
   final IconData? icon;
   final Color? iconColor;
   final bool isSquare;
   final BorderRadius? borderRadius;
-  final void Function()? onPressed;
+  final VoidCallback? onPressed;
   final bool? isLoading;
+  final bool outlined;
 
-  @override
-  State<CustomButton> createState() => _CustomButtonState();
-}
-
-class _CustomButtonState extends State<CustomButton> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final resolvedBackgroundColor =
-        widget.backgroundColor ?? AppTheme.primaryGreen;
-    final isOutlinedStyle = resolvedBackgroundColor == theme.cardColor ||
-        resolvedBackgroundColor == Colors.transparent;
-    final themedOutlineColor =
-        theme.brightness == Brightness.dark ? Colors.white : Colors.black;
-    const contentColor = AppTheme.interactiveTextColor;
-
+    final colors = _resolveColors(context);
     return SizedBox(
-      width: widget.width ?? double.infinity,
-      height: widget.height ?? 5.5.h,
+      width: width ?? double.infinity,
+      height: AppControlMetrics.height,
       child: ElevatedButton(
-        onPressed: widget.onPressed,
-        style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(
-            resolvedBackgroundColor,
+        onPressed: isLoading == true ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor: colors.background,
+          foregroundColor: colors.foreground,
+          disabledBackgroundColor: colors.background.withValues(alpha: 0.65),
+          disabledForegroundColor: colors.foreground,
+          side: _border(colors.foreground),
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                borderRadius ?? BorderRadius.circular(isSquare ? 12 : 999),
           ),
-          foregroundColor: WidgetStatePropertyAll(contentColor),
-          elevation: const WidgetStatePropertyAll(0),
-          side: WidgetStatePropertyAll(
-            resolvedBackgroundColor == AppTheme.primaryGreen ||
-                    resolvedBackgroundColor == Colors.red
-                ? BorderSide.none
-                : BorderSide(
-                    color: widget.borderColor ??
-                        (isOutlinedStyle
-                            ? themedOutlineColor
-                            : theme.colorScheme.onPrimary),
-                  ),
-          ),
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(
-              borderRadius: widget.borderRadius ??
-                  BorderRadius.circular(widget.isSquare ? 3.w : 50.w),
-            ),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
         ),
-        child: widget.isLoading != null && widget.isLoading!
-            ? SizedBox(
-                height: 6.w,
-                width: 6.w,
+        child: isLoading == true
+            ? SizedBox.square(
+                dimension: 18,
                 child: CircularProgressIndicator(
-                  color: contentColor,
+                  strokeWidth: 2,
+                  color: colors.foreground,
                 ),
               )
-            : _buildChild(contentColor),
+            : _content(colors.foreground),
       ),
     );
   }
 
-  Widget _buildChild(Color contentColor) {
-    final icon = widget.icon;
-    final text = widget.text;
+  BorderSide _border(Color fallback) {
+    if (borderColor != null) return BorderSide(color: borderColor!);
+    return outlined ? BorderSide(color: fallback) : BorderSide.none;
+  }
 
-    if (icon != null && (text == null || text.isEmpty)) {
-      return Icon(
-        icon,
-        color: widget.iconColor ?? contentColor,
+  ({Color background, Color foreground}) _resolveColors(
+    BuildContext context,
+  ) {
+    final colors = Theme.of(context).colorScheme;
+    if (outlined) {
+      return (
+        background: Colors.transparent,
+        foreground: foregroundColor ?? colors.onSurface,
       );
     }
+    final background = backgroundColor ?? colors.inverseSurface;
+    final defaultForeground = backgroundColor == null
+        ? colors.onInverseSurface
+        : ThemeData.estimateBrightnessForColor(background) == Brightness.dark
+            ? Colors.white
+            : Colors.black;
+    return (
+      background: background,
+      foreground: foregroundColor ?? defaultForeground,
+    );
+  }
 
-    if (icon != null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: widget.iconColor ?? contentColor,
-          ),
-          SizedBox(width: 2.w),
-          Text(
-            text!,
-            style: TextStyle(
-              fontSize: 15.5.sp,
-              fontWeight: FontWeight.w900,
-              color: contentColor,
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Text(
+  Widget _content(Color color) {
+    final label = Text(
       text ?? '',
       style: TextStyle(
-        fontSize: 15.5.sp,
-        fontWeight: FontWeight.w900,
-        color: contentColor,
+        fontSize: AppTypography.body,
+        fontWeight: FontWeight.w800,
+        color: color,
       ),
+    );
+    if (icon == null) return label;
+    if (text == null || text!.isEmpty) {
+      return Icon(icon, color: iconColor ?? color);
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: iconColor ?? color),
+        const SizedBox(width: AppControlMetrics.contentGap),
+        label,
+      ],
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BudgetHistoryCard extends ConsumerWidget {
@@ -26,10 +25,10 @@ class BudgetHistoryCard extends ConsumerWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: surfaceColor,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,12 +37,12 @@ class BudgetHistoryCard extends ConsumerWidget {
           Text(
             'Budgets du mois',
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: textColor?.withValues(alpha: 0.7),
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           // Content
           historyAsync.when(
             data: (history) {
@@ -69,20 +68,20 @@ class BudgetHistoryCard extends ConsumerWidget {
 
   Widget _buildEmptyState(BuildContext context, Color? textColor) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 3.h),
+      padding: EdgeInsets.symmetric(vertical: 24),
       child: Center(
         child: Column(
           children: [
             Icon(
               Icons.inbox_outlined,
-              size: 24.sp,
+              size: 24,
               color: textColor?.withValues(alpha: 0.3),
             ),
-            SizedBox(height: 1.h),
+            SizedBox(height: 8),
             Text(
               'Aucun budget enregistré pour ce mois',
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 14,
                 color: textColor?.withValues(alpha: 0.5),
               ),
               textAlign: TextAlign.center,
@@ -95,12 +94,12 @@ class BudgetHistoryCard extends ConsumerWidget {
 
   Widget _buildErrorState(BuildContext context, Color? textColor) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 3.h),
+      padding: EdgeInsets.symmetric(vertical: 24),
       child: Center(
         child: Text(
           'Erreur lors du chargement',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: 14,
             color: Colors.red.withValues(alpha: 0.7),
           ),
         ),
@@ -119,33 +118,33 @@ class BudgetHistoryCard extends ConsumerWidget {
         children: List.generate(
           3,
           (index) => Padding(
-            padding: EdgeInsets.only(bottom: 1.5.h),
+            padding: EdgeInsets.only(bottom: 12),
             child: Row(
               children: [
                 Container(
-                  width: 10.w,
-                  height: 10.w,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                SizedBox(width: 3.w),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: 2.h,
-                        width: 30.w,
+                        height: 16,
+                        width: 120,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      SizedBox(height: 0.5.h),
+                      SizedBox(height: 4),
                       Container(
-                        height: 1.h,
+                        height: 8,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -198,11 +197,11 @@ class BudgetHistoryCard extends ConsumerWidget {
     final amount = convertFromMga(item.amountAsDouble, rate);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 1.h),
-      padding: EdgeInsets.symmetric(vertical: 2.w, horizontal: 4.w),
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceDim,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +210,7 @@ class BudgetHistoryCard extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Wrap(
-                spacing: 2.w,
+                spacing: 8,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Container(
@@ -219,18 +218,18 @@ class BudgetHistoryCard extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.surface,
                       shape: BoxShape.circle,
                     ),
-                    padding: EdgeInsets.all(1.5.w),
+                    padding: EdgeInsets.all(6),
                     child: Center(
                       child: Text(
                         item.category?.emoji ?? '🏷️',
-                        style: TextStyle(fontSize: 18.sp),
+                        style: TextStyle(fontSize: 18),
                       ),
                     ),
                   ),
                   Text(
                     item.category?.name ?? 'Catégorie inconnue',
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
@@ -240,13 +239,13 @@ class BudgetHistoryCard extends ConsumerWidget {
               Text(
                 '${formatAmountWithCurrency(spent, currencyCode, preserveFraction: true)} / ${formatAmountWithCurrency(amount, currencyCode, preserveFraction: true)}',
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 14,
                   color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 1.5.h),
+          SizedBox(height: 12),
           _buildProgressBar(context, progress),
         ],
       ),
@@ -268,7 +267,7 @@ class BudgetHistoryCard extends ConsumerWidget {
         curve: Curves.easeOut,
         builder: (context, value, _) => LinearProgressIndicator(
           value: value,
-          minHeight: 1.h,
+          minHeight: 8,
           backgroundColor: Theme.of(context).colorScheme.surfaceDim,
           valueColor: AlwaysStoppedAnimation<Color>(getProgressColor()),
           borderRadius: BorderRadius.circular(50),

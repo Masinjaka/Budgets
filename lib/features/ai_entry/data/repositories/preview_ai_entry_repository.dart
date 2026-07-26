@@ -58,6 +58,19 @@ class PreviewAiEntryRepository implements AiEntryRepository {
   }
 
   @override
+  Future<FinanceEntry> updateFinanceEntry(
+    String entryId,
+    ManualEntryInput input,
+  ) {
+    throw StateError('Supabase is not initialized.');
+  }
+
+  @override
+  Future<void> deleteFinanceEntry(String entryId) {
+    throw StateError('Supabase is not initialized.');
+  }
+
+  @override
   Future<List<FinanceEntry>> entriesForDate(DateTime date) async {
     if (date.year != today.year ||
         date.month != today.month ||

@@ -4,7 +4,6 @@ import 'package:budgets/features/transactions/presentation/pages/income_tab_cont
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionPage extends ConsumerStatefulWidget {
   const TransactionPage({super.key});
@@ -59,38 +58,38 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
           surfaceTintColor: Colors.transparent,
           backgroundColor: theme.scaffoldBackgroundColor,
           scrolledUnderElevation: 0,
-          titleSpacing: 8.w,
+          titleSpacing: 32,
           title: Text(
             'Transactions',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 20.sp,
+              fontSize: 20,
             ),
           ),
           centerTitle: false,
           actions: [
             Padding(
-              padding: EdgeInsets.only(right: 8.w),
+              padding: EdgeInsets.only(right: 32),
               child: IconButton(
                 tooltip: 'Rechercher',
                 onPressed: _openSearchPage,
                 icon: Icon(
                   Icons.search,
-                  size: 21.sp,
+                  size: 21,
                 ),
               ),
             ),
           ],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(8.h),
+            preferredSize: Size.fromHeight(64),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 0, 8.w, 1.h),
+              padding: EdgeInsets.fromLTRB(32, 0, 32, 8),
               child: Container(
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(50),
                 ),
-                padding: EdgeInsets.all(1.w),
+                padding: EdgeInsets.all(4),
                 child: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
@@ -111,11 +110,11 @@ class _TransactionPageState extends ConsumerState<TransactionPage>
                   ),
                   splashFactory: NoSplash.splashFactory,
                   labelStyle: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                   unselectedLabelStyle: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
                   tabs: const [

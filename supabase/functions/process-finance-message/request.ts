@@ -3,6 +3,8 @@ import { ApiError } from "./errors.ts";
 export type FinanceRequest = {
   kind: "new";
   message: string;
+  receiptId?: string;
+  outputLanguage: "English" | "French";
   timezone: string;
   targetDate: string;
   timezoneOffsetMinutes: number;
@@ -42,6 +44,10 @@ export async function parseFinanceRequest(
   const message = typeof value.message === "string"
     ? value.message.trim()
     : "";
+  const receiptId = typeof value.receipt_id === "string"
+    ? value.receipt_id
+    : undefined;
+  const outputLanguage = value.output_language === "fr" ? "French" : "English";
   const timezone = typeof value.timezone === "string"
     ? value.timezone.trim()
     : "UTC";
@@ -50,7 +56,8 @@ export async function parseFinanceRequest(
     : "";
   const offset = value.timezone_offset_minutes;
   if (
-    !message || message.length > 1000 || timezone.length > 80 ||
+    (!message && !receiptId) || message.length > 1000 ||
+    (receiptId !== undefined && !isUuid(receiptId)) || timezone.length > 80 ||
     !isValidDateKey(targetDate) || typeof offset !== "number" ||
     !Number.isInteger(offset) || offset < -840 || offset > 840
   ) {
@@ -70,7 +77,9 @@ export async function parseFinanceRequest(
   }
   return {
     kind: "new",
-    message,
+    message: message || "Extract the receipt transactions.",
+    receiptId,
+    outputLanguage,
     timezone,
     targetDate,
     timezoneOffsetMinutes,

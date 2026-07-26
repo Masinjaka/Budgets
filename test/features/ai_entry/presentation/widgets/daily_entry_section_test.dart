@@ -1,13 +1,18 @@
 import 'package:budgets/features/ai_entry/domain/models/finance_entry.dart';
+import 'package:budgets/features/ai_entry/presentation/widgets/daily_entry_header.dart';
 import 'package:budgets/features/ai_entry/presentation/widgets/daily_entry_section.dart';
+import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('pins bold date and entry count while transactions scroll',
       (tester) async {
+    final controller = ScrollController();
+    addTearDown(controller.dispose);
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.lightTheme,
         home: Scaffold(
           body: SizedBox(
             height: 300,
@@ -15,6 +20,7 @@ void main() {
               dateLabel: 'Today, 20 July',
               entries: List.generate(12, _entry),
               isLoading: false,
+              controller: controller,
             ),
           ),
         ),
@@ -29,16 +35,41 @@ void main() {
       find.byKey(const Key('daily-entry-summary-label')),
     );
     final initialY = tester.getTopLeft(header).dy;
-    expect(date.style?.fontWeight, FontWeight.w700);
-    expect(summary.style?.fontWeight, FontWeight.w700);
-
-    await tester.drag(
-      find.byKey(const Key('transaction-scroll-view')),
-      const Offset(0, -220),
+    expect(initialY, 20);
+    expect(
+      tester.widget<DecoratedBox>(header).decoration,
+      isA<BoxDecoration>().having(
+        (decoration) => decoration.color,
+        'color',
+        Colors.transparent,
+      ),
     );
-    await tester.pumpAndSettle();
+    expect(date.style?.fontWeight, FontWeight.w800);
+    expect(summary.style?.fontWeight, FontWeight.w800);
+
+    controller.jumpTo(10);
+    await tester.pump();
+    expect(
+      tester.widget<DecoratedBox>(header).decoration,
+      isA<BoxDecoration>().having(
+        (decoration) => decoration.color,
+        'color before pinning',
+        Colors.transparent,
+      ),
+    );
+
+    controller.jumpTo(220);
+    await tester.pump();
     final pinnedY = tester.getTopLeft(header).dy;
     expect(pinnedY, lessThan(initialY));
+    expect(
+      tester.widget<DecoratedBox>(header).decoration,
+      isA<BoxDecoration>().having(
+        (decoration) => decoration.color,
+        'pinned surface color',
+        DailyEntryHeader.surfaceColor,
+      ),
+    );
 
     await tester.drag(
       find.byKey(const Key('transaction-scroll-view')),

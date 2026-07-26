@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class StatsSkeletonCategoryItem extends StatelessWidget {
   const StatsSkeletonCategoryItem({super.key});
@@ -9,36 +8,36 @@ class StatsSkeletonCategoryItem extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 2.h),
+      padding: EdgeInsets.only(bottom: 16),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                width: 10.w,
-                height: 10.w,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              SizedBox(width: 3.w),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 25.w,
-                      height: 1.8.h,
+                      width: 100,
+                      height: 14.4,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    SizedBox(height: 0.5.h),
+                    SizedBox(height: 4),
                     Container(
-                      width: 10.w,
-                      height: 1.5.h,
+                      width: 40,
+                      height: 12,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(4),
@@ -48,8 +47,8 @@ class StatsSkeletonCategoryItem extends StatelessWidget {
                 ),
               ),
               Container(
-                width: 20.w,
-                height: 2.h,
+                width: 80,
+                height: 16,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(4),
@@ -57,9 +56,9 @@ class StatsSkeletonCategoryItem extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 1.h),
+          SizedBox(height: 8),
           Container(
-            height: 0.8.h,
+            height: 6.4,
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(4),

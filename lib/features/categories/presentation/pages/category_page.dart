@@ -5,7 +5,6 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CategoryPage extends ConsumerStatefulWidget {
   const CategoryPage({super.key});
@@ -71,7 +70,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                     expandedHeight: _appBarAnimation.value * kToolbarHeight,
                     toolbarHeight: _appBarAnimation.value * kToolbarHeight,
                     elevation: _appBarAnimation.value * 4,
-                    titleSpacing: 8.w,
+                    titleSpacing: 32,
                     title: _appBarAnimation.value > 0.1
                         ? Opacity(
                             opacity: _appBarAnimation.value,
@@ -82,7 +81,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                 'Catégories',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20.sp,
+                                  fontSize: 20,
                                   color: Theme.of(context)
                                       .textTheme
                                       .bodyLarge
@@ -111,8 +110,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                       Theme.of(context).colorScheme.onPrimary,
                                   backgroundColor:
                                       Theme.of(context).primaryColor,
-                                  width: 4.5.h,
-                                  height: 4.5.h,
+                                  width: 36,
                                   onPressed: () {
                                     // Get the current active tab to determine transaction type
                                     final isExpenseTab =
@@ -125,7 +123,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8.w),
+                            SizedBox(width: 32),
                           ]
                         : [],
                   );

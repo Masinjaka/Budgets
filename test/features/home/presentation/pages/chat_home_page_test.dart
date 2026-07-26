@@ -11,10 +11,13 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(home: ChatHomePage(today: DateTime(2026, 7, 16))),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
+    final background = find.byKey(const Key('home-collapsing-background'));
+    expect(tester.getTopLeft(background).dx, 0);
+    expect(tester.getSize(background).width, 400);
     expect(find.text('1 000 000 Ar'), findsOneWidget);
-    expect(find.text('All time'), findsOneWidget);
+    expect(find.text('All time'), findsNothing);
     expect(find.text('Today, 16 July'), findsOneWidget);
     expect(find.text('3 expenses'), findsOneWidget);
     expect(find.text('Burgers & Fries'), findsOneWidget);
@@ -47,5 +50,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Wednesday, 15 July'), findsOneWidget);
+  });
+
+  testWidgets('wide phones keep the home surface edge-to-edge', (tester) async {
+    useWidePhoneWindow(tester);
+    await tester.pumpWidget(
+      MaterialApp(home: ChatHomePage(today: DateTime(2026, 7, 16))),
+    );
+    await tester.pumpAndSettle();
+
+    final background = find.byKey(const Key('home-collapsing-background'));
+    expect(tester.getTopLeft(background).dx, 0);
+    expect(tester.getSize(background).width, 484);
   });
 }

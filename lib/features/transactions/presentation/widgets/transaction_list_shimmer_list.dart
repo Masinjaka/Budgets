@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class TransactionListShimmerList extends StatelessWidget {
@@ -21,7 +20,7 @@ class TransactionListShimmerList extends StatelessWidget {
     return ListView.builder(
       controller: controller,
       physics: physics,
-      padding: padding ?? EdgeInsets.symmetric(horizontal: 8.w),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: 32),
       itemCount: itemCount,
       itemBuilder: (context, index) => Shimmer.fromColors(
         baseColor: Theme.of(context).cardColor,
@@ -32,20 +31,20 @@ class TransactionListShimmerList extends StatelessWidget {
           children: [
             if (index == 0 || index % 3 == 0)
               Container(
-                width: 30.w,
-                height: 2.h,
-                margin: EdgeInsets.fromLTRB(0, 2.w, 0, 2.w),
+                width: 120,
+                height: 16,
+                margin: EdgeInsets.fromLTRB(0, 8, 0, 8),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(6.w),
+                  borderRadius: BorderRadius.circular(24),
                 ),
               ),
             Container(
-              height: 8.h,
-              margin: EdgeInsets.only(bottom: 1.h),
+              height: 64,
+              margin: EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(6.w),
+                borderRadius: BorderRadius.circular(24),
               ),
             ),
           ],

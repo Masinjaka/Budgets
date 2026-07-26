@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 Widget _buildStyledAmountHint({
   required String hint,
@@ -393,12 +392,12 @@ class _AnimatedAmountFieldState extends ConsumerState<AnimatedAmountField>
 
   @override
   Widget build(BuildContext context) {
-    final fontSize = widget.fontSize ?? 25.sp;
-    final height = widget.height ?? 15.h;
+    final fontSize = widget.fontSize ?? 25;
+    final height = widget.height ?? 120;
     final width = widget.width ?? double.infinity;
     final fillColor =
         widget.fillColor ?? Theme.of(context).colorScheme.surfaceDim;
-    final borderRadius = widget.borderRadius ?? BorderRadius.circular(3.w);
+    final borderRadius = widget.borderRadius ?? BorderRadius.circular(12);
     final currencyCode =
         ref.watch(currencyControllerProvider).value?.code ?? 'MGA';
     final symbol = currencySymbolForCode(currencyCode);
@@ -467,7 +466,7 @@ class _AnimatedAmountFieldState extends ConsumerState<AnimatedAmountField>
             currencyStyle: currencyStyle.copyWith(color: hintColor),
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 2.5.w),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10),
         ),
       ),
     );
@@ -648,9 +647,9 @@ class _AnimatedSubcategoryAmountFieldState
 
   @override
   Widget build(BuildContext context) {
-    final fontSize = widget.fontSize ?? 25.sp;
+    final fontSize = widget.fontSize ?? 25;
     final fillColor = widget.fillColor ?? Theme.of(context).colorScheme.surface;
-    final borderRadius = widget.borderRadius ?? BorderRadius.circular(3.w);
+    final borderRadius = widget.borderRadius ?? BorderRadius.circular(12);
     final currencyCode =
         ref.watch(currencyControllerProvider).value?.code ?? 'MGA';
     final symbol = currencySymbolForCode(currencyCode);
@@ -714,8 +713,7 @@ class _AnimatedSubcategoryAmountFieldState
             borderRadius: borderRadius,
             borderSide: BorderSide.none,
           ),
-          contentPadding:
-              EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 2.8.w),
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 11.2),
         ),
       ),
     );

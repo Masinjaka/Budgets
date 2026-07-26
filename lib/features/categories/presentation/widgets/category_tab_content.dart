@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CategoryTabContent extends ConsumerWidget {
   final TransactionType transactionType;
@@ -25,7 +24,7 @@ class CategoryTabContent extends ConsumerWidget {
     final categoriesAsyncValue = ref.watch(categoriesProvider);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      padding: EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,14 +53,14 @@ class CategoryTabContent extends ConsumerWidget {
       itemCount: 5,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 4.w,
-        mainAxisSpacing: 4.w,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
         childAspectRatio: 2.0,
       ),
       itemBuilder: (context, index) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(5.w),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
     );
@@ -74,7 +73,7 @@ class CategoryTabContent extends ConsumerWidget {
           'Aucune catégorie trouvée.',
           style: TextStyle(
             color: Theme.of(context).hintColor,
-            fontSize: 16.sp,
+            fontSize: 16,
           ),
         ),
       );
@@ -84,8 +83,8 @@ class CategoryTabContent extends ConsumerWidget {
       itemCount: categories.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 4.w,
-        mainAxisSpacing: 4.w,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
         childAspectRatio: 2.0,
       ),
       itemBuilder: (context, index) {
@@ -113,15 +112,15 @@ class CategoryTabContent extends ConsumerWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Color(int.parse(category.color!, radix: 16)),
-              borderRadius: BorderRadius.circular(5.w),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Stack(
               fit: StackFit.expand,
               children: [
                 if (isSavingsCategory)
                   Positioned(
-                    top: 2.w,
-                    right: 2.w,
+                    top: 8,
+                    right: 8,
                     child: FutureBuilder<bool>(
                       future: goal_datasource.hasAnyGoals(),
                       builder: (context, snapshot) {
@@ -129,7 +128,7 @@ class CategoryTabContent extends ConsumerWidget {
                           return Icon(
                             Icons.lock_outline,
                             color: Colors.white.withOpacity(0.7),
-                            size: 14.sp,
+                            size: 14,
                           );
                         }
                         return const SizedBox.shrink();
@@ -137,7 +136,7 @@ class CategoryTabContent extends ConsumerWidget {
                     ),
                   ),
                 Positioned.fill(
-                  right: -5.w,
+                  right: -20,
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: RotationTransition(
@@ -145,7 +144,7 @@ class CategoryTabContent extends ConsumerWidget {
                       child: Text(
                         '${category.emoji}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 35.sp,
+                              fontSize: 35,
                               color: Colors.white,
                             ),
                       ),
@@ -153,13 +152,13 @@ class CategoryTabContent extends ConsumerWidget {
                   ),
                 ),
                 Positioned.fill(
-                  left: 5.w,
+                  left: 20,
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       '${category.name}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 14.5.sp,
+                            fontSize: 14.5,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
                           ),

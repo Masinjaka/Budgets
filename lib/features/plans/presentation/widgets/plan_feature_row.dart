@@ -11,8 +11,10 @@ class PlanFeatureRow extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(minHeight: 70),
       padding: const EdgeInsets.symmetric(vertical: 15),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE7E7E7))),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
       ),
       child: Row(
         children: [
@@ -28,8 +30,11 @@ class PlanFeatureRow extends StatelessWidget {
             child: Text(
               feature.freeBenefit,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFF676767),
+              style: TextStyle(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: .64),
                 fontSize: 11.5,
               ),
             ),

@@ -2,7 +2,6 @@ import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserCard extends ConsumerWidget {
@@ -16,22 +15,22 @@ class UserCard extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(5.w),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Wrap(
-        spacing: 4.w,
+        spacing: 16,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           userAsync.when(
             data: (user) {
-              if (user == null) return avatarSkeleton(context, 32.sp);
-              return avatar(context, user.profilePhoto, 32.sp);
+              if (user == null) return avatarSkeleton(context, 32);
+              return avatar(context, user.profilePhoto, 32);
             },
-            loading: () => avatarSkeleton(context, 32.sp),
-            error: (_, __) => avatarSkeleton(context, 32.sp),
+            loading: () => avatarSkeleton(context, 32),
+            error: (_, __) => avatarSkeleton(context, 32),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -41,15 +40,15 @@ class UserCard extends ConsumerWidget {
                 data: (user) {
                   if (user == null) {
                     return Padding(
-                      padding: EdgeInsets.only(top: 0.5.h),
-                      child: textSkeleton(context, 24.w, 2.2.h),
+                      padding: EdgeInsets.only(top: 4),
+                      child: textSkeleton(context, 96, 17.6),
                     );
                   }
                   final username = user.name;
                   if (username == null || username.trim().isEmpty) {
                     return Padding(
-                      padding: EdgeInsets.only(top: 0.5.h),
-                      child: textSkeleton(context, 24.w, 2.2.h),
+                      padding: EdgeInsets.only(top: 4),
+                      child: textSkeleton(context, 96, 17.6),
                     );
                   }
                   return Text(
@@ -62,15 +61,15 @@ class UserCard extends ConsumerWidget {
                   );
                 },
                 loading: () => Padding(
-                  padding: EdgeInsets.only(top: 0.5.h),
-                  child: textSkeleton(context, 24.w, 2.2.h),
+                  padding: EdgeInsets.only(top: 4),
+                  child: textSkeleton(context, 96, 17.6),
                 ),
                 error: (_, __) => Padding(
-                  padding: EdgeInsets.only(top: 0.5.h),
-                  child: textSkeleton(context, 24.w, 2.2.h),
+                  padding: EdgeInsets.only(top: 4),
+                  child: textSkeleton(context, 96, 17.6),
                 ),
               ),
-              SizedBox(height: 1.h),
+              SizedBox(height: 8),
               Text(
                 userEmail,
                 style: const TextStyle(

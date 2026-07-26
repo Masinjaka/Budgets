@@ -2,7 +2,6 @@ import 'package:budgets/features/transactions/domain/providers/transaction_provi
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionErrorState extends ConsumerWidget {
   final Object error;
@@ -27,28 +26,28 @@ class TransactionErrorState extends ConsumerWidget {
             size: 48,
             color: Colors.red[400],
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           Text(
             errorMessage,
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyLarge?.color,
-              fontSize: 16.sp,
+              fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 1.h),
+          SizedBox(height: 8),
           Text(
             error.toString(),
             style: TextStyle(
               color: Theme.of(context).hintColor,
-              fontSize: 12.sp,
+              fontSize: 12,
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           CustomButton(
             text: 'Réessayer',
-            width: 32.w,
+            width: 128,
             onPressed: () {
               if (onRetry != null) {
                 onRetry!();

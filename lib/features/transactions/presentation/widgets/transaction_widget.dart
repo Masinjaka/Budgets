@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:vibration/vibration.dart';
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:budgets/core/enums/transaction_type.dart';
@@ -114,7 +113,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
   @override
   Widget build(BuildContext context) {
     final transaction = widget.transaction;
-    final cardBorderRadius = BorderRadius.circular(4.w);
+    final cardBorderRadius = BorderRadius.circular(16);
     final currencyState = ref.watch(currencyControllerProvider);
     final currency = currencyState.asData?.value;
 
@@ -131,7 +130,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
           children: [
             CustomSlidableAction(
               autoClose: false,
-              padding: EdgeInsets.only(left: 1.w),
+              padding: EdgeInsets.only(left: 4),
               backgroundColor: const Color.fromARGB(0, 190, 17, 17),
               onPressed: (_) => _handleDeleteAction(),
               child: SizedBox.expand(
@@ -139,7 +138,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Flexible(
                       child: Icon(Icons.delete_outline,
-                          color: Colors.white, size: 18.sp)),
+                          color: Colors.white, size: 18)),
                 ]),
               ).animate(target: _swipeProgress).custom(
                     duration: 120.ms,
@@ -168,22 +167,22 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
                   TransactionDetailBottomSheet(transaction: transaction),
             ),
             child: Padding(
-              padding: EdgeInsets.all(2.5.w),
+              padding: EdgeInsets.all(10),
               child: Row(children: [
                 Container(
-                  width: 5.h,
-                  height: 5.h,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceDim,
-                      borderRadius: BorderRadius.circular(2.w)),
+                      borderRadius: BorderRadius.circular(8)),
                   child: Center(
                       child: Text(
                           (transaction.category?.emoji != null)
                               ? transaction.category!.emoji!
                               : '❓',
-                          style: TextStyle(fontSize: 18.sp))),
+                          style: TextStyle(fontSize: 18))),
                 ),
-                SizedBox(width: 1.6.h),
+                SizedBox(width: 12.8),
                 Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,17 +194,17 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
                                     .bodyLarge
                                     ?.color,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 15.sp)),
-                        SizedBox(height: 0.5.h),
+                                fontSize: 15)),
+                        SizedBox(height: 4),
                         Text(transaction.description ?? '',
                             style: TextStyle(
                                 color: Theme.of(context).hintColor,
-                                fontSize: 14.sp)),
+                                fontSize: 14)),
                       ]),
                 ),
-                SizedBox(width: 1.6.h),
+                SizedBox(width: 12.8),
                 if (currency == null)
-                  textSkeleton(context, 20.w, 2.h)
+                  textSkeleton(context, 80, 16)
                 else
                   Text(
                     formatAmountWithCurrency(
@@ -217,7 +216,7 @@ class _TransactionListItemState extends ConsumerState<TransactionListItem>
                         preserveFraction: true),
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 14.sp),
+                        fontSize: 14),
                   ),
               ]),
             ),

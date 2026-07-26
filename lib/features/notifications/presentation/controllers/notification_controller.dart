@@ -20,16 +20,23 @@ class NotificationController extends AsyncNotifier<NotificationSettings> {
     return _dataSource.fetchSettings();
   }
 
-  Future<void> setAllEnabled(bool enabled) async {
-    await _applySettings(notificationsEnabled: enabled);
+  Future<bool> setAllEnabled(bool enabled) async {
+    return _applySettings(notificationsEnabled: enabled);
   }
 
-  Future<void> setRemindersEnabled(bool enabled) async {
-    await _applySettings(remindersEnabled: enabled);
+  Future<bool> setRemindersEnabled(bool enabled) async {
+    return _applySettings(remindersEnabled: enabled);
   }
 
-  Future<void> setWarningsEnabled(bool enabled) async {
-    await _applySettings(warningsEnabled: enabled);
+  Future<bool> setWarningsEnabled(bool enabled) async {
+    return _applySettings(warningsEnabled: enabled);
+  }
+
+  Future<bool> setReminderTime({
+    required int hour,
+    required int minute,
+  }) async {
+    return _applySettings(reminderHour: hour, reminderMinute: minute);
   }
 
   Future<void> refreshSettings() async {
@@ -45,42 +52,50 @@ class NotificationController extends AsyncNotifier<NotificationSettings> {
     await _service?.registerDevice();
   }
 
-  Future<void> _applySettings({
+  Future<bool> _applySettings({
     bool? notificationsEnabled,
     bool? remindersEnabled,
     bool? warningsEnabled,
+    int? reminderHour,
+    int? reminderMinute,
   }) async {
-    final previousValue = state.value;
-    state = previousValue != null
-        ? AsyncLoading<NotificationSettings>()
-        : const AsyncLoading<NotificationSettings>();
-    final current = await _dataSource.fetchSettings();
+    final current = state.value ?? await _dataSource.fetchSettings();
     final next = current.copyWith(
       notificationsEnabled:
           notificationsEnabled ?? current.notificationsEnabled,
       remindersEnabled: remindersEnabled ?? current.remindersEnabled,
       warningsEnabled: warningsEnabled ?? current.warningsEnabled,
+      reminderHour: reminderHour ?? current.reminderHour,
+      reminderMinute: reminderMinute ?? current.reminderMinute,
     );
-
-    if (next.notificationsEnabled && !(current.notificationsEnabled)) {
-      final granted = await _service?.registerDevice() ?? false;
-      if (!granted) {
-        state = AsyncData(current);
-        return;
-      }
-    }
-
-    if (!next.notificationsEnabled) {
-      await _service?.disableAllDevices();
-    }
-
-    await _dataSource.upsertSettings(
-      notificationsEnabled: next.notificationsEnabled,
-      remindersEnabled: next.remindersEnabled,
-      warningsEnabled: next.warningsEnabled,
-      timezoneOffsetMinutes: DateTime.now().timeZoneOffset.inMinutes,
-    );
-
     state = AsyncData(next);
+
+    try {
+      if (next.notificationsEnabled && !(current.notificationsEnabled)) {
+        final granted = await _service?.registerDevice() ?? false;
+        if (!granted) {
+          state = AsyncData(current);
+          return false;
+        }
+      }
+
+      if (!next.notificationsEnabled) {
+        await _service?.disableAllDevices();
+      }
+
+      await _dataSource.upsertSettings(
+        notificationsEnabled: next.notificationsEnabled,
+        remindersEnabled: next.remindersEnabled,
+        warningsEnabled: next.warningsEnabled,
+        reminderHour: next.reminderHour,
+        reminderMinute: next.reminderMinute,
+        timezoneOffsetMinutes: DateTime.now().timeZoneOffset.inMinutes,
+      );
+
+      return true;
+    } catch (_) {
+      state = AsyncData(current);
+      rethrow;
+    }
   }
 }

@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:vibration/vibration.dart';
 
 class BudgetListItem extends ConsumerStatefulWidget {
@@ -174,7 +173,7 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
   @override
   Widget build(BuildContext context) {
     final budget = widget.budget;
-    final cardBorderRadius = BorderRadius.circular(4.w);
+    final cardBorderRadius = BorderRadius.circular(16);
     final currencyState = ref.watch(currencyControllerProvider).value;
     final currencyCode = currencyState?.code ?? 'MGA';
     final rate = currencyState?.rateFor(currencyCode) ?? 1.0;
@@ -186,7 +185,7 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
     final progress = amount > 0 ? (spent / amount).clamp(0.0, 1.0) : 0.0;
 
     final card = Padding(
-      padding: EdgeInsets.only(bottom: 2.h),
+      padding: EdgeInsets.only(bottom: 16),
       child: ClipRRect(
         borderRadius: cardBorderRadius,
         clipBehavior: Clip.antiAlias,
@@ -200,7 +199,7 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
             children: [
               CustomSlidableAction(
                 autoClose: false,
-                padding: EdgeInsets.only(left: 1.w),
+                padding: EdgeInsets.only(left: 4),
                 backgroundColor: Colors.transparent,
                 onPressed: (_) => _handleDeleteAction(),
                 child: SizedBox.expand(
@@ -212,7 +211,7 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
                         child: Icon(
                           Icons.delete_outline,
                           color: Colors.white,
-                          size: 18.sp,
+                          size: 18,
                         ),
                       ),
                     ],
@@ -239,7 +238,7 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
               borderRadius: cardBorderRadius,
               onTap: _isDismissing ? null : () => _showEditDialog(context),
               child: Padding(
-                padding: EdgeInsets.all(4.w),
+                padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -247,7 +246,7 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Wrap(
-                          spacing: 2.w,
+                          spacing: 8,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Container(
@@ -255,18 +254,18 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
                                 color: Theme.of(context).colorScheme.surfaceDim,
                                 shape: BoxShape.circle,
                               ),
-                              padding: EdgeInsets.all(1.5.w),
+                              padding: EdgeInsets.all(6),
                               child: Center(
                                 child: Text(
                                   category?.emoji ?? '🏷️',
-                                  style: TextStyle(fontSize: 18.sp),
+                                  style: TextStyle(fontSize: 18),
                                 ),
                               ),
                             ),
                             Text(
                               category?.name ?? 'Catégorie inconnue',
                               style: TextStyle(
-                                fontSize: 15.sp,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: Theme.of(context)
                                     .textTheme
@@ -282,18 +281,18 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
                             Text(
                               '${formatAmountWithCurrency(spent, currencyCode, preserveFraction: true)} / ${formatAmountWithCurrency(amount, currencyCode, preserveFraction: true)}',
                               style: TextStyle(
-                                fontSize: 14.sp,
+                                fontSize: 14,
                                 color: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
                                     ?.color,
                               ),
                             ),
-                            SizedBox(height: 0.4.h),
+                            SizedBox(height: 3.2),
                             Text(
                               _periodLabel(budget.period),
                               style: TextStyle(
-                                fontSize: 11.5.sp,
+                                fontSize: 11.5,
                                 color: Theme.of(context).hintColor,
                               ),
                             ),
@@ -301,7 +300,7 @@ class _BudgetListItemState extends ConsumerState<BudgetListItem>
                         ),
                       ],
                     ),
-                    SizedBox(height: 1.5.h),
+                    SizedBox(height: 12),
                     PlanningProgressBar(
                         progress: progress, useWarningColors: true),
                   ],

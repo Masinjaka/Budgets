@@ -2,7 +2,6 @@ import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:vibration/vibration.dart';
 
 class CustomSubcategoryDropdown extends ConsumerStatefulWidget {
@@ -209,7 +208,7 @@ class _CustomSubcategoryDropdownState
     if (!hasFilteredItems && !showCustomOption) {
       return Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         child: Text(
           searchText.isEmpty
               ? 'Aucune sous-catégorie disponible'
@@ -217,7 +216,7 @@ class _CustomSubcategoryDropdownState
           style: TextStyle(
             color:
                 Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
-            fontSize: 14.sp,
+            fontSize: 14,
           ),
         ),
       );
@@ -242,7 +241,7 @@ class _CustomSubcategoryDropdownState
               },
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? Theme.of(context).highlightColor
@@ -252,14 +251,14 @@ class _CustomSubcategoryDropdownState
                   children: [
                     Icon(
                       Icons.category_outlined,
-                      size: 16.sp,
+                      size: 16,
                       color: Theme.of(context)
                           .textTheme
                           .bodyLarge
                           ?.color
                           ?.withOpacity(0.7),
                     ),
-                    SizedBox(width: 2.w),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         item.name ?? '',
@@ -271,7 +270,7 @@ class _CustomSubcategoryDropdownState
                                   .bodyLarge
                                   ?.color
                                   ?.withOpacity(0.8),
-                          fontSize: 14.sp,
+                          fontSize: 14,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
@@ -288,13 +287,13 @@ class _CustomSubcategoryDropdownState
             if (hasFilteredItems)
               Container(
                 height: 1,
-                margin: EdgeInsets.symmetric(horizontal: 4.w),
+                margin: EdgeInsets.symmetric(horizontal: 16),
                 color: Theme.of(context).dividerColor,
               ),
             SizedBox(
               width: double.infinity,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: GestureDetector(
                   onTap: () async {
                     // Haptic feedback
@@ -311,8 +310,7 @@ class _CustomSubcategoryDropdownState
                     _focusNode.unfocus();
                   },
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 1.h, horizontal: 4.w),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(100),
@@ -322,14 +320,14 @@ class _CustomSubcategoryDropdownState
                       children: [
                         Icon(
                           Icons.add_circle_outline,
-                          size: 16.sp,
+                          size: 16,
                           color: Theme.of(context)
                               .textTheme
                               .bodyLarge
                               ?.color
                               ?.withOpacity(0.9),
                         ),
-                        SizedBox(width: 2.w),
+                        SizedBox(width: 8),
                         Text(
                           'Créer "$searchText"',
                           style: TextStyle(
@@ -338,7 +336,7 @@ class _CustomSubcategoryDropdownState
                                 .bodyLarge
                                 ?.color
                                 ?.withOpacity(0.9),
-                            fontSize: 14.sp,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -360,7 +358,7 @@ class _CustomSubcategoryDropdownState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         widget.title,
-        SizedBox(height: 1.h),
+        SizedBox(height: 8),
         FormField<Subcategory>(
           validator: (value) {
             if (widget.validator != null) {
@@ -382,10 +380,10 @@ class _CustomSubcategoryDropdownState
                     color: Theme.of(context).colorScheme.surfaceDim,
                     borderRadius: _isDropdownOpen
                         ? BorderRadius.only(
-                            topLeft: Radius.circular(5.w),
-                            topRight: Radius.circular(5.w),
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
                           )
-                        : BorderRadius.circular(5.w),
+                        : BorderRadius.circular(20),
                   ),
                   child: Row(
                     children: [
@@ -403,19 +401,19 @@ class _CustomSubcategoryDropdownState
                                   .bodyLarge
                                   ?.color
                                   ?.withOpacity(0.6),
-                              fontSize: 15.sp,
+                              fontSize: 15,
                             ),
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
-                              horizontal: 4.w,
-                              vertical: 1.5.h,
+                              horizontal: 16,
+                              vertical: 12,
                             ),
                           ),
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodyLarge?.color,
-                            fontSize: 15.sp,
+                            fontSize: 15,
                           ),
                           onTap: () {
                             if (!_isDropdownOpen) {
@@ -428,7 +426,7 @@ class _CustomSubcategoryDropdownState
                       GestureDetector(
                         onTap: _toggleDropdown,
                         child: Padding(
-                          padding: EdgeInsets.only(right: 4.w),
+                          padding: EdgeInsets.only(right: 16),
                           child: Icon(
                             _isDropdownOpen
                                 ? Icons.arrow_drop_up
@@ -448,13 +446,13 @@ class _CustomSubcategoryDropdownState
                     axisAlignment: -1.0,
                     child: Container(
                       constraints: BoxConstraints(
-                        maxHeight: 40.h,
+                        maxHeight: 320,
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceDim,
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(5.w),
-                          bottomRight: Radius.circular(5.w),
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -466,8 +464,8 @@ class _CustomSubcategoryDropdownState
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(5.w),
-                          bottomRight: Radius.circular(5.w),
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
                         ),
                         child: _buildDropdownContent(),
                       ),
@@ -476,12 +474,12 @@ class _CustomSubcategoryDropdownState
 
                 if (state.hasError)
                   Padding(
-                    padding: EdgeInsets.only(top: 1.h, left: 3.w),
+                    padding: EdgeInsets.only(top: 8, left: 12),
                     child: Text(
                       state.errorText!,
                       style: TextStyle(
                         color: Colors.red,
-                        fontSize: 12.sp,
+                        fontSize: 12,
                       ),
                     ),
                   ),

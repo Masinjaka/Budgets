@@ -11,7 +11,6 @@ import 'package:budgets/features/transactions/presentation/widgets/transaction_s
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionSearchPage extends ConsumerStatefulWidget {
   final String transactionType;
@@ -131,7 +130,7 @@ class _TransactionSearchPageState extends ConsumerState<TransactionSearchPage> {
                   )
                 else
                   SliverPadding(
-                    padding: EdgeInsets.fromLTRB(8.w, 1.h, 8.w, 0),
+                    padding: EdgeInsets.fromLTRB(32, 8, 32, 0),
                     sliver: grouped.isEmpty
                         ? SliverFillRemaining(
                             hasScrollBody: false,

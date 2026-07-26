@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'pending_target_provider.g.dart';
 
-enum ToggleTarget { master, reminders, warnings }
+enum ToggleTarget { master, reminders, reminderTime, warnings }
 
 @riverpod
 class PendingTarget extends _$PendingTarget {

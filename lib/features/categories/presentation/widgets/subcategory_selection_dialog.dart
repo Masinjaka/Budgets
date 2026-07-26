@@ -2,7 +2,6 @@ import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:budgets/features/categories/presentation/widgets/add_subcategory_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// A dialog for selecting a subcategory from a list of pills.
 /// Shows only an "Add subcategory" button if no subcategories exist.
@@ -42,11 +41,11 @@ class SubcategorySelectionDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.w),
+        borderRadius: BorderRadius.circular(20),
       ),
-      insetPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 80),
       child: Padding(
-        padding: EdgeInsets.all(5.w),
+        padding: EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +59,7 @@ class SubcategorySelectionDialog extends StatelessWidget {
                     'Choisir une sous-catégorie',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 17.sp,
+                      fontSize: 17,
                     ),
                   ),
                 ),
@@ -74,23 +73,23 @@ class SubcategorySelectionDialog extends StatelessWidget {
                     onPressed: () => Navigator.of(context).pop(),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    iconSize: 18.sp,
+                    iconSize: 18,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
 
             // Subcategory pills or empty state
             if (subcategories.isNotEmpty) ...[
               Wrap(
-                spacing: 2.w,
-                runSpacing: 1.h,
+                spacing: 8,
+                runSpacing: 8,
                 children: subcategories
                     .map((sub) => _buildSubcategoryPill(context, sub))
                     .toList(),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: 16),
             ],
 
             // Add subcategory button
@@ -109,12 +108,12 @@ class SubcategorySelectionDialog extends StatelessWidget {
       onTap: () => Navigator.of(context).pop(subcategory),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.2.h),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 9.6),
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.inverseSurface
               : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.h),
+          borderRadius: BorderRadius.circular(40),
         ),
         child: Text(
           subcategory.name ?? '',
@@ -122,7 +121,7 @@ class SubcategorySelectionDialog extends StatelessWidget {
             color: isSelected
                 ? Theme.of(context).colorScheme.onInverseSurface
                 : Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(200),
-            fontSize: 14.sp,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -146,10 +145,10 @@ class SubcategorySelectionDialog extends StatelessWidget {
       },
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(3.w),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: Theme.of(context).dividerColor.withAlpha(100),
             width: 1,
@@ -160,14 +159,14 @@ class SubcategorySelectionDialog extends StatelessWidget {
           children: [
             Icon(
               Icons.add,
-              size: 16.sp,
+              size: 16,
               color: Theme.of(context).textTheme.bodyMedium?.color,
             ),
-            SizedBox(width: 2.w),
+            SizedBox(width: 8),
             Text(
               'Ajouter une sous-catégorie',
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).textTheme.bodyMedium?.color,
               ),

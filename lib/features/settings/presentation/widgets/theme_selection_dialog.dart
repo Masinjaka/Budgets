@@ -1,7 +1,6 @@
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/settings/domain/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class ThemeSelectionDialog extends StatefulWidget {
   final ThemeMode currentTheme;
@@ -64,9 +63,9 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 5.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20),
       child: Container(
-        padding: EdgeInsets.all(5.w),
+        padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(20),
@@ -81,14 +80,14 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 3.h),
+            SizedBox(height: 24),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 color: surfaceDim,
                 borderRadius: BorderRadius.circular(50),
               ),
-              padding: EdgeInsets.all(1.w),
+              padding: EdgeInsets.all(4),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
@@ -121,7 +120,7 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.wb_sunny_rounded, size: 16),
-                        SizedBox(width: 1.w),
+                        SizedBox(width: 4),
                         const Text('Jour'),
                       ],
                     ),
@@ -131,7 +130,7 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.nightlight_round, size: 16),
-                        SizedBox(width: 1.w),
+                        SizedBox(width: 4),
                         const Text('Nuit'),
                       ],
                     ),
@@ -141,7 +140,7 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.brightness_auto_rounded, size: 16),
-                        SizedBox(width: 1.w),
+                        SizedBox(width: 4),
                         const Text('Système'),
                       ],
                     ),
@@ -149,7 +148,7 @@ class _ThemeSelectionDialogState extends State<ThemeSelectionDialog>
                 ],
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
           ],
         ),
       ),

@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -40,37 +39,37 @@ class HomePage extends ConsumerWidget {
       extendBodyBehindAppBar: false,
       appBar: const CustomGreetingAppBar(),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        padding: EdgeInsets.symmetric(horizontal: 32),
         child: SizedBox(
           height: double.infinity,
           child: SingleChildScrollView(
             // physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                SizedBox(height: 2.h),
+                SizedBox(height: 16),
                 const Jumbotron(),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 SectionTitle(
                   title: 'Activités récentes',
                   onTap: () {
                     context.go('/transaction-list');
                   },
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 16),
                 switch (asyncTransactions) {
                   AsyncData(:final value) => _buildTransactionList(
                       context, value, selectedCategories, dateRange),
                   AsyncError(:final error) => Text('error: $error'),
                   _ => const TransactionListSkeleton(),
                 },
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 SectionTitle(
                   title: 'Vue d\'ensemble',
                   onTap: () {
                     context.go('/stats');
                   },
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 StatsHomeWidget(asyncExpenses: asyncTransactions),
               ],
             ),

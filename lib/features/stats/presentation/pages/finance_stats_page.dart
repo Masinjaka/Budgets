@@ -1,22 +1,28 @@
+import 'package:budgets/core/currency/currency_state.dart';
 import 'package:budgets/core/ui/app_toast.dart';
-import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/ui/month_navigation.dart';
 import 'package:budgets/features/stats/data/repositories/supabase_monthly_stats_repository.dart';
 import 'package:budgets/features/stats/data/services/monthly_stats_service.dart';
 import 'package:budgets/features/stats/domain/repositories/monthly_stats_repository.dart';
 import 'package:budgets/features/stats/presentation/view_models/monthly_stats_view_model.dart';
-import 'package:budgets/features/stats/presentation/widgets/category_spending_list.dart';
 import 'package:budgets/features/stats/presentation/widgets/monthly_spending_chart.dart';
-import 'package:budgets/features/stats/presentation/widgets/stats_metric_card.dart';
-import 'package:budgets/features/stats/presentation/widgets/stats_overview_card.dart';
+import 'package:budgets/features/stats/presentation/widgets/stats_metrics_grid.dart';
+import 'package:budgets/features/stats/presentation/widgets/stats_top_spending_card.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FinanceStatsPage extends StatefulWidget {
-  const FinanceStatsPage({this.repository, this.initialMonth, super.key});
+  const FinanceStatsPage({
+    this.repository,
+    this.initialMonth,
+    this.displayCurrency,
+    super.key,
+  });
 
   final MonthlyStatsRepository? repository;
   final DateTime? initialMonth;
+  final CurrencyState? displayCurrency;
 
   @override
   State<FinanceStatsPage> createState() => _FinanceStatsPageState();
@@ -28,12 +34,11 @@ class _FinanceStatsPageState extends State<FinanceStatsPage> {
   @override
   void initState() {
     super.initState();
-    final repository = widget.repository ??
-        SupabaseMonthlyStatsRepository(
-          MonthlyStatsService(Supabase.instance.client),
-        );
     _viewModel = MonthlyStatsViewModel(
-      repository,
+      widget.repository ??
+          SupabaseMonthlyStatsRepository(
+            MonthlyStatsService(Supabase.instance.client),
+          ),
       widget.initialMonth ?? DateTime.now(),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
@@ -64,13 +69,31 @@ class _FinanceStatsPageState extends State<FinanceStatsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFEFEFE),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFEFEFE),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Stats',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        title: ListenableBuilder(
+          listenable: _viewModel,
+          builder: (context, _) => Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.stats,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+              const SizedBox(width: 8),
+              MonthNavigation(
+                month: _viewModel.month,
+                onPrevious: () => _changeMonth(-1),
+                onNext: () => _changeMonth(1),
+                canGoNext: _canGoForward,
+              ),
+            ],
+          ),
         ),
       ),
       body: ListenableBuilder(
@@ -80,82 +103,31 @@ class _FinanceStatsPageState extends State<FinanceStatsPage> {
           if (stats == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          return RefreshIndicator(
-            onRefresh: _load,
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(22, 10, 22, 30),
-              children: [
-                _monthSelector(),
-                const SizedBox(height: 18),
-                StatsOverviewCard(stats: stats),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    StatsMetricCard(
-                      label: 'Transactions',
-                      value: '${stats.transactionCount}',
-                      icon: Icons.receipt_long_outlined,
-                    ),
-                    const SizedBox(width: 11),
-                    StatsMetricCard(
-                      label: 'Average / day',
-                      value: formatAmountWithCurrency(
-                        stats.averageDailySpend,
-                        stats.currencyCode,
+          return LayoutBuilder(
+            builder: (context, constraints) => RefreshIndicator(
+              onRefresh: _load,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: constraints.maxWidth.clamp(0, 760),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(22, 18, 22, 32),
+                    children: [
+                      StatsMetricsGrid(
+                        stats: stats,
+                        displayCurrency: widget.displayCurrency,
                       ),
-                      icon: Icons.calendar_today_outlined,
-                    ),
-                    const SizedBox(width: 11),
-                    StatsMetricCard(
-                      label: 'Largest expense',
-                      value: formatAmountWithCurrency(
-                        stats.largestExpense,
-                        stats.currencyCode,
+                      const SizedBox(height: 28),
+                      MonthlySpendingChart(values: stats.dailyExpenses),
+                      const SizedBox(height: 28),
+                      StatsTopSpendingCard(
+                        stats: stats,
+                        displayCurrency: widget.displayCurrency,
                       ),
-                      icon: Icons.arrow_outward_rounded,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 14),
-                MonthlySpendingChart(values: stats.dailyExpenses),
-                const SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Top spending',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Text(
-                        _changeLabel(stats.expenseChange),
-                        maxLines: 2,
-                        textAlign: TextAlign.end,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: stats.expenseChange > 0
-                              ? const Color(0xFFD84A3A)
-                              : const Color(0xFF3D9360),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                CategorySpendingList(
-                  categories: stats.expenseCategories,
-                  total: stats.expenses,
-                  currencyCode: stats.currencyCode,
-                ),
-              ],
+              ),
             ),
           );
         },
@@ -163,34 +135,8 @@ class _FinanceStatsPageState extends State<FinanceStatsPage> {
     );
   }
 
-  Widget _monthSelector() {
+  bool get _canGoForward {
     final now = DateTime.now();
-    final canGoForward = _viewModel.month.isBefore(
-      DateTime(now.year, now.month),
-    );
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => _changeMonth(-1),
-          icon: const Icon(Icons.chevron_left_rounded),
-        ),
-        Expanded(
-          child: Text(
-            DateFormat('MMMM yyyy').format(_viewModel.month),
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-          ),
-        ),
-        IconButton(
-          onPressed: canGoForward ? () => _changeMonth(1) : null,
-          icon: const Icon(Icons.chevron_right_rounded),
-        ),
-      ],
-    );
-  }
-
-  String _changeLabel(double change) {
-    final direction = change > 0 ? 'more' : 'less';
-    return '${change.abs().toStringAsFixed(0)}% $direction than last month';
+    return _viewModel.month.isBefore(DateTime(now.year, now.month));
   }
 }

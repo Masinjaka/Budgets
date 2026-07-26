@@ -3,7 +3,6 @@ import 'package:budgets/features/stats/presentation/widgets/month_year_picker.da
 import 'package:budgets/features/stats/presentation/widgets/stats_page_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class StatsPage extends ConsumerStatefulWidget {
   const StatsPage({super.key});
@@ -92,12 +91,12 @@ class _StatsPageState extends ConsumerState<StatsPage> {
         surfaceTintColor: Colors.transparent,
         backgroundColor: theme.scaffoldBackgroundColor,
         scrolledUnderElevation: 0,
-        titleSpacing: 8.w,
+        titleSpacing: 32,
         title: Text(
           'Rapports',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 20.sp,
+            fontSize: 20,
           ),
         ),
         centerTitle: false,
@@ -105,9 +104,9 @@ class _StatsPageState extends ConsumerState<StatsPage> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: 32),
             child: SizedBox(
-              width: 90.w,
+              width: 360,
               child: MonthYearPicker(
                 onPreviousMonth: _goToPreviousMonth,
                 onNextMonth: _goToNextMonth,

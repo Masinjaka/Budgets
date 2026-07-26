@@ -43,6 +43,11 @@ export type ModelResult = {
   billingTier: string;
 };
 
+export type ModelMedia = {
+  mimeType: string;
+  base64: string;
+};
+
 export type AiContext = {
   currencyCode: string;
   categories: Record<string, unknown>[];

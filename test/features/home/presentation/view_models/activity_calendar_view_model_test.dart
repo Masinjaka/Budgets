@@ -25,6 +25,15 @@ void main() {
     expect(viewModel.activityDates, {DateTime(2026, 7, 15)});
   });
 
+  test('removes a date when its last activity is deleted', () {
+    final viewModel = ActivityCalendarViewModel(FakeAiEntryRepository());
+    viewModel.markActivity(DateTime(2026, 7, 15));
+
+    viewModel.setActivity(DateTime(2026, 7, 15, 18), false);
+
+    expect(viewModel.activityDates, isEmpty);
+  });
+
   test('clears all activity dates after user data deletion', () async {
     final repository = FakeAiEntryRepository()
       ..activityDates = {DateTime(2026, 7, 12)};

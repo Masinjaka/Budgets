@@ -1,11 +1,9 @@
+import 'package:budgets/core/ui/app_wheel_picker.dart';
 import 'package:budgets/features/stats/domain/providers/selected_date_provider.dart';
-import 'package:budgets/features/stats/presentation/widgets/month_year_picker_dialog.dart';
-import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:intl/intl.dart';
 
 class MonthYearPicker extends ConsumerWidget {
@@ -23,7 +21,6 @@ class MonthYearPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
     final tabIndicatorColor = Theme.of(context).tabBarTheme.indicatorColor;
     final tabLabelColor = Theme.of(context).tabBarTheme.labelColor;
     final selectedDate = ref.watch(selectedDateProvider);
@@ -38,13 +35,13 @@ class MonthYearPicker extends ConsumerWidget {
         (selectedDate.year == now.year && selectedDate.month < now.month);
 
     return Container(
-      height: 7.h,
-      padding: EdgeInsets.symmetric(vertical: 2.w),
+      height: 56,
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           _BouncingIcon(
             icon: Icons.arrow_back_ios,
-            size: 18.sp,
+            size: 18,
             color: textColor,
             onTap: () {
               if (onPreviousMonth != null) {
@@ -56,8 +53,8 @@ class MonthYearPicker extends ConsumerWidget {
           ),
           // IconButton(
           //   padding: EdgeInsets.zero,
-          //   constraints: BoxConstraints.tightFor(width: 8.w, height: 5.h),
-          //   icon: Icon(Icons.arrow_back_ios, size: 16.sp, color: textColor),
+          //   constraints: BoxConstraints.tightFor(width: 32, height: 40),
+          //   icon: Icon(Icons.arrow_back_ios, size: 16, color: textColor),
           //   onPressed: () {
           //     if (onPreviousMonth != null) {
           //       onPreviousMonth!();
@@ -69,11 +66,12 @@ class MonthYearPicker extends ConsumerWidget {
           const Spacer(),
           GestureDetector(
             onTap: () async {
-              final newDate = await showAnimatedDialog<DateTime>(
-                context: context,
-                builder: (BuildContext context) {
-                  return MonthYearPickerDialog(initialDate: selectedDate);
-                },
+              final newDate = await AppWheelPicker.monthYear(
+                context,
+                initialDate: selectedDate,
+                firstDate: DateTime(2000),
+                lastDate: now,
+                title: 'Select month and year',
               );
               if (newDate != null) {
                 if (onDateSelected != null) {
@@ -84,8 +82,8 @@ class MonthYearPicker extends ConsumerWidget {
               }
             },
             child: Container(
-              height: 5.h,
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: tabIndicatorColor,
                 borderRadius: BorderRadius.circular(100),
@@ -107,7 +105,7 @@ class MonthYearPicker extends ConsumerWidget {
                   key: ValueKey(formattedMonthYear),
                   style: TextStyle(
                     color: tabLabelColor,
-                    fontSize: 14.5.sp,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -118,7 +116,7 @@ class MonthYearPicker extends ConsumerWidget {
           const Spacer(),
           _BouncingIcon(
             icon: Icons.arrow_forward_ios,
-            size: 18.sp,
+            size: 18,
             color: canGoToNextMonth
                 ? textColor
                 : textColor?.withValues(alpha: 0.3),
@@ -196,7 +194,7 @@ class _BouncingIconState extends State<_BouncingIcon>
       behavior: HitTestBehavior.opaque,
       onTap: _handleTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Icon(widget.icon, size: widget.size, color: widget.color),

@@ -2,7 +2,6 @@ import 'package:budgets/features/transactions/domain/model/transaction_model.dar
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class AppChartData {
   /// Returns a list of [BarChartGroupData] suitable for [BarChart] with separate bars for expenses and income.
@@ -46,15 +45,15 @@ class AppChartData {
           BarChartRodData(
             toY: dailyExpenses[index] ?? 0.0,
             color: Colors.redAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
           // Green bar for income
           BarChartRodData(
             toY: dailyIncome[index] ?? 0.0,
             color: Colors.greenAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
         ],
       );
@@ -103,8 +102,8 @@ class AppChartData {
             toY: dailyTotals[index] ??
                 0.0, // Y-axis value representing the expense amount.
             color: Colors.greenAccent,
-            width: 6.w,
-            borderRadius: BorderRadius.circular(5.w),
+            width: 24,
+            borderRadius: BorderRadius.circular(20),
           ),
         ],
       );
@@ -208,14 +207,14 @@ class AppChartData {
           BarChartRodData(
             toY: hourlyExpenses[index] ?? 0.0,
             color: Colors.redAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
           BarChartRodData(
             toY: hourlyIncome[index] ?? 0.0,
             color: Colors.greenAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
         ],
       );
@@ -277,14 +276,14 @@ class AppChartData {
           BarChartRodData(
             toY: weeklyExpenses[index] ?? 0.0,
             color: Colors.redAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
           BarChartRodData(
             toY: weeklyIncome[index] ?? 0.0,
             color: Colors.greenAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
         ],
       );
@@ -333,14 +332,14 @@ class AppChartData {
           BarChartRodData(
             toY: monthlyExpenses[index] ?? 0.0,
             color: Colors.redAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
           BarChartRodData(
             toY: monthlyIncome[index] ?? 0.0,
             color: Colors.greenAccent,
-            width: 4.5.w,
-            borderRadius: BorderRadius.circular(3.w),
+            width: 18,
+            borderRadius: BorderRadius.circular(12),
           ),
         ],
       );

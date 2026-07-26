@@ -1,40 +1,52 @@
-import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/core/currency/currency_amount_input.dart';
+import 'package:budgets/core/currency/currency_state.dart';
 import 'package:budgets/core/ui/app_toast.dart';
-import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/features/ai_entry/domain/models/finance_entry.dart';
 import 'package:budgets/features/ai_entry/domain/models/manual_entry_category.dart';
 import 'package:budgets/features/ai_entry/domain/models/manual_entry_input.dart';
-import 'package:budgets/features/home/presentation/widgets/manual_entry_category_field.dart';
+import 'package:budgets/features/home/domain/models/manual_entry_sheet_result.dart';
+import 'package:budgets/features/home/presentation/widgets/bottom_sheet_drag_handle.dart';
+import 'package:budgets/features/home/presentation/widgets/manual_entry_category_loader.dart';
+import 'package:budgets/features/home/presentation/widgets/manual_entry_primary_fields.dart';
+import 'package:budgets/features/home/presentation/widgets/manual_entry_sheet_actions.dart';
+import 'package:budgets/features/home/presentation/widgets/manual_entry_sheet_header.dart';
 import 'package:budgets/features/home/presentation/widgets/manual_entry_type_selector.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class ManualEntrySheet extends StatefulWidget {
   const ManualEntrySheet({
     required this.categories,
     required this.targetDate,
+    this.currencyState,
+    this.entry,
     super.key,
   });
 
-  final List<ManualEntryCategory> categories;
+  final Future<List<ManualEntryCategory>> categories;
   final DateTime targetDate;
-
-  static Future<ManualEntryInput?> show(
+  final CurrencyState? currencyState;
+  final FinanceEntry? entry;
+  static Future<ManualEntrySheetResult?> show(
     BuildContext context, {
-    required List<ManualEntryCategory> categories,
+    required Future<List<ManualEntryCategory>> categories,
     required DateTime targetDate,
-  }) {
-    return showModalBottomSheet<ManualEntryInput>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => ManualEntrySheet(
-        categories: categories,
-        targetDate: targetDate,
-      ),
-    );
-  }
+    CurrencyState? currencyState,
+    FinanceEntry? entry,
+  }) =>
+      showModalBottomSheet<ManualEntrySheetResult>(
+        context: context,
+        useRootNavigator: true,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => ManualEntrySheet(
+          categories: categories,
+          targetDate: targetDate,
+          currencyState: currencyState,
+          entry: entry,
+        ),
+      );
 
   @override
   State<ManualEntrySheet> createState() => _ManualEntrySheetState();
@@ -46,10 +58,23 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
   final _descriptionController = TextEditingController();
   String _type = 'expense';
   String? _categoryId;
+  bool get _isEditing => widget.entry != null;
 
-  List<ManualEntryCategory> get _categories => widget.categories
-      .where((category) => category.transactionType == _type)
-      .toList(growable: false);
+  @override
+  void initState() {
+    super.initState();
+    final entry = widget.entry;
+    if (entry == null) return;
+    _titleController.text = entry.title;
+    _amountController.text = CurrencyAmountInput.fromStored(
+      entry.amount,
+      entry.currencyCode,
+      widget.currencyState,
+    );
+    _descriptionController.text = entry.description;
+    _type = entry.transactionType;
+    _categoryId = entry.categoryId;
+  }
 
   @override
   void dispose() {
@@ -67,13 +92,34 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
   }
 
   void _submit() {
-    final amount = parseAmountInput(_amountController.text).round();
+    final amount = CurrencyAmountInput.toMga(
+      _amountController.text,
+      widget.currencyState,
+    );
     if (_titleController.text.trim().isEmpty || amount <= 0) {
       showInfoToast(context, 'Enter a title and a positive amount.');
       return;
     }
+    final occurredAt = widget.entry?.occurredAt ?? _targetDateTime();
+    final input = ManualEntryInput(
+      title: _titleController.text.trim(),
+      description: _descriptionController.text.trim(),
+      amount: amount,
+      transactionType: _type,
+      categoryId: _categoryId,
+      occurredAt: occurredAt,
+      sourceWalletId: widget.entry?.sourceWalletId,
+      useAllWallets: widget.entry?.usedMultipleWallets ?? false,
+    );
+    Navigator.of(context).pop(ManualEntrySheetResult.save(input));
+  }
+
+  void _delete() =>
+      Navigator.of(context).pop(const ManualEntrySheetResult.delete());
+
+  DateTime _targetDateTime() {
     final now = DateTime.now();
-    final occurredAt = DateTime(
+    return DateTime(
       widget.targetDate.year,
       widget.targetDate.month,
       widget.targetDate.day,
@@ -81,29 +127,22 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
       now.minute,
       now.second,
     );
-    Navigator.of(context).pop(
-      ManualEntryInput(
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        amount: amount,
-        transactionType: _type,
-        categoryId: _categoryId,
-        occurredAt: occurredAt,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
-    const labelStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.w700);
+    const labelStyle = TextStyle(
+      fontSize: AppTypography.body,
+      fontWeight: FontWeight.w700,
+    );
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
         padding: const EdgeInsets.fromLTRB(22, 13, 22, 18),
-        decoration: const BoxDecoration(
-          color: Color(0xFFFEFEFE),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
         ),
         child: SafeArea(
           top: false,
@@ -111,28 +150,11 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 53,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD2D2D2),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
+                const BottomSheetDragHandle(height: 7),
                 const SizedBox(height: 20),
-                const Text(
-                  'Add an entry',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  DateFormat('EEEE, d MMMM').format(widget.targetDate),
-                  style: const TextStyle(
-                    color: Color(0xFF717171),
-                    fontSize: 11.5,
-                  ),
+                ManualEntrySheetHeader(
+                  date: widget.targetDate,
+                  isEditing: _isEditing,
                 ),
                 const SizedBox(height: 17),
                 ManualEntryTypeSelector(
@@ -140,53 +162,33 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
                   onChanged: _changeType,
                 ),
                 const SizedBox(height: 16),
-                CustomTextField(
-                  title: const Text('Title', style: labelStyle),
-                  hint: _type == 'expense' ? 'Coffee' : 'Salary',
-                  controller: _titleController,
-                  fillColor: const Color(0xFFF0F0F0),
-                  borderRadius: BorderRadius.circular(14),
-                  fontSize: 14,
+                ManualEntryPrimaryFields(
+                  transactionType: _type,
+                  titleController: _titleController,
+                  amountController: _amountController,
+                  amountHint: CurrencyAmountInput.hint(widget.currencyState),
                 ),
                 const SizedBox(height: 14),
-                CustomTextField(
-                  title: const Text('Amount', style: labelStyle),
-                  hint: '0 Ar',
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  fillColor: const Color(0xFFF0F0F0),
-                  borderRadius: BorderRadius.circular(14),
-                  fontSize: 14,
-                ),
-                const SizedBox(height: 14),
-                ManualEntryCategoryField(
+                ManualEntryCategoryLoader(
                   key: ValueKey('manual-category-$_type'),
-                  categories: _categories,
+                  categories: widget.categories,
+                  transactionType: _type,
                   value: _categoryId,
                   onChanged: (value) => setState(() => _categoryId = value),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 8),
                 CustomTextField(
                   title: const Text('Note (optional)', style: labelStyle),
                   hint: 'Add a short note',
                   controller: _descriptionController,
-                  fillColor: const Color(0xFFF0F0F0),
-                  borderRadius: BorderRadius.circular(14),
-                  fontSize: 14,
+                  fillColor: Theme.of(context).cardColor,
+                  fontSize: AppTypography.body,
                 ),
                 const SizedBox(height: 19),
-                SizedBox(
-                  width: double.infinity,
-                  height: 49,
-                  child: FilledButton(
-                    key: const Key('save-manual-entry-button'),
-                    onPressed: _submit,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.primaryGreen,
-                      foregroundColor: AppTheme.interactiveTextColor,
-                    ),
-                    child: const Text('Add entry'),
-                  ),
+                ManualEntrySheetActions(
+                  isEditing: _isEditing,
+                  onSave: _submit,
+                  onDelete: _delete,
                 ),
               ],
             ),

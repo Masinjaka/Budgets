@@ -1,3 +1,5 @@
+import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/core/ui/app_button_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,16 +11,19 @@ class AppTheme {
   static const Color primaryGreen = Color(0xFF10B981);
   static const Color secondaryGreen = Color(0xff4C8352);
   static const Color dangerColor = Color(0xFFE57373);
-
-  //Text Colors
+  static const Color neutralSurface = Color(0xFFF3F3F3);
   static const Color textDark = Color(0xffEFEFEF);
+  static const Color mutedTextDark = Color(0xFFB5B7B8);
+  static const Color raisedSurfaceDark = Color(0xFF1D2022);
 
   // Light colors
-  static const Color backgroundLight = Color(0xFFF4F7F5);
-  static const Color secondaryLight = Color(0xFFE8EBE9);
-  static const Color textLight = Color(0xff333333);
+  static const Color backgroundLight = Color(0xFFFEFEFE);
+  static const Color secondaryLight = neutralSurface;
+  static const Color raisedSurfaceLight = Colors.white;
+  static const Color textLight = Color(0xFF333333);
+  static const Color mutedTextLight = Color(0xFF606060);
+  static const Color borderColorLight = Color(0xFFD8D8D8);
   static const Color interactiveTextColor = Colors.black;
-  static const Color buttonTextColor = interactiveTextColor;
 
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
@@ -28,14 +33,42 @@ class AppTheme {
     fontFamily: GoogleFonts.nunito().fontFamily,
     textTheme: GoogleFonts.nunitoTextTheme(
       const TextTheme(
-        bodyLarge: TextStyle(color: textLight),
-        bodyMedium: TextStyle(color: textLight),
-        titleLarge: TextStyle(color: textLight),
-        titleMedium: TextStyle(color: textLight),
-        titleSmall: TextStyle(color: textLight),
-        bodySmall: TextStyle(color: textLight),
+        bodyLarge: TextStyle(
+          color: textLight,
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
+        ),
+        bodyMedium: TextStyle(
+          color: textLight,
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
+        ),
+        titleLarge: TextStyle(
+          color: textLight,
+          fontSize: AppTypography.headline,
+          fontWeight: FontWeight.w700,
+        ),
+        titleMedium: TextStyle(
+          color: textLight,
+          fontSize: AppTypography.title,
+          fontWeight: FontWeight.w700,
+        ),
+        titleSmall: TextStyle(
+          color: textLight,
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
+        ),
+        bodySmall: TextStyle(
+          color: textLight,
+          fontSize: AppTypography.supporting,
+          fontWeight: FontWeight.w600,
+        ),
+        labelLarge: TextStyle(
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
+        ),
         labelMedium: TextStyle(
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
         ),
       ),
     ),
@@ -44,29 +77,33 @@ class AppTheme {
       elevation: 0,
       iconTheme: IconThemeData(color: textLight),
     ),
+    dialogTheme: const DialogThemeData(backgroundColor: backgroundLight),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: backgroundLight,
+    ),
     tabBarTheme: const TabBarThemeData(
       indicatorColor: backgroundDark,
       labelColor: backgroundLight,
       unselectedLabelColor: textLight,
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
+    elevatedButtonTheme: AppButtonTheme.elevated(Brightness.light),
+    textButtonTheme: AppButtonTheme.text(Brightness.light),
+    outlinedButtonTheme: AppButtonTheme.outlined(Brightness.light),
+    filledButtonTheme: AppButtonTheme.filled(Brightness.light),
     colorScheme: const ColorScheme.light(
       primary: primaryGreen,
+      onPrimary: interactiveTextColor,
       secondary: secondaryGreen,
+      error: dangerColor,
       surface: secondaryLight,
       surfaceDim: backgroundLight,
-      inverseSurface: secondaryDark,
+      surfaceContainer: secondaryLight,
+      surfaceContainerLowest: raisedSurfaceLight,
+      onSurface: textLight,
+      onSurfaceVariant: mutedTextLight,
+      outline: borderColorLight,
+      inverseSurface: Colors.black,
+      onInverseSurface: raisedSurfaceLight,
       tertiary: borderColorDark,
     ),
   );
@@ -79,16 +116,42 @@ class AppTheme {
     fontFamily: GoogleFonts.nunito().fontFamily,
     textTheme: GoogleFonts.nunitoTextTheme(
       const TextTheme(
-        bodyLarge: TextStyle(color: textDark),
-        bodyMedium: TextStyle(color: textDark),
-        titleLarge: TextStyle(color: textDark),
-        titleMedium: TextStyle(color: textDark),
-        titleSmall: TextStyle(color: textDark),
+        bodyLarge: TextStyle(
+          color: textDark,
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
+        ),
+        bodyMedium: TextStyle(
+          color: textDark,
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
+        ),
+        titleLarge: TextStyle(
+          color: textDark,
+          fontSize: AppTypography.headline,
+          fontWeight: FontWeight.w700,
+        ),
+        titleMedium: TextStyle(
+          color: textDark,
+          fontSize: AppTypography.title,
+          fontWeight: FontWeight.w700,
+        ),
+        titleSmall: TextStyle(
+          color: textDark,
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
+        ),
         bodySmall: TextStyle(
           color: textDark,
+          fontSize: AppTypography.supporting,
+          fontWeight: FontWeight.w600,
+        ),
+        labelLarge: TextStyle(
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w600,
         ),
         labelMedium: TextStyle(
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
         ),
       ),
     ),
@@ -97,29 +160,33 @@ class AppTheme {
       elevation: 0,
       iconTheme: IconThemeData(color: textDark),
     ),
+    dialogTheme: const DialogThemeData(backgroundColor: secondaryDark),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: secondaryDark,
+    ),
     tabBarTheme: const TabBarThemeData(
       indicatorColor: backgroundLight,
       labelColor: backgroundDark,
       unselectedLabelColor: textDark,
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(foregroundColor: buttonTextColor),
-    ),
+    elevatedButtonTheme: AppButtonTheme.elevated(Brightness.dark),
+    textButtonTheme: AppButtonTheme.text(Brightness.dark),
+    outlinedButtonTheme: AppButtonTheme.outlined(Brightness.dark),
+    filledButtonTheme: AppButtonTheme.filled(Brightness.dark),
     colorScheme: const ColorScheme.dark(
       primary: primaryGreen,
+      onPrimary: interactiveTextColor,
       secondary: secondaryGreen,
+      error: dangerColor,
       surface: secondaryDark,
       surfaceDim: backgroundDark,
-      inverseSurface: secondaryLight,
+      surfaceContainer: secondaryDark,
+      surfaceContainerLowest: raisedSurfaceDark,
+      onSurface: textDark,
+      onSurfaceVariant: mutedTextDark,
+      outline: borderColorDark,
+      inverseSurface: Colors.white,
+      onInverseSurface: Colors.black,
       tertiary: Color.fromARGB(255, 126, 126, 126),
     ),
   );

@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -40,7 +42,6 @@ dependencies:
   flutter_riverpod: ^3.1.0
   riverpod_annotation: ^4.0.0
   google_fonts: ^7.1.0
-  responsive_sizer: ^3.3.1
   badges: ^3.1.2
   intl: ^0.20.2
   chips_input_autocomplete: ^1.2.2
@@ -69,11 +70,15 @@ dependencies:
   vibration: ^3.1.5
   local_auth: ^3.0.0
   sentry_flutter: ^9.10.0
+  feedback: ^3.2.0
+  feedback_sentry: ^3.2.0
   ionicons: ^0.2.2
   currency_text_input_formatter: ^2.3.0
   font_awesome_flutter: ^11.0.0
   path_provider: ^2.1.5
   uuid: ^4.5.3
+  bottom_picker: ^4.2.0
+  url_launcher: ^6.3.2
   
 
 dev_dependencies:
@@ -100,6 +105,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

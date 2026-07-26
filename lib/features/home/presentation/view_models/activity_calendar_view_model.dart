@@ -29,9 +29,17 @@ class ActivityCalendarViewModel extends ChangeNotifier {
   }
 
   void markActivity(DateTime date) {
+    setActivity(date, true);
+  }
+
+  void setActivity(DateTime date, bool active) {
     final normalized = DateUtils.dateOnly(date);
-    if (_activityDates.contains(normalized)) return;
-    _activityDates = Set.unmodifiable({..._activityDates, normalized});
+    if (_activityDates.contains(normalized) == active) return;
+    _activityDates = Set.unmodifiable(
+      active
+          ? {..._activityDates, normalized}
+          : _activityDates.where((item) => item != normalized),
+    );
     notifyListeners();
   }
 
