@@ -49,10 +49,12 @@ class SettingsContent extends StatelessWidget {
           items: [
             SettingsMenuItem(
               title: localizations.editProfile,
+              icon: Icons.manage_accounts_outlined,
               onTap: onEditProfile,
             ),
             SettingsMenuItem(
               title: localizations.changePassword,
+              icon: Icons.lock_reset_rounded,
               onTap: onChangePassword,
             ),
           ],
@@ -64,20 +66,32 @@ class SettingsContent extends StatelessWidget {
           items: [
             SettingsMenuItem(
               title: localizations.notification,
+              icon: Icons.notifications_none_rounded,
               onTap: onNotifications,
             ),
-            SettingsMenuItem(title: localizations.currency, onTap: onCurrency),
+            SettingsMenuItem(
+              title: localizations.currency,
+              icon: Icons.currency_exchange_rounded,
+              onTap: onCurrency,
+            ),
             SettingsMenuItem(
               title: localizations.setDefaultWallet,
+              icon: Icons.account_balance_wallet_outlined,
               onTap: onDefaultWallet,
             ),
-            SettingsMenuItem(title: localizations.theme, onTap: onTheme),
+            SettingsMenuItem(
+              title: localizations.theme,
+              icon: Icons.contrast_rounded,
+              onTap: onTheme,
+            ),
             SettingsMenuItem(
               title: localizations.language,
+              icon: Icons.language_rounded,
               onTap: onLanguage,
             ),
             SettingsMenuItem(
               title: localizations.scannedReceipts,
+              icon: Icons.document_scanner_outlined,
               onTap: onScannedReceipts,
             ),
           ],
@@ -89,10 +103,12 @@ class SettingsContent extends StatelessWidget {
           items: [
             SettingsMenuItem(
               title: localizations.termsOfService,
+              icon: Icons.description_outlined,
               onTap: onTerms,
             ),
             SettingsMenuItem(
               title: localizations.privacyPolicy,
+              icon: Icons.shield_outlined,
               onTap: onPrivacy,
             ),
           ],

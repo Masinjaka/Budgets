@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 class SettingsMenuItem extends StatelessWidget {
   const SettingsMenuItem({
     required this.title,
+    required this.icon,
     required this.onTap,
     this.trailing,
     super.key,
   });
 
   final String title;
+  final IconData icon;
   final VoidCallback onTap;
   final Widget? trailing;
 
@@ -23,7 +25,7 @@ class SettingsMenuItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 21),
           child: Row(
             children: [
-              const Icon(Icons.person_outline_rounded, size: 19),
+              Icon(icon, size: 19),
               const SizedBox(width: 13),
               Expanded(
                 child: Text(

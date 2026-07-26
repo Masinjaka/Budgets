@@ -57,7 +57,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get termsOfService => 'Conditions d’utilisation';
 
   @override
+  String get termsAndConditions => 'Conditions générales';
+
+  @override
   String get privacyPolicy => 'Politique de confidentialité';
+
+  @override
+  String get legalConsentPrefix => 'J’accepte les ';
+
+  @override
+  String get legalConsentConnector => ' et la ';
 
   @override
   String get logOut => 'Se déconnecter';

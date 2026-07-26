@@ -57,7 +57,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsOfService => 'Terms of service';
 
   @override
+  String get termsAndConditions => 'Terms and Conditions';
+
+  @override
   String get privacyPolicy => 'Privacy policy';
+
+  @override
+  String get legalConsentPrefix => 'I agree to the ';
+
+  @override
+  String get legalConsentConnector => ' and the ';
 
   @override
   String get logOut => 'Log out';

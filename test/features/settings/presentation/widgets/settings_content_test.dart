@@ -1,4 +1,5 @@
 import 'package:budgets/features/settings/presentation/widgets/settings_content.dart';
+import 'package:budgets/features/settings/presentation/widgets/settings_menu_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,6 +36,18 @@ void main() {
     expect(find.text('Preferences'), findsOneWidget);
     expect(find.text('Legal'), findsOneWidget);
     expect(find.text('Zone de danger'), findsNothing);
+    final leadingIcons = tester
+        .widgetList<Icon>(
+          find.descendant(
+            of: find.byType(SettingsMenuItem),
+            matching: find.byType(Icon),
+          ),
+        )
+        .where((icon) => icon.icon != Icons.chevron_right_rounded)
+        .map((icon) => icon.icon)
+        .toList();
+    expect(leadingIcons, hasLength(10));
+    expect(leadingIcons.toSet(), hasLength(10));
 
     for (final label in [
       'Edit profile',

@@ -1,14 +1,21 @@
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/core/legal/legal_document_launcher.dart';
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/ui/app_typography.dart';
-import 'package:budgets/widgets/custom_button.dart';
+import 'package:budgets/features/auth/presentation/widgets/legal_consent_checkbox.dart';
+import 'package:budgets/features/auth/presentation/widgets/sign_up_submit_bar.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
-  const SignUpPage({super.key});
+  const SignUpPage({
+    this.legalLauncher = const UrlLegalDocumentLauncher(),
+    super.key,
+  });
+
+  final LegalDocumentLauncher legalLauncher;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _SignUpPageState();
@@ -22,6 +29,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   bool _isLoading = false;
+  bool _hasAcceptedLegalTerms = false;
 
   @override
   void dispose() {
@@ -36,7 +44,11 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(child: _buildForm(context)),
-      bottomNavigationBar: _buildBottomPart(),
+      bottomNavigationBar: SignUpSubmitBar(
+        isLoading: _isLoading,
+        isEnabled: _hasAcceptedLegalTerms,
+        onPressed: _submit,
+      ),
     );
   }
 
@@ -143,7 +155,15 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     isPassword: true,
                     validator: const <String, String>{"type": "password"},
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 32),
+                  LegalConsentCheckbox(
+                    value: _hasAcceptedLegalTerms,
+                    launcher: widget.legalLauncher,
+                    onChanged: (value) {
+                      setState(() => _hasAcceptedLegalTerms = value);
+                    },
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -153,46 +173,26 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     );
   }
 
-  Widget _buildBottomPart() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CustomButton(
-            text: 'Suivant',
-            isLoading: _isLoading,
-            onPressed: () async {
-              if (!_formKey.currentState!.validate()) return;
-              if (_passwordController.text != _confirmPasswordController.text) {
-                if (!mounted) return;
-                showInfoToast(
-                    context, 'Vérifiez la correspondance du mot de passe');
-                return;
-              }
-
-              setState(() => _isLoading = true);
-              try {
-                await ref.read(authControllerProvider.notifier).signUp(
-                      email: _emailController.text.trim(),
-                      password: _passwordController.text,
-                      username: _usernameController.text.trim(),
-                    );
-                if (!mounted) return;
-                context.push('/upload-profile-photo');
-              } catch (e, st) {
-                debugPrint('[SignUpPage] signUp submission error: $e');
-                debugPrint('[SignUpPage] signUp submission stackTrace: $st');
-                if (mounted) showErrorToast(context, e);
-              } finally {
-                if (mounted) {
-                  setState(() => _isLoading = false);
-                }
-              }
-            },
-          ),
-        ],
-      ),
-    );
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_passwordController.text != _confirmPasswordController.text) {
+      showInfoToast(context, 'Vérifiez la correspondance du mot de passe');
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authControllerProvider.notifier).signUp(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+            username: _usernameController.text.trim(),
+          );
+      if (mounted) context.push('/upload-profile-photo');
+    } catch (error, stackTrace) {
+      debugPrint('[SignUpPage] signUp submission error: $error');
+      debugPrint('[SignUpPage] signUp submission stackTrace: $stackTrace');
+      if (mounted) showErrorToast(context, error);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 }

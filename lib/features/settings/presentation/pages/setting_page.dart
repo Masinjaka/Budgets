@@ -1,3 +1,5 @@
+import 'package:budgets/core/legal/legal_document_launcher.dart';
+import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/features/notifications/presentation/pages/notification_settings_page.dart';
@@ -5,7 +7,6 @@ import 'package:budgets/features/settings/presentation/pages/currency_selection_
 import 'package:budgets/features/settings/presentation/pages/default_wallet_page.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_password_page.dart';
 import 'package:budgets/features/settings/presentation/pages/edit_profile_page.dart';
-import 'package:budgets/features/settings/presentation/pages/legal_settings_page.dart';
 import 'package:budgets/features/settings/presentation/pages/language_settings_page.dart';
 import 'package:budgets/features/settings/presentation/pages/theme_settings_page.dart';
 import 'package:budgets/features/settings/presentation/widgets/settings_content.dart';
@@ -17,9 +18,14 @@ import 'package:go_router/go_router.dart';
 import 'package:budgets/l10n/app_localizations_context.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
-  const SettingPage({this.onDataDeleted, super.key});
+  const SettingPage({
+    this.onDataDeleted,
+    this.legalLauncher = const UrlLegalDocumentLauncher(),
+    super.key,
+  });
 
   final VoidCallback? onDataDeleted;
+  final LegalDocumentLauncher legalLauncher;
 
   @override
   ConsumerState<SettingPage> createState() => _SettingPageState();
@@ -62,8 +68,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               onTheme: () => _open(const ThemeSettingsPage()),
               onLanguage: () => _open(const LanguageSettingsPage()),
               onScannedReceipts: () => _open(const ReceiptGalleryPage()),
-              onTerms: () => _open(const LegalSettingsPage.terms()),
-              onPrivacy: () => _open(const LegalSettingsPage.privacy()),
+              onTerms: () => _openLegal(
+                widget.legalLauncher.openTermsAndConditions,
+              ),
+              onPrivacy: () => _openLegal(
+                widget.legalLauncher.openPrivacyPolicy,
+              ),
               onLogout: _logout,
               isLoggingOut: _isLoggingOut,
             ),
@@ -76,6 +86,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   Future<void> _open(Widget page) => Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => page),
       );
+
+  Future<void> _openLegal(Future<void> Function() open) async {
+    try {
+      await open();
+    } catch (error) {
+      if (mounted) showErrorToast(context, error);
+    }
+  }
 
   Future<void> _logout() async {
     if (_isLoggingOut) return;

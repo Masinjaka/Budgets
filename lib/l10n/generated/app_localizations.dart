@@ -194,11 +194,29 @@ abstract class AppLocalizations {
   /// **'Terms of service'**
   String get termsOfService;
 
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Conditions'**
+  String get termsAndConditions;
+
   /// No description provided for @privacyPolicy.
   ///
   /// In en, this message translates to:
   /// **'Privacy policy'**
   String get privacyPolicy;
+
+  /// No description provided for @legalConsentPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the '**
+  String get legalConsentPrefix;
+
+  /// No description provided for @legalConsentConnector.
+  ///
+  /// In en, this message translates to:
+  /// **' and the '**
+  String get legalConsentConnector;
 
   /// No description provided for @logOut.
   ///
