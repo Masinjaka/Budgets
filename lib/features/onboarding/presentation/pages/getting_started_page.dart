@@ -1,12 +1,12 @@
 import 'package:budgets/core/paths.dart';
 import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/features/onboarding/presentation/widgets/onboarding_image.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -63,7 +63,7 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
         body: Column(
           children: [
             SizedBox(
-              height: 35.h,
+              height: 280,
               width: double.infinity,
               child: Stack(
                 fit: StackFit.expand,
@@ -80,7 +80,6 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                       return OnboardingImage(imagePath);
                     },
                   ),
-                  // Gradient overlay
                   Positioned.fill(
                     child: IgnorePointer(
                       child: Container(
@@ -109,7 +108,7 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                 ],
               ),
             ),
-            SizedBox(height: 1.5.h),
+            SizedBox(height: 12),
             SmoothPageIndicator(
               controller: _pageController,
               count: _images.length,
@@ -122,10 +121,9 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                 expansionFactor: 3.2,
               ),
             ),
-            // ... keep rest of the page content here
             Expanded(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 2.h, 8.w, 4.h),
+                padding: EdgeInsets.fromLTRB(32, 16, 32, 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -133,18 +131,20 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Drala',
-                        style: TextStyle(
-                            fontSize: 20.5.sp, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: AppTypography.title,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 16),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         _texts[_currentPage],
                         key: ValueKey(_currentPage),
-                        style: TextStyle(
-                          fontSize: 16.sp,
+                        style: const TextStyle(
+                          fontSize: AppTypography.body,
                         ),
                       )
                           .animate(key: ValueKey('text_$_currentPage'))
@@ -158,26 +158,25 @@ class _GettingStartedPageState extends State<GettingStartedPage> {
                       text: 'Commencer',
                       onPressed: () => context.push('/signup'),
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 16),
                     Align(
                       alignment: Alignment.center,
                       child: Text.rich(
                         TextSpan(
                           text: 'J\'ai déjà un compte. ',
-                          style: TextStyle(
-                            fontSize: 15.5.sp,
+                          style: const TextStyle(
+                            fontSize: AppTypography.body,
                           ),
                           children: [
                             TextSpan(
                               text: 'Se connecter',
                               style: TextStyle(
-                                fontSize: 15.5.sp,
+                                fontSize: AppTypography.body,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryGreen,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  // Handle navigation to login page
                                   context.push('/login');
                                 },
                             ),

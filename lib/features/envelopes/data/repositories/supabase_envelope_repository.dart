@@ -15,6 +15,7 @@ class SupabaseEnvelopeRepository implements EnvelopeRepository {
     return rows.map((row) {
       final category = _record(row['categories']);
       final categoryId = row['category_id'] as String;
+      final overspent = (row['overspent_amount'] as num?)?.round() ?? 0;
       return Envelope(
         id: row['id'] as String,
         name: row['name'] as String,
@@ -24,8 +25,10 @@ class SupabaseEnvelopeRepository implements EnvelopeRepository {
         color: (category['color'] as String?) ?? 'FF9E9E9E',
         amount: (row['amount'] as num).round(),
         spent: (row['amount'] as num).round() -
-            (row['remaining_amount'] as num).round(),
+            (row['remaining_amount'] as num).round() +
+            overspent,
         currencyCode: (row['currency_code'] as String?) ?? 'MGA',
+        overspentAmount: overspent,
       );
     }).toList(growable: false);
   }

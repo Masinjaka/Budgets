@@ -5,6 +5,10 @@ void usePhoneWindow(WidgetTester tester) {
   _setWindow(tester, const Size(400, 800));
 }
 
+void useWidePhoneWindow(WidgetTester tester) {
+  _setWindow(tester, const Size(484, 900));
+}
+
 void useTabletWindow(WidgetTester tester) {
   _setWindow(tester, const Size(900, 1100));
 }

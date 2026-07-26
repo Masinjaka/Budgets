@@ -3,7 +3,6 @@ import 'package:budgets/features/categories/domain/models/subcategories.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// A minimal dialog for adding a new subcategory.
 /// Returns a temporary Subcategory with just the name (no id).
@@ -50,12 +49,12 @@ class _AddSubcategoryDialogState extends State<AddSubcategoryDialog> {
     return Dialog(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.w),
+        borderRadius: BorderRadius.circular(20),
       ),
-      insetPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(5.w),
+          padding: EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -71,7 +70,7 @@ class _AddSubcategoryDialogState extends State<AddSubcategoryDialog> {
                         'Nouvelle sous-catégorie',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 17.sp,
+                          fontSize: 17,
                         ),
                       ),
                     ),
@@ -85,12 +84,12 @@ class _AddSubcategoryDialogState extends State<AddSubcategoryDialog> {
                         onPressed: () => Navigator.of(context).pop(),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        iconSize: 18.sp,
+                        iconSize: 18,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
 
                 // Name field
                 CustomTextField(
@@ -98,10 +97,10 @@ class _AddSubcategoryDialogState extends State<AddSubcategoryDialog> {
                   hint: 'Nom de la sous-catégorie',
                   controller: _nameController,
                   keyboardType: TextInputType.text,
-                  borderRadius: BorderRadius.circular(3.w),
+                  borderRadius: BorderRadius.circular(12),
                   validator: const <String, String>{"type": "required"},
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
 
                 // Confirm button
                 CustomButton(

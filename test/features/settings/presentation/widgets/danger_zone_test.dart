@@ -1,9 +1,9 @@
 import 'package:budgets/features/settings/presentation/view_models/danger_zone_view_model.dart';
 import 'package:budgets/features/settings/presentation/widgets/danger_zone.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
+import 'package:budgets/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../support/fake_account_data_repository.dart';
 
@@ -72,15 +72,16 @@ Future<void> _pumpDangerZone(
   DangerZoneViewModel viewModel,
 ) =>
     tester.pumpWidget(
-      ResponsiveSizer(
-        builder: (_, __, ___) => MaterialApp(
-          home: Scaffold(
-            body: DangerZone(
-              viewModel: viewModel,
-              accountEmail: 'owner@example.com',
-              onDataDeleted: () {},
-              onAccountDeleted: () {},
-            ),
+      MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: DangerZone(
+            viewModel: viewModel,
+            accountEmail: 'owner@example.com',
+            onDataDeleted: () {},
+            onAccountDeleted: () {},
           ),
         ),
       ),

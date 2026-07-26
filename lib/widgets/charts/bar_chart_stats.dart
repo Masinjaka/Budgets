@@ -4,7 +4,6 @@ import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds bar chart for daily hourly view (24 hours)
 Widget dailyHourlyBarChart(List<TransactionModel> transactions,
@@ -44,7 +43,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions,
       return BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          groupsSpace: 2.w,
+          groupsSpace: 8,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -75,7 +74,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions,
                     ),
                   );
                 },
-                reservedSize: 2.h,
+                reservedSize: 16,
               ),
             ),
             leftTitles: AxisTitles(
@@ -88,7 +87,7 @@ Widget dailyHourlyBarChart(List<TransactionModel> transactions,
                     style: const TextStyle(fontSize: 10),
                   );
                 },
-                reservedSize: 4.h,
+                reservedSize: 32,
               ),
             ),
             topTitles:
@@ -161,7 +160,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions,
       return BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          groupsSpace: 12.w,
+          groupsSpace: 48,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -199,7 +198,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions,
                     ),
                   );
                 },
-                reservedSize: 2.h,
+                reservedSize: 16,
               ),
             ),
             leftTitles: AxisTitles(
@@ -212,7 +211,7 @@ Widget monthlyWeeklyBarChart(List<TransactionModel> transactions,
                     style: const TextStyle(fontSize: 10),
                   );
                 },
-                reservedSize: 4.h,
+                reservedSize: 32,
               ),
             ),
             topTitles:
@@ -285,7 +284,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions,
       return BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          groupsSpace: 2.w,
+          groupsSpace: 8,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -317,7 +316,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions,
                     ),
                   );
                 },
-                reservedSize: 2.h,
+                reservedSize: 16,
               ),
             ),
             leftTitles: AxisTitles(
@@ -330,7 +329,7 @@ Widget yearlyMonthlyBarChart(List<TransactionModel> transactions,
                     style: const TextStyle(fontSize: 10),
                   );
                 },
-                reservedSize: 4.h,
+                reservedSize: 32,
               ),
             ),
             topTitles:

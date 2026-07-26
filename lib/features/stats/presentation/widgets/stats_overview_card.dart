@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/privacy_text.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/stats/domain/models/monthly_stats.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class StatsOverviewCard extends StatelessWidget {
             style: TextStyle(color: Color(0xFFAFAFAF), fontSize: 12),
           ),
           const SizedBox(height: 6),
-          Text(
+          PrivacyText(
             formatAmountWithCurrency(stats.balance, stats.currencyCode),
             style: const TextStyle(
               color: Colors.white,
@@ -69,7 +70,7 @@ class StatsOverviewCard extends StatelessWidget {
         Text(label,
             style: const TextStyle(color: Color(0xFF969696), fontSize: 11)),
         const SizedBox(height: 4),
-        Text(
+        PrivacyText(
           formatAmountWithCurrency(amount, stats.currencyCode),
           style: TextStyle(
             color: color,

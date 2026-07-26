@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
-import '../theme.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class AppToastOverlay extends StatefulWidget {
   const AppToastOverlay({
@@ -11,8 +10,8 @@ class AppToastOverlay extends StatefulWidget {
     required this.icon,
     required this.onDismissed,
     required this.onDisposed,
-    this.displayDuration = const Duration(milliseconds: 2200),
-    this.animationDuration = const Duration(milliseconds: 240),
+    this.displayDuration = const Duration(milliseconds: 3000),
+    this.animationDuration = const Duration(milliseconds: 380),
     super.key,
   });
 
@@ -28,103 +27,128 @@ class AppToastOverlay extends StatefulWidget {
   State<AppToastOverlay> createState() => _AppToastOverlayState();
 }
 
-class _AppToastOverlayState extends State<AppToastOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<Offset> _position;
+class _AppToastOverlayState extends State<AppToastOverlay> {
   Timer? _dismissTimer;
+  var _isExiting = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.animationDuration,
-      reverseDuration: widget.animationDuration,
-    );
-    _position = Tween(
-      begin: const Offset(1.25, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      ),
-    );
-    _controller.forward();
+  void _startDismissTimer() {
+    _dismissTimer?.cancel();
     _dismissTimer = Timer(
       widget.displayDuration,
-      () => unawaited(_dismiss()),
+      _dismiss,
     );
   }
 
-  Future<void> _dismiss() async {
-    if (!mounted) return;
-    await _controller.reverse();
+  void _dismiss() {
+    if (!mounted || _isExiting) return;
+    setState(() => _isExiting = true);
+  }
+
+  void _finishDismissal(AnimationController _) {
     if (mounted) widget.onDismissed();
   }
 
   @override
   void dispose() {
     _dismissTimer?.cancel();
-    _controller.dispose();
     widget.onDisposed();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final topInset = MediaQuery.paddingOf(context).top;
     return Positioned(
+      left: 12,
       right: 12,
-      bottom: bottomInset + 12,
+      top: topInset + 12,
       child: IgnorePointer(
-        child: SlideTransition(
-          key: const Key('app-toast-slide'),
-          position: _position,
-          child: Semantics(
-            liveRegion: true,
-            child: Container(
-              key: const Key('app-toast'),
-              constraints: const BoxConstraints(maxWidth: 300),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-              decoration: BoxDecoration(
-                color: widget.color,
-                borderRadius: BorderRadius.circular(11),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x26000000),
-                    blurRadius: 10,
-                    offset: Offset(0, 3),
-                  ),
-                ],
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: _buildToast(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToast() {
+    final toast = Material(
+      type: MaterialType.transparency,
+      child: Semantics(
+        liveRegion: true,
+        child: Container(
+          key: const Key('app-toast'),
+          constraints: const BoxConstraints(maxWidth: 300),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+          decoration: BoxDecoration(
+            color: widget.color,
+            borderRadius: BorderRadius.circular(11),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x26000000),
+                blurRadius: 10,
+                offset: Offset(0, 3),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    widget.icon,
-                    size: 17,
-                    color: AppTheme.interactiveTextColor,
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      widget.message,
-                      style: const TextStyle(
-                        color: AppTheme.interactiveTextColor,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                widget.icon,
+                size: 17,
+                color: Colors.white,
               ),
-            ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  widget.message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
+
+    if (_isExiting) {
+      return toast
+          .animate(
+            key: const Key('app-toast-exit'),
+            onComplete: _finishDismissal,
+          )
+          .fadeOut(
+            duration: widget.animationDuration,
+            curve: Curves.easeIn,
+          )
+          .slideY(
+            begin: 0,
+            end: -1.5,
+            duration: widget.animationDuration,
+            curve: Curves.easeInBack,
+          );
+    }
+
+    return toast
+        .animate(
+          key: const Key('app-toast-enter'),
+          onComplete: (_) => _startDismissTimer(),
+        )
+        .fadeIn(
+          duration: widget.animationDuration,
+          curve: Curves.easeOut,
+        )
+        .slideY(
+          begin: -1.5,
+          end: 0,
+          duration: widget.animationDuration,
+          curve: Curves.easeOutBack,
+        );
   }
 }

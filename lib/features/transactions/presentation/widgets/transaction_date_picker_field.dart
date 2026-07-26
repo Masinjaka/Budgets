@@ -1,6 +1,6 @@
+import 'package:budgets/core/ui/app_wheel_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionDatePickerField extends StatelessWidget {
   final DateTime? selectedDate;
@@ -20,21 +20,22 @@ class TransactionDatePickerField extends StatelessWidget {
       onTap: isReadOnly
           ? null
           : () async {
-              final picked = await showDatePicker(
-                context: context,
+              final picked = await AppWheelPicker.date(
+                context,
                 initialDate: selectedDate ?? DateTime.now(),
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
+                title: 'Select transaction date',
               );
               if (picked != null) {
                 onDateSelected(picked);
               }
             },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.w),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,7 +44,7 @@ class TransactionDatePickerField extends StatelessWidget {
               'Date',
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 15.sp,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -55,14 +56,14 @@ class TransactionDatePickerField extends StatelessWidget {
                       : 'Sélectionner une date',
                   style: TextStyle(
                     color: Theme.of(context).hintColor,
-                    fontSize: 14.sp,
+                    fontSize: 14,
                   ),
                 ),
-                SizedBox(width: 2.w),
+                SizedBox(width: 8),
                 Icon(
                   Icons.calendar_today,
-                  color: Theme.of(context).primaryColor,
-                  size: 18.sp,
+                  color: Colors.black,
+                  size: 18,
                 ),
               ],
             ),

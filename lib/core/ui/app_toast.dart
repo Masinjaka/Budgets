@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:budgets/core/monitoring/development_log.dart';
 
+import '../theme.dart';
 import '../utils/error_messages.dart';
 import 'app_toast_overlay.dart';
 
@@ -45,6 +47,7 @@ void showInfoToast(BuildContext context, String message) {
 }
 
 void showErrorToast(BuildContext context, Object error) {
+  DevelopmentLog.error('toast error', error);
   showAppToast(
     context,
     friendlyErrorMessage(error),
@@ -53,7 +56,7 @@ void showErrorToast(BuildContext context, Object error) {
 }
 
 Color _toastColor(AppToastType type) => switch (type) {
-      AppToastType.success => const Color(0xFF558564),
+      AppToastType.success => AppTheme.primaryGreen,
       AppToastType.error => const Color(0xFFDB5A42),
       AppToastType.info => const Color(0xFFFA9500),
     };

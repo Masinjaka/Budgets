@@ -14,7 +14,7 @@ void main() {
 
     final homePanel = find.byKey(const Key('home-page-panel'));
     final drawerPanel = find.byKey(const Key('drawer-panel'));
-    expect(_horizontalTranslation(tester, homePanel), 0);
+    expect(_homeTranslation(tester, homePanel), 0);
     expect(_horizontalTranslation(tester, drawerPanel), lessThan(-300));
     expect(_menuOpacity(tester), 1);
     expect(_dimming(tester), 0);
@@ -22,16 +22,16 @@ void main() {
     await tester.tap(find.byTooltip('Menu'));
     await tester.pumpAndSettle();
 
-    expect(_horizontalTranslation(tester, homePanel), greaterThan(300));
+    expect(_homeTranslation(tester, homePanel), greaterThan(300));
     expect(_horizontalTranslation(tester, drawerPanel), 0);
     expect(_menuOpacity(tester), 0);
     expect(_dimming(tester), closeTo(0.09, 0.005));
     expect(find.text('Envelope'), findsOneWidget);
     expect(find.text('Stats'), findsOneWidget);
-    expect(find.text('Plan'), findsOneWidget);
+    expect(find.text('Plan'), findsNothing);
+    expect(find.text('Feedback'), findsOneWidget);
     expect(find.text('Resume from a specific date'), findsOneWidget);
-    expect(find.text('July'), findsOneWidget);
-    expect(find.text('2026'), findsOneWidget);
+    expect(find.text('July 2026'), findsOneWidget);
     expect(find.text('16'), findsOneWidget);
     expect(find.text('Settings'), findsNothing);
     expect(find.byKey(const Key('drawer-settings-button')), findsNothing);
@@ -42,12 +42,12 @@ void main() {
     final titleY =
         tester.getCenter(find.byKey(const Key('drawer-app-title'))).dy;
     final envelopeY = tester.getCenter(find.text('Envelope')).dy;
-    final planY = tester.getCenter(find.text('Plan')).dy;
+    final feedbackY = tester.getCenter(find.text('Feedback')).dy;
     final calendarTitleY =
         tester.getCenter(find.text('Resume from a specific date')).dy;
-    expect(planY - envelopeY, greaterThan(80));
+    expect(feedbackY - envelopeY, greaterThan(80));
     expect(titleY, lessThan(envelopeY));
-    expect(planY, lessThan(calendarTitleY));
+    expect(feedbackY, lessThan(calendarTitleY));
 
     await tester.dragFrom(
       const Offset(380, 400),
@@ -55,7 +55,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(_horizontalTranslation(tester, homePanel), 0);
+    expect(_homeTranslation(tester, homePanel), 0);
     expect(_horizontalTranslation(tester, drawerPanel), lessThan(-300));
     expect(_menuOpacity(tester), 1);
     expect(_dimming(tester), 0);
@@ -97,18 +97,18 @@ void main() {
     await gesture.moveBy(const Offset(120, 0));
     await tester.pump();
 
-    expect(_horizontalTranslation(tester, homePanel), closeTo(120, 1));
-    expect(_horizontalTranslation(tester, drawerPanel), closeTo(-210, 1));
-    expect(_menuOpacity(tester), closeTo(0.636, 0.01));
-    expect(_dimming(tester), closeTo(0.033, 0.005));
+    expect(_homeTranslation(tester, homePanel), closeTo(120, 1));
+    expect(_horizontalTranslation(tester, drawerPanel), closeTo(-260, 1));
+    expect(_menuOpacity(tester), closeTo(0.684, 0.01));
+    expect(_dimming(tester), closeTo(0.028, 0.005));
 
     await gesture.up();
     await tester.pumpAndSettle();
-    expect(_horizontalTranslation(tester, homePanel), 0);
+    expect(_homeTranslation(tester, homePanel), 0);
 
     await tester.drag(dragSurface, const Offset(220, 0));
     await tester.pumpAndSettle();
-    expect(_horizontalTranslation(tester, homePanel), greaterThan(300));
+    expect(_homeTranslation(tester, homePanel), greaterThan(300));
     expect(_horizontalTranslation(tester, drawerPanel), 0);
 
     final drawerSurface = find.byKey(const Key('drawer-drag-surface'));
@@ -118,13 +118,13 @@ void main() {
     await drawerGesture.moveBy(const Offset(-220, 0));
     await tester.pump();
 
-    expect(_horizontalTranslation(tester, homePanel), closeTo(110, 1));
+    expect(_homeTranslation(tester, homePanel), closeTo(160, 1));
     expect(_horizontalTranslation(tester, drawerPanel), closeTo(-220, 1));
-    expect(_dimming(tester), closeTo(0.03, 0.005));
+    expect(_dimming(tester), closeTo(0.038, 0.005));
 
     await drawerGesture.up();
     await tester.pumpAndSettle();
-    expect(_horizontalTranslation(tester, homePanel), 0);
+    expect(_homeTranslation(tester, homePanel), 0);
     expect(_horizontalTranslation(tester, drawerPanel), lessThan(-300));
     expect(_dimming(tester), 0);
   });
@@ -156,6 +156,10 @@ void main() {
 
 double _horizontalTranslation(WidgetTester tester, Finder finder) {
   return tester.widget<Transform>(finder).transform.getTranslation().x;
+}
+
+double _homeTranslation(WidgetTester tester, Finder finder) {
+  return tester.getTopLeft(finder).dx;
 }
 
 double _menuOpacity(WidgetTester tester) {

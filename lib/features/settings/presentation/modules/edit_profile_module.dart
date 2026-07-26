@@ -7,6 +7,7 @@ import 'package:budgets/features/profile/domain/provider/profile_providers.dart'
 import 'package:budgets/features/user/domain/provider/user_providers.dart';
 import 'package:budgets/features/user/presentation/controllers/username_controller.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,12 +25,11 @@ class EditProfileModule {
     final dialogConfirmed = await showAnimatedDialog<bool>(
       context: context,
       builder: (ctx) => PermissionRequestDialog(
-        title: "Suppression du compte",
-        allowText: "Supprimer",
-        denyText: "Annuler",
+        title: context.l10n.deleteAccountQuestion,
+        allowText: context.l10n.delete,
+        denyText: context.l10n.cancel,
         backgroundColor: Colors.redAccent,
-        message:
-            'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible. Toutes vos données seront perdues.',
+        message: context.l10n.deleteAccountDetails,
         onAllow: () {
           Navigator.of(ctx).pop(true);
         },
@@ -63,7 +63,7 @@ class EditProfileModule {
       if (!context.mounted) return;
       showAppToast(
         context,
-        'Erreur lors de la suppression du compte',
+        context.l10n.deleteAccountSummary,
         type: AppToastType.error,
       );
     }
@@ -79,6 +79,7 @@ class EditProfileModule {
     required bool isUpdating,
     required BuildContext context,
   }) async {
+    final localizations = context.l10n;
     // Allow updating either field independently
     if (!formKey.currentState!.validate()) return;
     final username = usernameController.text.trim();
@@ -95,7 +96,7 @@ class EditProfileModule {
         await ref.read(usernameControllerProvider.notifier).doUpdate(username);
         usernameUpdated = true;
       } catch (e) {
-        errorMessage = "Erreur lors de la mise à jour du nom d'utilisateur";
+        errorMessage = localizations.usernameUpdateFailed;
         debugPrint('Username update error: $e');
       }
     }
@@ -104,37 +105,33 @@ class EditProfileModule {
     if (file != null) {
       try {
         final userId = Supabase.instance.client.auth.currentUser?.id;
-        if (userId != null) {
-          final uploader = ref.read(uploadAndSaveProfilePhotoProvider);
-          final newUrl = await uploader(file: file, userId: userId);
-          profilePhotoUrl = newUrl; // local update for immediate UI if needed
-          photoUpdated = true;
-        }
+        if (userId == null) throw StateError('No authenticated user');
+        final uploader = ref.read(uploadAndSaveProfilePhotoProvider);
+        final newUrl = await uploader(file: file, userId: userId);
+        profilePhotoUrl = newUrl;
+        photoUpdated = true;
       } catch (e) {
-        errorMessage = errorMessage ??
-            'Erreur lors du téléversement de la photo de profil';
+        errorMessage = errorMessage ?? localizations.profilePhotoUploadFailed;
         debugPrint('Photo upload error: $e');
       }
     }
 
-    // Refresh profile consumers after the direct Supabase writes complete.
+    // Refresh every visible profile surface after the direct Supabase writes.
     ref.invalidate(userModelProvider);
-    try {
-      await ref.read(userModelProvider.future);
-    } catch (_) {}
 
     if (!context.mounted) {
       return;
     }
 
-    // Show feedback
-    if (errorMessage != null && !(usernameUpdated || photoUpdated)) {
+    if (errorMessage != null) {
       showAppToast(
         context,
         errorMessage,
         type: AppToastType.error,
       );
-    } else {
+      return;
+    }
+    if (usernameUpdated || photoUpdated) {
       context.pop();
     }
   }

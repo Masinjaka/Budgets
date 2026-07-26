@@ -1,3 +1,4 @@
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
 
 class MonthlySpendingChart extends StatelessWidget {
@@ -13,7 +14,7 @@ class MonthlySpendingChart extends StatelessWidget {
       height: 190,
       padding: const EdgeInsets.fromLTRB(17, 17, 14, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(
@@ -26,9 +27,9 @@ class MonthlySpendingChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Daily spending',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          Text(
+            context.l10n.dailySpending,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -52,8 +53,13 @@ class MonthlySpendingChart extends StatelessWidget {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: values[index] == 0
-                                        ? const Color(0xFFE5E5E5)
-                                        : Colors.black,
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .outline
+                                            .withValues(alpha: .28)
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
@@ -65,8 +71,10 @@ class MonthlySpendingChart extends StatelessWidget {
                             index == 0 || (index + 1) % 5 == 0
                                 ? '${index + 1}'
                                 : '',
-                            style: const TextStyle(
-                              color: Color(0xFF8A8A8A),
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                               fontSize: 8,
                             ),
                           ),

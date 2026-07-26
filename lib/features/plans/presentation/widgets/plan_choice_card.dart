@@ -19,7 +19,9 @@ class PlanChoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const foreground = AppTheme.interactiveTextColor;
+    final foreground = isSelected
+        ? AppTheme.interactiveTextColor
+        : Theme.of(context).colorScheme.onSurface;
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -28,11 +30,14 @@ class PlanChoiceCard extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
-            color: isSelected ? AppTheme.primaryGreen : Colors.white,
+            color: isSelected
+                ? AppTheme.primaryGreen
+                : Theme.of(context).colorScheme.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color:
-                  isSelected ? AppTheme.primaryGreen : const Color(0xFFE1E1E1),
+              color: isSelected
+                  ? AppTheme.primaryGreen
+                  : Theme.of(context).dividerColor,
             ),
             boxShadow: const [
               BoxShadow(

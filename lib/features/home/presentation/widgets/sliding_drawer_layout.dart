@@ -45,42 +45,54 @@ class SlidingDrawerLayout extends StatelessWidget {
             child: drawer,
           ),
         ),
-        AnimatedBuilder(
-          animation: controller,
-          builder: (context, child) => Transform.translate(
-            key: const Key('home-page-panel'),
-            offset: Offset(drawerWidth * controller.value, 0),
-            child: _dragSurface(
-              key: const Key('home-drag-surface'),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  child!,
-                  IgnorePointer(
-                    child: ColoredBox(
-                      key: const Key('home-dim-overlay'),
-                      color: Color.fromRGBO(
-                        0,
-                        0,
-                        0,
-                        maximumDimming * controller.value,
+        _dragSurface(
+          key: const Key('home-drag-surface'),
+          behavior: HitTestBehavior.deferToChild,
+          child: AnimatedBuilder(
+            animation: controller,
+            builder: (context, child) {
+              final panel = KeyedSubtree(
+                key: const Key('home-page-panel'),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    child!,
+                    IgnorePointer(
+                      child: ColoredBox(
+                        key: const Key('home-dim-overlay'),
+                        color: Color.fromRGBO(
+                          0,
+                          0,
+                          0,
+                          maximumDimming * controller.value,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+              final offset = drawerWidth * controller.value;
+              if (offset.abs() < 0.001) return panel;
+              return Transform.translate(
+                offset: Offset(offset, 0),
+                child: panel,
+              );
+            },
+            child: home,
           ),
-          child: home,
         ),
       ],
     );
   }
 
-  Widget _dragSurface({required Key key, required Widget child}) {
+  Widget _dragSurface({
+    required Key key,
+    required Widget child,
+    HitTestBehavior behavior = HitTestBehavior.opaque,
+  }) {
     return GestureDetector(
       key: key,
-      behavior: HitTestBehavior.opaque,
+      behavior: behavior,
       dragStartBehavior: DragStartBehavior.down,
       onHorizontalDragStart: (_) => controller.stop(),
       onHorizontalDragUpdate: onDragUpdate,

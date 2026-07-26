@@ -1,3 +1,5 @@
+import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/core/ui/privacy_text.dart';
 import 'package:budgets/features/home/domain/models/wallet_summary.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,7 +29,7 @@ class WalletSourceSheet extends StatelessWidget {
       context: context,
       useSafeArea: true,
       showDragHandle: true,
-      backgroundColor: const Color(0xFFFEFEFE),
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
       builder: (_) => WalletSourceSheet(
         wallets: wallets,
         requiredAmount: requiredAmount,
@@ -48,13 +50,20 @@ class WalletSourceSheet extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+              fontSize: AppTypography.title,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 6),
-          Text(
+          PrivacyText(
             message ??
                 'The transaction needs ${formatter.format(requiredAmount)}.',
-            style: const TextStyle(color: Color(0xFF666666), fontSize: 13),
+            hiddenText: message ?? 'The transaction needs ***.',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: AppTypography.body,
+            ),
           ),
           const SizedBox(height: 14),
           ...wallets.map((wallet) {
@@ -63,20 +72,22 @@ class WalletSourceSheet extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               enabled: enabled,
               leading: CircleAvatar(
-                backgroundColor: const Color(0xFFECECEC),
+                backgroundColor: Theme.of(context).cardColor,
                 child: Icon(
                   wallet.iconKey == 'bank'
                       ? Icons.account_balance_outlined
                       : Icons.account_balance_wallet_outlined,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               title: Text(wallet.name),
               subtitle: wallet.isDefault ? const Text('Default wallet') : null,
-              trailing: Text(
+              trailing: PrivacyText(
                 '${formatter.format(wallet.balance)} ${wallet.currencyCode}',
                 style: TextStyle(
-                  color: enabled ? Colors.black : Colors.grey,
+                  color: enabled
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Colors.grey,
                   fontWeight: FontWeight.w600,
                 ),
               ),

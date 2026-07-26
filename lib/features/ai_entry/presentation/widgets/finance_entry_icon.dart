@@ -15,8 +15,8 @@ class FinanceEntryIcon extends StatelessWidget {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
-        color: Color(0xFFEEEEEE),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,

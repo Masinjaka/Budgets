@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Skeleton for TransactionTile widget - matches the exact structure
@@ -15,11 +14,11 @@ class TransactionTileSkeleton extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 0.5.h),
-        padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
+        margin: EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
           color: theme.cardColor,
-          borderRadius: BorderRadius.circular(4.w),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -29,14 +28,14 @@ class TransactionTileSkeleton extends StatelessWidget {
               children: [
                 // Emoji box placeholder
                 Container(
-                  width: 12.w,
-                  height: 12.w,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(3.w),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                SizedBox(width: 3.w),
+                SizedBox(width: 12),
                 // Text column placeholder
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -44,18 +43,18 @@ class TransactionTileSkeleton extends StatelessWidget {
                   children: [
                     // Category name placeholder
                     Container(
-                      width: 25.w,
-                      height: 2.h,
+                      width: 100,
+                      height: 16,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: 8),
                     // Description placeholder
                     Container(
-                      width: 35.w,
-                      height: 1.8.h,
+                      width: 140,
+                      height: 14.4,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(6),
@@ -73,18 +72,18 @@ class TransactionTileSkeleton extends StatelessWidget {
               children: [
                 // MGA label placeholder
                 Container(
-                  width: 10.w,
-                  height: 1.5.h,
+                  width: 40,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
-                SizedBox(height: 0.8.h),
+                SizedBox(height: 6.4),
                 // Amount placeholder
                 Container(
-                  width: 18.w,
-                  height: 2.h,
+                  width: 72,
+                  height: 16,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(6),
@@ -132,8 +131,8 @@ class JumbotronAmountSkeleton extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
       child: Container(
-        width: 45.w,
-        height: 4.h,
+        width: 180,
+        height: 32,
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(8),
@@ -156,17 +155,17 @@ class StatsHomeWidgetSkeleton extends StatelessWidget {
       highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
       child: Column(
         children: [
-          SizedBox(height: 4.h),
+          SizedBox(height: 32),
           // Legend skeleton
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildLegendSkeleton(context),
-              SizedBox(width: 4.w),
+              SizedBox(width: 16),
               _buildLegendSkeleton(context),
             ],
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
           // Chart area skeleton with bars
           Expanded(
             child: Row(
@@ -179,7 +178,7 @@ class StatsHomeWidgetSkeleton extends StatelessWidget {
               }),
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 16),
         ],
       ),
     );
@@ -192,17 +191,17 @@ class StatsHomeWidgetSkeleton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 3.w,
-          height: 3.w,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(1.w),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
-        SizedBox(width: 2.w),
+        SizedBox(width: 8),
         Container(
-          width: 15.w,
-          height: 1.5.h,
+          width: 60,
+          height: 12,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(4),
@@ -219,18 +218,18 @@ class StatsHomeWidgetSkeleton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
-          width: 6.w,
-          height: 14.h * heightFactor,
+          width: 24,
+          height: 112 * heightFactor,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(2.w),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
-        SizedBox(height: 0.8.h),
+        SizedBox(height: 6.4),
         // Day label skeleton
         Container(
-          width: 5.w,
-          height: 1.2.h,
+          width: 20,
+          height: 9.6,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(4),

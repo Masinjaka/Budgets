@@ -2,7 +2,6 @@ import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:budgets/widgets/custom_search_bar.dart';
 import 'package:budgets/widgets/category_filter_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 /// Reusable search and filter section for transaction screens
@@ -39,12 +38,10 @@ class TransactionSearchSection extends StatelessWidget {
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
           padding: EdgeInsets.fromLTRB(
-              8.w,
-              isSearchFocused
-                  ? 2.h
-                  : 2.h, // Same padding whether focused or not
-              8.w,
-              1.h),
+              32,
+              isSearchFocused ? 16 : 16, // Same padding whether focused or not
+              32,
+              8),
           child: Row(
             children: [
               Expanded(
@@ -63,7 +60,7 @@ class TransactionSearchSection extends StatelessWidget {
         // Show filter widget only when search is focused with animation
         if (isSearchFocused)
           Padding(
-            padding: EdgeInsets.fromLTRB(8.w, 1.h, 8.w, 1.h),
+            padding: EdgeInsets.fromLTRB(32, 8, 32, 8),
             child: CategoryFilterWidget(
               categories: availableCategories,
               selectedCategories: selectedCategories,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class SettingSection extends StatelessWidget {
   const SettingSection(
@@ -19,7 +18,7 @@ class SettingSection extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 1.h),
+        SizedBox(height: 8),
         Column(children: children)
       ],
     );

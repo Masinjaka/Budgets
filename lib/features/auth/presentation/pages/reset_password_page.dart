@@ -2,12 +2,12 @@
 
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class ResetPasswordPage extends ConsumerStatefulWidget {
   const ResetPasswordPage({super.key});
@@ -40,10 +40,13 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Réinitialisation'),
+        title: const Text(
+          'Réinitialisation',
+          style: TextStyle(fontSize: AppTypography.title),
+        ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.w),
+        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
         child: Form(
           key: _formKey,
           child: Column(
@@ -52,16 +55,16 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               CustomTextField(
                 title: Text(
                   'Email',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15.5.sp,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: AppTypography.body,
                   ),
                 ),
                 hint: 'example@email.com',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
               ),
-              SizedBox(height: 3.h),
+              SizedBox(height: 24),
               CustomButton(
                 text: 'Envoyer le lien',
                 isLoading: _isLoading,

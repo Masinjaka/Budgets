@@ -5,7 +5,6 @@ import 'package:budgets/features/planning/presentation/widgets/planning_common_w
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class BudgetsTabContent extends ConsumerStatefulWidget {
   const BudgetsTabContent({super.key});
@@ -57,7 +56,7 @@ class _BudgetsTabContentState extends ConsumerState<BudgetsTabContent> {
     final budgetsAsyncValue = ref.watch(budgetsProvider);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      padding: EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -106,7 +105,7 @@ class _BudgetsTabContentState extends ConsumerState<BudgetsTabContent> {
       physics: _canScroll
           ? const ClampingScrollPhysics()
           : const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.only(top: 2.h),
+      padding: EdgeInsets.only(top: 16),
       itemCount: budgets.length,
       itemBuilder: (context, index) =>
           BudgetListItem(budget: budgets[index], index: index),

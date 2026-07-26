@@ -11,7 +11,6 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart'
     as cat;
 
@@ -64,13 +63,13 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
       builder: (sheetCtx) => SafeArea(
         top: false,
         child: Container(
-          height: 55.h,
+          height: 440,
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(4.w)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(4.w)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             child: EmojiPicker(
               config: Config(
                 searchViewConfig: SearchViewConfig(
@@ -79,19 +78,19 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                       Theme.of(context).iconTheme.color ?? Colors.white,
                   hintText: 'Rechercher un emoji',
                   hintTextStyle: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 15,
                     color: Theme.of(context).hintColor,
                     fontWeight: FontWeight.w600,
                   ),
                   inputTextStyle: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 15,
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 categoryViewConfig: CategoryViewConfig(
                   backgroundColor: Theme.of(context).cardColor,
-                  tabBarHeight: 7.h,
+                  tabBarHeight: 56,
                   iconColorSelected:
                       Theme.of(context).iconTheme.color ?? Colors.white,
                   backspaceColor:
@@ -99,16 +98,16 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                   indicatorColor: Theme.of(context).primaryColor,
                 ),
                 emojiViewConfig: EmojiViewConfig(
-                  gridPadding: EdgeInsets.symmetric(horizontal: 2.w),
+                  gridPadding: EdgeInsets.symmetric(horizontal: 8),
                   buttonMode: ButtonMode.CUPERTINO,
                   columns: 5,
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  emojiSizeMax: 20.sp,
+                  emojiSizeMax: 20,
                 ),
                 bottomActionBarConfig: BottomActionBarConfig(
                   customBottomActionBar: (config, state, showSearchView) {
                     return Container(
-                      height: 5.h,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
                       ),
@@ -126,7 +125,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               Text(
                                 'Rechercher',
                                 style: TextStyle(
-                                  fontSize: 15.sp,
+                                  fontSize: 15,
                                   color: Theme.of(context).hintColor,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -206,7 +205,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
           _isSavingsCategoryWithGoals
               ? 'Catégorie système'
               : (_isEditing ? 'Modifier la catégorie' : 'Créer une catégorie'),
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         flexibleSpace: const GlassFlexibleSpace(),
@@ -220,7 +219,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
           ? null
           : SafeArea(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 0, 8.w, 2.h),
+                padding: EdgeInsets.fromLTRB(32, 0, 32, 16),
                 child: Row(
                   children: [
                     Expanded(
@@ -275,20 +274,20 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
   /// Build info screen for savings category that cannot be edited
   Widget _buildSavingsCategoryInfo(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      padding: EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         children: [
-          SizedBox(height: 14.h),
+          SizedBox(height: 112),
           Container(
-            padding: EdgeInsets.all(4.w),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(5.w),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(4.w),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Color(int.parse(
                         widget.category?.color ??
@@ -299,41 +298,41 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                   child: Text(
                     widget.category?.emoji ??
                         SystemCategories.savingsCategoryEmoji,
-                    style: TextStyle(fontSize: 30.sp),
+                    style: TextStyle(fontSize: 30),
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 16),
                 Text(
                   widget.category?.name ?? SystemCategories.savingsCategoryName,
                   style: TextStyle(
-                    fontSize: 18.sp,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 16),
                 Container(
-                  padding: EdgeInsets.all(3.w),
+                  padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Theme.of(context)
                         .colorScheme
                         .primaryContainer
                         .withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(3.w),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.info_outline,
                         color: Theme.of(context).primaryColor,
-                        size: 18.sp,
+                        size: 18,
                       ),
-                      SizedBox(width: 2.w),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Cette catégorie est utilisée automatiquement pour vos contributions aux objectifs d\'épargne. Elle ne peut pas être modifiée ou supprimée tant que vous avez des objectifs.',
                           style: TextStyle(
-                            fontSize: 13.sp,
+                            fontSize: 13,
                             color:
                                 Theme.of(context).textTheme.bodyMedium?.color,
                           ),
@@ -354,24 +353,24 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        padding: EdgeInsets.symmetric(horizontal: 32),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 12.h), // Top padding for glass effect
+                SizedBox(height: 96), // Top padding for glass effect
                 Container(
-                  padding: EdgeInsets.all(2.h),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(5.w),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: CustomTextField(
                     title: Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 2.w,
+                      spacing: 8,
                       children: [
                         const Icon(
                           Icons.edit,
@@ -381,7 +380,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
-                            fontSize: 15.5.sp,
+                            fontSize: 15.5,
                           ),
                         ),
                       ],
@@ -394,26 +393,26 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                     },
                   ),
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 Container(
-                  height: 14.h,
+                  height: 112,
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(5.w),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5.w),
+                    borderRadius: BorderRadius.circular(20),
                     child: Row(
                       children: [
                         Expanded(
                           flex: 5,
                           child: Padding(
-                            padding: EdgeInsets.only(
-                                left: 2.h, top: 2.h, bottom: 2.h),
+                            padding:
+                                EdgeInsets.only(left: 16, top: 16, bottom: 16),
                             child: CustomTextField(
                               title: Wrap(
                                 crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 2.w,
+                                spacing: 8,
                                 children: [
                                   const Icon(
                                     Icons.emoji_emotions,
@@ -423,7 +422,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                                     textAlign: TextAlign.left,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,
-                                      fontSize: 15.5.sp,
+                                      fontSize: 15.5,
                                     ),
                                   ),
                                 ],
@@ -444,7 +443,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               _showEmojiPicker(context);
                             },
                             child: Padding(
-                              padding: EdgeInsets.all(4.w),
+                              padding: EdgeInsets.all(16),
                               child: Container(
                                 decoration: BoxDecoration(
                                     color: _selectedColor ?? Colors.teal,
@@ -456,7 +455,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                                   child: Text(
                                     _selectedEmoji ?? '',
                                     style: TextStyle(
-                                      fontSize: 22.sp,
+                                      fontSize: 22,
                                     ),
                                   ),
                                 ),
@@ -468,25 +467,25 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(5.w),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
-                        height: 2.h,
+                        height: 16,
                       ),
                       Padding(
-                        padding: EdgeInsets.only(left: 4.w),
+                        padding: EdgeInsets.only(left: 16),
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Wrap(
                             crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 2.w,
+                            spacing: 8,
                             children: [
                               const Icon(
                                 Icons.color_lens,
@@ -496,7 +495,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 15.5.sp,
+                                  fontSize: 15.5,
                                 ),
                               ),
                             ],
@@ -504,10 +503,10 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                         ),
                       ),
                       SizedBox(
-                        height: 2.h,
+                        height: 16,
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4.h),
+                        padding: EdgeInsets.symmetric(horizontal: 32),
                         child: Center(
                           child: ColorPicker(
                             color: _selectedColor ?? Colors.teal,
@@ -529,8 +528,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                             wheelWidth: 16,
                             wheelHasBorder: false,
                             enableShadesSelection: false,
-                            columnSpacing: 3.h,
-                            wheelSquarePadding: 2.w,
+                            columnSpacing: 24,
+                            wheelSquarePadding: 8,
                             pickerTypeLabels: const <ColorPickerType, String>{
                               ColorPickerType.wheel: 'Personnalisé',
                               ColorPickerType.accent: 'Accent',
@@ -540,7 +539,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               ColorPickerType.bw: 'N&B',
                             },
                             pickerTypeTextStyle: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: 14,
                               color:
                                   Theme.of(context).textTheme.bodyLarge?.color,
                             ),
@@ -550,7 +549,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 if (widget.category != null)
                   GestureDetector(
                     onTap: () async {
@@ -565,17 +564,17 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                     },
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(2.h),
+                      padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(5.w),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Wrap(
                             crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 2.w,
+                            spacing: 8,
                             children: [
                               const Icon(
                                 Icons.delete_forever_outlined,
@@ -583,7 +582,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                               Text(
                                 'Supprimer la catégorie',
                                 style: TextStyle(
-                                  fontSize: 15.sp,
+                                  fontSize: 15,
                                   color: Colors.red,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -592,8 +591,8 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                           ),
                           if (_isDeleting)
                             SizedBox(
-                              width: 5.w,
-                              height: 5.w,
+                              width: 20,
+                              height: 20,
                               child: CircularProgressIndicator(
                                 color: Theme.of(context).iconTheme.color,
                               ),
@@ -602,7 +601,7 @@ class _AddCategoryPageState extends ConsumerState<AddCategoryPage> {
                       ),
                     ),
                   ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
               ],
             ),
           ),

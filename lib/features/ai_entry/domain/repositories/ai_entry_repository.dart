@@ -23,6 +23,13 @@ abstract interface class AiEntryRepository {
 
   Future<FinanceEntry> addManualEntry(ManualEntryInput input);
 
+  Future<FinanceEntry> updateFinanceEntry(
+    String entryId,
+    ManualEntryInput input,
+  );
+
+  Future<void> deleteFinanceEntry(String entryId);
+
   Future<AiEntryResult> processMessage(
     String message, {
     required DateTime targetDate,

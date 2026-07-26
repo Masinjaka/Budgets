@@ -2,13 +2,13 @@
 
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/features/auth/presentation/widgets/reset_code_otp_row.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class VerifyResetCodePage extends ConsumerStatefulWidget {
   const VerifyResetCodePage({super.key, required this.email});
@@ -51,7 +51,10 @@ class _VerifyResetCodePageState extends ConsumerState<VerifyResetCodePage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Nouveau mot de passe'),
+          title: const Text(
+            'Nouveau mot de passe',
+            style: TextStyle(fontSize: AppTypography.title),
+          ),
         ),
         body: SizedBox(
           width: double.infinity,
@@ -59,7 +62,7 @@ class _VerifyResetCodePageState extends ConsumerState<VerifyResetCodePage> {
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -67,37 +70,40 @@ class _VerifyResetCodePageState extends ConsumerState<VerifyResetCodePage> {
                   children: [
                     Text(
                       'Un code a été envoyé à',
-                      style: TextStyle(
-                        fontSize: 15.5.sp,
-                        fontWeight: FontWeight.w500,
+                      style: const TextStyle(
+                        fontSize: AppTypography.body,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 0.5.h),
+                    SizedBox(height: 4),
                     Text(
                       widget.email,
-                      style: TextStyle(
-                        fontSize: 15.5.sp,
-                        fontWeight: FontWeight.w900,
+                      style: const TextStyle(
+                        fontSize: AppTypography.body,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 32),
                     Text(
                       'Code de vérification',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: AppTypography.body,
                       ),
                     ),
-                    SizedBox(height: 1.h),
-                    _buildOtpRow(context),
-                    SizedBox(height: 3.h),
+                    SizedBox(height: 8),
+                    ResetCodeOtpRow(
+                      controllers: _otpControllers,
+                      focusNodes: _otpFocusNodes,
+                    ),
+                    SizedBox(height: 24),
                     CustomTextField(
                       title: Text(
                         'Nouveau mot de passe',
                         textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15.5.sp,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: AppTypography.body,
                         ),
                       ),
                       hint: 'Votre nouveau mot de passe',
@@ -106,14 +112,14 @@ class _VerifyResetCodePageState extends ConsumerState<VerifyResetCodePage> {
                       isPassword: true,
                       validator: const <String, String>{"type": "password"},
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 16),
                     CustomTextField(
                       title: Text(
                         'Confirmer le mot de passe',
                         textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15.5.sp,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: AppTypography.body,
                         ),
                       ),
                       hint: 'Confirmer votre nouveau mot de passe',
@@ -129,7 +135,7 @@ class _VerifyResetCodePageState extends ConsumerState<VerifyResetCodePage> {
           ),
         ),
         bottomNavigationBar: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
           child: CustomButton(
             text: 'Réinitialiser',
             isLoading: _isLoading,
@@ -177,55 +183,6 @@ class _VerifyResetCodePageState extends ConsumerState<VerifyResetCodePage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildOtpRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(6, (index) {
-        return SizedBox(
-          width: 12.w,
-          child: TextFormField(
-            controller: _otpControllers[index],
-            focusNode: _otpFocusNodes[index],
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            maxLength: 1,
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w900,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-            ),
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(
-              counterText: '',
-              filled: true,
-              fillColor: Theme.of(context).cardColor,
-              contentPadding: EdgeInsets.symmetric(vertical: 1.5.h),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(3.w),
-                borderSide: const BorderSide(color: Colors.transparent),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(3.w),
-                borderSide: BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 1.8,
-                ),
-              ),
-            ),
-            onChanged: (value) {
-              if (value.isNotEmpty && index < 5) {
-                _otpFocusNodes[index + 1].requestFocus();
-              }
-              if (value.isEmpty && index > 0) {
-                _otpFocusNodes[index - 1].requestFocus();
-              }
-            },
-          ),
-        );
-      }),
     );
   }
 }

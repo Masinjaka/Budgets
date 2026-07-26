@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Reusable shimmer bone — a single rounded rectangle placeholder.
@@ -42,12 +41,12 @@ class BudgetItemSkeleton extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
       child: Padding(
-        padding: EdgeInsets.only(bottom: 2.h),
+        padding: EdgeInsets.only(bottom: 16),
         child: Container(
-          padding: EdgeInsets.all(4.w),
+          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: theme.cardColor,
-            borderRadius: BorderRadius.circular(4.w),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,35 +59,35 @@ class BudgetItemSkeleton extends StatelessWidget {
                     children: [
                       // Emoji circle
                       Container(
-                        width: 10.w,
-                        height: 10.w,
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 2.w),
+                      SizedBox(width: 8),
                       // Category name
-                      SkeletonBone(width: 22.w, height: 2.h),
+                      SkeletonBone(width: 88, height: 16),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       // Amount text
-                      SkeletonBone(width: 28.w, height: 1.8.h),
-                      SizedBox(height: 0.6.h),
+                      SkeletonBone(width: 112, height: 14.4),
+                      SizedBox(height: 4.8),
                       // Period label
-                      SkeletonBone(width: 16.w, height: 1.4.h),
+                      SkeletonBone(width: 64, height: 11.2),
                     ],
                   ),
                 ],
               ),
-              SizedBox(height: 1.5.h),
+              SizedBox(height: 12),
               // Progress bar
               SkeletonBone(
                 width: double.infinity,
-                height: 0.8.h,
+                height: 6.4,
                 borderRadius: 4,
               ),
             ],
@@ -112,26 +111,26 @@ class GoalItemSkeleton extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
       child: Padding(
-        padding: EdgeInsets.only(bottom: 2.h),
+        padding: EdgeInsets.only(bottom: 16),
         child: Container(
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(4.w),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image placeholder
               Container(
-                height: 15.h,
-                margin: EdgeInsets.all(2.w),
+                height: 120,
+                margin: EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(2.5.w),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.w),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -142,17 +141,17 @@ class GoalItemSkeleton extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SkeletonBone(width: 30.w, height: 2.h),
-                            SizedBox(height: 0.6.h),
-                            SkeletonBone(width: 20.w, height: 1.5.h),
-                            SizedBox(height: 0.6.h),
-                            SkeletonBone(width: 25.w, height: 1.5.h),
+                            SkeletonBone(width: 120, height: 16),
+                            SizedBox(height: 4.8),
+                            SkeletonBone(width: 80, height: 12),
+                            SizedBox(height: 4.8),
+                            SkeletonBone(width: 100, height: 12),
                           ],
                         ),
                         // Add button circle
                         Container(
-                          width: 8.w,
-                          height: 8.w,
+                          width: 32,
+                          height: 32,
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surface,
                             shape: BoxShape.circle,
@@ -160,25 +159,25 @@ class GoalItemSkeleton extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: 8),
                     // Amount row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SkeletonBone(width: 22.w, height: 1.8.h),
-                        SkeletonBone(width: 22.w, height: 1.8.h),
+                        SkeletonBone(width: 88, height: 14.4),
+                        SkeletonBone(width: 88, height: 14.4),
                       ],
                     ),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: 8),
                     // Progress bar
                     SkeletonBone(
                       width: double.infinity,
-                      height: 0.8.h,
+                      height: 6.4,
                       borderRadius: 4,
                     ),
-                    SizedBox(height: 0.5.h),
+                    SizedBox(height: 4),
                     // Percentage text
-                    SkeletonBone(width: 16.w, height: 1.4.h),
+                    SkeletonBone(width: 64, height: 11.2),
                   ],
                 ),
               ),
@@ -202,13 +201,13 @@ class CategoryChipsSkeleton extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withAlpha(25),
       child: Wrap(
-        spacing: 2.w,
-        runSpacing: 1.h,
+        spacing: 8,
+        runSpacing: 8,
         children: List.generate(
           6,
           (index) => Container(
-            width: 20.w,
-            height: 4.h,
+            width: 80,
+            height: 32,
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(50),
@@ -229,7 +228,7 @@ class BudgetListSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.only(top: 2.h),
+      padding: EdgeInsets.only(top: 16),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: itemCount,
       itemBuilder: (context, index) => const BudgetItemSkeleton(),
@@ -246,7 +245,7 @@ class GoalListSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.only(top: 2.h),
+      padding: EdgeInsets.only(top: 16),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: itemCount,
       itemBuilder: (context, index) => const GoalItemSkeleton(),

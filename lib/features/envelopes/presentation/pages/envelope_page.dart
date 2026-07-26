@@ -1,23 +1,32 @@
+import 'package:budgets/core/currency/currency_state.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/month_navigation.dart';
 import 'package:budgets/features/envelopes/data/repositories/supabase_envelope_repository.dart';
 import 'package:budgets/features/envelopes/data/services/envelope_service.dart';
 import 'package:budgets/features/envelopes/domain/repositories/envelope_repository.dart';
 import 'package:budgets/features/envelopes/presentation/view_models/envelope_view_model.dart';
-import 'package:budgets/features/envelopes/presentation/widgets/add_envelope_dialog.dart';
-import 'package:budgets/features/envelopes/presentation/widgets/envelope_card.dart';
-import 'package:budgets/features/envelopes/presentation/widgets/envelope_empty_state.dart';
+import 'package:budgets/features/envelopes/presentation/widgets/add_envelope_sheet.dart';
+import 'package:budgets/features/envelopes/presentation/widgets/envelope_list_panel.dart';
 import 'package:budgets/features/envelopes/presentation/widgets/envelope_summary_card.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:budgets/features/home/domain/errors/wallet_selection_required_exception.dart';
 import 'package:budgets/features/home/presentation/widgets/wallet_source_sheet.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EnvelopePage extends StatefulWidget {
-  const EnvelopePage({this.repository, this.initialMonth, super.key});
+  const EnvelopePage({
+    this.repository,
+    this.initialMonth,
+    this.initialEnvelopeId,
+    this.displayCurrency,
+    super.key,
+  });
 
   final EnvelopeRepository? repository;
   final DateTime? initialMonth;
+  final String? initialEnvelopeId;
+  final CurrencyState? displayCurrency;
 
   @override
   State<EnvelopePage> createState() => _EnvelopePageState();
@@ -29,10 +38,11 @@ class _EnvelopePageState extends State<EnvelopePage> {
   @override
   void initState() {
     super.initState();
-    final repository = widget.repository ??
-        SupabaseEnvelopeRepository(EnvelopeService(Supabase.instance.client));
     _viewModel = EnvelopeViewModel(
-      repository,
+      widget.repository ??
+          SupabaseEnvelopeRepository(
+            EnvelopeService(Supabase.instance.client),
+          ),
       widget.initialMonth ?? DateTime.now(),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
@@ -54,48 +64,51 @@ class _EnvelopePageState extends State<EnvelopePage> {
     }
   }
 
-  Future<void> _showAddDialog() async {
+  Future<void> _showAddSheet() async {
     if (_viewModel.availableCategories.isEmpty) {
-      showInfoToast(
-        context,
-        'Create an expense category before adding another envelope.',
-      );
+      showInfoToast(context, context.l10n.createExpenseCategoryFirst);
       return;
     }
-    await showDialog<void>(
-      context: context,
-      builder: (_) => AddEnvelopeDialog(
-        categories: _viewModel.availableCategories,
-        onSave: (name, categoryId, amount) async {
-          try {
-            try {
-              await _viewModel.add(
-                name: name,
-                categoryId: categoryId,
-                amount: amount,
-              );
-            } on WalletSelectionRequiredException catch (error) {
-              if (!mounted) rethrow;
-              final walletId = await WalletSourceSheet.show(
-                context,
-                wallets: _viewModel.wallets,
-                requiredAmount: error.requiredAmount,
-              );
-              if (walletId == null) rethrow;
-              await _viewModel.add(
-                name: name,
-                categoryId: categoryId,
-                amount: amount,
-                walletId: walletId,
-              );
-            }
-          } catch (error) {
-            if (mounted) showErrorToast(context, error);
-            rethrow;
-          }
-        },
-      ),
+    await AddEnvelopeSheet.show(
+      context,
+      categories: _viewModel.availableCategories,
+      month: _viewModel.month,
+      onSave: _addEnvelope,
+      currencyState: widget.displayCurrency,
     );
+  }
+
+  Future<void> _addEnvelope(
+    String name,
+    String categoryId,
+    int amount,
+  ) async {
+    try {
+      try {
+        await _viewModel.add(
+          name: name,
+          categoryId: categoryId,
+          amount: amount,
+        );
+      } on WalletSelectionRequiredException catch (error) {
+        if (!mounted) rethrow;
+        final walletId = await WalletSourceSheet.show(
+          context,
+          wallets: _viewModel.wallets,
+          requiredAmount: error.requiredAmount,
+        );
+        if (walletId == null) rethrow;
+        await _viewModel.add(
+          name: name,
+          categoryId: categoryId,
+          amount: amount,
+          walletId: walletId,
+        );
+      }
+    } catch (error) {
+      if (mounted) showErrorToast(context, error);
+      rethrow;
+    }
   }
 
   @override
@@ -107,20 +120,20 @@ class _EnvelopePageState extends State<EnvelopePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFEFEFE),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFEFEFE),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Envelopes',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        title: Text(
+          context.l10n.envelope,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: [
           IconButton(
             key: const Key('add-envelope-button'),
-            onPressed: _showAddDialog,
+            onPressed: _showAddSheet,
             icon: const Icon(Icons.add_rounded),
-            tooltip: 'Add envelope',
+            tooltip: context.l10n.addEnvelope,
           ),
           const SizedBox(width: 10),
         ],
@@ -131,39 +144,43 @@ class _EnvelopePageState extends State<EnvelopePage> {
           if (_viewModel.isLoading && _viewModel.envelopes.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
-          return RefreshIndicator(
-            onRefresh: _load,
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(22, 10, 22, 30),
-              children: [
-                _monthSelector(),
-                const SizedBox(height: 18),
-                EnvelopeSummaryCard(
-                  budget: _viewModel.totalBudget,
-                  spent: _viewModel.totalSpent,
-                  currencyCode: _viewModel.envelopes.isEmpty
-                      ? 'MGA'
-                      : _viewModel.envelopes.first.currencyCode,
-                ),
-                const SizedBox(height: 25),
-                const Text(
-                  'Monthly envelopes',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 12),
-                if (_viewModel.envelopes.isEmpty)
-                  const EnvelopeEmptyState()
-                else
-                  ..._viewModel.envelopes.map(
-                    (item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: EnvelopeCard(
-                        envelope: item,
-                        onDelete: () => _viewModel.delete(item.id),
+          return LayoutBuilder(
+            builder: (context, constraints) => RefreshIndicator(
+              onRefresh: _load,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: constraints.maxWidth.clamp(0.0, 760.0),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(22, 8, 22, 32),
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: MonthNavigation(
+                          month: _viewModel.month,
+                          onPrevious: () => _changeMonth(-1),
+                          onNext: () => _changeMonth(1),
+                          canGoNext: _canGoForward,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 20),
+                      EnvelopeSummaryCard(
+                        budget: _viewModel.totalBudget,
+                        spent: _viewModel.totalSpent,
+                        currencyCode: _currencyCode,
+                        displayCurrency: widget.displayCurrency,
+                      ),
+                      const SizedBox(height: 28),
+                      EnvelopeListPanel(
+                        envelopes: _viewModel.envelopes,
+                        onDelete: _viewModel.delete,
+                        displayCurrency: widget.displayCurrency,
+                        targetEnvelopeId: widget.initialEnvelopeId,
+                      ),
+                    ],
                   ),
-              ],
+                ),
+              ),
             ),
           );
         },
@@ -171,29 +188,12 @@ class _EnvelopePageState extends State<EnvelopePage> {
     );
   }
 
-  Widget _monthSelector() {
+  String get _currencyCode => _viewModel.envelopes.isEmpty
+      ? 'MGA'
+      : _viewModel.envelopes.first.currencyCode;
+
+  bool get _canGoForward {
     final now = DateTime.now();
-    final canGoForward = _viewModel.month.isBefore(
-      DateTime(now.year, now.month),
-    );
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => _changeMonth(-1),
-          icon: const Icon(Icons.chevron_left_rounded),
-        ),
-        Expanded(
-          child: Text(
-            DateFormat('MMMM yyyy').format(_viewModel.month),
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-          ),
-        ),
-        IconButton(
-          onPressed: canGoForward ? () => _changeMonth(1) : null,
-          icon: const Icon(Icons.chevron_right_rounded),
-        ),
-      ],
-    );
+    return _viewModel.month.isBefore(DateTime(now.year, now.month));
   }
 }

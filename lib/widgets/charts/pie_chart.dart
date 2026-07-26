@@ -2,7 +2,6 @@ import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Builds and returns a [PieChart] widget for category breakdown
 Widget categoryPieChart(
@@ -34,7 +33,7 @@ Widget categoryPieChart(
         value: amount,
         title: '', // No title/percentage on the pie chart
         color: color,
-        radius: 25.w,
+        radius: 100,
         titleStyle: const TextStyle(fontSize: 0), // Hidden
         borderSide: BorderSide(color: backgroundColor, width: 1),
       ),
@@ -44,7 +43,7 @@ Widget categoryPieChart(
   return Column(
     children: [
       SizedBox(
-        height: 30.h,
+        height: 240,
         child: TweenAnimationBuilder<double>(
           tween: Tween<double>(begin: 0.001, end: 1),
           duration: const Duration(seconds: 1),
@@ -62,7 +61,7 @@ Widget categoryPieChart(
               PieChartSectionData(
                 value: dummyValue,
                 color: Colors.transparent,
-                radius: 25.w,
+                radius: 100,
                 showTitle: false,
               ),
             );
@@ -82,7 +81,7 @@ Widget categoryPieChart(
           },
         ),
       ),
-      SizedBox(height: 3.h),
+      SizedBox(height: 24),
       // Progress bars (gauges) for each category
       ...categoryTotals.entries.map((entry) {
         final color = Color(
@@ -91,7 +90,7 @@ Widget categoryPieChart(
         final percentage = (entry.value / total) * 100;
 
         return Padding(
-          padding: EdgeInsets.only(bottom: 2.h),
+          padding: EdgeInsets.only(bottom: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -101,12 +100,12 @@ Widget categoryPieChart(
                 children: [
                   Row(
                     children: [
-                      Text(emoji, style: TextStyle(fontSize: 16.sp)),
-                      SizedBox(width: 2.w),
+                      Text(emoji, style: TextStyle(fontSize: 16)),
+                      SizedBox(width: 8),
                       Text(
                         entry.key,
                         style: TextStyle(
-                          fontSize: 14.sp,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -116,20 +115,20 @@ Widget categoryPieChart(
                     '${formatAmountWithCurrency(entry.value * currencyRate, currencyCode)} '
                     '(${percentage.toStringAsFixed(1)}%)',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: color,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 1.h),
+              SizedBox(height: 8),
               // Progress bar
               ClipRRect(
-                borderRadius: BorderRadius.circular(1.w),
+                borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: percentage / 100,
-                  minHeight: 1.5.h,
+                  minHeight: 12,
                   backgroundColor: color.withOpacity(0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                 ),

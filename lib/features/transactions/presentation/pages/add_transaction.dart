@@ -17,7 +17,6 @@ import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionCreationPage extends ConsumerStatefulWidget {
   final String transactionType;
@@ -140,7 +139,7 @@ class _TransactionCreationPageState
             : (transactionType == TransactionType.income
                 ? 'Nouveau revenu'
                 : 'Nouvelle dépense'),
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
     );
   }
@@ -153,13 +152,13 @@ class _TransactionCreationPageState
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 5.h),
+            padding: EdgeInsets.only(left: 32, right: 32, top: 40),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 80),
                   if (_selectedCategory?.name !=
                       SystemCategories.savingsCategoryName) ...[
                     DetailedTransactionSwitch(
@@ -178,13 +177,13 @@ class _TransactionCreationPageState
                         });
                       },
                     ),
-                    SizedBox(height: 5.h),
+                    SizedBox(height: 40),
                   ],
                   CustomDropdown(
                     title: Text('Catégorie',
                         textAlign: TextAlign.left,
                         style: TextStyle(
-                            fontWeight: FontWeight.w900, fontSize: 15.5.sp)),
+                            fontWeight: FontWeight.w900, fontSize: 15.5)),
                     hint: 'Choisissez une catégorie',
                     items: _categories,
                     selectedValue: _selectedCategory,
@@ -208,7 +207,7 @@ class _TransactionCreationPageState
                     validator: const <String, String>{"type": "required"},
                     showEmojis: true,
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                   if (!_isMultipleAmounts)
                     CustomTextField(
                       title: const SizedBox.shrink(),
@@ -216,10 +215,10 @@ class _TransactionCreationPageState
                       controller: _montantController,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
-                      fontSize: 24.sp,
-                      height: 16.h,
+                      fontSize: 24,
+                      height: 128,
                       width: double.infinity,
-                      borderRadius: BorderRadius.circular(5.w),
+                      borderRadius: BorderRadius.circular(20),
                       validator: const <String, String>{"type": "required"},
                     )
                   else
@@ -249,10 +248,10 @@ class _TransactionCreationPageState
                     maxLines: null,
                     isReadOnly: _selectedCategory?.name ==
                         SystemCategories.savingsCategoryName,
-                    borderRadius: BorderRadius.circular(5.w),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   if (isEditMode) ...[
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 16),
                     TransactionDatePickerField(
                       selectedDate: _selectedDate,
                       isReadOnly: _selectedCategory?.name ==
@@ -261,7 +260,7 @@ class _TransactionCreationPageState
                           setState(() => _selectedDate = date),
                     ),
                   ],
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                 ],
               ),
             ),
@@ -273,7 +272,7 @@ class _TransactionCreationPageState
 
   Widget _buildAddButton() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.w),
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
       child: CustomButton(
         text: isEditMode ? 'Enregistrer' : 'Confirmer',
         backgroundColor: Theme.of(context).primaryColor,

@@ -1,170 +1,121 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:budgets/features/settings/presentation/widgets/settings_page_shell.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class EditPasswordPage extends ConsumerStatefulWidget {
   const EditPasswordPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _EditPasswordPageState();
+  ConsumerState<EditPasswordPage> createState() => _EditPasswordPageState();
 }
 
 class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _currentController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmController = TextEditingController();
   bool _isLoading = false;
 
   @override
-  Widget build(BuildContext context) {
-    ref.listen(authControllerProvider, (prev, next) {
-      next.whenOrNull(
-        error: (e, st) {
-          showErrorToast(context, e);
-        },
-      );
-    });
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(authControllerProvider, (_, next) {
+      next.whenOrNull(error: (error, _) => showErrorToast(context, error));
+    });
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title: Text(
-            'Modifier le mot de passe',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          centerTitle: true,
-          surfaceTintColor: Colors.transparent,
-          toolbarHeight: 10.h,
-        ),
-        body: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      title: Text(
-                        'Mot de passe actuel',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15.5.sp,
-                        ),
-                      ),
-                      hint: 'Votre mot de passe actuel',
-                      controller: _passwordController,
-                      keyboardType: TextInputType.visiblePassword,
-                      isPassword: true,
-                      validator: const <String, String>{"type": "password"},
-                    ),
-                    SizedBox(height: 2.h),
-                    CustomTextField(
-                      title: Text(
-                        'Nouveau mot de passe',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15.5.sp,
-                        ),
-                      ),
-                      hint: 'Votre nouveau mot de passe',
-                      controller: _newPasswordController,
-                      keyboardType: TextInputType.visiblePassword,
-                      isPassword: true,
-                      validator: const <String, String>{"type": "password"},
-                    ),
-                    SizedBox(height: 2.h),
-                    CustomTextField(
-                      title: Text(
-                        'Confirmer votre mot de passe',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15.5.sp,
-                        ),
-                      ),
-                      hint: 'Confirmer votre nouveau mot de passe',
-                      controller: _confirmPasswordController,
-                      keyboardType: TextInputType.visiblePassword,
-                      isPassword: true,
-                      validator: const <String, String>{"type": "password"},
-                    ),
-                  ],
-                ),
+      child: SettingsPageShell(
+        title: context.l10n.changePassword,
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(28, 24, 28, 32),
+            children: [
+              _field(
+                title: context.l10n.currentPassword,
+                hint: context.l10n.enterCurrentPassword,
+                controller: _currentController,
               ),
-            ),
-          ),
-        ),
-        bottomNavigationBar: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-          child: CustomButton(
-            text: 'Sauvegarder',
-            onPressed: () async {
-              if (!_formKey.currentState!.validate()) return;
-
-              // Check if new passwords match
-              if (_newPasswordController.text !=
-                  _confirmPasswordController.text) {
-                showInfoToast(
-                  context,
-                  'Les nouveaux mots de passe ne correspondent pas',
-                );
-                return;
-              }
-
-              // Check if new password is different from current
-              if (_passwordController.text == _newPasswordController.text) {
-                showInfoToast(
-                  context,
-                  'Le nouveau mot de passe doit être différent de l\'actuel',
-                );
-                return;
-              }
-
-              setState(() => _isLoading = true);
-              try {
-                await ref.read(authControllerProvider.notifier).changePassword(
-                      currentPassword: _passwordController.text,
-                      newPassword: _newPasswordController.text,
-                    );
-
-                if (!mounted) return;
-                showSuccessToast(
-                  context,
-                  'Mot de passe modifié avec succès',
-                );
-
-                if (!mounted) return;
-                context.pop();
-              } catch (_) {
-                // Error handling is done by the listener above
-              }
-              setState(() => _isLoading = false);
-            },
-            isLoading: _isLoading,
+              const SizedBox(height: 20),
+              _field(
+                title: context.l10n.newPassword,
+                hint: context.l10n.enterNewPassword,
+                controller: _newController,
+              ),
+              const SizedBox(height: 20),
+              _field(
+                title: context.l10n.confirmPassword,
+                hint: context.l10n.confirmNewPassword,
+                controller: _confirmController,
+              ),
+              const SizedBox(height: 32),
+              CustomButton(
+                text: context.l10n.save,
+                isLoading: _isLoading,
+                onPressed: _isLoading ? null : _save,
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  CustomTextField _field({
+    required String title,
+    required String hint,
+    required TextEditingController controller,
+  }) {
+    return CustomTextField(
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: AppTypography.body,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      hint: hint,
+      controller: controller,
+      keyboardType: TextInputType.visiblePassword,
+      isPassword: true,
+      validator: const {'type': 'password'},
+    );
+  }
+
+  Future<void> _save() async {
+    if (_formKey.currentState?.validate() != true) return;
+    if (_newController.text != _confirmController.text) {
+      showInfoToast(context, context.l10n.passwordsDoNotMatch);
+      return;
+    }
+    if (_currentController.text == _newController.text) {
+      showInfoToast(context, context.l10n.passwordMustDiffer);
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authControllerProvider.notifier).changePassword(
+            currentPassword: _currentController.text,
+            newPassword: _newController.text,
+          );
+      if (!mounted) return;
+      showSuccessToast(context, context.l10n.passwordUpdated);
+      Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 }

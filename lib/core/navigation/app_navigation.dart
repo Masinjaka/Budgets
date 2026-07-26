@@ -4,10 +4,11 @@ import 'package:budgets/features/auth/presentation/pages/reset_password_page.dar
 import 'package:budgets/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:budgets/features/auth/presentation/pages/upload_profile_photo_page.dart';
 import 'package:budgets/features/auth/presentation/pages/verify_reset_code_page.dart';
-import 'package:budgets/features/home/presentation/pages/chat_home_page.dart';
+import 'package:budgets/features/home/presentation/pages/currency_home_page.dart';
 import 'package:budgets/features/onboarding/presentation/pages/getting_started_page.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppNavigation {
@@ -18,6 +19,7 @@ class AppNavigation {
         _refresh = AuthRouterRefresh(authChanges) {
     router = GoRouter(
       initialLocation: _isSignedIn() ? '/home' : '/getting-started',
+      observers: [SentryNavigatorObserver()],
       refreshListenable: _refresh,
       redirect: _redirect,
       routes: [
@@ -43,7 +45,10 @@ class AppNavigation {
           path: '/upload-profile-photo',
           builder: (_, __) => const UploadProfilePhotoPage(),
         ),
-        GoRoute(path: '/home', builder: (_, __) => const ChatHomePage()),
+        GoRoute(
+          path: '/home',
+          builder: (_, __) => CurrencyHomePage(isSignedIn: _isSignedIn),
+        ),
       ],
     );
   }

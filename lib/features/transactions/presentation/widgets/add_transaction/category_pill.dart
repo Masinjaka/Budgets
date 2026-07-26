@@ -1,6 +1,5 @@
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CategoryPill extends StatelessWidget {
   final Category category;
@@ -20,19 +19,19 @@ class CategoryPill extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(right: 2.w),
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
+        margin: EdgeInsets.only(right: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9.6),
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.inverseSurface
               : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.h),
+          borderRadius: BorderRadius.circular(40),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(category.emoji ?? '📁', style: TextStyle(fontSize: 14.sp)),
-            SizedBox(width: 1.5.w),
+            Text(category.emoji ?? '📁', style: TextStyle(fontSize: 14)),
+            SizedBox(width: 6),
             Text(
               category.name ?? '',
               style: TextStyle(
@@ -43,7 +42,7 @@ class CategoryPill extends StatelessWidget {
                         .bodyMedium
                         ?.color
                         ?.withAlpha(200),
-                fontSize: 14.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),

@@ -1,5 +1,8 @@
+import 'package:budgets/core/currency/currency_state.dart';
+import 'package:budgets/core/ui/privacy_text.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:budgets/features/stats/domain/models/monthly_stats.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
 
 class CategorySpendingList extends StatelessWidget {
@@ -7,22 +10,27 @@ class CategorySpendingList extends StatelessWidget {
     required this.categories,
     required this.total,
     required this.currencyCode,
+    this.displayCurrency,
     super.key,
   });
 
   final List<CategoryStat> categories;
   final int total;
   final String currencyCode;
+  final CurrencyState? displayCurrency;
 
   @override
   Widget build(BuildContext context) {
     if (categories.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
         child: Center(
           child: Text(
-            'No expenses this month',
-            style: TextStyle(color: Color(0xFF777777), fontSize: 12),
+            context.l10n.noExpensesThisMonth,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
           ),
         ),
       );
@@ -38,8 +46,8 @@ class CategorySpendingList extends StatelessWidget {
                 width: 38,
                 height: 38,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEDEDED),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
                   shape: BoxShape.circle,
                 ),
                 child: Text(item.emoji, style: const TextStyle(fontSize: 17)),
@@ -60,8 +68,16 @@ class CategorySpendingList extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Text(
-                          formatAmountWithCurrency(item.amount, currencyCode),
+                        PrivacyText(
+                          formatAmountWithCurrency(
+                            displayCurrency?.convertToSelected(
+                                  item.amount,
+                                  currencyCode,
+                                ) ??
+                                item.amount,
+                            displayCurrency?.code ?? currencyCode,
+                            preserveFraction: true,
+                          ),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -75,8 +91,11 @@ class CategorySpendingList extends StatelessWidget {
                       child: LinearProgressIndicator(
                         minHeight: 5,
                         value: percentage.toDouble(),
-                        color: Colors.black,
-                        backgroundColor: const Color(0xFFE8E8E8),
+                        color: Theme.of(context).colorScheme.onSurface,
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .outline
+                            .withValues(alpha: .28),
                       ),
                     ),
                   ],

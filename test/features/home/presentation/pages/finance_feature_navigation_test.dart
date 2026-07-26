@@ -69,7 +69,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(EnvelopePage), findsOneWidget);
-    expect(find.text('Envelopes'), findsOneWidget);
+    expect(find.text('Envelope'), findsOneWidget);
   });
 
   testWidgets('Stats drawer item opens new stats page', (tester) async {

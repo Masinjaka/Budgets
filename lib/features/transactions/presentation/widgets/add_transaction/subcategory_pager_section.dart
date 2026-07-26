@@ -1,7 +1,6 @@
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction/add_subcategory_card.dart';
 import 'package:budgets/features/transactions/presentation/widgets/add_transaction/subcategory_amount_card.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 export 'subcategory_amount_card_widget.dart';
 
@@ -28,7 +27,7 @@ class SubcategoryPagerSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 20.h,
+      height: 160,
       child: PageView.builder(
         controller: pageController,
         padEnds: true,

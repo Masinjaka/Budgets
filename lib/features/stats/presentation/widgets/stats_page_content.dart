@@ -8,7 +8,6 @@ import 'package:budgets/features/stats/presentation/widgets/stats_skeleton.dart'
 import 'package:budgets/features/transactions/domain/providers/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class StatsPageContent extends ConsumerWidget {
   final DateTime date;
@@ -74,7 +73,7 @@ class StatsPageContent extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 0.h, 8.w, 2.h),
+                padding: EdgeInsets.fromLTRB(32, 0, 32, 16),
                 child: StatsChart(
                   expenseData: expenseData,
                   incomeData: incomeData,
@@ -83,7 +82,7 @@ class StatsPageContent extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                padding: EdgeInsets.symmetric(horizontal: 32),
                 child: Row(
                   children: [
                     Expanded(
@@ -93,7 +92,7 @@ class StatsPageContent extends ConsumerWidget {
                         iconData: Icons.arrow_upward,
                       ),
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: 16),
                     Expanded(
                       child: NewBalanceCard(
                         type: BalanceCardType.income,
@@ -106,7 +105,7 @@ class StatsPageContent extends ConsumerWidget {
               ),
 
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 child: NewCategoryBreakdown(
                   expensesByCategory: stats.expensesByCategory,
                   incomeByCategory: stats.incomeByCategory,
@@ -116,11 +115,11 @@ class StatsPageContent extends ConsumerWidget {
               ),
               // Budget History Card
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.h),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
                 child: BudgetHistoryCard(date: date),
               ),
               // Bottom padding for navigation bar
-              SizedBox(height: 10.h),
+              SizedBox(height: 80),
             ],
           ),
         );
@@ -128,12 +127,12 @@ class StatsPageContent extends ConsumerWidget {
       loading: () => const SingleChildScrollView(child: StatsSkeleton()),
       error: (error, stack) => SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           child: Center(
             child: Text(
               'Erreur lors du chargement des données',
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 14,
                 color: Colors.red,
               ),
             ),

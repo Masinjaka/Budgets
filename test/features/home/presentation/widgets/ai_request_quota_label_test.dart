@@ -26,7 +26,7 @@ void main() {
       find.byKey(const Key('ai-request-quota-label')),
     );
     final span = label.textSpan! as TextSpan;
-    expect((span.children![1] as TextSpan).style?.fontWeight, FontWeight.w600);
+    expect((span.children![1] as TextSpan).style?.fontWeight, FontWeight.w800);
   });
 
   testWidgets('reserves its space while the quota is loading', (tester) async {
@@ -44,7 +44,7 @@ void main() {
     expect(tester.getSize(find.byType(AiRequestQuotaLabel)).height, 24);
   });
 
-  testWidgets('shows unlimited usage for a Drala Plus account', (tester) async {
+  testWidgets('hides the quota label for a Drala Plus account', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -53,9 +53,7 @@ void main() {
       ),
     );
 
-    expect(
-      find.text('Unlimited AI requests with Drala Plus'),
-      findsOneWidget,
-    );
+    expect(find.byKey(const Key('ai-request-quota-label')), findsNothing);
+    expect(tester.getSize(find.byType(AiRequestQuotaLabel)).height, 0);
   });
 }

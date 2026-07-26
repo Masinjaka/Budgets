@@ -21,12 +21,16 @@ class ExpenseListItem extends StatelessWidget {
           Container(
             width: 42,
             height: 42,
-            decoration: const BoxDecoration(
-              color: Color(0xFFEEEEEE),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(icon, size: 21, color: Colors.black),
+            child: Icon(
+              icon,
+              size: 21,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(width: 17),
           Expanded(
@@ -45,8 +49,8 @@ class ExpenseListItem extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     expense.category,
-                    style: const TextStyle(
-                      color: Color(0xFF606060),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),

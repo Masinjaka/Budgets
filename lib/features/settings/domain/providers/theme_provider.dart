@@ -10,6 +10,8 @@ enum ThemeOptions { system, light, dark }
 
 @Riverpod(keepAlive: true)
 class ThemeNotifier extends _$ThemeNotifier {
+  bool _hasExplicitSelection = false;
+
   @override
   ThemeMode build() {
     _loadTheme();
@@ -18,10 +20,11 @@ class ThemeNotifier extends _$ThemeNotifier {
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
+    if (_hasExplicitSelection) return;
     final themeName = prefs.getString(_themePrefsKey);
     if (themeName != null) {
       final theme = ThemeOptions.values.firstWhere(
-        (e) => e.toString() == themeName,
+        (option) => option.name == themeName || option.toString() == themeName,
         orElse: () => ThemeOptions.light,
       );
       _setTheme(theme);
@@ -45,8 +48,9 @@ class ThemeNotifier extends _$ThemeNotifier {
   }
 
   Future<void> setTheme(ThemeOptions theme) async {
+    _hasExplicitSelection = true;
     _setTheme(theme);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_themePrefsKey, theme.toString());
+    await prefs.setString(_themePrefsKey, theme.name);
   }
 }

@@ -2,7 +2,6 @@ import 'package:budgets/core/currency/currency_provider.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class StatsChart extends ConsumerStatefulWidget {
@@ -118,11 +117,11 @@ class _StatsChartState extends ConsumerState<StatsChart> {
     final dropdownWeeks = _dropdownWeeks;
 
     return Container(
-      height: 25.h,
-      padding: EdgeInsets.all(4.w),
+      height: 200,
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,13 +133,13 @@ class _StatsChartState extends ConsumerState<StatsChart> {
               Text(
                 'Évolution',
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: textColor?.withValues(alpha: 0.7),
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4.8),
                 decoration: BoxDecoration(
                   color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(20),
@@ -154,7 +153,7 @@ class _StatsChartState extends ConsumerState<StatsChart> {
                     value: _selectedWeekIndex,
                     isDense: true,
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: textColor?.withValues(alpha: 0.8),
                     ),
@@ -162,7 +161,7 @@ class _StatsChartState extends ConsumerState<StatsChart> {
                     borderRadius: BorderRadius.circular(16),
                     icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      size: 18.sp,
+                      size: 18,
                       color: textColor?.withValues(alpha: 0.5),
                     ),
                     items: dropdownWeeks
@@ -181,7 +180,7 @@ class _StatsChartState extends ConsumerState<StatsChart> {
               ),
             ],
           ),
-          SizedBox(height: 1.h),
+          SizedBox(height: 8),
           Expanded(
             child: LineChart(
               duration: const Duration(milliseconds: 500),
@@ -216,7 +215,7 @@ class _StatsChartState extends ConsumerState<StatsChart> {
                             '$dayNumber',
                             style: TextStyle(
                               color: textColor?.withValues(alpha: 0.7),
-                              fontSize: 14.sp,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -247,7 +246,7 @@ class _StatsChartState extends ConsumerState<StatsChart> {
                           TextStyle(
                             color: isExpense ? expenseColor : incomeColor,
                             fontWeight: FontWeight.bold,
-                            fontSize: 12.sp,
+                            fontSize: 12,
                           ),
                         );
                       }).toList();

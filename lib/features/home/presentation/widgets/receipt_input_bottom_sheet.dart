@@ -1,5 +1,7 @@
+import 'package:budgets/features/home/presentation/widgets/bottom_sheet_drag_handle.dart';
 import 'package:budgets/features/home/presentation/widgets/receipt_input_option.dart';
 import 'package:flutter/material.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 
 enum ReceiptInputAction { manualEntry, importFile, scanReceipt }
 
@@ -28,10 +30,10 @@ class ReceiptInputBottomSheet extends StatelessWidget {
         width: sheetWidth,
         height: 222,
         padding: const EdgeInsets.fromLTRB(28, 13, 28, 0),
-        decoration: const BoxDecoration(
-          color: Color(0xFFFEFEFE),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(19)),
-          boxShadow: [
+        decoration: BoxDecoration(
+          color: Theme.of(context).bottomSheetTheme.backgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
+          boxShadow: const [
             BoxShadow(
               color: Color(0x1A000000),
               blurRadius: 10,
@@ -44,20 +46,11 @@ class ReceiptInputBottomSheet extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 53,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD2D2D2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
+              const BottomSheetDragHandle(),
               const SizedBox(height: 28),
               ReceiptInputOption(
                 icon: Icons.edit_note_rounded,
-                label: 'Enter manually',
+                label: context.l10n.enterManually,
                 onTap: () => Navigator.pop(
                   context,
                   ReceiptInputAction.manualEntry,
@@ -66,7 +59,7 @@ class ReceiptInputBottomSheet extends StatelessWidget {
               const SizedBox(height: 12),
               ReceiptInputOption(
                 icon: Icons.note_add_outlined,
-                label: 'Import file',
+                label: context.l10n.importFile,
                 onTap: () => Navigator.pop(
                   context,
                   ReceiptInputAction.importFile,
@@ -75,7 +68,7 @@ class ReceiptInputBottomSheet extends StatelessWidget {
               const SizedBox(height: 12),
               ReceiptInputOption(
                 icon: Icons.document_scanner_outlined,
-                label: 'Scan receipt',
+                label: context.l10n.scanReceipt,
                 onTap: () => Navigator.pop(
                   context,
                   ReceiptInputAction.scanReceipt,

@@ -3,7 +3,6 @@ import 'package:budgets/features/categories/domain/providers/subcategory_expense
 import 'package:budgets/features/transactions/presentation/widgets/subcategory_detail_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Shows subcategory breakdown for a transaction (data, loading skeleton, or nothing).
 class SubcategoryDetailSection extends ConsumerWidget {
@@ -27,21 +26,20 @@ class SubcategoryDetailSection extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             Text('Détails des sous-catégories',
                 style: TextStyle(
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14.sp)),
-            SizedBox(height: 1.5.h),
+                    fontSize: 14)),
+            SizedBox(height: 12),
             ...items.map((sub) => Padding(
-                  padding: EdgeInsets.only(bottom: 0.5.h),
+                  padding: EdgeInsets.only(bottom: 4),
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceDim,
-                      borderRadius: BorderRadius.circular(2.w),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,7 +51,7 @@ class SubcategoryDetailSection extends ConsumerWidget {
                                     .bodyLarge
                                     ?.color
                                     ?.withAlpha(179),
-                                fontSize: 14.sp)),
+                                fontSize: 14)),
                         Text(
                           formatAmountWithCurrency(
                               convertFromMga(sub.amount, rate), currencyCode,
@@ -64,7 +62,7 @@ class SubcategoryDetailSection extends ConsumerWidget {
                                   .bodyLarge
                                   ?.color
                                   ?.withAlpha(179),
-                              fontSize: 14.sp),
+                              fontSize: 14),
                         ),
                       ],
                     ),

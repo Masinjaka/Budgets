@@ -3,7 +3,6 @@ import 'package:budgets/features/planning/presentation/widgets/budgets_tab_conte
 import 'package:budgets/features/planning/presentation/widgets/goals_tab_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Planning page with three tabs: Budgets, Goals, and Subscriptions
 class PlanningPage extends ConsumerStatefulWidget {
@@ -55,25 +54,25 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
           surfaceTintColor: Colors.transparent,
           backgroundColor: theme.scaffoldBackgroundColor,
           scrolledUnderElevation: 0,
-          titleSpacing: 8.w,
+          titleSpacing: 32,
           title: Text(
             'Planification',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 20.sp,
+              fontSize: 20,
             ),
           ),
           centerTitle: false,
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(8.h),
+            preferredSize: Size.fromHeight(64),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 0, 8.w, 1.h),
+              padding: EdgeInsets.fromLTRB(32, 0, 32, 8),
               child: Container(
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(50),
                 ),
-                padding: EdgeInsets.all(1.w),
+                padding: EdgeInsets.all(4),
                 child: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
@@ -94,11 +93,11 @@ class _PlanningPageState extends ConsumerState<PlanningPage>
                   ),
                   splashFactory: NoSplash.splashFactory,
                   labelStyle: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                   unselectedLabelStyle: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                   tabs: _tabLabels.map((label) => Tab(text: label)).toList(),

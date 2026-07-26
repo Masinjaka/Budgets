@@ -1,12 +1,12 @@
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -47,60 +47,60 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Form(
             key: _formKey,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 5.h),
+                  SizedBox(height: 40),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Se connecter',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20.5.sp,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: AppTypography.title,
                         ),
                       ),
                       IconButton(
                         onPressed: () => context.pop(),
                         icon: Icon(
                           Icons.close,
-                          size: 20.sp,
+                          size: 20,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                   Text(
                     'Connectez-vous et gérez votre drala comme un pro',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15.5.sp,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: AppTypography.body,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 64),
                   CustomTextField(
                     title: Text(
                       'Email',
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: AppTypography.body,
                       ),
                     ),
                     hint: 'example@email.com',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                   CustomTextField(
                     title: Text(
                       'Mot de passe',
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: AppTypography.body,
                       ),
                     ),
                     hint: 'votre mot de passe',
@@ -108,14 +108,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     keyboardType: TextInputType.visiblePassword,
                     isPassword: true,
                   ),
-                  SizedBox(height: 2.5.h),
+                  SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text.rich(
                       TextSpan(
                         text: 'Mot de passe oublié?',
-                        style: TextStyle(
-                          fontSize: 15.5.sp,
+                        style: const TextStyle(
+                          fontSize: AppTypography.body,
                           fontWeight: FontWeight.bold,
                         ),
                         recognizer: TapGestureRecognizer()
@@ -140,7 +140,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
           child: CustomButton(
             text: 'Se connecter',
             onPressed: () async {

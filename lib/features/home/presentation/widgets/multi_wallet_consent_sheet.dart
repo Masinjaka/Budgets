@@ -1,3 +1,5 @@
+import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/core/ui/privacy_text.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +24,7 @@ class MultiWalletConsentSheet extends StatelessWidget {
           showDragHandle: true,
           isDismissible: false,
           enableDrag: false,
-          backgroundColor: const Color(0xFFFEFEFE),
+          backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
           builder: (_) => MultiWalletConsentSheet(
             requiredAmount: requiredAmount,
             availableAmount: availableAmount,
@@ -42,16 +44,22 @@ class MultiWalletConsentSheet extends StatelessWidget {
         children: [
           const Text(
             'Use multiple wallets?',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: AppTypography.title,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 10),
-          Text(
+          PrivacyText(
             'No single wallet has enough. Drala can combine wallet balances '
             'to pay ${format.format(requiredAmount)}. Your wallets contain '
             '${format.format(availableAmount)} in total.',
-            style: const TextStyle(
-              color: Color(0xFF5F5F5F),
-              fontSize: 13,
+            hiddenText: 'No single wallet has enough. Drala can combine '
+                'wallet balances to pay ***. Your wallets contain *** '
+                'in total.',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: AppTypography.body,
               height: 1.45,
             ),
           ),

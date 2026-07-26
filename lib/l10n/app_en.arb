@@ -1,0 +1,221 @@
+{
+  "@@locale": "en",
+  "appTitle": "Drala",
+  "settings": "Settings",
+  "editProfile": "Edit profile",
+  "changePassword": "Change password",
+  "preferences": "Preferences",
+  "notification": "Notification",
+  "currency": "Currency",
+  "setDefaultWallet": "Set default wallet",
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "language": "Language",
+  "scannedReceipts": "Scanned receipts",
+  "legal": "Legal",
+  "termsOfService": "Terms of service",
+  "privacyPolicy": "Privacy policy",
+  "logOut": "Log out",
+  "english": "English",
+  "french": "French",
+  "menu": "Menu",
+  "collapseMenu": "Collapse menu",
+  "expandMenu": "Expand menu",
+  "envelope": "Envelope",
+  "stats": "Stats",
+  "feedback": "Feedback",
+  "resumeFromDate": "Resume from a specific date",
+  "wallets": "Wallets",
+  "addWallet": "Add wallet",
+  "allTime": "All time",
+  "showBalance": "Show balance",
+  "hideBalance": "Hide balance",
+  "overallBalance": "Wallet balance left",
+  "takenFromEnvelope": "Taken from envelope {name}",
+  "@takenFromEnvelope": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notifications": "Notifications",
+  "noNotifications": "No notifications",
+  "noNotificationsDescription": "Budget warnings and important finance updates will appear here.",
+  "envelopeBudgetExceeded": "You went over your budget for the {name} envelope.",
+  "@envelopeBudgetExceeded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayWithDate": "Today, {date}",
+  "noEntriesForDate": "No entries for this date",
+  "entryCount": "{count, plural, =1{1 entry} other{{count} entries}}",
+  "expenseCount": "{count, plural, =1{1 expense} other{{count} expenses}}",
+  "incomeCount": "{count, plural, =1{1 income} other{{count} incomes}}",
+  "transferCount": "{count, plural, =1{1 transfer} other{{count} transfers}}",
+  "unlimitedAiRequests": "Unlimited AI requests with Drala Plus",
+  "aiRequestsRemaining": "You have {count} AI requests remaining today",
+  "chatHint": "Expense, income, or transfer",
+  "expenseSuggestion": "I spent X on Y today",
+  "incomeSuggestion": "I received a payment of X",
+  "transferSuggestion": "Transfer X from wallet A to wallet B",
+  "addReceipt": "Add receipt",
+  "manualEntry": "Manual entry",
+  "send": "Send",
+  "enterManually": "Enter manually",
+  "importFile": "Import file",
+  "scanReceipt": "Scan receipt",
+  "receiptGalleryEmpty": "Your scanned and imported receipts will appear here.",
+  "deleteReceiptQuestion": "Delete receipt?",
+  "deleteReceiptDescription": "This removes every page of this receipt.",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "receiptDeleted": "Receipt deleted.",
+  "receipt": "Receipt",
+  "receiptPages": "{count, plural, =1{1 receipt page} other{{count} receipt pages}}",
+  "pageCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  "deleteReceipt": "Delete receipt",
+  "save": "Save",
+  "username": "Username",
+  "enterUsername": "Enter your username",
+  "user": "User",
+  "currentPassword": "Current password",
+  "enterCurrentPassword": "Enter your current password",
+  "newPassword": "New password",
+  "enterNewPassword": "Enter your new password",
+  "confirmPassword": "Confirm password",
+  "confirmNewPassword": "Confirm your new password",
+  "passwordsDoNotMatch": "The new passwords do not match.",
+  "passwordMustDiffer": "Choose a password different from the current one.",
+  "passwordUpdated": "Password updated.",
+  "searchCurrency": "Search a currency",
+  "errorWithMessage": "Error: {message}",
+  "defaultWalletDescription": "Expenses and new envelopes use this wallet by default.",
+  "defaultWalletUpdated": "Default wallet updated.",
+  "termsIntro": "These terms explain the rules for using Drala.",
+  "termsDetails": "Use Drala only for lawful personal finance management. You remain responsible for checking AI-created entries before relying on them. Service availability may change as the app evolves.",
+  "privacyIntro": "Your financial information belongs to you.",
+  "privacyDetails": "Drala stores account and transaction data to provide the app. Scanned receipts are kept in private per-user storage and are sent to the configured AI provider through the backend for extraction. You can delete individual receipts from Scanned receipts, or delete all stored data or your complete account from Edit profile.",
+  "legalLastUpdated": "Last updated: July 21, 2026",
+  "allowNotifications": "Allow notifications",
+  "dailyReminders": "Daily reminders",
+  "budgetAlerts": "Budget alerts",
+  "selectReminderTime": "Select reminder time",
+  "preferredReminderTime": "Preferred reminder time",
+  "reminderDeliveryTime": "Daily reminder delivery time",
+  "enableNotifications": "Enable notifications",
+  "notificationPermissionMessage": "Allow notifications to receive daily reminders and budget alerts.",
+  "allow": "Allow",
+  "deny": "Deny",
+  "notificationsBlocked": "Notifications blocked",
+  "notificationsBlockedMessage": "Allow notifications in your device settings to receive reminders and alerts.",
+  "openSettings": "Open settings",
+  "dangerZone": "Danger zone",
+  "deleteAllData": "Delete all my data",
+  "deleteAllDataSummary": "Permanently deletes all app content.",
+  "deleteAccount": "Delete my account",
+  "deleteAccountSummary": "Deletes your data and disables your sign-in.",
+  "deleteAllDataQuestion": "Delete all data?",
+  "deleteAllDataDetails": "Transactions, wallets, envelopes, budgets, goals, AI history, preferences, and files will be deleted. Your account and plan will be retained.",
+  "deleteKeyword": "DELETE",
+  "typeDeleteToConfirm": "Type DELETE to confirm.",
+  "allDataDeleted": "All your data has been deleted.",
+  "deleteAccountQuestion": "Permanently delete account?",
+  "deleteAccountDetails": "This deletes your account, plan, files, and all your data. It cannot be undone.",
+  "typeValueToConfirm": "Type {value} to confirm.",
+  "accountDeleted": "Your account has been deleted.",
+  "confirmation": "Confirmation",
+  "chooseSource": "Choose a source",
+  "fromGallery": "From gallery",
+  "takePhoto": "Take a photo",
+  "mediaPermissionMessage": "We need camera and file access to continue.",
+  "cameraDenied": "Camera access denied.",
+  "mediaDenied": "Media access denied.",
+  "imageSelectionFailed": "Could not select the image.",
+  "usernameUpdateFailed": "Could not update the username.",
+  "profilePhotoUploadFailed": "Could not upload the profile photo.",
+  "back": "Back",
+  "enterEmail": "Enter an email address",
+  "invalidEmail": "Enter a valid email address",
+  "enterPassword": "Enter a password",
+  "passwordMinLength": "The password must contain at least 8 characters.",
+  "passwordNeedsUppercase": "The password must contain at least one uppercase letter.",
+  "passwordNeedsLowercase": "The password must contain at least one lowercase letter.",
+  "passwordNeedsNumber": "The password must contain at least one number.",
+  "passwordNeedsSpecialCharacter": "The password must contain at least one special character.",
+  "netThisMonth": "Net this month",
+  "transactions": "Transactions",
+  "averagePerDay": "Average / day",
+  "expenses": "Expenses",
+  "income": "Income",
+  "largestExpense": "Largest expense",
+  "dailySpending": "Daily spending",
+  "topSpending": "Top spending",
+  "noExpensesThisMonth": "No expenses this month",
+  "moreThanLastMonth": "{percentage}% more than last month",
+  "lessThanLastMonth": "{percentage}% less than last month",
+  "@moreThanLastMonth": {
+    "placeholders": {
+      "percentage": {
+        "type": "String"
+      }
+    }
+  },
+  "@lessThanLastMonth": {
+    "placeholders": {
+      "percentage": {
+        "type": "String"
+      }
+    }
+  },
+  "addEnvelope": "Add envelope",
+  "createExpenseCategoryFirst": "Create an expense category before adding another envelope.",
+  "monthlyEnvelopes": "Monthly envelopes",
+  "availableAcrossEnvelopes": "Available across envelopes",
+  "budget": "Budget",
+  "spent": "Spent",
+  "newEnvelope": "New envelope",
+  "name": "Name",
+  "envelopeNameHint": "e.g. Groceries",
+  "monthlyAmount": "Monthly amount",
+  "expenseCategory": "Expense category",
+  "saving": "Saving…",
+  "create": "Create",
+  "noEnvelopesYet": "No envelopes yet",
+  "envelopeEmptyDescription": "Set a monthly amount for an expense category. Chat expenses will update it automatically.",
+  "deleteEnvelope": "Delete envelope",
+  "overBudgetBy": "Over budget by {amount}",
+  "@overBudgetBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "amountSpent": "{amount} spent",
+  "ofAmount": "of {amount}",
+  "@amountSpent": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@ofAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackPrompt": "Tell us what you think",
+  "feedbackHint": "Describe an issue or share an idea",
+  "feedbackRequired": "Please enter your feedback",
+  "sendFeedback": "Send feedback",
+  "feedbackSent": "Feedback sent. Thank you!"
+}

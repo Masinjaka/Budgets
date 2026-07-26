@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class Jumbotron extends ConsumerStatefulWidget {
   const Jumbotron({
@@ -47,31 +46,31 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
         Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1A1A1A);
 
     return Container(
-      height: 16.h,
+      height: 128,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(5.w),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Stack(
         fit: StackFit.expand,
         children: [
           Positioned(
-            top: 2.h,
-            left: 2.h,
+            top: 16,
+            left: 16,
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
                 'Solde total',
                 style: TextStyle(
-                  fontSize: 15.5.sp,
+                  fontSize: 15.5,
                   color: textColor,
                 ),
               ),
             ),
           ),
           Positioned(
-            top: 2.h,
-            right: 2.h,
+            top: 16,
+            right: 16,
             child: GestureDetector(
               onTap: _toggleVisibility,
               child: AnimatedSwitcher(
@@ -88,16 +87,16 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
                 child: Icon(
                   _isHidden ? Ionicons.eye_off : Ionicons.eye,
                   key: ValueKey(_isHidden),
-                  size: 18.sp,
+                  size: 18,
                   color: textColor.withValues(alpha: 0.5),
                 ),
               ),
             ),
           ),
           Positioned(
-            top: 3.h,
-            bottom: 3.h,
-            left: 2.h,
+            top: 24,
+            bottom: 24,
+            left: 16,
             child: Align(
               alignment: Alignment.centerLeft,
               child: asyncBalance.when(
@@ -124,7 +123,7 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
                             '********',
                             key: const ValueKey('hidden'),
                             style: TextStyle(
-                              fontSize: 22.sp,
+                              fontSize: 22,
                               color: textColor,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 2.0,
@@ -134,7 +133,7 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
                             '${isNegative ? '-' : ''}${formatAmountWithCurrency(displayAmount, currencyCode, preserveFraction: true)}',
                             key: const ValueKey('visible'),
                             style: TextStyle(
-                              fontSize: 22.sp,
+                              fontSize: 22,
                               color: isNegative ? Colors.red : textColor,
                               fontWeight: FontWeight.w600,
                             ),
@@ -145,7 +144,7 @@ class _JumbotronState extends ConsumerState<Jumbotron> {
                 error: (error, stack) => Text(
                   'Erreur',
                   style: TextStyle(
-                    fontSize: 25.sp,
+                    fontSize: 25,
                     color: Colors.red,
                   ),
                 ),

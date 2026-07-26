@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Skeleton for CurrencySelectionPage - matches the exact structure
@@ -17,30 +16,30 @@ class CurrencyPageSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 12.h),
+          SizedBox(height: 96),
           // Search bar skeleton
           Padding(
-            padding: EdgeInsets.only(bottom: 2.h),
+            padding: EdgeInsets.only(bottom: 16),
             child: Container(
               width: double.infinity,
-              height: 6.h,
+              height: 48,
               decoration: BoxDecoration(
                 color: theme.cardColor,
-                borderRadius: BorderRadius.circular(5.w),
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
           ),
           // Section title skeleton
           Container(
-            width: 25.w,
-            height: 2.h,
-            margin: EdgeInsets.only(bottom: 1.h),
+            width: 100,
+            height: 16,
+            margin: EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
               color: theme.cardColor,
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          SizedBox(height: 1.h),
+          SizedBox(height: 8),
           // Currency card skeletons
           ...List.generate(8, (index) => _buildCurrencyCardSkeleton(theme)),
         ],
@@ -50,13 +49,13 @@ class CurrencyPageSkeleton extends StatelessWidget {
 
   Widget _buildCurrencyCardSkeleton(ThemeData theme) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 1.h),
+      padding: EdgeInsets.only(bottom: 8),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(2.w),
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: theme.cardColor,
-          borderRadius: BorderRadius.circular(5.w),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,18 +64,18 @@ class CurrencyPageSkeleton extends StatelessWidget {
               children: [
                 // Icon container
                 Container(
-                  width: 10.w,
-                  height: 10.w,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: theme.scaffoldBackgroundColor,
-                    borderRadius: BorderRadius.circular(3.w),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(width: 16),
                 // Currency code text
                 Container(
-                  width: 15.w,
-                  height: 2.h,
+                  width: 60,
+                  height: 16,
                   decoration: BoxDecoration(
                     color: theme.scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(6),
@@ -86,8 +85,8 @@ class CurrencyPageSkeleton extends StatelessWidget {
             ),
             // Symbol text
             Container(
-              width: 8.w,
-              height: 2.h,
+              width: 32,
+              height: 16,
               decoration: BoxDecoration(
                 color: theme.scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(6),

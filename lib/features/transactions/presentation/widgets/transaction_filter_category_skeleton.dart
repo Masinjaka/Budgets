@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionFilterCategorySkeleton extends StatelessWidget {
   const TransactionFilterCategorySkeleton({super.key});
@@ -10,17 +9,17 @@ class TransactionFilterCategorySkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      runSpacing: 2.5.w,
+      runSpacing: 10,
       children: List.generate(
         7,
         (index) => Container(
-          width: 10.w + Random().nextDouble() * (40.w - 10.w),
-          height: 4.2.h,
-          margin: EdgeInsets.only(right: 2.w),
-          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
+          width: 40 + Random().nextDouble() * (160 - 40),
+          height: 33.6,
+          margin: EdgeInsets.only(right: 8),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 216, 216, 216),
-            borderRadius: BorderRadius.circular(5.w),
+            borderRadius: BorderRadius.circular(20),
           ),
         ).animate(onPlay: (controller) => controller.repeat()).shimmer(
               duration: const Duration(seconds: 1),

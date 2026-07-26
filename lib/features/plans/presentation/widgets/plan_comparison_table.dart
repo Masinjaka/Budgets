@@ -41,7 +41,7 @@ class PlanComparisonTable extends StatelessWidget {
             ],
           ),
         ),
-        const Divider(height: 1, color: Color(0xFFBEBEBE)),
+        Divider(height: 1, color: Theme.of(context).dividerColor),
         for (final feature in features) PlanFeatureRow(feature: feature),
       ],
     );

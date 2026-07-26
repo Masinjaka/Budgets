@@ -4,20 +4,20 @@ import 'package:budgets/features/auth/presentation/widgets/file_picker_option.da
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/utils/animated_dialog.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Pick an image from camera or gallery with proper permission handling.
 /// Returns the picked image as a File, or null if the user cancels or permissions are denied.
 /// [description] - Custom message to show in the permission dialog.
 Future<File?> pickImageWithPermissions(
   BuildContext context, {
-  String description =
-      'Nous avons besoin de la caméra et l\'accès aux fichiers pour continuer.',
+  String? description,
 }) async {
   if (!context.mounted) return null;
+  final permissionMessage = description ?? context.l10n.mediaPermissionMessage;
 
   // Determine required media permission based on platform/version
   Permission mediaPermission;
@@ -32,35 +32,35 @@ Future<File?> pickImageWithPermissions(
     context: context,
     backgroundColor: Theme.of(context).cardColor,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(3.w)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
     ),
     builder: (ctx) {
       return SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             Text(
-              'Choisir une source',
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              context.l10n.chooseSource,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 FileOption(
                   icon: Icons.photo_library,
-                  title: 'Depuis la galerie',
+                  title: context.l10n.fromGallery,
                   onTap: () => Navigator.pop(ctx, ImageSource.gallery),
                 ),
                 FileOption(
                   icon: Icons.photo_camera,
-                  title: 'Prendre une photo',
+                  title: context.l10n.takePhoto,
                   onTap: () => Navigator.pop(ctx, ImageSource.camera),
                 ),
               ],
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
           ],
         ),
       );
@@ -80,7 +80,7 @@ Future<File?> pickImageWithPermissions(
         context: context,
         barrierDismissible: false,
         builder: (dialogContext) => PermissionRequestDialog(
-          message: description,
+          message: permissionMessage,
           onAllow: () => Navigator.of(dialogContext).pop(true),
           onDeny: () => Navigator.of(dialogContext).pop(false),
         ),
@@ -91,7 +91,7 @@ Future<File?> pickImageWithPermissions(
 
     if (!await Permission.camera.isGranted) {
       if (!context.mounted) return null;
-      showInfoToast(context, 'Caméra refusée');
+      showInfoToast(context, context.l10n.cameraDenied);
       return null;
     }
   }
@@ -112,7 +112,7 @@ Future<File?> pickImageWithPermissions(
           context: context,
           barrierDismissible: false,
           builder: (dialogContext) => PermissionRequestDialog(
-            message: description,
+            message: permissionMessage,
             onAllow: () => Navigator.of(dialogContext).pop(true),
             onDeny: () => Navigator.of(dialogContext).pop(false),
           ),
@@ -125,7 +125,7 @@ Future<File?> pickImageWithPermissions(
       final isLimited = await mediaPermission.isLimited;
       if (!isGranted && !isLimited) {
         if (!context.mounted) return null;
-        showInfoToast(context, 'Accès aux médias refusé');
+        showInfoToast(context, context.l10n.mediaDenied);
         return null;
       }
     }
@@ -142,7 +142,7 @@ Future<File?> pickImageWithPermissions(
     if (context.mounted) {
       showAppToast(
         context,
-        "Erreur lors de la sélection de l'image",
+        context.l10n.imageSelectionFailed,
         type: AppToastType.error,
       );
     }

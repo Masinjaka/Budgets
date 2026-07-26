@@ -13,7 +13,7 @@ class ManualEntryService {
   Future<List<ManualEntryCategory>> categories() async {
     final rows = await _client
         .from('categories')
-        .select('id,name,emoji,transaction_type')
+        .select('id,name,emoji,color,transaction_type')
         .order('name');
     return rows
         .map(
@@ -25,9 +25,8 @@ class ManualEntryService {
   }
 
   Future<FinanceEntry> add(ManualEntryInput input) async {
-    late final dynamic response;
-    try {
-      response = await _client.rpc(
+    final response = await _withFundErrors(
+      () => _client.rpc(
         'create_manual_finance_entry',
         params: {
           'p_title': input.title,
@@ -40,7 +39,47 @@ class ManualEntryService {
           'p_period_month': _dateKey(input.occurredAt),
           'p_use_all_wallets': input.useAllWallets,
         },
-      );
+      ),
+    );
+    return _entryWithEnvelope(response);
+  }
+
+  Future<FinanceEntry> update(
+    String entryId,
+    ManualEntryInput input,
+  ) async {
+    final response = await _withFundErrors(
+      () => _client.rpc(
+        'update_finance_entry',
+        params: {
+          'p_transaction_id': entryId,
+          'p_title': input.title,
+          'p_description': input.description,
+          'p_amount': input.amount,
+          'p_occurred_at': input.occurredAt.toUtc().toIso8601String(),
+          'p_transaction_type': input.transactionType,
+          'p_category_id': input.categoryId,
+          'p_source_wallet_id': input.sourceWalletId,
+          'p_period_month': _dateKey(input.occurredAt),
+          'p_use_all_wallets': input.useAllWallets,
+        },
+      ),
+    );
+    return _entryWithEnvelope(response);
+  }
+
+  Future<void> delete(String entryId) async {
+    await _withFundErrors<Object?>(
+      () => _client.rpc(
+        'delete_finance_entry',
+        params: {'p_transaction_id': entryId},
+      ),
+    );
+  }
+
+  Future<T> _withFundErrors<T>(Future<T> Function() action) async {
+    try {
+      return await action();
     } on PostgrestException catch (error) {
       final values = _fundValues(error.message);
       if (error.message.contains('wallet_consent_required:')) {
@@ -57,10 +96,31 @@ class ManualEntryService {
       }
       rethrow;
     }
+  }
+
+  Map<String, dynamic> _record(Object? response) {
     final row = response is Map
         ? Map<String, dynamic>.from(response)
         : <String, dynamic>{};
-    return FinanceEntry.fromJson(row);
+    return row;
+  }
+
+  Future<FinanceEntry> _entryWithEnvelope(Object? response) async {
+    final value = _record(response);
+    if (value['transaction_type'] != 'expense') {
+      return FinanceEntry.fromJson(value);
+    }
+    final id = value['id'];
+    if (id is! String) return FinanceEntry.fromJson(value);
+    final funding = await _client
+        .from('transaction')
+        .select('envelope_amount_used,envelope:envelopes(name)')
+        .eq('id', id)
+        .maybeSingle();
+    return FinanceEntry.fromJson({
+      ...value,
+      if (funding != null) ...funding,
+    });
   }
 
   (int, int) _fundValues(String message) {

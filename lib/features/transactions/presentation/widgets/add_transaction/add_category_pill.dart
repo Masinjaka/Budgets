@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class AddCategoryPill extends StatelessWidget {
   final Future<void> Function(BuildContext) onAddTap;
@@ -16,21 +15,21 @@ class AddCategoryPill extends StatelessWidget {
     return GestureDetector(
       onTap: () => onAddTap(context),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(5.h),
+          borderRadius: BorderRadius.circular(40),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.add, size: 14.sp, color: textColor),
-            SizedBox(width: 1.w),
+            Icon(Icons.add, size: 14, color: textColor),
+            SizedBox(width: 4),
             Text(
               'Ajouter une catégorie',
               style: TextStyle(
                 color: textColor,
-                fontSize: 14.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),

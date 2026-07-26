@@ -10,7 +10,8 @@ class EnvelopeService {
     final rows = await _client
         .from('envelopes')
         .select(
-          'id,name,category_id,amount,remaining_amount,currency_code,'
+          'id,name,category_id,amount,remaining_amount,overspent_amount,'
+          'currency_code,'
           'categories(name,emoji,color)',
         )
         .eq('period_month', _monthKey(month))

@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/app_wheel_picker.dart';
 import 'package:budgets/features/transactions/presentation/modules/transaction_module.dart';
 import 'package:budgets/features/categories/domain/providers/category_provider.dart';
 import 'package:budgets/features/categories/domain/providers/filter_provider.dart';
@@ -8,7 +9,6 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionFilterPage extends ConsumerStatefulWidget {
   const TransactionFilterPage({super.key});
@@ -56,16 +56,15 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
         title: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: 32),
             child: Text('Filtrer',
-                style:
-                    TextStyle(fontWeight: FontWeight.w900, fontSize: 19.5.sp))),
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 19.5))),
         actions: [
           Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: IconButton(
                   onPressed: () => context.pop(),
-                  icon: Icon(Icons.close, size: 21.sp)))
+                  icon: Icon(Icons.close, size: 21)))
         ],
       ),
       body: GestureDetector(
@@ -73,15 +72,15 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 5.h),
+            padding: EdgeInsets.only(left: 32, right: 32, top: 40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Filtrer par catégorie',
                     textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w900, fontSize: 15.5.sp)),
-                SizedBox(height: 3.h),
+                    style:
+                        TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5)),
+                SizedBox(height: 24),
                 switch (asyncCategories) {
                   AsyncData(:final value) => TransactionFilterCategoryChips(
                       categories: value,
@@ -92,14 +91,14 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
                   AsyncError(:final error) => Text('error: $error'),
                   _ => const TransactionFilterCategorySkeleton(),
                 },
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 Text('Filtrer par date',
                     textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w900, fontSize: 15.5.sp)),
-                SizedBox(height: 3.h),
+                    style:
+                        TextStyle(fontWeight: FontWeight.w900, fontSize: 15.5)),
+                SizedBox(height: 24),
                 SizedBox(
-                  height: 6.h,
+                  height: 48,
                   child: Row(
                     children: [
                       Expanded(
@@ -107,7 +106,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
                               hint: 'De',
                               controller: _fromDate,
                               onTap: () => _pickDate(isFrom: true))),
-                      SizedBox(width: 2.w),
+                      SizedBox(width: 8),
                       Expanded(
                           child: TransactionFilterDateField(
                               hint: 'A',
@@ -130,7 +129,7 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.w),
+        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
         child: CustomButton(
           text: 'Appliquer les filtres',
           isLoading: _isLoading,
@@ -147,13 +146,13 @@ class _TransactionFilterPageState extends ConsumerState<TransactionFilterPage> {
   }
 
   Future<void> _pickDate({required bool isFrom}) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: isFrom ? _initialDateTime : DateTime.now(),
-      firstDate: _initialDateTime ?? DateTime(2025, 6),
+    final firstDate = _initialDateTime ?? DateTime(2025, 6);
+    final picked = await AppWheelPicker.date(
+      context,
+      initialDate: isFrom ? firstDate : DateTime.now(),
+      firstDate: firstDate,
       lastDate: DateTime.now(),
-      cancelText: 'Annuler',
-      helpText: 'Choisis une date',
+      title: isFrom ? 'Select start date' : 'Select end date',
     );
     if (picked != null) {
       setState(() {

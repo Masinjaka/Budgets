@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/privacy_text.dart';
 import 'package:flutter/material.dart';
 
 class StatsMetricCard extends StatelessWidget {
@@ -5,12 +6,14 @@ class StatsMetricCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.icon,
+    this.maskValue = false,
     super.key,
   });
 
   final String label;
   final String value;
   final IconData icon;
+  final bool maskValue;
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +37,26 @@ class StatsMetricCard extends StatelessWidget {
           children: [
             Icon(icon, size: 20, color: const Color(0xFF555555)),
             const Spacer(),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
-            ),
+            if (maskValue)
+              PrivacyText(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              )
+            else
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             Text(
               label,
               style: const TextStyle(color: Color(0xFF777777), fontSize: 10.5),

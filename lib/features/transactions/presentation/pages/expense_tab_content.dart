@@ -6,7 +6,6 @@ import 'package:budgets/features/transactions/presentation/widgets/transaction_e
 import 'package:budgets/features/transactions/domain/providers/paginated_expenses_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Expense tab content that contains the expense list
 class TransactionTabContent extends ConsumerWidget {
@@ -72,7 +71,7 @@ class TransactionTabContent extends ConsumerWidget {
       physics: const AlwaysScrollableScrollPhysics(
         parent: ClampingScrollPhysics(),
       ),
-      padding: EdgeInsets.fromLTRB(8.w, 2.h, 8.w, 0),
+      padding: EdgeInsets.fromLTRB(32, 16, 32, 0),
     );
 
     return NotificationListener<ScrollNotification>(

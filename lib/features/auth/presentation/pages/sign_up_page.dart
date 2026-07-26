@@ -1,11 +1,11 @@
 import 'package:budgets/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:budgets/core/ui/app_toast.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/widgets/custom_button.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
@@ -19,7 +19,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmpasswordController =
+  final TextEditingController _confirmPasswordController =
       TextEditingController();
   bool _isLoading = false;
 
@@ -28,7 +28,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmpasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -51,74 +51,74 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
           child: Form(
             key: _formKey,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 5.h),
+                  SizedBox(height: 40),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Créer un compte',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20.5.sp,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: AppTypography.title,
                         ),
                       ),
                       IconButton(
                         onPressed: () => context.pop(),
                         icon: Icon(
                           Icons.close,
-                          size: 20.sp,
+                          size: 20,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                   Text(
                     'Commençons d’abord par vous créer un compte',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15.5.sp,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: AppTypography.body,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 64),
                   CustomTextField(
                     title: Text(
                       "Nom d'utilisateur",
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: AppTypography.body,
                       ),
                     ),
                     hint: 'username',
                     controller: _usernameController,
                     keyboardType: TextInputType.text,
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                   CustomTextField(
                     title: Text(
                       'Email',
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: AppTypography.body,
                       ),
                     ),
                     hint: 'example@email.com',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                   CustomTextField(
                     title: Text(
                       'Mot de passe',
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: AppTypography.body,
                       ),
                     ),
                     hint: 'votre mot de passe',
@@ -127,23 +127,23 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     isPassword: true,
                     validator: const <String, String>{"type": "password"},
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                   CustomTextField(
                     title: Text(
                       'Confirmer le mot de passe',
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15.5.sp,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: AppTypography.body,
                       ),
                     ),
                     hint: 'votre mot de passe',
-                    controller: _confirmpasswordController,
+                    controller: _confirmPasswordController,
                     keyboardType: TextInputType.visiblePassword,
                     isPassword: true,
                     validator: const <String, String>{"type": "password"},
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 16),
                 ],
               ),
             ),
@@ -155,7 +155,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
   Widget _buildBottomPart() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -164,8 +164,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             isLoading: _isLoading,
             onPressed: () async {
               if (!_formKey.currentState!.validate()) return;
-              if (_passwordController.text != _confirmpasswordController.text) {
-                debugPrint('[SignUpPage] Validation failed: password mismatch');
+              if (_passwordController.text != _confirmPasswordController.text) {
                 if (!mounted) return;
                 showInfoToast(
                     context, 'Vérifiez la correspondance du mot de passe');
@@ -174,14 +173,11 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
               setState(() => _isLoading = true);
               try {
-                debugPrint('[SignUpPage] Submit pressed - signUp started');
                 await ref.read(authControllerProvider.notifier).signUp(
                       email: _emailController.text.trim(),
                       password: _passwordController.text,
                       username: _usernameController.text.trim(),
                     );
-                debugPrint(
-                    '[SignUpPage] signUp completed - navigating to upload photo');
                 if (!mounted) return;
                 context.push('/upload-profile-photo');
               } catch (e, st) {

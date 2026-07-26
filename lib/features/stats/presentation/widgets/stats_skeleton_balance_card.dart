@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class StatsSkeletonBalanceCard extends StatelessWidget {
@@ -13,7 +12,7 @@ class StatsSkeletonBalanceCard extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.5.h),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
@@ -23,17 +22,17 @@ class StatsSkeletonBalanceCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 18.w,
-              height: 2.h,
+              width: 72,
+              height: 16,
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(6),
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             Container(
-              width: 30.w,
-              height: 2.5.h,
+              width: 120,
+              height: 20,
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(6),

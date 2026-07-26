@@ -5,16 +5,24 @@ import 'package:budgets/features/ai_entry/domain/models/manual_entry_category.da
 import 'package:budgets/features/ai_entry/domain/models/manual_entry_input.dart';
 import 'package:budgets/features/ai_entry/domain/repositories/ai_entry_repository.dart';
 import 'package:budgets/features/home/domain/models/add_wallet_input.dart';
+import 'package:budgets/features/home/domain/models/receipt_input_result.dart';
 import 'package:budgets/features/home/domain/models/wallet_summary.dart';
+import 'package:budgets/features/receipts/domain/repositories/receipt_repository.dart';
 import 'package:flutter/material.dart';
 
 part 'ai_entry_data_reset.dart';
+part 'ai_entry_edit.dart';
+part 'ai_entry_receipt.dart';
+part 'ai_entry_result_application.dart';
 
 class AiEntryViewModel extends ChangeNotifier {
-  AiEntryViewModel(this._repository, DateTime initialDate)
-      : _selectedDate = DateUtils.dateOnly(initialDate);
+  AiEntryViewModel(this._repository, DateTime initialDate,
+      {ReceiptRepository? receiptRepository})
+      : _receiptRepository = receiptRepository,
+        _selectedDate = DateUtils.dateOnly(initialDate);
 
   final AiEntryRepository _repository;
+  final ReceiptRepository? _receiptRepository;
   DateTime _selectedDate;
   List<FinanceEntry> _entries = const [];
   bool _isLoading = false;
@@ -164,27 +172,5 @@ class AiEntryViewModel extends ChangeNotifier {
 
   void _notifyDataReset() => notifyListeners();
 
-  Future<void> _applyResult(AiEntryResult result, DateTime targetDate) async {
-    _quota = AiQuota(
-      plan: result.plan,
-      unlimited: result.unlimited,
-      remaining: result.remaining,
-    );
-    if (DateUtils.isSameDay(_selectedDate, targetDate)) {
-      _entries = _mergeNewEntries(result.entries, _entries);
-    }
-    await refreshBalances();
-  }
-
-  List<FinanceEntry> _mergeNewEntries(
-    List<FinanceEntry> additions,
-    List<FinanceEntry> existing,
-  ) {
-    if (additions.isEmpty) return existing;
-    final addedIds = additions.map((entry) => entry.id).toSet();
-    return List.unmodifiable([
-      ...additions,
-      ...existing.where((entry) => !addedIds.contains(entry.id)),
-    ]);
-  }
+  void _notifyReceiptChanged() => notifyListeners();
 }

@@ -7,7 +7,6 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../domain/models/category_model.dart';
 import '../../domain/providers/category_provider.dart';
@@ -105,7 +104,7 @@ class CategoryModule {
               child: AlertDialog(
                 backgroundColor: Theme.of(dialogContext).cardColor,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.w),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 title: Text(
                   'Supprimer la catégorie ?',
@@ -117,22 +116,20 @@ class CategoryModule {
                   'T\'es sûr de vouloir retirer cette catégorie ?',
                   style: TextStyle(
                     color: Theme.of(dialogContext).textTheme.bodyLarge?.color,
-                    fontSize: 15.sp,
+                    fontSize: 15,
                   ),
                 ),
                 actions: [
                   CustomButton(
                     text: 'Annuler',
-                    width: 15.h,
-                    height: 4.5.h,
+                    width: 120,
                     backgroundColor: Theme.of(dialogContext).cardColor,
                     borderColor: Colors.transparent,
                     onPressed: () => Navigator.of(dialogContext).pop(),
                   ),
                   CustomButton(
                     text: 'Supprimer',
-                    width: 15.h,
-                    height: 4.5.h,
+                    width: 120,
                     backgroundColor: Colors.red,
                     borderColor: Colors.transparent,
                     onPressed: () async {

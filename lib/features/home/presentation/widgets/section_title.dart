@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class SectionTitle extends StatelessWidget {
   const SectionTitle({
@@ -19,20 +18,20 @@ class SectionTitle extends StatelessWidget {
         Text(title,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16.sp,
+              fontSize: 16,
               color: Theme.of(context).textTheme.bodyLarge?.color,
             )),
         GestureDetector(
           onTap: onTap,
           child: Container(
-            padding: EdgeInsets.all(0.8.h),
+            padding: EdgeInsets.all(6.4),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50.w),
+              borderRadius: BorderRadius.circular(200),
               color: Theme.of(context).cardColor,
             ),
             child: Icon(
               Icons.arrow_right_alt_sharp,
-              size: 18.sp,
+              size: 18,
               color: Theme.of(context).iconTheme.color,
             ),
           ),

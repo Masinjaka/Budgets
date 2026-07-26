@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// Shared text-only empty state used across app sections.
 class EmptyStatePhrase extends StatelessWidget {
@@ -20,7 +19,7 @@ class EmptyStatePhrase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding ?? EdgeInsets.symmetric(horizontal: 8.w),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: 32),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -28,8 +27,8 @@ class EmptyStatePhrase extends StatelessWidget {
           children: [
             if (icon != null) ...[
               Container(
-                width: 15.w,
-                height: 15.w,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(14),
@@ -37,30 +36,28 @@ class EmptyStatePhrase extends StatelessWidget {
                 child: Center(
                   child: FaIcon(
                     icon,
-                    size: 6.w,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black87,
+                    size: 24,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: 16),
             ],
             Text(
               title,
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 18.sp,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             Text(
               subtitle,
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 16.sp,
+                fontSize: 16,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,

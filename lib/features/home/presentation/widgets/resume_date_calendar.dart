@@ -1,6 +1,8 @@
-import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/ui/app_wheel_picker.dart';
 import 'package:budgets/features/home/presentation/widgets/activity_calendar_day.dart';
+import 'package:budgets/features/home/presentation/widgets/calendar_view_toggle.dart';
 import 'package:budgets/features/home/presentation/widgets/calendar_period_picker.dart';
+import 'package:budgets/features/home/presentation/widgets/resume_calendar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -29,6 +31,7 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
 
   late DateTime _focusedDay;
   late DateTime _selectedDay;
+  bool _isMonthView = false;
 
   DateTime get _today => DateUtils.dateOnly(widget.today);
 
@@ -36,25 +39,21 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
   void initState() {
     super.initState();
     _selectedDay = DateUtils.dateOnly(widget.selectedDay);
-    _focusedDay = _selectedDay;
+    _focusedDay = _today;
   }
 
-  void _changeMonth(int? month) {
-    if (month == null) return;
-    setState(() {
-      _focusedDay = DateTime(_focusedDay.year, month);
-    });
-    widget.onVisibleMonthChanged(_focusedDay);
-  }
-
-  void _changeYear(int? year) {
-    if (year == null) return;
-    final latestMonth = year == _today.year ? _today.month : 12;
-    final month = _focusedDay.month.clamp(1, latestMonth);
-    setState(() {
-      _focusedDay = DateTime(year, month);
-    });
-    widget.onVisibleMonthChanged(_focusedDay);
+  Future<void> _selectPeriod() async {
+    final selected = await AppWheelPicker.monthYear(
+      context,
+      initialDate: _focusedDay,
+      firstDate: DateTime(_firstYear),
+      lastDate: _today,
+      title: 'Select month and year',
+    );
+    if (selected == null || !mounted) return;
+    final focusedDay = DateTime(selected.year, selected.month);
+    setState(() => _focusedDay = focusedDay);
+    widget.onVisibleMonthChanged(focusedDay);
   }
 
   void _selectDay(DateTime selectedDay, DateTime focusedDay) {
@@ -67,88 +66,73 @@ class _ResumeDateCalendarState extends State<ResumeDateCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final years = [
-      for (var year = _today.year; year >= _firstYear; year--) year,
-    ];
-
-    return Container(
-      height: 290,
-      margin: const EdgeInsets.only(left: 22, right: 14),
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x12000000),
-            blurRadius: 12,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          CalendarPeriodPicker(
-            focusedDay: _focusedDay,
-            today: _today,
-            years: years,
-            onMonthChanged: _changeMonth,
-            onYearChanged: _changeYear,
-          ),
-          const SizedBox(height: 11),
-          TableCalendar<void>(
-            key: ValueKey('${_focusedDay.year}-${_focusedDay.month}'),
-            firstDay: DateTime(_firstYear),
-            lastDay: _today,
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
-            enabledDayPredicate: (day) =>
-                !DateUtils.dateOnly(day).isAfter(_today),
-            onDaySelected: _selectDay,
-            onPageChanged: (day) {
-              setState(() => _focusedDay = day);
-              widget.onVisibleMonthChanged(day);
-            },
-            calendarBuilders: CalendarBuilders(
-              prioritizedBuilder: (_, day, focusedDay) {
-                if (day.month != focusedDay.month) return null;
-                return _activityDay(
-                  day,
-                  isSelected: isSameDay(day, _selectedDay),
-                );
-              },
-            ),
-            headerVisible: false,
-            daysOfWeekHeight: 25,
-            rowHeight: 36,
-            startingDayOfWeek: StartingDayOfWeek.sunday,
-            calendarStyle: const CalendarStyle(
-              outsideDaysVisible: false,
-              defaultTextStyle: TextStyle(fontSize: 12.5),
-              weekendTextStyle: TextStyle(fontSize: 12.5),
-              disabledTextStyle: TextStyle(
-                color: Color(0xFFC5C5C5),
-                fontSize: 12.5,
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOutCubic,
+      alignment: Alignment.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Container(
+          key: const Key('resume-date-calendar-card'),
+          margin: const EdgeInsets.only(left: 22, right: 14),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x12000000),
+                blurRadius: 12,
+                offset: Offset(0, 5),
               ),
-              selectedTextStyle: TextStyle(
-                color: AppTheme.interactiveTextColor,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-              ),
-              selectedDecoration: BoxDecoration(
-                color: Color(0xFF087AC1),
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(shape: BoxShape.circle),
-              todayTextStyle: TextStyle(color: Colors.black, fontSize: 12.5),
-              cellMargin: EdgeInsets.all(1),
-            ),
-            daysOfWeekStyle: const DaysOfWeekStyle(
-              weekdayStyle: TextStyle(color: Color(0xFF777777), fontSize: 10.5),
-              weekendStyle: TextStyle(color: Color(0xFF777777), fontSize: 10.5),
-            ),
+            ],
           ),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CalendarPeriodPicker(
+                focusedDay: _focusedDay,
+                onTap: _selectPeriod,
+              ),
+              const SizedBox(height: 11),
+              TableCalendar<void>(
+                key: ValueKey('${_focusedDay.year}-${_focusedDay.month}'),
+                firstDay: DateTime(_firstYear),
+                lastDay: _today,
+                focusedDay: _focusedDay,
+                calendarFormat:
+                    _isMonthView ? CalendarFormat.month : CalendarFormat.week,
+                selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
+                enabledDayPredicate: (day) =>
+                    !DateUtils.dateOnly(day).isAfter(_today),
+                onDaySelected: _selectDay,
+                onPageChanged: (day) {
+                  setState(() => _focusedDay = day);
+                  widget.onVisibleMonthChanged(day);
+                },
+                calendarBuilders: CalendarBuilders(
+                  prioritizedBuilder: (_, day, focusedDay) {
+                    if (day.month != focusedDay.month) return null;
+                    return _activityDay(
+                      day,
+                      isSelected: isSameDay(day, _selectedDay),
+                    );
+                  },
+                ),
+                headerVisible: false,
+                daysOfWeekHeight: 25,
+                rowHeight: 36,
+                startingDayOfWeek: StartingDayOfWeek.sunday,
+                calendarStyle: ResumeCalendarTheme.calendar(context),
+                daysOfWeekStyle: ResumeCalendarTheme.daysOfWeek(context),
+              ),
+              CalendarViewToggle(
+                isExpanded: _isMonthView,
+                onPressed: () => setState(() => _isMonthView = !_isMonthView),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

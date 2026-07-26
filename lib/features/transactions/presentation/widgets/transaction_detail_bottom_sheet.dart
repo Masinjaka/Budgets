@@ -1,4 +1,3 @@
-import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/widgets/subcategory_detail_section.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_detail_header.dart';
@@ -6,7 +5,6 @@ import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/core/currency/currency_provider.dart';
 
 class TransactionDetailBottomSheet extends ConsumerWidget {
@@ -32,15 +30,15 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
       expand: false,
       builder: (context, scrollController) {
         return ClipRRect(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(8.w)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
           child: Scaffold(
             body: Container(
               height: double.infinity,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(8.w)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: SingleChildScrollView(
                 controller: scrollController,
                 child: Column(
@@ -49,20 +47,20 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                   children: [
                     Center(
                       child: Container(
-                        width: 8.w,
-                        height: 0.6.h,
-                        margin: EdgeInsets.only(bottom: 2.h),
+                        width: 32,
+                        height: 4.8,
+                        margin: EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
                           color: Theme.of(context)
                               .textTheme
                               .bodyLarge
                               ?.color
                               ?.withAlpha(51),
-                          borderRadius: BorderRadius.circular(2.w),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: 8),
                     TransactionDetailHeader(
                       transaction: transaction,
                       categoryColor: categoryColor,
@@ -70,14 +68,14 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                       rate: rate,
                     ),
                     if ((transaction.description ?? '').isNotEmpty) ...[
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 16),
                       Text('Description',
                           style: TextStyle(
                               color:
                                   Theme.of(context).textTheme.bodyLarge?.color,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14.sp)),
-                      SizedBox(height: 0.5.h),
+                              fontSize: 14)),
+                      SizedBox(height: 4),
                       Text(transaction.description!,
                           style: TextStyle(
                               color: Theme.of(context)
@@ -85,23 +83,23 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                                   .bodyLarge
                                   ?.color
                                   ?.withAlpha(179),
-                              fontSize: 14.sp)),
+                              fontSize: 14)),
                     ],
                     if ((transaction.invoiceFile ?? '').isNotEmpty) ...[
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 16),
                       Text('Facture',
                           style: TextStyle(
                               color:
                                   Theme.of(context).textTheme.bodyLarge?.color,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14.sp)),
-                      SizedBox(height: 0.5.h),
+                              fontSize: 14)),
+                      SizedBox(height: 4),
                       GestureDetector(
                         onTap: () {},
                         child: Text(transaction.invoiceFile!,
                             style: TextStyle(
-                                color: AppTheme.primaryGreen,
-                                fontSize: 14.sp,
+                                color: Colors.black,
+                                fontSize: 14,
                                 decoration: TextDecoration.underline)),
                       ),
                     ],
@@ -118,7 +116,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
             bottomNavigationBar: Container(
               color: Theme.of(context).colorScheme.surface,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 child: CustomButton(
                   text: 'Modifier',
                   onPressed: () {

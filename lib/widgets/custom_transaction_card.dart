@@ -4,7 +4,6 @@ import 'package:budgets/widgets/skeleton/profile_picture_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class TransactionTile extends ConsumerStatefulWidget {
   const TransactionTile({
@@ -44,11 +43,11 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
     final amountMga = parseAmountInput(widget.amount);
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 0.5.h),
-      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.w),
+      margin: EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       // Use LayoutBuilder to get tile width and constrain description to half
       child: LayoutBuilder(
@@ -61,23 +60,23 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 12.w,
-                    height: 12.w,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceDim,
-                      borderRadius: BorderRadius.circular(3.w),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.all(3.w),
+                      padding: EdgeInsets.all(12),
                       child: Center(
                         child: Text(
                           widget.categoryEmoji,
-                          style: TextStyle(fontSize: 16.sp),
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 3.w),
+                  SizedBox(width: 12),
                   // Constrain text column to half of the tile width to trigger earlier ellipsis
                   ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: textMaxWidth),
@@ -89,17 +88,17 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                           widget.category,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 15.sp,
+                            fontSize: 15,
                           ),
                         ),
-                        SizedBox(height: 1.h),
+                        SizedBox(height: 8),
                         Text(
                           DateFormat('dd MMM yyyy', 'fr').format(widget.date),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
                           style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: 15,
                             color: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -114,7 +113,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
               ),
               // ...existing code...
               if (currency == null)
-                textSkeleton(context, 20.w, 2.h)
+                textSkeleton(context, 80, 16)
               else
                 Text(
                   formatAmountWithCurrency(
@@ -123,7 +122,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                     preserveFraction: true,
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: 14.sp,
+                        fontSize: 14,
                         fontWeight: FontWeight.w900,
                         color: widget.transactionType == 'expense'
                             ? const Color.fromARGB(255, 215, 120, 113)

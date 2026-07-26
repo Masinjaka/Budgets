@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class PlanningCard extends StatelessWidget {
   final Widget child;
@@ -14,11 +13,11 @@ class PlanningCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: margin ?? EdgeInsets.only(bottom: 2.h),
-      padding: EdgeInsets.all(4.w),
+      margin: margin ?? EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(4.w),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: child,
     );

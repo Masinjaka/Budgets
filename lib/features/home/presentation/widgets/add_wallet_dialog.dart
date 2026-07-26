@@ -1,14 +1,22 @@
+import 'package:budgets/core/currency/currency_amount_input.dart';
+import 'package:budgets/core/currency/currency_state.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/features/home/domain/models/add_wallet_input.dart';
 import 'package:flutter/material.dart';
 
 class AddWalletDialog extends StatefulWidget {
-  const AddWalletDialog({super.key});
+  const AddWalletDialog({this.currencyState, super.key});
 
-  static Future<AddWalletInput?> show(BuildContext context) {
+  final CurrencyState? currencyState;
+
+  static Future<AddWalletInput?> show(
+    BuildContext context, {
+    CurrencyState? currencyState,
+  }) {
     return showDialog<AddWalletInput>(
       context: context,
-      builder: (context) => const AddWalletDialog(),
+      builder: (context) => AddWalletDialog(currencyState: currencyState),
     );
   }
 
@@ -65,12 +73,14 @@ class _AddWalletDialogState extends State<AddWalletDialog> {
             controller: _nameController,
             title: const Text(
               'Wallet name',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: AppTypography.body,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             hint: 'e.g. Savings',
-            height: 48,
-            fontSize: 14,
-            fillColor: const Color(0xFFEEEEEE),
+            fontSize: AppTypography.body,
+            fillColor: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(10),
           ),
           const SizedBox(height: 16),
@@ -79,13 +89,15 @@ class _AddWalletDialogState extends State<AddWalletDialog> {
             controller: _balanceController,
             title: const Text(
               'Current balance',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: AppTypography.body,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            hint: '0 Ar',
-            keyboardType: TextInputType.number,
-            height: 48,
-            fontSize: 14,
-            fillColor: const Color(0xFFEEEEEE),
+            hint: CurrencyAmountInput.hint(widget.currencyState),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            fontSize: AppTypography.body,
+            fillColor: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(10),
           ),
         ],
@@ -105,9 +117,11 @@ class _AddWalletDialogState extends State<AddWalletDialog> {
   }
 
   int? get _initialBalance {
-    final value = _balanceController.text.replaceAll(RegExp(r'[\s,]'), '');
-    if (value.isEmpty) return 0;
-    final amount = int.tryParse(value);
-    return amount != null && amount >= 0 ? amount : null;
+    if (_balanceController.text.trim().isEmpty) return 0;
+    final amount = CurrencyAmountInput.toMga(
+      _balanceController.text,
+      widget.currencyState,
+    );
+    return amount >= 0 ? amount : null;
   }
 }

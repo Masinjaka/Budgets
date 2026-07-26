@@ -4,6 +4,7 @@ class ManualEntryCategory {
     required this.name,
     required this.emoji,
     required this.transactionType,
+    this.colorHex,
   });
 
   factory ManualEntryCategory.fromJson(Map<String, dynamic> json) {
@@ -12,6 +13,7 @@ class ManualEntryCategory {
       name: (json['name'] as String?) ?? 'Other',
       emoji: (json['emoji'] as String?) ?? '🧾',
       transactionType: (json['transaction_type'] as String?) ?? 'expense',
+      colorHex: json['color'] as String?,
     );
   }
 
@@ -19,4 +21,5 @@ class ManualEntryCategory {
   final String name;
   final String emoji;
   final String transactionType;
+  final String? colorHex;
 }

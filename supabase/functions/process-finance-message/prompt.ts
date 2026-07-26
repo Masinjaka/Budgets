@@ -38,3 +38,34 @@ and explain briefly in message. Return JSON only and follow the supplied schema.
   });
   return { system, user };
 }
+
+export function buildReceiptPrompts(
+  context: AiContext,
+  now: string,
+  timeZone: string,
+  targetDate: string,
+  outputLanguage: "English" | "French",
+): { system: string; user: string } {
+  const base = buildPrompts(
+    "Extract every purchase or refund shown on the attached receipt.",
+    context,
+    now,
+    timeZone,
+    targetDate,
+  );
+  return {
+    system: `${base.system}\nRead the attached receipt pages as one document. ` +
+      "Use the merchant as the title, the paid total as one expense, and a " +
+      "refund total as income. Do not turn receipt line items, tax, tips, or " +
+      "subtotals into separate transactions when a final total is present. " +
+      `Write the transaction title, category, description, and response message in ${outputLanguage}. ` +
+      "Translate Chinese or other non-Latin merchant and item names when they " +
+      "are used as the transaction title. Preserve the original text in the " +
+      "description as an 'Original reference' instead of using unrelated " +
+      "receipt labels as the title. Never translate serial numbers, order IDs, " +
+      "addresses, tax identifiers, or payment references; keep those as references. " +
+      "Infer a fitting supplied category. If the total or currency is not " +
+      "legible, return no transaction and explain what needs a clearer scan.",
+    user: base.user,
+  };
+}

@@ -1,4 +1,8 @@
+import 'package:budgets/core/currency/currency_state.dart';
+import 'package:budgets/core/theme.dart';
+import 'package:budgets/core/ui/metric_surface_card.dart';
 import 'package:budgets/core/utils/amount_formatter.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:flutter/material.dart';
 
 class EnvelopeSummaryCard extends StatelessWidget {
@@ -6,77 +10,71 @@ class EnvelopeSummaryCard extends StatelessWidget {
     required this.budget,
     required this.spent,
     required this.currencyCode,
+    this.displayCurrency,
     super.key,
   });
 
   final int budget;
   final int spent;
   final String currencyCode;
+  final CurrencyState? displayCurrency;
 
   @override
   Widget build(BuildContext context) {
-    final remaining = budget - spent;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x18000000),
-            blurRadius: 18,
-            offset: Offset(0, 7),
-          ),
-        ],
+    final available = budget - spent;
+    final cards = [
+      MetricSurfaceCard(
+        key: const Key('envelope-available-card'),
+        label: context.l10n.availableAcrossEnvelopes,
+        value: _amount(available),
+        icon: Icons.savings_outlined,
+        valueColor:
+            available < 0 ? AppTheme.dangerColor : AppTheme.primaryGreen,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Available across envelopes',
-            style: TextStyle(color: Color(0xFFBDBDBD), fontSize: 12),
-          ),
-          const SizedBox(height: 7),
-          Text(
-            formatAmountWithCurrency(remaining, currencyCode),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 25,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 18),
-          Row(
+      MetricSurfaceCard(
+        label: context.l10n.budget,
+        value: _amount(budget),
+        icon: Icons.account_balance_wallet_outlined,
+      ),
+      MetricSurfaceCard(
+        label: context.l10n.spent,
+        value: _amount(spent),
+        icon: Icons.payments_outlined,
+        valueColor: AppTheme.dangerColor,
+      ),
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 600) {
+          return Row(
             children: [
-              _value('Budget', budget),
-              const SizedBox(width: 30),
-              _value('Spent', spent),
+              for (var index = 0; index < cards.length; index++) ...[
+                Expanded(child: cards[index]),
+                if (index < cards.length - 1) const SizedBox(width: 6),
+              ],
             ],
-          ),
-        ],
-      ),
+          );
+        }
+        return Column(
+          children: [
+            SizedBox(width: double.infinity, child: cards[0]),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(child: cards[1]),
+                const SizedBox(width: 6),
+                Expanded(child: cards[2]),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _value(String label, int value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: Color(0xFF8F8F8F), fontSize: 11),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          formatAmountWithCurrency(value, currencyCode),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
+  String _amount(int value) => formatAmountWithCurrency(
+        displayCurrency?.convertToSelected(value, currencyCode) ?? value,
+        displayCurrency?.code ?? currencyCode,
+        preserveFraction: true,
+      );
 }

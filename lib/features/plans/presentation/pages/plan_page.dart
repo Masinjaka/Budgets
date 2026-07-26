@@ -4,6 +4,7 @@ import 'package:budgets/features/plans/domain/models/plan_tier.dart';
 import 'package:budgets/features/plans/domain/plan_feature_catalog.dart';
 import 'package:budgets/features/plans/presentation/widgets/plan_choice_card.dart';
 import 'package:budgets/features/plans/presentation/widgets/plan_comparison_table.dart';
+import 'package:budgets/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
 class PlanPage extends StatefulWidget {
@@ -43,9 +44,9 @@ class _PlanPageState extends State<PlanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFEFEFE),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFEFEFE),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
         title: const Text(
           'Plans',
@@ -70,10 +71,13 @@ class _PlanPageState extends State<PlanPage> {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Stay on Free or unlock more ways to manage your money.',
                       style: TextStyle(
-                        color: Color(0xFF696969),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: .64),
                         fontSize: 13,
                       ),
                     ),
@@ -109,31 +113,14 @@ class _PlanPageState extends State<PlanPage> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(22, 12, 22, 14),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: FilledButton(
-                  key: const Key('plan-continue-button'),
-                  onPressed: _isSubmitting ? null : _continue,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
-                    foregroundColor: AppTheme.interactiveTextColor,
-                  ),
-                  child: _isSubmitting
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(
-                            color: AppTheme.interactiveTextColor,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          _selectedTier == PlanTier.free
-                              ? 'Stay on Free'
-                              : 'Subscribe to Drala Plus',
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                ),
+              child: CustomButton(
+                key: const Key('plan-continue-button'),
+                text: _selectedTier == PlanTier.free
+                    ? 'Stay on Free'
+                    : 'Subscribe to Drala Plus',
+                onPressed: _continue,
+                isLoading: _isSubmitting,
+                backgroundColor: AppTheme.primaryGreen,
               ),
             ),
           ],

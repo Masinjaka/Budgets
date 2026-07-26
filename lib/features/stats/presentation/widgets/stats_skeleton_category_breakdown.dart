@@ -1,6 +1,5 @@
 import 'package:budgets/features/stats/presentation/widgets/stats_skeleton_category_item.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class StatsSkeletonCategoryBreakdown extends StatelessWidget {
@@ -14,7 +13,7 @@ class StatsSkeletonCategoryBreakdown extends StatelessWidget {
       baseColor: theme.colorScheme.surfaceContainerHighest,
       highlightColor: theme.colorScheme.onSurface.withOpacity(0.1),
       child: Container(
-        padding: EdgeInsets.all(4.w),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
@@ -32,17 +31,17 @@ class StatsSkeletonCategoryBreakdown extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Container(
-                      height: 5.h,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
-                  SizedBox(width: 2.w),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Container(
-                      height: 5.h,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(10),
@@ -52,7 +51,7 @@ class StatsSkeletonCategoryBreakdown extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 16),
             ...List.generate(
               3,
               (index) => const StatsSkeletonCategoryItem(),

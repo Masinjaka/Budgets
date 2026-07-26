@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class PlanningProgressBar extends StatelessWidget {
   final double progress;
@@ -34,7 +33,7 @@ class PlanningProgressBar extends StatelessWidget {
         curve: Curves.easeOut,
         builder: (context, value, _) => LinearProgressIndicator(
           value: value,
-          minHeight: 1.h,
+          minHeight: 8,
           backgroundColor: Theme.of(context).colorScheme.surfaceDim,
           valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(context)),
           borderRadius: BorderRadius.circular(50),

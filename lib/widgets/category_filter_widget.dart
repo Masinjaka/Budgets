@@ -1,6 +1,5 @@
 import 'package:budgets/core/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 
 class CategoryFilterWidget extends StatefulWidget {
@@ -61,11 +60,11 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
         children: widget.categories.map((category) {
           final isSelected = _isCategorySelected(category);
           return Padding(
-            padding: EdgeInsets.only(right: 2.w),
+            padding: EdgeInsets.only(right: 8),
             child: GestureDetector(
               onTap: () => _toggleCategory(category),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? Theme.of(context).primaryColor
@@ -79,9 +78,9 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
                         category.emoji!.isNotEmpty) ...[
                       Text(
                         category.emoji!,
-                        style: TextStyle(fontSize: 14.sp),
+                        style: TextStyle(fontSize: 14),
                       ),
-                      SizedBox(width: 1.w),
+                      SizedBox(width: 4),
                     ],
                     Text(
                       category.name ?? 'Unknown',
@@ -89,7 +88,7 @@ class _CategoryFilterWidgetState extends State<CategoryFilterWidget> {
                         color: isSelected
                             ? AppTheme.interactiveTextColor
                             : Theme.of(context).textTheme.bodyMedium?.color,
-                        fontSize: 13.sp,
+                        fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

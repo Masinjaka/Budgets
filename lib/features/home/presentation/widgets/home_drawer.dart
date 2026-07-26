@@ -1,10 +1,13 @@
 import 'package:budgets/features/home/presentation/widgets/drawer_wallet_section.dart';
+import 'package:budgets/core/currency/currency_state.dart';
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/features/home/presentation/widgets/drawer_brand_header.dart';
 import 'package:budgets/features/home/presentation/widgets/drawer_menu_section.dart';
 import 'package:budgets/features/home/presentation/widgets/resume_date_calendar.dart';
 import 'package:budgets/features/ai_entry/presentation/view_models/ai_entry_view_model.dart';
 import 'package:budgets/features/home/presentation/view_models/activity_calendar_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 
 class HomeDrawer extends StatelessWidget {
   const HomeDrawer({
@@ -15,9 +18,11 @@ class HomeDrawer extends StatelessWidget {
     required this.onEnvelopePressed,
     required this.onStatsPressed,
     required this.onPlanPressed,
+    required this.onFeedbackPressed,
     required this.onSettingsPressed,
     required this.viewModel,
     required this.activityCalendarViewModel,
+    this.currencyState,
     this.onCollapsePressed,
     super.key,
   });
@@ -29,9 +34,11 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onEnvelopePressed;
   final VoidCallback onStatsPressed;
   final VoidCallback onPlanPressed;
-  final VoidCallback onSettingsPressed;
+  final VoidCallback onFeedbackPressed;
+  final Future<void> Function() onSettingsPressed;
   final AiEntryViewModel viewModel;
   final ActivityCalendarViewModel activityCalendarViewModel;
+  final CurrencyState? currencyState;
   final VoidCallback? onCollapsePressed;
 
   @override
@@ -41,8 +48,8 @@ class HomeDrawer extends StatelessWidget {
       child: Container(
         width: width,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color(0xFFFEFEFE),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
         ),
         child: Stack(
           children: [
@@ -53,7 +60,7 @@ class HomeDrawer extends StatelessWidget {
                 child: IconButton(
                   key: const Key('collapse-sidebar-button'),
                   onPressed: onCollapsePressed,
-                  tooltip: 'Collapse menu',
+                  tooltip: context.l10n.collapseMenu,
                   icon: const Icon(Icons.chevron_left_rounded, size: 26),
                 ),
               ),
@@ -72,15 +79,16 @@ class HomeDrawer extends StatelessWidget {
                       onEnvelopePressed: onEnvelopePressed,
                       onStatsPressed: onStatsPressed,
                       onPlanPressed: onPlanPressed,
+                      onFeedbackPressed: onFeedbackPressed,
                     ),
                     const SizedBox(height: 34),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 22),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Text(
-                        'Resume from a specific date',
+                        context.l10n.resumeFromDate,
                         style: TextStyle(
-                          color: Color(0xFF606060),
-                          fontSize: 12.5,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: AppTypography.supporting,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -104,6 +112,7 @@ class HomeDrawer extends StatelessWidget {
                         wallets: viewModel.wallets,
                         isAdding: viewModel.isAddingWallet,
                         onAddWallet: viewModel.addWallet,
+                        currencyState: currencyState,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -120,7 +129,7 @@ class HomeDrawer extends StatelessWidget {
                 child: DecoratedBox(
                   key: const Key('drawer-separator'),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFC9C9C9),
+                    color: Theme.of(context).dividerColor,
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x14000000),

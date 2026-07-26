@@ -6,6 +6,7 @@ import 'package:budgets/features/notifications/data/datasources/notification_dat
 import 'package:budgets/features/notifications/presentation/services/notification_permission_service.dart';
 import 'package:budgets/features/notifications/presentation/services/notification_service.dart';
 import 'package:budgets/widgets/permission_request_dialog.dart';
+import 'package:budgets/l10n/app_localizations_context.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -95,11 +96,10 @@ class _NotificationPermissionPromptState
     final result = await showAnimatedDialog<bool>(
       context: context,
       builder: (context) => PermissionRequestDialog(
-        title: 'Activer les notifications',
-        message: 'Autorisez les notifications pour recevoir vos rappels '
-            'quotidiens et les alertes de budget.',
-        allowText: 'Autoriser',
-        denyText: 'Refuser',
+        title: context.l10n.enableNotifications,
+        message: context.l10n.notificationPermissionMessage,
+        allowText: context.l10n.allow,
+        denyText: context.l10n.deny,
         onAllow: () => Navigator.of(context).pop(true),
         onDeny: () => Navigator.of(context).pop(false),
       ),
@@ -112,11 +112,10 @@ class _NotificationPermissionPromptState
     await showAnimatedDialog<bool>(
       context: context,
       builder: (context) => PermissionRequestDialog(
-        title: 'Notifications bloquées',
-        message: 'Autorisez les notifications depuis les paramètres de votre '
-            'appareil pour recevoir les rappels et alertes.',
-        allowText: 'Ouvrir les paramètres',
-        denyText: 'Annuler',
+        title: context.l10n.notificationsBlocked,
+        message: context.l10n.notificationsBlockedMessage,
+        allowText: context.l10n.openSettings,
+        denyText: context.l10n.cancel,
         onAllow: () async {
           _waitingForSettings = true;
           Navigator.of(context).pop(true);

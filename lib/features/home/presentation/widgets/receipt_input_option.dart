@@ -1,3 +1,4 @@
+import 'package:budgets/core/ui/app_typography.dart';
 import 'package:flutter/material.dart';
 
 class ReceiptInputOption extends StatelessWidget {
@@ -20,11 +21,18 @@ class ReceiptInputOption extends StatelessWidget {
         height: 34,
         child: Row(
           children: [
-            Icon(icon, size: 23, color: Colors.black),
+            Icon(
+              icon,
+              size: 23,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: AppTypography.body,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

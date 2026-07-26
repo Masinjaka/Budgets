@@ -1,7 +1,6 @@
 import 'package:budgets/features/transactions/domain/model/transaction_model.dart';
 import 'package:budgets/features/transactions/presentation/widgets/transaction_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 Widget buildPaginatedDateGroup(
@@ -13,13 +12,13 @@ Widget buildPaginatedDateGroup(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Padding(
-        padding: EdgeInsets.fromLTRB(0, 2.w, 0, 2.w),
+        padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
         child: Text(
           date,
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
-            fontSize: 14.5.sp,
+            fontSize: 14.5,
           ),
         ),
       ),
@@ -32,9 +31,9 @@ Widget buildPaginatedDateGroup(
           key: ValueKey(transactions[i].id),
           transaction: transactions[i],
         ),
-        separatorBuilder: (_, __) => SizedBox(height: 1.h),
+        separatorBuilder: (_, __) => SizedBox(height: 8),
       ),
-      SizedBox(height: 2.h),
+      SizedBox(height: 16),
     ],
   );
 }
@@ -53,11 +52,11 @@ Widget buildLoadMoreIndicator(
         children: List.generate(
           3,
           (i) => Container(
-            margin: EdgeInsets.only(bottom: 1.h),
-            height: 8.h,
+            margin: EdgeInsets.only(bottom: 8),
+            height: 64,
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(6.w),
+              borderRadius: BorderRadius.circular(24),
             ),
           ),
         ),
@@ -66,13 +65,13 @@ Widget buildLoadMoreIndicator(
   }
   if (!hasMore) {
     return Padding(
-      padding: EdgeInsets.all(2.h),
+      padding: EdgeInsets.all(16),
       child: Center(
         child: Text(
           'Plus de transactions à charger',
           style: TextStyle(
             color: Theme.of(context).hintColor,
-            fontSize: 14.sp,
+            fontSize: 14,
           ),
         ),
       ),

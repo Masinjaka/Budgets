@@ -1,6 +1,5 @@
 import 'package:budgets/core/enums/transaction_type.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class DialogHeader extends StatelessWidget {
   final TransactionType type;
@@ -22,7 +21,7 @@ class DialogHeader extends StatelessWidget {
             type == TransactionType.income
                 ? 'Nouveau revenu'
                 : 'Nouvelle dépense',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
         Container(

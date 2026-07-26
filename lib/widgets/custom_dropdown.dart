@@ -2,7 +2,6 @@ import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/categories/domain/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CustomDropdown extends ConsumerStatefulWidget {
   const CustomDropdown({
@@ -173,13 +172,13 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                         color: Colors.transparent,
                         child: Container(
                           constraints: BoxConstraints(
-                            maxHeight: 40.h, // Limit height to 40% of screen
+                            maxHeight: 320, // Limit height to 40% of screen
                           ),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(5.w),
-                              bottomRight: Radius.circular(5.w),
+                              bottomLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -193,8 +192,8 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(2.w),
-                              bottomRight: Radius.circular(2.w),
+                              bottomLeft: Radius.circular(8),
+                              bottomRight: Radius.circular(8),
                             ),
                             child: widget.items.isEmpty
                                 ? _buildEmptyState()
@@ -215,12 +214,12 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
 
   Widget _buildEmptyState() {
     return Container(
-      padding: EdgeInsets.all(3.w),
+      padding: EdgeInsets.all(12),
       child: Text(
         'Aucune catégorie disponible',
         style: TextStyle(
           color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.5),
-          fontSize: 15.sp,
+          fontSize: 15,
           fontStyle: FontStyle.italic,
         ),
       ),
@@ -246,24 +245,24 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
           },
           child: Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 3.w,
-              vertical: 2.h,
+              horizontal: 12,
+              vertical: 16,
             ),
             child: Row(
               children: [
                 if (widget.showEmojis && category.emoji != null)
                   Text(
                     category.emoji!,
-                    style: TextStyle(fontSize: 16.sp),
+                    style: TextStyle(fontSize: 16),
                   ),
                 if (widget.showEmojis && category.emoji != null)
-                  SizedBox(width: 2.w),
+                  SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     category.name ?? 'Catégorie sans nom',
                     style: TextStyle(
                       color: Theme.of(context).textTheme.bodyLarge?.color,
-                      fontSize: 15.sp,
+                      fontSize: 15,
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
@@ -274,7 +273,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                   Icon(
                     Icons.check,
                     color: Theme.of(context).textTheme.bodyLarge?.color,
-                    size: 18.sp,
+                    size: 18,
                   ),
               ],
             ),
@@ -291,7 +290,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         widget.title,
-        SizedBox(height: 1.h),
+        SizedBox(height: 8),
         FormField<Category>(
           validator: (Category? value) {
             return validate(
@@ -309,17 +308,17 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                   onTap: _toggleDropdown,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 4.w,
-                      vertical: 1.5.h,
+                      horizontal: 16,
+                      vertical: 12,
                     ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: _isDropdownOpen
                           ? BorderRadius.only(
-                              topLeft: Radius.circular(6.w),
-                              topRight: Radius.circular(6.w),
+                              topLeft: Radius.circular(24),
+                              topRight: Radius.circular(24),
                             )
-                          : BorderRadius.circular(6.w),
+                          : BorderRadius.circular(24),
                     ),
                     child: Row(
                       children: [
@@ -328,12 +327,12 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                             _selectedItem!.emoji != null)
                           Text(
                             _selectedItem!.emoji!,
-                            style: TextStyle(fontSize: 16.sp),
+                            style: TextStyle(fontSize: 16),
                           ),
                         if (_selectedItem != null &&
                             widget.showEmojis &&
                             _selectedItem!.emoji != null)
-                          SizedBox(width: 2.w),
+                          SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _selectedItem?.name ??
@@ -350,7 +349,7 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                                       .bodyLarge
                                       ?.color
                                       ?.withAlpha(100),
-                              fontSize: 15.sp,
+                              fontSize: 15,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -367,12 +366,12 @@ class _CustomDropdownState extends ConsumerState<CustomDropdown>
                 ),
                 if (state.hasError)
                   Padding(
-                    padding: EdgeInsets.only(top: 1.h, left: 3.w),
+                    padding: EdgeInsets.only(top: 8, left: 12),
                     child: Text(
                       state.errorText!,
                       style: TextStyle(
                         color: Colors.red,
-                        fontSize: 12.sp,
+                        fontSize: 12,
                       ),
                     ),
                   ),

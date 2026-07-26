@@ -10,7 +10,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class NavigatorPage extends ConsumerStatefulWidget {
   const NavigatorPage({super.key, required this.navigationShell});
@@ -155,8 +154,8 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         child: SizedBox(
-          width: 13.w,
-          height: 13.w,
+          width: 52,
+          height: 52,
           child: FloatingActionButton(
             onPressed: isFabVisible ? () => _onFabPressed(currentIndex) : null,
             backgroundColor: Theme.of(context).primaryColor,
@@ -177,10 +176,10 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
           ),
         ),
         padding: EdgeInsets.only(
-          left: 3.w,
-          right: 3.w,
-          top: 1.2.h,
-          bottom: MediaQuery.of(context).padding.bottom + 1.h,
+          left: 12,
+          right: 12,
+          top: 9.6,
+          bottom: MediaQuery.of(context).padding.bottom + 8,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -201,15 +200,15 @@ class _NavigatorPageState extends ConsumerState<NavigatorPage> {
                       child: FaIcon(
                         isActive ? tab.selectedIcon : tab.unselectedIcon,
                         key: ValueKey('${tab.label}-$isActive'),
-                        size: 4.3.w,
+                        size: 17.2,
                         color: isActive ? textColor : hintColor,
                       ),
                     ),
-                    SizedBox(height: 0.5.h),
+                    SizedBox(height: 4),
                     Text(
                       tab.label,
                       style: TextStyle(
-                        fontSize: 13.5.sp,
+                        fontSize: 13.5,
                         fontWeight:
                             isActive ? FontWeight.w600 : FontWeight.w400,
                         color: isActive ? textColor : hintColor,

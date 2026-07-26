@@ -7,7 +7,6 @@ import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 /// A simplified dialog for adding a new category.
 class AddCategoryDialog extends ConsumerStatefulWidget {
@@ -115,12 +114,12 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
     return Dialog(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.w),
+        borderRadius: BorderRadius.circular(20),
       ),
-      insetPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(5.w),
+          padding: EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -136,7 +135,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                         'Nouvelle catégorie',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 18.sp,
+                          fontSize: 18,
                         ),
                       ),
                     ),
@@ -148,16 +147,16 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                     ),
                   ],
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 Center(
                   child: GestureDetector(
                     onTap: _showEmojiPicker,
                     child: Container(
-                      width: 14.w,
-                      height: 14.w,
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
                         color: _selectedColor,
-                        borderRadius: BorderRadius.circular(50.w),
+                        borderRadius: BorderRadius.circular(200),
                         border: Border.all(
                           color: _selectedColor,
                           width: 2,
@@ -166,35 +165,35 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                       child: Center(
                         child: Text(
                           _selectedEmoji,
-                          style: TextStyle(fontSize: 22.sp),
+                          style: TextStyle(fontSize: 22),
                         ),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
                 // Emoji and Name row
                 CustomTextField(
                   title: const SizedBox.shrink(),
                   hint: 'Nom de la catégorie',
                   controller: _nameController,
                   keyboardType: TextInputType.text,
-                  // borderRadius: BorderRadius.circular(3.w),
+                  // borderRadius: BorderRadius.circular(12),
                   validator: const <String, String>{"type": "required"},
                 ),
-                SizedBox(height: 2.5.h),
+                SizedBox(height: 20),
 
                 // Color selector
                 Text(
                   'Couleur',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
+                    fontSize: 14,
                   ),
                 ),
-                SizedBox(height: 1.h),
+                SizedBox(height: 8),
                 _buildColorSelector(),
-                SizedBox(height: 3.h),
+                SizedBox(height: 24),
 
                 // Submit button
                 CustomButton(
@@ -213,8 +212,8 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
 
   Widget _buildColorSelector() {
     return Wrap(
-      spacing: 2.w,
-      runSpacing: 1.5.h,
+      spacing: 8,
+      runSpacing: 12,
       children: _commonColors.map((color) {
         final isSelected = _selectedColor.value == color.value;
         return GestureDetector(
@@ -225,8 +224,8 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            width: 9.w,
-            height: 9.w,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
@@ -251,7 +250,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                 ? Icon(
                     Icons.check,
                     color: Colors.white,
-                    size: 14.sp,
+                    size: 14,
                   )
                 : null,
           ),
@@ -266,10 +265,10 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
       builder: (context) => Dialog(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4.w),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
-          padding: EdgeInsets.all(4.w),
+          padding: EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -277,13 +276,13 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                 'Choisir un emoji',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: 16,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: 16),
               Wrap(
-                spacing: 2.w,
-                runSpacing: 1.5.h,
+                spacing: 8,
+                runSpacing: 12,
                 children: _commonEmojis.map((emoji) {
                   final isSelected = _selectedEmoji == emoji;
                   return GestureDetector(
@@ -294,13 +293,13 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                       Navigator.of(context).pop();
                     },
                     child: Container(
-                      width: 11.w,
-                      height: 11.w,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
                         color: isSelected
                             ? Theme.of(context).primaryColor.withOpacity(0.2)
                             : Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(2.w),
+                        borderRadius: BorderRadius.circular(8),
                         border: isSelected
                             ? Border.all(
                                 color: Theme.of(context).primaryColor,
@@ -311,7 +310,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                       child: Center(
                         child: Text(
                           emoji,
-                          style: TextStyle(fontSize: 18.sp),
+                          style: TextStyle(fontSize: 18),
                         ),
                       ),
                     ),

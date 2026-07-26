@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CustomNavItem extends ConsumerStatefulWidget {
   const CustomNavItem({
@@ -31,13 +30,13 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.w),
-            margin: EdgeInsets.only(bottom: 0.5.w),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            margin: EdgeInsets.only(bottom: 2),
             decoration: BoxDecoration(
               border: Border.all(
                 color: widget.isActive ? backgroundColor : Colors.transparent,
               ),
-              borderRadius: BorderRadius.circular(20.w),
+              borderRadius: BorderRadius.circular(80),
               color: widget.isActive ? backgroundColor : Colors.transparent,
             ),
             child: Icon(
@@ -48,7 +47,7 @@ class _CustomNavItemState extends ConsumerState<CustomNavItem> {
           Text(
             widget.title,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 14,
               color: textColor,
               fontWeight: FontWeight.bold,
             ),

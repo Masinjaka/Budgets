@@ -2,7 +2,6 @@ import 'package:budgets/core/paths.dart';
 import 'package:budgets/core/theme.dart';
 import 'package:budgets/features/onboarding/presentation/module/splash_module.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -34,11 +33,11 @@ class _SplashPageState extends State<SplashPage> {
       backgroundColor: AppTheme.primaryGreen,
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(1.w),
+          padding: EdgeInsets.all(4),
           child: Image.asset(
             AppPaths.logo,
-            width: 15.h,
-            height: 15.h,
+            width: 120,
+            height: 120,
           ),
         ),
       ),
