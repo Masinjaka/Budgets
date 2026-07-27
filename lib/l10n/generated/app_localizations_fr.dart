@@ -508,6 +508,21 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le mot de passe doit contenir au moins un caractère spécial.';
 
   @override
+  String get passwordRuleMinLength => '8 caractères ou plus';
+
+  @override
+  String get passwordRuleUppercase => 'Au moins une lettre majuscule';
+
+  @override
+  String get passwordRuleLowercase => 'Au moins une lettre minuscule';
+
+  @override
+  String get passwordRuleNumber => 'Au moins un chiffre';
+
+  @override
+  String get passwordRuleSpecialCharacter => 'Au moins un caractère spécial';
+
+  @override
   String get netThisMonth => 'Solde net du mois';
 
   @override

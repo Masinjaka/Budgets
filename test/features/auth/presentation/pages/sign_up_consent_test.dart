@@ -17,9 +17,10 @@ void main() {
     );
 
     expect(_submitButton(tester).onPressed, isNull);
+    expect(find.text('Confirmer le mot de passe'), findsNothing);
     expect(
       tester.getTopLeft(find.byType(LegalConsentCheckbox)).dy,
-      greaterThan(tester.getTopLeft(find.text('Confirmer le mot de passe')).dy),
+      greaterThan(tester.getTopLeft(find.text('Mot de passe')).dy),
     );
 
     await tester.ensureVisible(find.byKey(const Key('legal-consent-checkbox')));

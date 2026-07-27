@@ -498,6 +498,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'The password must contain at least one special character.';
 
   @override
+  String get passwordRuleMinLength => '8+ characters';
+
+  @override
+  String get passwordRuleUppercase => 'At least one uppercase letter';
+
+  @override
+  String get passwordRuleLowercase => 'At least one lowercase letter';
+
+  @override
+  String get passwordRuleNumber => 'At least one number';
+
+  @override
+  String get passwordRuleSpecialCharacter => 'At least one special character';
+
+  @override
   String get netThisMonth => 'Net this month';
 
   @override

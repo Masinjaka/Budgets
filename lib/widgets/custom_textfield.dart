@@ -25,6 +25,8 @@ class CustomTextField extends ConsumerStatefulWidget {
     this.maxLines = 1,
     this.minLines,
     this.fillColor,
+    this.focusNode,
+    this.onChanged,
   });
   final Widget title;
   final String? hint;
@@ -44,6 +46,8 @@ class CustomTextField extends ConsumerStatefulWidget {
   final int? maxLines;
   final int? minLines;
   final Color? fillColor;
+  final FocusNode? focusNode;
+  final ValueChanged<String>? onChanged;
 
   @override
   ConsumerState<CustomTextField> createState() => _CustomTextFieldState();
@@ -79,6 +83,7 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
         SizedBox(
           width: widget.width,
           child: TextFormField(
+            focusNode: widget.focusNode,
             readOnly: widget.isReadOnly ?? false,
             obscureText: isObscure && isPassword,
             controller: widget.controller,
@@ -162,6 +167,7 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
               ),
             ),
             onTap: widget.onTap,
+            onChanged: widget.onChanged,
           ),
         ),
       ],

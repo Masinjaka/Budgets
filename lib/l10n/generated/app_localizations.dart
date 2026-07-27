@@ -920,6 +920,36 @@ abstract class AppLocalizations {
   /// **'The password must contain at least one special character.'**
   String get passwordNeedsSpecialCharacter;
 
+  /// No description provided for @passwordRuleMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'8+ characters'**
+  String get passwordRuleMinLength;
+
+  /// No description provided for @passwordRuleUppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one uppercase letter'**
+  String get passwordRuleUppercase;
+
+  /// No description provided for @passwordRuleLowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one lowercase letter'**
+  String get passwordRuleLowercase;
+
+  /// No description provided for @passwordRuleNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one number'**
+  String get passwordRuleNumber;
+
+  /// No description provided for @passwordRuleSpecialCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one special character'**
+  String get passwordRuleSpecialCharacter;
+
   /// No description provided for @netThisMonth.
   ///
   /// In en, this message translates to:

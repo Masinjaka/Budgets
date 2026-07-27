@@ -1,4 +1,5 @@
 import 'package:budgets/l10n/app_localizations_context.dart';
+import 'package:budgets/features/auth/domain/models/password_validation.dart';
 import 'package:flutter/widgets.dart';
 
 class CustomTextFieldValidator {
@@ -29,17 +30,18 @@ class CustomTextFieldValidator {
 
   String? _password(String? value) {
     if (value == null || value.isEmpty) return context.l10n.enterPassword;
-    if (value.length < 8) return context.l10n.passwordMinLength;
-    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+    final validation = PasswordValidation(value);
+    if (!validation.hasMinimumLength) return context.l10n.passwordMinLength;
+    if (!validation.hasUppercase) {
       return context.l10n.passwordNeedsUppercase;
     }
-    if (!RegExp(r'[a-z]').hasMatch(value)) {
+    if (!validation.hasLowercase) {
       return context.l10n.passwordNeedsLowercase;
     }
-    if (!RegExp(r'[0-9]').hasMatch(value)) {
+    if (!validation.hasNumber) {
       return context.l10n.passwordNeedsNumber;
     }
-    if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value)) {
+    if (!validation.hasSpecialCharacter) {
       return context.l10n.passwordNeedsSpecialCharacter;
     }
     return null;

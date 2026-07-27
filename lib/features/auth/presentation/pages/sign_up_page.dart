@@ -2,7 +2,9 @@ import 'package:budgets/features/auth/presentation/controllers/auth_controller.d
 import 'package:budgets/core/legal/legal_document_launcher.dart';
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/features/auth/domain/models/password_validation.dart';
 import 'package:budgets/features/auth/presentation/widgets/legal_consent_checkbox.dart';
+import 'package:budgets/features/auth/presentation/widgets/sign_up_password_fields.dart';
 import 'package:budgets/features/auth/presentation/widgets/sign_up_submit_bar.dart';
 import 'package:budgets/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final GlobalKey<SignUpPasswordFieldsState> _passwordFieldsKey = GlobalKey();
   bool _isLoading = false;
   bool _hasAcceptedLegalTerms = false;
 
@@ -124,36 +127,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(height: 16),
-                  CustomTextField(
-                    title: Text(
-                      'Mot de passe',
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: AppTypography.body,
-                      ),
-                    ),
-                    hint: 'votre mot de passe',
-                    controller: _passwordController,
-                    keyboardType: TextInputType.visiblePassword,
-                    isPassword: true,
-                    validator: const <String, String>{"type": "password"},
-                  ),
-                  SizedBox(height: 16),
-                  CustomTextField(
-                    title: Text(
-                      'Confirmer le mot de passe',
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: AppTypography.body,
-                      ),
-                    ),
-                    hint: 'votre mot de passe',
-                    controller: _confirmPasswordController,
-                    keyboardType: TextInputType.visiblePassword,
-                    isPassword: true,
-                    validator: const <String, String>{"type": "password"},
+                  SignUpPasswordFields(
+                    key: _passwordFieldsKey,
+                    passwordController: _passwordController,
+                    confirmPasswordController: _confirmPasswordController,
                   ),
                   const SizedBox(height: 32),
                   LegalConsentCheckbox(
@@ -174,6 +151,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   }
 
   Future<void> _submit() async {
+    if (!PasswordValidation(_passwordController.text).isSatisfied) {
+      _passwordFieldsKey.currentState?.focusPassword();
+      return;
+    }
     if (!_formKey.currentState!.validate()) return;
     if (_passwordController.text != _confirmPasswordController.text) {
       showInfoToast(context, 'Vérifiez la correspondance du mot de passe');
