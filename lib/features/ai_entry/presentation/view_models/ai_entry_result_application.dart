@@ -13,6 +13,7 @@ extension AiEntryResultApplication on AiEntryViewModel {
     if (DateUtils.isSameDay(_selectedDate, targetDate)) {
       _entries = _mergeNewEntries(result.entries, _entries);
     }
+    if (result.entries.isNotEmpty) _hasAnyEntries = true;
     final wallets = result.wallets;
     if (wallets == null) {
       await refreshBalances();

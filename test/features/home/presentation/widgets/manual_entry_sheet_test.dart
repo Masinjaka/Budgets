@@ -70,7 +70,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CustomTextField), findsNWidgets(3));
     expect(find.text('Coffee'), findsOneWidget);
-    expect(find.text('0 Ar'), findsOneWidget);
+    expect(find.text('0'), findsOneWidget);
+    expect(find.text('Ar'), findsOneWidget);
     expect(find.text('Add a short note'), findsOneWidget);
     final addButton = tester.widget<ElevatedButton>(
       find.descendant(
@@ -85,6 +86,10 @@ void main() {
     expect(find.text('Salary'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).at(0), 'Salary');
     await tester.enterText(find.byType(TextFormField).at(1), '500000');
+    await tester.ensureVisible(
+      find.byKey(const Key('save-manual-entry-button')),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('save-manual-entry-button')));
     await tester.pumpAndSettle();
 

@@ -4,8 +4,6 @@ import 'package:budgets/features/ai_entry/domain/errors/ai_entry_exception.dart'
 import 'package:budgets/features/ai_entry/domain/models/ai_entry_result.dart';
 import 'package:budgets/features/ai_entry/domain/models/finance_entry.dart';
 import 'package:budgets/features/ai_entry/domain/models/ai_quota.dart';
-import 'package:budgets/features/home/domain/models/add_wallet_input.dart';
-import 'package:budgets/features/home/domain/models/wallet_summary.dart';
 import 'package:budgets/features/ai_entry/data/services/finance_entry_query_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -108,45 +106,14 @@ class AiEntryService {
     return FinanceEntryQueryService(_client).entriesForDate(userId, date);
   }
 
+  Future<bool> hasAnyEntries() {
+    return FinanceEntryQueryService(_client).hasAnyEntries(_requireUserId());
+  }
+
   Future<Set<DateTime>> activityDatesForMonth(DateTime month) {
     return FinanceEntryQueryService(
       _client,
     ).activityDatesForMonth(_requireUserId(), month);
-  }
-
-  Future<List<WalletSummary>> wallets() async {
-    final userId = _requireUserId();
-    final rows = await _client
-        .from('wallets')
-        .select('id,name,balance,currency_code,icon_key,is_default')
-        .eq('user_id', userId)
-        .order('created_at');
-    return rows
-        .map((row) => WalletSummary.fromJson(Map<String, dynamic>.from(row)))
-        .toList(growable: false);
-  }
-
-  Future<WalletSummary> addWallet(AddWalletInput input) async {
-    final row = await _client
-        .from('wallets')
-        .insert({
-          'user_id': _requireUserId(),
-          'name': input.name,
-          'balance': input.initialBalance,
-        })
-        .select('id,name,balance,currency_code,icon_key,is_default')
-        .single();
-    return WalletSummary.fromJson(Map<String, dynamic>.from(row));
-  }
-
-  Future<int> totalFunds() async {
-    final userId = _requireUserId();
-    final wallets =
-        await _client.from('wallets').select('balance').eq('user_id', userId);
-    return wallets.fold<int>(
-      0,
-      (sum, row) => sum + (row['balance'] as num? ?? 0).round(),
-    );
   }
 
   String _requireUserId() {

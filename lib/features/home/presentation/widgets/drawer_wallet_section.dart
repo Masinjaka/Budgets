@@ -1,10 +1,14 @@
 import 'package:budgets/core/ui/app_toast.dart';
 import 'package:budgets/core/currency/currency_state.dart';
 import 'package:budgets/core/ui/app_typography.dart';
+import 'package:budgets/features/home/domain/errors/wallet_deletion_exception.dart';
 import 'package:budgets/features/home/domain/models/add_wallet_input.dart';
+import 'package:budgets/features/home/domain/models/wallet_editor_result.dart';
 import 'package:budgets/features/home/domain/models/wallet_summary.dart';
-import 'package:budgets/features/home/presentation/widgets/add_wallet_dialog.dart';
+import 'package:budgets/features/home/presentation/widgets/add_wallet_sheet.dart';
 import 'package:budgets/features/home/presentation/widgets/drawer_wallet_card.dart';
+import 'package:budgets/features/home/presentation/widgets/edit_wallet_sheet.dart';
+import 'package:budgets/widgets/delete_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:budgets/l10n/app_localizations_context.dart';
 
@@ -12,6 +16,8 @@ class DrawerWalletSection extends StatelessWidget {
   const DrawerWalletSection({
     required this.wallets,
     required this.onAddWallet,
+    required this.onUpdateWallet,
+    required this.onDeleteWallet,
     this.currencyState,
     this.isAdding = false,
     super.key,
@@ -19,17 +25,74 @@ class DrawerWalletSection extends StatelessWidget {
 
   final List<WalletSummary> wallets;
   final Future<void> Function(AddWalletInput input) onAddWallet;
+  final Future<void> Function(String walletId, AddWalletInput input)
+      onUpdateWallet;
+  final Future<void> Function(String walletId) onDeleteWallet;
   final CurrencyState? currencyState;
   final bool isAdding;
 
   Future<void> _addWallet(BuildContext context) async {
-    final input = await AddWalletDialog.show(
+    final input = await AddWalletSheet.show(
       context,
       currencyState: currencyState,
     );
     if (input == null || !context.mounted) return;
     try {
       await onAddWallet(input);
+    } catch (error) {
+      if (context.mounted) showErrorToast(context, error);
+    }
+  }
+
+  Future<void> _editWallet(
+    BuildContext context,
+    WalletSummary wallet,
+  ) async {
+    final result = await EditWalletSheet.show(
+      context,
+      wallet: wallet,
+      currencyState: currencyState,
+    );
+    if (result == null || !context.mounted) return;
+    if (result.action == WalletEditorAction.delete) {
+      await _deleteWallet(context, wallet);
+      return;
+    }
+    try {
+      await onUpdateWallet(wallet.id, result.input!);
+      if (context.mounted) {
+        showSuccessToast(context, context.l10n.walletUpdated);
+      }
+    } catch (error) {
+      if (context.mounted) showErrorToast(context, error);
+    }
+  }
+
+  Future<void> _deleteWallet(
+    BuildContext context,
+    WalletSummary wallet,
+  ) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context: context,
+      title: context.l10n.deleteWalletQuestion,
+      message: context.l10n.deleteWalletDescription,
+      confirmText: context.l10n.delete,
+      cancelText: context.l10n.cancel,
+    );
+    if (!confirmed || !context.mounted) return;
+    try {
+      await onDeleteWallet(wallet.id);
+      if (context.mounted) {
+        showSuccessToast(context, context.l10n.walletDeleted);
+      }
+    } on WalletDeletionException {
+      if (context.mounted) {
+        showAppToast(
+          context,
+          context.l10n.walletInUseCannotBeDeleted,
+          type: AppToastType.error,
+        );
+      }
     } catch (error) {
       if (context.mounted) showErrorToast(context, error);
     }
@@ -73,7 +136,7 @@ class DrawerWalletSection extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 190,
+          height: 155,
           child: ListView.separated(
             key: const Key('wallet-card-list'),
             scrollDirection: Axis.horizontal,
@@ -84,6 +147,9 @@ class DrawerWalletSection extends StatelessWidget {
               return DrawerWalletCard(
                 wallet: wallets[index],
                 currencyState: currencyState,
+                onTap: isAdding
+                    ? null
+                    : () => _editWallet(context, wallets[index]),
               );
             },
           ),

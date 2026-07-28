@@ -17,6 +17,7 @@ class FakeAiEntryRepository implements AiEntryRepository {
   DateTime? submittedDate;
   int remaining = 20;
   int dateLoadCount = 0;
+  bool hasAnyEntriesValue = false;
   Completer<AiEntryResult>? resultCompleter;
   List<WalletSummary> walletItems = const [];
   List<ManualEntryCategory> manualCategories = const [];
@@ -25,6 +26,8 @@ class FakeAiEntryRepository implements AiEntryRepository {
   ManualEntryInput? updatedManualInput;
   String? updatedEntryId;
   String? deletedEntryId;
+  String? updatedWalletId;
+  String? deletedWalletId;
   int? totalFundsValue;
   String? cancelledRequestId;
   String? resumedWalletId;
@@ -39,6 +42,9 @@ class FakeAiEntryRepository implements AiEntryRepository {
     requestedDate = date;
     return List.unmodifiable(entries);
   }
+
+  @override
+  Future<bool> hasAnyEntries() async => hasAnyEntriesValue;
 
   @override
   Future<Set<DateTime>> activityDatesForMonth(DateTime month) async {
@@ -68,6 +74,33 @@ class FakeAiEntryRepository implements AiEntryRepository {
     );
     walletItems = [...walletItems, wallet];
     return wallet;
+  }
+
+  @override
+  Future<WalletSummary> updateWallet(
+    String walletId,
+    AddWalletInput input,
+  ) async {
+    updatedWalletId = walletId;
+    final current = walletItems.firstWhere((wallet) => wallet.id == walletId);
+    final updated = WalletSummary(
+      id: current.id,
+      name: input.name,
+      balance: input.initialBalance,
+      currencyCode: current.currencyCode,
+      iconKey: current.iconKey,
+      isDefault: current.isDefault,
+    );
+    walletItems = walletItems
+        .map((wallet) => wallet.id == walletId ? updated : wallet)
+        .toList();
+    return updated;
+  }
+
+  @override
+  Future<void> deleteWallet(String walletId) async {
+    deletedWalletId = walletId;
+    walletItems = walletItems.where((wallet) => wallet.id != walletId).toList();
   }
 
   @override
@@ -117,9 +150,8 @@ class FakeAiEntryRepository implements AiEntryRepository {
       emoji: '🧾',
       categoryId: input.categoryId,
     );
-    entries = entries
-        .map((entry) => entry.id == entryId ? updated : entry)
-        .toList();
+    entries =
+        entries.map((entry) => entry.id == entryId ? updated : entry).toList();
     return updated;
   }
 

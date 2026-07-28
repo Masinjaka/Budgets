@@ -105,6 +105,38 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addWallet => 'Ajouter un portefeuille';
 
   @override
+  String get walletNameLabel => 'Nom du portefeuille';
+
+  @override
+  String get walletNameHint => 'ex. Épargne';
+
+  @override
+  String get currentBalanceLabel => 'Solde actuel';
+
+  @override
+  String get editWallet => 'Modifier le portefeuille';
+
+  @override
+  String get deleteWallet => 'Supprimer le portefeuille';
+
+  @override
+  String get deleteWalletQuestion => 'Supprimer ce portefeuille ?';
+
+  @override
+  String get deleteWalletDescription =>
+      'Ce portefeuille sera supprimé définitivement. Son historique de transactions restera intact.';
+
+  @override
+  String get walletUpdated => 'Portefeuille modifié.';
+
+  @override
+  String get walletDeleted => 'Portefeuille supprimé.';
+
+  @override
+  String get walletInUseCannotBeDeleted =>
+      'Ce portefeuille contient un historique de transactions et ne peut pas être supprimé.';
+
+  @override
   String get allTime => 'Depuis toujours';
 
   @override
@@ -143,6 +175,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noEntriesForDate => 'Aucune entrée pour cette date';
+
+  @override
+  String get emptyStateWelcomeBack => 'Bon retour !';
+
+  @override
+  String get emptyStateWelcomeTo => 'Bienvenue sur';
+
+  @override
+  String get emptyStateIncomePrompt =>
+      'Une rentrée d’argent ? Dites-m’en plus pour qu’on puisse célébrer… et l’enregistrer.';
+
+  @override
+  String get emptyStateExpensePrompt =>
+      'Une dépense plaisir (ou nécessaire) ? Dites-moi combien et pour quoi… je tiens les comptes.';
+
+  @override
+  String get emptyStateTransferPrompt =>
+      'Un transfert d’argent ? Indiquez-moi le compte de départ → d’arrivée et je m’en occupe.';
+
+  @override
+  String get firstEntryIncomePrompt =>
+      'Commencez par m’indiquer vos revenus ! Écrivez simplement « J’ai reçu xxx » ou « Salaire xxx » et je m’occupe du reste.';
 
   @override
   String entryCount(num count) {

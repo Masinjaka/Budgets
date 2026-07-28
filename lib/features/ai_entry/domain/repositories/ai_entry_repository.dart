@@ -9,6 +9,8 @@ import 'package:budgets/features/home/domain/models/wallet_summary.dart';
 abstract interface class AiEntryRepository {
   Future<List<FinanceEntry>> entriesForDate(DateTime date);
 
+  Future<bool> hasAnyEntries();
+
   Future<Set<DateTime>> activityDatesForMonth(DateTime month);
 
   Future<AiQuota> aiQuota();
@@ -16,6 +18,13 @@ abstract interface class AiEntryRepository {
   Future<List<WalletSummary>> wallets();
 
   Future<WalletSummary> addWallet(AddWalletInput input);
+
+  Future<WalletSummary> updateWallet(
+    String walletId,
+    AddWalletInput input,
+  );
+
+  Future<void> deleteWallet(String walletId);
 
   Future<int> totalFunds();
 

@@ -47,6 +47,23 @@ class PreviewAiEntryRepository implements AiEntryRepository {
       );
 
   @override
+  Future<WalletSummary> updateWallet(
+    String walletId,
+    AddWalletInput input,
+  ) async =>
+      WalletSummary(
+        id: walletId,
+        name: input.name,
+        balance: input.initialBalance,
+        currencyCode: 'MGA',
+        iconKey: 'wallet',
+        isDefault: false,
+      );
+
+  @override
+  Future<void> deleteWallet(String walletId) async {}
+
+  @override
   Future<int> totalFunds() async => 1000000;
 
   @override
@@ -83,6 +100,9 @@ class PreviewAiEntryRepository implements AiEntryRepository {
       _entry('3', 'Alcohol', 'Foods & Drinks', 'food'),
     ];
   }
+
+  @override
+  Future<bool> hasAnyEntries() async => true;
 
   @override
   Future<Set<DateTime>> activityDatesForMonth(DateTime month) async {

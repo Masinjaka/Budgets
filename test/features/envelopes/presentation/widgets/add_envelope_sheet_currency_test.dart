@@ -32,7 +32,8 @@ void main() {
 
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
-    expect(find.text(r'$0'), findsOneWidget);
+    expect(find.text('0'), findsOneWidget);
+    expect(find.text(r'$'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).at(0), 'Food budget');
     await tester.enterText(find.byType(TextFormField).at(1), '200');
     await tester.tap(find.byKey(const Key('manual-category-food')));

@@ -102,6 +102,8 @@ class _AddEnvelopeSheetState extends State<AddEnvelopeSheet> {
                   nameController: _nameController,
                   amountController: _amountController,
                   amountHint: CurrencyAmountInput.hint(widget.currencyState),
+                  amountSuffix:
+                      CurrencyAmountInput.symbol(widget.currencyState),
                 ),
                 const SizedBox(height: 14),
                 EnvelopeCategoryField(

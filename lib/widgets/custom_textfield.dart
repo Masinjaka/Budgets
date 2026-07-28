@@ -1,8 +1,10 @@
 import 'package:budgets/core/ui/app_control_metrics.dart';
 import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/widgets/custom_textfield_validator.dart';
+import 'package:budgets/widgets/persistent_textfield_suffix.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends ConsumerStatefulWidget {
   const CustomTextField({
@@ -27,6 +29,8 @@ class CustomTextField extends ConsumerStatefulWidget {
     this.fillColor,
     this.focusNode,
     this.onChanged,
+    this.suffixText,
+    this.inputFormatters,
   });
   final Widget title;
   final String? hint;
@@ -48,6 +52,8 @@ class CustomTextField extends ConsumerStatefulWidget {
   final Color? fillColor;
   final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
+  final String? suffixText;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   ConsumerState<CustomTextField> createState() => _CustomTextFieldState();
@@ -73,6 +79,10 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
         );
     final radius =
         widget.borderRadius ?? BorderRadius.circular(fieldHeight / 2);
+    final hintStyle = TextStyle(
+      color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(100),
+      fontSize: fontSize,
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -88,6 +98,7 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
             obscureText: isObscure && isPassword,
             controller: widget.controller,
             keyboardType: widget.keyboardType ?? TextInputType.text,
+            inputFormatters: widget.inputFormatters,
             textAlign: widget.textAlign ?? TextAlign.start,
             maxLines: widget.maxLines,
             minLines: widget.minLines,
@@ -156,15 +167,16 @@ class _CustomTextFieldState extends ConsumerState<CustomTextField> {
                         color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     )
-                  : widget.suffixIcon,
-              hintStyle: TextStyle(
-                color: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.color
-                    ?.withAlpha(100),
-                fontSize: fontSize,
-              ),
+                  : widget.suffixText != null
+                      ? PersistentTextFieldSuffix(
+                          text: widget.suffixText!,
+                          style: hintStyle,
+                        )
+                      : widget.suffixIcon,
+              suffixIconConstraints: !isPassword && widget.suffixText != null
+                  ? BoxConstraints(minHeight: fieldHeight)
+                  : null,
+              hintStyle: hintStyle,
             ),
             onTap: widget.onTap,
             onChanged: widget.onChanged,

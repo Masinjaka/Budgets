@@ -112,6 +112,8 @@ class HomeDrawer extends StatelessWidget {
                         wallets: viewModel.wallets,
                         isAdding: viewModel.isAddingWallet,
                         onAddWallet: viewModel.addWallet,
+                        onUpdateWallet: viewModel.updateWallet,
+                        onDeleteWallet: viewModel.deleteWallet,
                         currencyState: currencyState,
                       ),
                     ),

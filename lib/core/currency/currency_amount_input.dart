@@ -24,6 +24,12 @@ class CurrencyAmountInput {
   }
 
   static String hint(CurrencyState? currency) {
-    return formatAmountWithCurrency(0, currency?.code ?? 'MGA');
+    return formatAmountValue(
+      0,
+      preserveFraction: currency?.code != null && currency?.code != 'MGA',
+    );
   }
+
+  static String symbol(CurrencyState? currency) =>
+      currencySymbolForCode(currency?.code ?? 'MGA');
 }

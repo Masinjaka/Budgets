@@ -17,7 +17,8 @@ void main() {
     expect(CurrencyAmountInput.fromStored(1000000, 'MGA', usd), '200');
   });
 
-  test('uses the selected currency in amount hints', () {
-    expect(CurrencyAmountInput.hint(usd), r'$0');
+  test('separates the numeric hint from the selected currency symbol', () {
+    expect(CurrencyAmountInput.hint(usd), '0');
+    expect(CurrencyAmountInput.symbol(usd), r'$');
   });
 }

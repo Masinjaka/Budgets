@@ -1,8 +1,8 @@
-import 'package:budgets/core/ui/app_typography.dart';
 import 'package:budgets/core/currency/currency_state.dart';
 import 'package:budgets/features/ai_entry/domain/models/finance_entry.dart';
 import 'package:budgets/features/ai_entry/presentation/widgets/animated_finance_entry_list.dart';
 import 'package:budgets/features/ai_entry/presentation/widgets/daily_entry_header.dart';
+import 'package:budgets/features/home/presentation/widgets/home_empty_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:budgets/l10n/app_localizations_context.dart';
@@ -17,6 +17,7 @@ class DailyEntrySection extends StatelessWidget {
     this.expandedSurfaceRadius = 0,
     this.onEntryTap,
     this.currencyState,
+    this.isFirstEntryExperience = false,
     super.key,
   });
 
@@ -28,6 +29,7 @@ class DailyEntrySection extends StatelessWidget {
   final double expandedSurfaceRadius;
   final ValueChanged<FinanceEntry>? onEntryTap;
   final CurrencyState? currencyState;
+  final bool isFirstEntryExperience;
 
   static const initialTopSpacing = 20.0;
 
@@ -53,7 +55,12 @@ class DailyEntrySection extends StatelessWidget {
         if (isLoading)
           SliverToBoxAdapter(child: _loadingState())
         else if (entries.isEmpty)
-          SliverToBoxAdapter(child: _emptyState(context))
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: HomeEmptyState(
+              isFirstEntryExperience: isFirstEntryExperience,
+            ),
+          )
         else
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -74,19 +81,6 @@ class DailyEntrySection extends StatelessWidget {
           child: SizedBox.square(
             dimension: 22,
             child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        ),
-      );
-
-  Widget _emptyState(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 28),
-        child: Center(
-          child: Text(
-            context.l10n.noEntriesForDate,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: AppTypography.supporting,
-            ),
           ),
         ),
       );

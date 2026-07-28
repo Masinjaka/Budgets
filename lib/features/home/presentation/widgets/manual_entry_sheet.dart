@@ -84,12 +84,10 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
     super.dispose();
   }
 
-  void _changeType(String type) {
-    setState(() {
-      _type = type;
-      _categoryId = null;
-    });
-  }
+  void _changeType(String type) => setState(() {
+        _type = type;
+        _categoryId = null;
+      });
 
   void _submit() {
     final amount = CurrencyAmountInput.toMga(
@@ -167,6 +165,8 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
                   titleController: _titleController,
                   amountController: _amountController,
                   amountHint: CurrencyAmountInput.hint(widget.currencyState),
+                  amountSuffix:
+                      CurrencyAmountInput.symbol(widget.currencyState),
                 ),
                 const SizedBox(height: 14),
                 ManualEntryCategoryLoader(

@@ -9,6 +9,7 @@ extension AiEntryDataReset on AiEntryViewModel {
     _walletsLoaded = false;
     _totalFunds = 0;
     _quota = null;
+    _hasAnyEntries = false;
     _notifyDataReset();
 
     final results = await Future.wait<Object>([

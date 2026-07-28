@@ -290,6 +290,66 @@ abstract class AppLocalizations {
   /// **'Add wallet'**
   String get addWallet;
 
+  /// No description provided for @walletNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name'**
+  String get walletNameLabel;
+
+  /// No description provided for @walletNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Savings'**
+  String get walletNameHint;
+
+  /// No description provided for @currentBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance'**
+  String get currentBalanceLabel;
+
+  /// No description provided for @editWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit wallet'**
+  String get editWallet;
+
+  /// No description provided for @deleteWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet'**
+  String get deleteWallet;
+
+  /// No description provided for @deleteWalletQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this wallet?'**
+  String get deleteWalletQuestion;
+
+  /// No description provided for @deleteWalletDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet will be removed permanently. Its transaction history will remain intact.'**
+  String get deleteWalletDescription;
+
+  /// No description provided for @walletUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet updated.'**
+  String get walletUpdated;
+
+  /// No description provided for @walletDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet deleted.'**
+  String get walletDeleted;
+
+  /// No description provided for @walletInUseCannotBeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet has transaction history and cannot be deleted.'**
+  String get walletInUseCannotBeDeleted;
+
   /// No description provided for @allTime.
   ///
   /// In en, this message translates to:
@@ -355,6 +415,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No entries for this date'**
   String get noEntriesForDate;
+
+  /// No description provided for @emptyStateWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back!'**
+  String get emptyStateWelcomeBack;
+
+  /// No description provided for @emptyStateWelcomeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to'**
+  String get emptyStateWelcomeTo;
+
+  /// No description provided for @emptyStateIncomePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Money just landed? Tell me about it so we can celebrate… and log it.'**
+  String get emptyStateIncomePrompt;
+
+  /// No description provided for @emptyStateExpensePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent something fun (or necessary)? Spill how much and on what… I’m keeping the books.'**
+  String get emptyStateExpensePrompt;
+
+  /// No description provided for @emptyStateTransferPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving money around? Tell me the from → to and I’ll make it happen.'**
+  String get emptyStateTransferPrompt;
+
+  /// No description provided for @firstEntryIncomePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Start by telling me any income you have! Just type something like “I got paid xxx” or “Salary xxx” and I’ll take care of the rest.'**
+  String get firstEntryIncomePrompt;
 
   /// No description provided for @entryCount.
   ///

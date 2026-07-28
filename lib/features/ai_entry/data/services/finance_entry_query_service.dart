@@ -51,6 +51,18 @@ class FinanceEntryQueryService {
     };
   }
 
+  Future<bool> hasAnyEntries(String userId) async {
+    final results = await Future.wait([
+      _client.from('transaction').select('id').eq('user_id', userId).limit(1),
+      _client
+          .from('wallet_transfers')
+          .select('id')
+          .eq('user_id', userId)
+          .limit(1),
+    ]);
+    return results.any((rows) => rows.isNotEmpty);
+  }
+
   Future<List<FinanceEntry>> _transactionRows(
     String userId,
     DateTime start,

@@ -101,6 +101,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   await widget.onFinanceChanged();
                 },
                 currencyState: widget.currencyState,
+                isFirstEntryExperience: widget.viewModel.isFirstEntryExperience,
               ),
             ),
             AiRequestQuotaLabel(

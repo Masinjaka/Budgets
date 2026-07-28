@@ -105,6 +105,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addWallet => 'Add wallet';
 
   @override
+  String get walletNameLabel => 'Wallet name';
+
+  @override
+  String get walletNameHint => 'e.g. Savings';
+
+  @override
+  String get currentBalanceLabel => 'Current balance';
+
+  @override
+  String get editWallet => 'Edit wallet';
+
+  @override
+  String get deleteWallet => 'Delete wallet';
+
+  @override
+  String get deleteWalletQuestion => 'Delete this wallet?';
+
+  @override
+  String get deleteWalletDescription =>
+      'This wallet will be removed permanently. Its transaction history will remain intact.';
+
+  @override
+  String get walletUpdated => 'Wallet updated.';
+
+  @override
+  String get walletDeleted => 'Wallet deleted.';
+
+  @override
+  String get walletInUseCannotBeDeleted =>
+      'This wallet has transaction history and cannot be deleted.';
+
+  @override
   String get allTime => 'All time';
 
   @override
@@ -143,6 +175,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noEntriesForDate => 'No entries for this date';
+
+  @override
+  String get emptyStateWelcomeBack => 'Welcome back!';
+
+  @override
+  String get emptyStateWelcomeTo => 'Welcome to';
+
+  @override
+  String get emptyStateIncomePrompt =>
+      'Money just landed? Tell me about it so we can celebrate… and log it.';
+
+  @override
+  String get emptyStateExpensePrompt =>
+      'Spent something fun (or necessary)? Spill how much and on what… I’m keeping the books.';
+
+  @override
+  String get emptyStateTransferPrompt =>
+      'Moving money around? Tell me the from → to and I’ll make it happen.';
+
+  @override
+  String get firstEntryIncomePrompt =>
+      'Start by telling me any income you have! Just type something like “I got paid xxx” or “Salary xxx” and I’ll take care of the rest.';
 
   @override
   String entryCount(num count) {

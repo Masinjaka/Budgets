@@ -14,6 +14,7 @@ part 'ai_entry_data_reset.dart';
 part 'ai_entry_edit.dart';
 part 'ai_entry_receipt.dart';
 part 'ai_entry_result_application.dart';
+part 'ai_entry_wallets.dart';
 
 class AiEntryViewModel extends ChangeNotifier {
   AiEntryViewModel(this._repository, DateTime initialDate,
@@ -32,6 +33,7 @@ class AiEntryViewModel extends ChangeNotifier {
   bool _walletsLoaded = false;
   bool _isAddingWallet = false;
   int _totalFunds = 0;
+  bool? _hasAnyEntries;
 
   DateTime get selectedDate => _selectedDate;
   List<FinanceEntry> get entries => _entries;
@@ -42,6 +44,7 @@ class AiEntryViewModel extends ChangeNotifier {
   List<WalletSummary> get wallets => _wallets;
   bool get isAddingWallet => _isAddingWallet;
   int get totalWalletBalance => _totalFunds;
+  bool get isFirstEntryExperience => _hasAnyEntries == false;
   String get walletCurrencyCode =>
       _wallets.isEmpty ? 'MGA' : _wallets.first.currencyCode;
 
@@ -64,8 +67,16 @@ class AiEntryViewModel extends ChangeNotifier {
         .totalFunds()
         .then<int?>((value) => value)
         .catchError((_) => null);
+    final historyFuture = _hasAnyEntries == null
+        ? _repository
+            .hasAnyEntries()
+            .then<bool?>((value) => value)
+            .catchError((_) => null)
+        : Future<bool?>.value(_hasAnyEntries);
     try {
       _entries = await _repository.entriesForDate(_selectedDate);
+      final hasHistory = await historyFuture;
+      _hasAnyEntries = _entries.isNotEmpty || (hasHistory ?? true);
       _quota = await quotaFuture;
       final wallets = await walletsFuture;
       if (wallets != null) {
@@ -125,21 +136,6 @@ class AiEntryViewModel extends ChangeNotifier {
   Future<void> cancelPendingRequest(String requestId) =>
       _repository.cancelPendingRequest(requestId);
 
-  Future<void> addWallet(AddWalletInput input) async {
-    if (_isAddingWallet) return;
-    _isAddingWallet = true;
-    notifyListeners();
-    try {
-      final wallet = await _repository.addWallet(input);
-      _wallets = List.unmodifiable([..._wallets, wallet]);
-      _walletsLoaded = true;
-      _totalFunds = await _repository.totalFunds();
-    } finally {
-      _isAddingWallet = false;
-      notifyListeners();
-    }
-  }
-
   Future<List<ManualEntryCategory>> manualEntryCategories() =>
       _repository.manualEntryCategories();
 
@@ -148,6 +144,7 @@ class AiEntryViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final entry = await _repository.addManualEntry(input);
+      _hasAnyEntries = true;
       if (DateUtils.isSameDay(_selectedDate, input.occurredAt)) {
         _entries = _mergeNewEntries([entry], _entries);
       }
@@ -160,17 +157,12 @@ class AiEntryViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshBalances() async {
-    _wallets = List.unmodifiable(await _repository.wallets());
-    _walletsLoaded = true;
-    _totalFunds = await _repository.totalFunds();
-    notifyListeners();
-  }
-
   int get _walletBalance =>
       _wallets.fold(0, (total, wallet) => total + wallet.balance);
 
-  void _notifyDataReset() => notifyListeners();
+  void _notify() => notifyListeners();
 
-  void _notifyReceiptChanged() => notifyListeners();
+  void _notifyDataReset() => _notify();
+
+  void _notifyReceiptChanged() => _notify();
 }

@@ -38,6 +38,31 @@ void main() {
                         ];
                       });
                     },
+                    onUpdateWallet: (walletId, input) async {
+                      setState(() {
+                        wallets = wallets
+                            .map(
+                              (wallet) => wallet.id == walletId
+                                  ? WalletSummary(
+                                      id: wallet.id,
+                                      name: input.name,
+                                      balance: input.initialBalance,
+                                      currencyCode: wallet.currencyCode,
+                                      iconKey: wallet.iconKey,
+                                      isDefault: wallet.isDefault,
+                                    )
+                                  : wallet,
+                            )
+                            .toList();
+                      });
+                    },
+                    onDeleteWallet: (walletId) async {
+                      setState(() {
+                        wallets = wallets
+                            .where((wallet) => wallet.id != walletId)
+                            .toList();
+                      });
+                    },
                   ),
                 ),
               ),
@@ -56,7 +81,29 @@ void main() {
       tester.getSize(find.byType(DrawerWalletCard).first),
       DrawerWalletCard.size,
     );
-    expect(DrawerWalletCard.size, const Size(300, 165));
+    expect(DrawerWalletCard.size, const Size(185, 130));
+    final balanceContainer = find.byKey(
+      const Key('wallet-balance-container-cash'),
+    );
+    final balanceDecoration =
+        tester.widget<Container>(balanceContainer).decoration! as BoxDecoration;
+    expect(
+      tester.getSize(balanceContainer).width,
+      DrawerWalletCard.size.width - 4,
+    );
+    expect(
+      balanceDecoration.color,
+      Theme.of(tester.element(balanceContainer)).cardColor,
+    );
+    expect(
+      balanceDecoration.borderRadius,
+      const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        topRight: Radius.circular(8),
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+      ),
+    );
 
     visibilityController.toggle();
     await tester.pumpAndSettle();
@@ -67,7 +114,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Add wallet'));
     await tester.pumpAndSettle();
-    expect(find.text('Add wallet'), findsOneWidget);
+    expect(find.byKey(const Key('add-wallet-sheet-title')), findsOneWidget);
 
     await tester.enterText(
       find.descendant(
@@ -84,6 +131,8 @@ void main() {
       ),
       '250000',
     );
+    await tester.ensureVisible(find.byKey(const Key('confirm-add-wallet')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('confirm-add-wallet')));
     await tester.pumpAndSettle();
 
